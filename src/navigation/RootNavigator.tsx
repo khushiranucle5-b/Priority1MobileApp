@@ -1,0 +1,25 @@
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { useAuthStore } from '../store/useAuthStore';
+import { AuthNavigator } from './AuthNavigator';
+import { TabNavigator } from './TabNavigator';
+import { LoadingState } from '../components/feedback/LoadingState';
+
+export const RootNavigator = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const checkSession = useAuthStore((state) => state.checkSession);
+  useEffect(() => {
+    checkSession();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  return (
+    <NavigationContainer>
+      {isAuthenticated ? <TabNavigator /> : <AuthNavigator />}
+    </NavigationContainer>
+  );
+};
