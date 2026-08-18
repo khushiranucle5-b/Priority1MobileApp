@@ -78,10 +78,20 @@ export interface AppNotification {
 
 export interface LoneWorkerHistoryItem {
   id: string;
-  time: string;
+  guardId: string;
+  guardName: string;
+  dateStr: string;
+  exactTime: string;
   siteName: string;
-  gpsStatus: string;
-  status: string;
+  latitude: number;
+  longitude: number;
+  distanceMeters: number;
+  radiusMeters: number;
+  gpsStatus: 'GPS Verified' | 'Location Not Verified' | string;
+  onTimeStatus: 'On Time' | 'Late Check-In' | string;
+  status: 'Safe' | 'Checked In' | 'SOS / Issue Reported' | string;
+  shiftInfo: string;
+  timestamp: number;
 }
 
 export interface LoneWorkerState {
@@ -141,7 +151,13 @@ interface GuardState {
   reportIncident: (incident: Omit<IncidentReport, 'id' | 'status' | 'reportedDate'>) => Promise<void>;
   startPatrol: () => Promise<void>;
   scanCheckpointCode: (code: string) => Promise<{ success: boolean; message: string }>;
-  checkInLoneWorker: () => void;
+  checkInLoneWorker: (customParams?: {
+    latitude?: number;
+    longitude?: number;
+    distanceMeters?: number;
+    gpsStatus?: string;
+    status?: string;
+  }) => void;
   sendMessage: (type: 'site' | 'direct', conversationId: string, receiverId: string | null, messageText: string) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   markAllNotificationsRead: () => Promise<void>;
@@ -184,10 +200,74 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     nextCheckRequired: '04:28 PM',
   },
   loneWorkerHistory: [
-    { id: 'lw-1', time: '03:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
-    { id: 'lw-2', time: '02:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
-    { id: 'lw-3', time: '01:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
-    { id: 'lw-4', time: '12:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
+    {
+      id: 'lw-101',
+      guardId: 'guard-1',
+      guardName: 'Khushi Rani',
+      dateStr: 'Aug 18, 2026',
+      exactTime: '10:00:15 AM',
+      siteName: 'Ahmedabad Plant (Ranucle Zundal)',
+      latitude: 23.1145,
+      longitude: 72.5821,
+      distanceMeters: 42,
+      radiusMeters: 200,
+      gpsStatus: 'GPS Verified',
+      onTimeStatus: 'On Time',
+      status: 'Safe',
+      shiftInfo: 'Morning Shift (08:00 AM - 04:00 PM)',
+      timestamp: Date.now() - 3600000,
+    },
+    {
+      id: 'lw-102',
+      guardId: 'guard-1',
+      guardName: 'Khushi Rani',
+      dateStr: 'Aug 18, 2026',
+      exactTime: '09:00:10 AM',
+      siteName: 'Ahmedabad Plant (Ranucle Zundal)',
+      latitude: 23.1148,
+      longitude: 72.5823,
+      distanceMeters: 55,
+      radiusMeters: 200,
+      gpsStatus: 'GPS Verified',
+      onTimeStatus: 'On Time',
+      status: 'Safe',
+      shiftInfo: 'Morning Shift (08:00 AM - 04:00 PM)',
+      timestamp: Date.now() - 7200000,
+    },
+    {
+      id: 'lw-103',
+      guardId: 'guard-1',
+      guardName: 'Khushi Rani',
+      dateStr: 'Aug 17, 2026',
+      exactTime: '03:45:00 PM',
+      siteName: 'Ahmedabad Plant (Ranucle Zundal)',
+      latitude: 23.1142,
+      longitude: 72.5819,
+      distanceMeters: 38,
+      radiusMeters: 200,
+      gpsStatus: 'GPS Verified',
+      onTimeStatus: 'On Time',
+      status: 'Safe',
+      shiftInfo: 'Day Shift (08:00 AM - 04:00 PM)',
+      timestamp: Date.now() - 86400000,
+    },
+    {
+      id: 'lw-104',
+      guardId: 'guard-1',
+      guardName: 'Khushi Rani',
+      dateStr: 'Aug 17, 2026',
+      exactTime: '02:30:12 PM',
+      siteName: 'Ahmedabad Plant (Ranucle Zundal)',
+      latitude: 23.1210,
+      longitude: 72.5910,
+      distanceMeters: 850,
+      radiusMeters: 200,
+      gpsStatus: 'Location Not Verified',
+      onTimeStatus: 'Late Check-In',
+      status: 'Safe',
+      shiftInfo: 'Day Shift (08:00 AM - 04:00 PM)',
+      timestamp: Date.now() - 90000000,
+    },
   ],
   
   loadGuardData: async (guardId, email) => {
@@ -452,6 +532,18 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       };
       await insertRow('notifications', newNotif);
 
+      const nowMs = Date.now();
+      const nowClockStr = new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const nextClockStr = new Date(nowMs + 30 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      set({
+        loneWorker: {
+          status: 'SAFE',
+          lastCheckIn: nowClockStr,
+          lastCheckInTimestamp: nowMs,
+          nextCheckRequired: nextClockStr,
+        },
+      });
+
       await get().loadGuardData(guardId, guardEmail || '');
       LoggerService.log(`[useGuardStore] clockIn completed successfully for ${guardId}`);
     } catch (error: any) {
@@ -530,6 +622,15 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         LoggerService.log(`[useGuardStore] clockOut fallback record created for ${guardId}`);
       }
       
+      set({
+        loneWorker: {
+          status: 'NOT ACTIVE',
+          lastCheckIn: null,
+          lastCheckInTimestamp: null,
+          nextCheckRequired: null,
+        },
+      });
+
       await get().loadGuardData(guardId, guardEmail || '');
       LoggerService.log(`[useGuardStore] clockOut completed successfully for ${guardId}`);
     } catch (error: any) {
@@ -733,24 +834,53 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     return { success: true, message: `Checkpoint "${cp.name}" marked completed at ${nowTime}.` };
   },
   
-  checkInLoneWorker: () => {
+  checkInLoneWorker: (customParams?: {
+    latitude?: number;
+    longitude?: number;
+    distanceMeters?: number;
+    gpsStatus?: string;
+    status?: string;
+  }) => {
     const nowMs = Date.now();
-    const nowStr = new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const d = new Date(nowMs);
+    const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    const nowTimeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const shortTimeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const nextStr = new Date(nowMs + 30 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const site = get().assignedSite || 'Ahmedabad Plant';
+    const site = get().assignedSite || 'Ahmedabad Plant (Ranucle Zundal)';
+    const guardId = get().guardId || 'guard-1';
+    const guardName = get().guardName || 'Khushi Rani';
+
+    const lat = customParams?.latitude ?? 23.1145;
+    const lng = customParams?.longitude ?? 72.5821;
+    const dist = customParams?.distanceMeters ?? 42;
+    const radius = 200;
+    const isGpsValid = dist <= radius;
+    const gpsStatus = customParams?.gpsStatus ?? (isGpsValid ? 'GPS Verified' : 'Location Not Verified');
+    const checkStatus = customParams?.status ?? 'Safe';
 
     const newHistoryItem: LoneWorkerHistoryItem = {
       id: `lw-${nowMs}`,
-      time: nowStr,
+      guardId,
+      guardName,
+      dateStr,
+      exactTime: nowTimeStr,
       siteName: site,
-      gpsStatus: '✓ GPS Verified',
-      status: '✓ On Time',
+      latitude: lat,
+      longitude: lng,
+      distanceMeters: dist,
+      radiusMeters: radius,
+      gpsStatus,
+      onTimeStatus: 'On Time',
+      status: checkStatus,
+      shiftInfo: 'Morning Shift (08:00 AM - 04:00 PM)',
+      timestamp: nowMs,
     };
 
     set((state) => ({
       loneWorker: {
-        status: 'SAFE',
-        lastCheckIn: nowStr,
+        status: checkStatus === 'Safe' ? 'SAFE' : 'SOS / Issue Reported',
+        lastCheckIn: shortTimeStr,
         lastCheckInTimestamp: nowMs,
         nextCheckRequired: nextStr,
       },

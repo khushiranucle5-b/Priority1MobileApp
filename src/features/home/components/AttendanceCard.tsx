@@ -15,24 +15,14 @@ export const AttendanceCard: React.FC = () => {
     LoggerService.log(`[AttendanceCard] Current Attendance Info - Status: ${attendanceStatus}, ClockIn: ${clockInTimeStr}, ClockOut: ${clockOutTimeStr}`);
   }, [attendanceStatus, clockInTimeStr, clockOutTimeStr]);
   
-  const getStatusColor = () => {
-    if (attendanceStatus === 'Checked In') return 'success';
-    if (attendanceStatus === 'Checked Out') return 'error';
-    return 'warning';
-  };
-
-  const getStatusIcon = () => {
-    if (attendanceStatus === 'Checked In') return '🟢 ';
-    if (attendanceStatus === 'Checked Out') return '🔴 ';
-    return '🟡 ';
-  };
+  const isCheckedIn = attendanceStatus === 'Checked In';
 
   return (
     <Card variant="flat" style={styles.card}>
       <View style={styles.header}>
         <Heading level="h4">Attendance Status</Heading>
-        <AppText size="sm" color={getStatusColor()} weight="medium">
-          {getStatusIcon()}{attendanceStatus}
+        <AppText size="sm" style={{ color: isCheckedIn ? '#059669' : '#DC2626' }} weight="bold">
+          ● {attendanceStatus}
         </AppText>
       </View>
 

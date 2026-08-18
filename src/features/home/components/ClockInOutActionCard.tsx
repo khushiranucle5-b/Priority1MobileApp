@@ -29,12 +29,12 @@ export const ClockInOutActionCard: React.FC = () => {
   return (
     <Card variant="elevated" style={[styles.card, { backgroundColor: colors.surface, ...shadows.md }]}>
       <View style={styles.headerRow}>
-        <Heading level="h4" color="primary">Shift Attendance & Action</Heading>
+        <Heading level="h4" color="primary">Shift Attendance </Heading>
         <View
           style={[
             styles.statusBadge,
             {
-              backgroundColor: isClockedIn ? colors.successLight : colors.warningLight,
+              backgroundColor: isClockedIn ? '#D1FAE5' : '#FEF3C7',
               borderRadius: borderRadius.full,
             },
           ]}
@@ -42,7 +42,7 @@ export const ClockInOutActionCard: React.FC = () => {
           <AppText
             size="xs"
             weight="bold"
-            style={{ color: isClockedIn ? colors.success[700] : colors.warning[700] }}
+            style={{ color: isClockedIn ? '#059669' : '#D97706' }}
           >
             {attendanceStatus}
           </AppText>
@@ -50,46 +50,45 @@ export const ClockInOutActionCard: React.FC = () => {
       </View>
 
       {/* Clock Details Row */}
-      {isClockedIn ? (
-        <View style={[styles.detailsBox, { backgroundColor: colors.primary[50], borderRadius: borderRadius.md, padding: spacing.sm }]}>
-          <View style={styles.detailItem}>
-            <AppText size="xs" color="secondary">Clock In Time</AppText>
-            <AppText size="sm" weight="bold" color="primary">{clockInTimeStr}</AppText>
-          </View>
-          <View style={styles.detailDivider} />
-          <View style={styles.detailItem}>
-            <AppText size="xs" color="secondary">Working Duration</AppText>
-            <AppText size="sm" weight="bold" color="success" style={{ fontVariant: ['tabular-nums'] }}>
-              {workingHours}
-            </AppText>
-          </View>
-        </View>
-      ) : (
-        <AppText size="xs" color="secondary" style={styles.hintText}>
-          📍 You are currently not clocked in. Tap Clock In below when arriving at your assigned site.
-        </AppText>
-      )}
+    
 
-      {/* Mutually Exclusive Action Buttons */}
+      {/* Mutually Exclusive Glove-Friendly Side-by-Side Action Buttons */}
       <View style={styles.actionsContainer}>
-        <Button
-          title={isClockedIn ? "Clocked In" : "Clock In"}
-          variant={isClockedIn ? "secondary" : "primary"}
-          size="large"
-          fullWidth
-          disabled={isClockedIn}
-          onPress={handleClockIn}
-          style={styles.actionBtn}
-        />
-        <Button
-          title="Clock Out"
-          variant={isClockedIn ? "primary" : "secondary"}
-          size="large"
-          fullWidth
-          disabled={!isClockedIn}
-          onPress={handleClockOut}
-          style={styles.actionBtn}
-        />
+        {isClockedIn ? (
+          <>
+            <Button
+              title="Clocked In"
+              variant="secondary"
+              size="large"
+              disabled
+              style={[styles.actionBtn, { height: 54, opacity: 0.6 }]}
+            />
+            <Button
+              title="CLOCK OUT"
+              variant="primary"
+              size="large"
+              onPress={handleClockOut}
+              style={[styles.actionBtn, { height: 54, backgroundColor: '#DC2626' }]}
+            />
+          </>
+        ) : (
+          <>
+            <Button
+              title="CLOCK IN"
+              variant="primary"
+              size="large"
+              onPress={handleClockIn}
+              style={[styles.actionBtn, { height: 54, backgroundColor: '#4F46E5' }]}
+            />
+            <Button
+              title="Clocked Out"
+              variant="secondary"
+              size="large"
+              disabled
+              style={[styles.actionBtn, { height: 54, opacity: 0.6 }]}
+            />
+          </>
+        )}
       </View>
     </Card>
   );
@@ -130,9 +129,11 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   actionsContainer: {
+    flexDirection: 'row',
     gap: 10,
   },
   actionBtn: {
+    flex: 1,
     marginVertical: 0,
   },
 });

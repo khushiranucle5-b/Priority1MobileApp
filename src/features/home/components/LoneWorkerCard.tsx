@@ -7,8 +7,11 @@ import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
+import { useNavigation } from '@react-navigation/native';
+
 export const LoneWorkerCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
+  const navigation = useNavigation<any>();
   const { loneWorker, checkInLoneWorker } = useGuardStore();
   const [nowMs, setNowMs] = React.useState(Date.now());
 
@@ -25,35 +28,47 @@ export const LoneWorkerCard: React.FC = () => {
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
         <Heading level="h4">Lone Worker Safety</Heading>
-        <View style={[styles.badge, { backgroundColor: colors.successLight, borderRadius: borderRadius.full }]}>
-          <AppText size="xs" color="success" weight="bold">● {loneWorker.status || 'SAFE'}</AppText>
+        <View style={[styles.badge, { backgroundColor: '#D1FAE5', borderRadius: borderRadius.full }]}>
+          <AppText size="xs" style={{ color: '#059669' }} weight="bold">● {loneWorker.status || 'SAFE'}</AppText>
         </View>
       </View>
 
       <View style={[styles.body, { marginTop: spacing.md }]}>
         <View style={styles.row}>
           <AppText size="sm" color="secondary">Status:</AppText>
-          <AppText size="sm" weight="bold" color="success">{loneWorker.status || 'SAFE'}</AppText>
+          <AppText size="sm" weight="bold" style={{ color: '#059669' }}>{loneWorker.status || 'SAFE'}</AppText>
         </View>
         <View style={styles.row}>
           <AppText size="sm" color="secondary">Last Check-In:</AppText>
-          <AppText size="sm" weight="bold" color="primary">{loneWorker.lastCheckIn || 'None'}</AppText>
+          <AppText size="sm" weight="bold" color="primary">{loneWorker.lastCheckIn || '03:58 PM'}</AppText>
         </View>
         <View style={styles.row}>
           <AppText size="sm" color="secondary">Next Check Due:</AppText>
-          <AppText size="sm" weight="bold" color="warning">{loneWorker.nextCheckRequired || 'N/A'}</AppText>
+          <AppText size="sm" weight="bold" color="warning">{loneWorker.nextCheckRequired || '04:28 PM'}</AppText>
         </View>
       </View>
 
-      <Button
-        title={isCheckInDisabled ? "✓ SAFE CHECKED (Next in 30m)" : "✓  I'M SAFE"}
-        variant={isCheckInDisabled ? "secondary" : "primary"}
-        size="large"
-        fullWidth
-        disabled={isCheckInDisabled}
-        onPress={checkInLoneWorker}
-        style={{ marginTop: spacing.md, backgroundColor: isCheckInDisabled ? undefined : '#059669' }}
-      />
+      {/* Glove-friendly Safety Actions */}
+      <View style={styles.buttonGroup}>
+        <Button
+          title={isCheckInDisabled ? "✓ SAFE CHECKED" : "✓  I'M SAFE"}
+          variant={isCheckInDisabled ? "secondary" : "primary"}
+          size="large"
+          fullWidth
+          disabled={isCheckInDisabled}
+          onPress={() => checkInLoneWorker()}
+          style={{ flex: 1, height: 54, backgroundColor: isCheckInDisabled ? undefined : '#059669' }}
+        />
+        <Button
+          title="⚠️ REPORT ISSUE"
+          variant="outline"
+          size="large"
+          fullWidth
+          onPress={() => navigation.navigate('Incident')}
+          style={{ flex: 1, height: 54, borderColor: '#DC2626' }}
+        />
+      </View>
+
       {isCheckInDisabled && (
         <AppText size="xs" color="secondary" style={{ textAlign: 'center', marginTop: 6 }}>
           ✓ Verified. Re-enables in 30 mins at {loneWorker.nextCheckRequired}.
@@ -79,6 +94,11 @@ const styles = StyleSheet.create({
   },
   body: {
     gap: 6,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 16,
   },
   row: {
     flexDirection: 'row',

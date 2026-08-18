@@ -7,6 +7,8 @@ import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
+import { NavIcon, NavIconName } from '../../../components/NavIcon';
+
 export const NotificationCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
@@ -15,17 +17,15 @@ export const NotificationCard: React.FC = () => {
   // Take the 3 most recent notifications
   const recentNotifications = notifications.slice(0, 3);
 
-  const getIcon = (title: string) => {
+  const getIconName = (title: string): NavIconName => {
     const text = title.toLowerCase();
-    if (text.includes('clock') || text.includes('attendance') || text.includes('shift')) return '⏰';
-    if (text.includes('leave')) return '📄';
-    if (text.includes('patrol') || text.includes('checkpoint')) return '🚶';
-    return '🔔';
+    if (text.includes('clock') || text.includes('attendance') || text.includes('shift')) return 'attendance';
+    if (text.includes('leave')) return 'leaves';
+    if (text.includes('patrol') || text.includes('checkpoint')) return 'patrol';
+    return 'messages';
   };
 
   const handleViewAll = () => {
-    // Navigate to the notifications screen if it exists, or toggle sidebar drawer, or open notifications tab
-    // Let's check navigation routes, typically sidebar or we can just deep link to notifications
     navigation.navigate('Notifications');
   };
 
@@ -44,7 +44,7 @@ export const NotificationCard: React.FC = () => {
         {recentNotifications.map((notif, index) => (
           <View key={notif.id} style={[styles.item, index !== recentNotifications.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
             <View style={[styles.iconContainer, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
-              <AppText style={styles.iconStyle}>{getIcon(notif.title)}</AppText>
+              <NavIcon name={getIconName(notif.title)} size={18} color="#4F46E5" />
             </View>
             <View style={styles.content}>
               <View style={styles.itemHeader}>

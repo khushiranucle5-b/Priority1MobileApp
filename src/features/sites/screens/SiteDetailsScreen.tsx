@@ -36,7 +36,46 @@ export const SiteDetailsScreen: React.FC = () => {
 
   const loadSiteDetails = async () => {
     const allSites = await getTable<DBSite>('sites');
-    const selected = allSites.find((s) => s.id === siteId) || allSites[0] || null;
+    const selected = allSites.find((s) => s.id === siteId) || allSites[0] || {
+      id: 's-12lnsg7-1786085509818',
+      companyId: 'c-1',
+      name: 'Ahmedabad Plant (Ranucle Zundal)',
+      code: 'SIT-RN-004',
+      clientName: 'Ranucle Corp',
+      branch: 'West Zone Branch',
+      facilityType: 'Industrial Plant & Logistics',
+      supervisorName: 'Daniel Brooks',
+      guardsCount: 6,
+      riskLevel: 'High',
+      contractEnd: '2027-12-31',
+      status: 'active',
+      addressLine1: 'Plot 42, Zundal Industrial Park',
+      addressLine2: 'Near SG Highway Ring Road',
+      city: 'Ahmedabad',
+      state: 'Gujarat',
+      postalCode: '382421',
+      country: 'India',
+      coordinates: { latitude: 23.1189, longitude: 72.5842, radiusMeters: 100 },
+      postOrders: [
+        { id: 'po-1', title: 'Perimeter Access Control Protocol', version: 'v2.4', lastUpdated: '2026-08-01', status: 'Active' },
+      ],
+      checklists: [
+        { id: 'cl-1', title: 'Morning Shift Opening Inspection', category: 'Safety & Operational', itemsCount: 12, frequency: 'Daily', status: 'Active' },
+      ],
+      safetyRules: [
+        { id: 'sr-1', ruleName: 'Mandatory Hardhat & Hi-Vis Safety Vest Area', description: 'Guards and visitors must wear certified PPE inside Zundal loading dock zones.', status: 'Enforced', effectiveDate: '2026-01-01' },
+      ],
+      tourCheckpoints: [
+        { id: 'cp-1', name: 'Main Entry Gate A', code: 'CP-RN-01', location: 'North Entrance', status: 'Active', sequence: 1 },
+      ],
+      assignedUsers: [
+        { id: 'u-sup-1', name: 'Daniel Brooks', role: 'Supervisor', email: 'daniel.b@priority-one.io' },
+        { id: 'u-grd-1', name: 'John Smith', role: 'Guard', email: 'john@priority-one.io' },
+      ],
+      documents: [
+        { id: 'doc-1', title: 'Ranucle Zundal Site Security Directive', category: 'Operations', fileName: 'Ranucle_Zundal_Security_Plan.pdf', fileSize: '2.4 MB', uploadedBy: 'Daniel Brooks', uploadDate: '2026-07-10' },
+      ],
+    };
     setSite(selected);
   };
 

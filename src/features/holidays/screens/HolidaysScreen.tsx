@@ -1,236 +1,442 @@
+// Priority One Guard Mobile - Holidays Management Screen
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
+import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
+import { useNavigation } from '@react-navigation/native';
+import { NavIcon } from '../../../components/NavIcon';
 
 export interface HolidayData {
   id: string;
+  holidayCode: string;
   name: string;
   dateStr: string;
   dayOfWeek: string;
-  type: 'National Holiday' | 'Company Holiday' | 'Festival Holiday';
-  isUpcoming: boolean;
-  dayOfMonth: number;
-  monthIndex: number; // 0-indexed (7 = August)
+  type: 'National Holiday' | 'Company Holiday' | 'Festival Holiday' | 'Public Holiday' | 'Public';
+  status: 'Active' | 'Upcoming' | 'Past';
   year: number;
 }
 
-const mockHolidays: HolidayData[] = [
-  { id: '1', name: "New Year's Day", dateStr: 'Jan 01, 2026', dayOfWeek: 'Thursday', type: 'National Holiday', isUpcoming: false, dayOfMonth: 1, monthIndex: 0, year: 2026 },
-  { id: '2', name: 'Republic Day', dateStr: 'Jan 26, 2026', dayOfWeek: 'Monday', type: 'National Holiday', isUpcoming: false, dayOfMonth: 26, monthIndex: 0, year: 2026 },
-  { id: '3', name: 'Holi', dateStr: 'Mar 15, 2026', dayOfWeek: 'Sunday', type: 'Festival Holiday', isUpcoming: false, dayOfMonth: 15, monthIndex: 2, year: 2026 },
-  { id: '4', name: 'Independence Day', dateStr: 'Aug 15, 2026', dayOfWeek: 'Saturday', type: 'National Holiday', isUpcoming: true, dayOfMonth: 15, monthIndex: 7, year: 2026 },
-  { id: '5', name: 'Foundation Day', dateStr: 'Aug 19, 2026', dayOfWeek: 'Wednesday', type: 'Company Holiday', isUpcoming: true, dayOfMonth: 19, monthIndex: 7, year: 2026 },
-  { id: '6', name: 'Company Anniversary', dateStr: 'Sep 10, 2026', dayOfWeek: 'Thursday', type: 'Company Holiday', isUpcoming: true, dayOfMonth: 10, monthIndex: 8, year: 2026 },
-  { id: '7', name: 'Diwali', dateStr: 'Nov 01, 2026', dayOfWeek: 'Sunday', type: 'Festival Holiday', isUpcoming: true, dayOfMonth: 1, monthIndex: 10, year: 2026 },
-  { id: '8', name: 'Christmas', dateStr: 'Dec 25, 2026', dayOfWeek: 'Friday', type: 'National Holiday', isUpcoming: true, dayOfMonth: 25, monthIndex: 11, year: 2026 },
-];
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+export const mockHolidays: HolidayData[] = [
+  {
+    id: '1',
+    holidayCode: 'h-01',
+    name: "New Year's Day",
+    dateStr: 'January 01, 2026',
+    dayOfWeek: 'Thursday',
+    type: 'Public',
+    status: 'Active',
+    year: 2026,
+  },
+  {
+    id: '2',
+    holidayCode: 'h-02',
+    name: 'Republic Day',
+    dateStr: 'January 26, 2026',
+    dayOfWeek: 'Monday',
+    type: 'National Holiday',
+    status: 'Active',
+    year: 2026,
+  },
+  {
+    id: '3',
+    holidayCode: 'h-03',
+    name: 'Holi',
+    dateStr: 'March 15, 2026',
+    dayOfWeek: 'Sunday',
+    type: 'Festival Holiday',
+    status: 'Active',
+    year: 2026,
+  },
+  {
+    id: '4',
+    holidayCode: 'h-04',
+    name: 'Labor Day',
+    dateStr: 'May 01, 2026',
+    dayOfWeek: 'Friday',
+    type: 'Public Holiday',
+    status: 'Active',
+    year: 2026,
+  },
+  {
+    id: '5',
+    holidayCode: 'h-05',
+    name: 'Independence Day',
+    dateStr: 'August 15, 2026',
+    dayOfWeek: 'Saturday',
+    type: 'National Holiday',
+    status: 'Upcoming',
+    year: 2026,
+  },
+  {
+    id: '6',
+    holidayCode: 'h-06',
+    name: 'Foundation Day',
+    dateStr: 'August 19, 2026',
+    dayOfWeek: 'Wednesday',
+    type: 'Company Holiday',
+    status: 'Upcoming',
+    year: 2026,
+  },
+  {
+    id: '7',
+    holidayCode: 'h-07',
+    name: 'Company Anniversary',
+    dateStr: 'September 10, 2026',
+    dayOfWeek: 'Thursday',
+    type: 'Company Holiday',
+    status: 'Upcoming',
+    year: 2026,
+  },
+  {
+    id: '8',
+    holidayCode: 'h-08',
+    name: 'Diwali',
+    dateStr: 'November 01, 2026',
+    dayOfWeek: 'Sunday',
+    type: 'Festival Holiday',
+    status: 'Upcoming',
+    year: 2026,
+  },
+  {
+    id: '9',
+    holidayCode: 'h-09',
+    name: 'Christmas',
+    dateStr: 'December 25, 2026',
+    dayOfWeek: 'Friday',
+    type: 'National Holiday',
+    status: 'Upcoming',
+    year: 2026,
+  },
 ];
 
 export const HolidaysScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
+  const navigation = useNavigation<any>();
 
-  const [viewType, setViewType] = useState<'List' | 'Calendar'>('List');
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(7); // August 2026
-  const [currentYear, setCurrentYear] = useState(2026);
-  const [selectedHoliday, setSelectedHoliday] = useState<HolidayData | null>(mockHolidays[4]); // Aug 19 Foundation Day
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Upcoming' | 'Past' | 'Active'>('All');
+  const [typeFilter, setTypeFilter] = useState<string>('All');
 
-  const handlePrevMonth = () => {
-    if (currentMonthIndex === 0) {
-      setCurrentMonthIndex(11);
-      setCurrentYear(prev => prev - 1);
-    } else {
-      setCurrentMonthIndex(prev => prev - 1);
+  const [isStatusPickerOpen, setIsStatusPickerOpen] = useState(false);
+  const [isCategoryPickerOpen, setIsCategoryPickerOpen] = useState(false);
+
+  const [selectedHoliday, setSelectedHoliday] = useState<HolidayData | null>(null);
+
+  const filteredHolidays = (mockHolidays || []).filter((h) => {
+    if (!h) return false;
+    const q = (searchQuery || '').toLowerCase().trim();
+    const nameStr = (h.name || '').toLowerCase();
+    const codeStr = (h.holidayCode || '').toLowerCase();
+    const typeStr = (h.type || '').toLowerCase();
+
+    const matchesSearch = !q || nameStr.includes(q) || codeStr.includes(q) || typeStr.includes(q);
+    const matchesStatus = statusFilter === 'All' || h.status === statusFilter;
+    const matchesType = typeFilter === 'All' || typeStr.includes((typeFilter || '').toLowerCase());
+
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  const getTypeBadgeStyle = (type: string) => {
+    switch (type) {
+      case 'Company Holiday':
+        return { bg: '#EEF2FF', text: '#4F46E5' };
+      case 'Festival Holiday':
+        return { bg: '#FEF3C7', text: '#D97706' };
+      case 'National Holiday':
+        return { bg: '#E0E7FF', text: '#3730A3' };
+      case 'Public':
+      case 'Public Holiday':
+      default:
+        return { bg: '#F1F5F9', text: '#475569' };
     }
   };
 
-  const handleNextMonth = () => {
-    if (currentMonthIndex === 11) {
-      setCurrentMonthIndex(0);
-      setCurrentYear(prev => prev + 1);
-    } else {
-      setCurrentMonthIndex(prev => prev + 1);
-    }
-  };
-
-  const handleToday = () => {
-    setCurrentMonthIndex(7); // Aug 2026
-    setCurrentYear(2026);
-  };
-
-  // Build calendar days for currentMonthIndex & currentYear
-  const daysInMonth = new Date(currentYear, currentMonthIndex + 1, 0).getDate();
-  const firstDayOfWeek = new Date(currentYear, currentMonthIndex, 1).getDay(); // 0 = Sun
-
-  const monthHolidays = mockHolidays.filter(
-    h => h.monthIndex === currentMonthIndex && h.year === currentYear
-  );
-
-  const getTypeColor = (type: string) => {
-    if (type === 'Company Holiday') return { bg: '#EEF2FF', text: '#4F46E5', border: '#C7D2FE' };
-    if (type === 'Festival Holiday') return { bg: '#FEF3C7', text: '#D97706', border: '#FDE68A' };
-    return { bg: '#E0E7FF', text: '#3730A3', border: '#A5B4FC' };
+  const getStatusBadgeStyle = (status: string) => {
+    return status === 'Past'
+      ? { bg: '#F1F5F9', text: '#64748B' }
+      : { bg: '#D1FAE5', text: '#059669' };
   };
 
   return (
     <ScreenLayout activeRoute="Holidays">
-      <PageHeader title="Company Holidays 2026" showBack />
+      <PageHeader title="Company Holidays" showBack />
+      
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Toggle Bar: List vs Calendar */}
-        <View style={[styles.toggleRow, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md }]}>
+        {/* Search Bar matching Reference Screenshot */}
+        <View style={styles.searchBox}>
+          <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
+            <NavIcon name="search" size={16} color="#64748B" />
+          </View>
+          <TextInput
+            placeholder="Search holidays by name, code, category..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.searchInput}
+            placeholderTextColor="#94A3B8"
+          />
+        </View>
+
+        {/* Dropdown Filters Row (Replacing Chips with Dropdowns) */}
+        <View style={styles.dropdownRow}>
           <TouchableOpacity
-            style={[styles.toggleBtn, viewType === 'List' && { backgroundColor: colors.surface, borderRadius: borderRadius.sm }]}
-            onPress={() => setViewType('List')}
+            style={styles.dropdownPicker}
+            onPress={() => setIsStatusPickerOpen(true)}
+            activeOpacity={0.7}
           >
-            <AppText size="sm" weight={viewType === 'List' ? 'bold' : 'medium'} color={viewType === 'List' ? 'primary' : 'secondary'}>
-              📋 List View
-            </AppText>
+            <View style={{ flex: 1 }}>
+              <AppText size="xs" color="secondary">Status</AppText>
+              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
+                {statusFilter === 'All' ? 'All Statuses' : statusFilter}
+              </AppText>
+            </View>
+            <AppText size="xs" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.toggleBtn, viewType === 'Calendar' && { backgroundColor: colors.surface, borderRadius: borderRadius.sm }]}
-            onPress={() => setViewType('Calendar')}
+            style={styles.dropdownPicker}
+            onPress={() => setIsCategoryPickerOpen(true)}
+            activeOpacity={0.7}
           >
-            <AppText size="sm" weight={viewType === 'Calendar' ? 'bold' : 'medium'} color={viewType === 'Calendar' ? 'primary' : 'secondary'}>
-              📅 Calendar View
-            </AppText>
+            <View style={{ flex: 1 }}>
+              <AppText size="xs" color="secondary">Category</AppText>
+              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
+                {typeFilter === 'All' ? 'All Categories' : typeFilter}
+              </AppText>
+            </View>
+            <AppText size="xs" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
           </TouchableOpacity>
         </View>
 
-        {viewType === 'List' ? (
-          <>
-            <Heading level="h4" style={styles.sectionTitle}>Company Holidays List</Heading>
-            {mockHolidays.map((holiday) => {
-              const themeColors = getTypeColor(holiday.type);
-              return (
-                <Card key={holiday.id} style={styles.holidayCard}>
-                  <View style={styles.cardRow}>
+        <Heading level="h4" style={styles.sectionTitle}>
+          Holidays ({filteredHolidays.length})
+        </Heading>
+
+        {filteredHolidays.length === 0 ? (
+          <Card style={{ padding: 24, alignItems: 'center' }}>
+            <AppText size="sm" color="secondary">No holidays match current filter selections.</AppText>
+          </Card>
+        ) : (
+          filteredHolidays.map((holiday) => {
+            const typeColors = getTypeBadgeStyle(holiday.type);
+            const statusColors = getStatusBadgeStyle(holiday.status);
+
+            return (
+              <Card key={holiday.id} style={styles.holidayCard}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('HolidayDetails', { holidayId: holiday.id })}
+                >
+                  <View style={styles.cardHeader}>
                     <View style={{ flex: 1 }}>
                       <Heading level="h4" color="primary">{holiday.name}</Heading>
-                      <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-                        {holiday.dateStr} ({holiday.dayOfWeek})
+                      <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                        Holiday ID: {holiday.holidayCode} • {holiday.dateStr}
                       </AppText>
                     </View>
-                    <View style={[styles.badge, { backgroundColor: themeColors.bg, borderColor: themeColors.border }]}>
-                      <AppText size="xs" weight="bold" style={{ color: themeColors.text }}>
+
+                    <View style={styles.badgeColumn}>
+                      <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
+                        <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                          {holiday.status}
+                        </AppText>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View style={styles.cardFooter}>
+                    <View style={[styles.badge, { backgroundColor: typeColors.bg }]}>
+                      <AppText size="xs" weight="bold" style={{ color: typeColors.text }}>
                         {holiday.type}
                       </AppText>
                     </View>
+
+                    <TouchableOpacity
+                      style={styles.viewIconButton}
+                      onPress={() => navigation.navigate('HolidayDetails', { holidayId: holiday.id })}
+                      activeOpacity={0.7}
+                    >
+                      <NavIcon name="eye" size={18} color="#4F46E5" />
+                    </TouchableOpacity>
                   </View>
-                  <View style={styles.statusRow}>
-                    <View style={styles.statusDot}>
-                      <View style={[styles.dot, { backgroundColor: holiday.isUpcoming ? '#10B981' : '#6B7280' }]} />
-                      <AppText size="xs" color="secondary" weight="semibold">
-                        {holiday.isUpcoming ? 'Active / Upcoming' : 'Past'}
+                </TouchableOpacity>
+              </Card>
+            );
+          })
+        )}
+
+      </ScrollView>
+
+      {/* STATUS PICKER MODAL DROPDOWN */}
+      <Modal
+        visible={isStatusPickerOpen}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setIsStatusPickerOpen(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsStatusPickerOpen(false)}
+        >
+          <View style={styles.pickerSheet}>
+            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Select Status</Heading>
+            {(['All', 'Active', 'Upcoming', 'Past'] as const).map((st) => (
+              <TouchableOpacity
+                key={st}
+                style={[
+                  styles.pickerOption,
+                  statusFilter === st && { backgroundColor: '#EEF2FF' },
+                ]}
+                onPress={() => {
+                  setStatusFilter(st);
+                  setIsStatusPickerOpen(false);
+                }}
+              >
+                <AppText
+                  size="sm"
+                  weight={statusFilter === st ? 'bold' : 'regular'}
+                  color={statusFilter === st ? 'primary' : 'secondary'}
+                >
+                  {st === 'All' ? 'All Statuses' : st}
+                </AppText>
+                {statusFilter === st && <AppText size="sm" color="primary">✓</AppText>}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* CATEGORY PICKER MODAL DROPDOWN */}
+      <Modal
+        visible={isCategoryPickerOpen}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setIsCategoryPickerOpen(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsCategoryPickerOpen(false)}
+        >
+          <View style={styles.pickerSheet}>
+            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Select Category</Heading>
+            {['All', 'Public', 'National Holiday', 'Company Holiday', 'Festival Holiday'].map((tp) => (
+              <TouchableOpacity
+                key={tp}
+                style={[
+                  styles.pickerOption,
+                  typeFilter === tp && { backgroundColor: '#EEF2FF' },
+                ]}
+                onPress={() => {
+                  setTypeFilter(tp);
+                  setIsCategoryPickerOpen(false);
+                }}
+              >
+                <AppText
+                  size="sm"
+                  weight={typeFilter === tp ? 'bold' : 'regular'}
+                  color={typeFilter === tp ? 'primary' : 'secondary'}
+                >
+                  {tp === 'All' ? 'All Categories' : tp}
+                </AppText>
+                {typeFilter === tp && <AppText size="sm" color="primary">✓</AppText>}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* HOLIDAY DETAILS MODAL (Matching Reference Screenshot 1 Exactly) */}
+      <Modal
+        visible={selectedHoliday !== null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setSelectedHoliday(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalSheet, { backgroundColor: colors.surface }]}>
+            {selectedHoliday && (
+              <>
+                <View style={styles.modalHeaderRow}>
+                  <View style={{ flex: 1 }}>
+                    <Heading level="h3" color="primary">View Holiday</Heading>
+                    <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                      View the details and configuration of the selected holiday.
+                    </AppText>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => setSelectedHoliday(null)}
+                    style={styles.backButtonBtn}
+                  >
+                    <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
+                      ← Back to Holidays
+                    </AppText>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Main Card: HOLIDAY INFORMATION */}
+                <View style={styles.holidayInfoCard}>
+                  <AppText size="xs" weight="bold" style={styles.sectionHeading}>
+                    HOLIDAY INFORMATION
+                  </AppText>
+
+                  <View style={styles.dividerLine} />
+
+                  <View style={styles.infoGrid}>
+                    <View style={styles.infoCol}>
+                      <AppText size="xs" color="secondary">Holiday Name</AppText>
+                      <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                        {selectedHoliday.name}
+                      </AppText>
+                    </View>
+
+                    <View style={styles.infoCol}>
+                      <AppText size="xs" color="secondary">Date</AppText>
+                      <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                        {selectedHoliday.dateStr}
+                      </AppText>
+                    </View>
+
+                    <View style={styles.infoCol}>
+                      <AppText size="xs" color="secondary">Type</AppText>
+                      <View style={[styles.badgeInline, { backgroundColor: getTypeBadgeStyle(selectedHoliday.type).bg }]}>
+                        <AppText size="xs" weight="bold" style={{ color: getTypeBadgeStyle(selectedHoliday.type).text }}>
+                          {selectedHoliday.type}
+                        </AppText>
+                      </View>
+                    </View>
+
+                    <View style={styles.infoCol}>
+                      <AppText size="xs" color="secondary">Status</AppText>
+                      <View style={[styles.badgeInline, { backgroundColor: getStatusBadgeStyle(selectedHoliday.status).bg }]}>
+                        <AppText size="xs" weight="bold" style={{ color: getStatusBadgeStyle(selectedHoliday.status).text }}>
+                          {selectedHoliday.status}
+                        </AppText>
+                      </View>
+                    </View>
+
+                    <View style={styles.infoCol}>
+                      <AppText size="xs" color="secondary">Holiday ID</AppText>
+                      <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                        {selectedHoliday.holidayCode}
                       </AppText>
                     </View>
                   </View>
-                </Card>
-              );
-            })}
-          </>
-        ) : (
-          /* Calendar View */
-          <View>
-            {/* Calendar Controls */}
-            <View style={styles.calendarHeader}>
-              <Heading level="h3" color="primary">{MONTH_NAMES[currentMonthIndex]} {currentYear}</Heading>
-              <View style={styles.monthNavBtns}>
-                <TouchableOpacity style={[styles.navBtn, { borderColor: colors.border }]} onPress={handlePrevMonth}>
-                  <AppText size="md" weight="bold">‹</AppText>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.navBtn, { borderColor: colors.border }]} onPress={handleToday}>
-                  <AppText size="xs" weight="bold">Today</AppText>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.navBtn, { borderColor: colors.border }]} onPress={handleNextMonth}>
-                  <AppText size="md" weight="bold">›</AppText>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Days of Week Row */}
-            <Card style={styles.calendarCard}>
-              <View style={styles.weekDaysRow}>
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
-                  <AppText key={idx} size="xs" weight="bold" color="secondary" style={styles.weekDayText}>
-                    {day}
-                  </AppText>
-                ))}
-              </View>
-
-              {/* Grid of Dates */}
-              <View style={styles.daysGrid}>
-                {/* Blank lead cells */}
-                {Array.from({ length: firstDayOfWeek }).map((_, i) => (
-                  <View key={`empty-${i}`} style={styles.dateCell} />
-                ))}
-
-                {/* Actual day cells */}
-                {Array.from({ length: daysInMonth }).map((_, i) => {
-                  const dayNum = i + 1;
-                  const holidayMatch = monthHolidays.find(h => h.dayOfMonth === dayNum);
-                  const isSelected = selectedHoliday && selectedHoliday.dayOfMonth === dayNum && selectedHoliday.monthIndex === currentMonthIndex;
-
-                  return (
-                    <TouchableOpacity
-                      key={dayNum}
-                      style={[
-                        styles.dateCell,
-                        holidayMatch && { backgroundColor: '#4F46E5', borderRadius: 8 },
-                        isSelected && { borderWidth: 2, borderColor: '#312E81' },
-                      ]}
-                      onPress={() => {
-                        if (holidayMatch) setSelectedHoliday(holidayMatch);
-                      }}
-                    >
-                      <AppText
-                        size="sm"
-                        weight={holidayMatch ? 'bold' : 'regular'}
-                        color={holidayMatch ? 'inverse' : 'primary'}
-                      >
-                        {dayNum}
-                      </AppText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </Card>
-
-            {/* Selected Holiday Detail Card */}
-            {selectedHoliday ? (
-              <View style={styles.detailSection}>
-                <Heading level="h4" style={{ marginBottom: 8 }}>Holiday Details</Heading>
-                <Card style={[styles.holidayCard, { borderColor: '#4F46E5', borderWidth: 1.5 }]}>
-                  <Heading level="h3" color="primary">{selectedHoliday.name}</Heading>
-                  <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
-                    {selectedHoliday.dateStr} ({selectedHoliday.dayOfWeek})
-                  </AppText>
-                  <View style={[styles.badge, { backgroundColor: '#EEF2FF', marginTop: 10, alignSelf: 'flex-start' }]}>
-                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>
-                      {selectedHoliday.type}
-                    </AppText>
-                  </View>
-                </Card>
-              </View>
-            ) : (
-              <View style={styles.detailSection}>
-                <AppText size="sm" color="secondary" style={{ textAlign: 'center', marginTop: 12 }}>
-                  Tap a highlighted date on the calendar to view holiday details.
-                </AppText>
-              </View>
+                </View>
+              </>
             )}
           </View>
-        )}
-      </ScrollView>
+        </View>
+      </Modal>
+
     </ScreenLayout>
   );
 };
@@ -240,91 +446,150 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  toggleRow: {
+  searchBox: {
     flexDirection: 'row',
-    padding: 4,
-    marginBottom: 20,
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 48,
+    marginBottom: 12,
   },
-  toggleBtn: {
+  searchInput: {
     flex: 1,
-    paddingVertical: 10,
+    fontSize: 15,
+    color: '#0F172A',
+  },
+  dropdownRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
+  dropdownPicker: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    minHeight: 56,
+  },
+  viewIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   sectionTitle: {
-    marginBottom: 14,
+    marginBottom: 12,
   },
   holidayCard: {
     padding: 16,
     marginBottom: 12,
   },
-  cardRow: {
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
+  badgeColumn: {
+    alignItems: 'flex-end',
+  },
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-  },
-  statusRow: {
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-  },
-  statusDot: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  dot: {
-    width: 8,
-    height: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 4,
   },
-  calendarHeader: {
+  badgeInline: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    marginTop: 4,
+    alignSelf: 'flex-start',
+  },
+  cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    paddingTop: 10,
+    marginTop: 12,
   },
-  monthNavBtns: {
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  modalHeaderRow: {
     flexDirection: 'row',
-    gap: 6,
-  },
-  navBtn: {
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  calendarCard: {
-    padding: 12,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 16,
   },
-  weekDaysRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
+  backButtonBtn: {
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
-  weekDayText: {
-    width: 40,
-    textAlign: 'center',
+  holidayInfoCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    padding: 16,
   },
-  daysGrid: {
+  sectionHeading: {
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  dividerLine: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 12,
+  },
+  infoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    rowGap: 16,
   },
-  dateCell: {
-    width: '14.28%',
-    height: 42,
-    justifyContent: 'center',
+  infoCol: {
+    width: '50%',
+  },
+  pickerSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    width: '100%',
+  },
+  pickerOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 2,
-  },
-  detailSection: {
-    marginTop: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 4,
   },
 });

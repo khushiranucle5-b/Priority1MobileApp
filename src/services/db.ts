@@ -194,17 +194,24 @@ export interface DBLeave {
 
 export interface DBIncident {
   id: string;
+  incidentCode?: string;
   title: string;
   site: string;
   siteId?: string;
   reportedBy: string;
   reportedById?: string;
-  severity: 'low' | 'medium' | 'high' | 'critical' | string;
-  status: 'open' | 'under_review' | 'resolved' | string;
+  employeeId?: string;
+  role?: string;
+  category?: string;
+  severity: 'low' | 'medium' | 'high' | 'critical' | 'Low' | 'Medium' | 'High' | 'Critical' | string;
+  status: 'open' | 'under_review' | 'resolved' | 'Open' | 'Under Review' | 'Resolved' | string;
   date: string;
+  exactTime?: string;
   createdAt: string;
   details: string;
+  observations?: string;
   gps?: string;
+  gpsStatus?: string;
   companyId: string;
   attachments?: any[];
   comments?: any[];
@@ -432,11 +439,177 @@ export const saveLeaveBalances = async (guardId: string, balances: DBLeaveBalanc
   }
 };
 
+export interface DBAsset {
+  id: string;
+  assetCode: string;
+  name: string;
+  type: string;
+  serialNumber?: string;
+  site?: string;
+  siteId?: string;
+  assignedTo: string;
+  assignedGuardId?: string;
+  assignedGuardEmail?: string;
+  assignedDate?: string;
+  condition: 'Excellent' | 'Good' | 'Fair' | 'Requires Inspection' | string;
+  quantity?: number;
+  status: 'Assigned' | 'Pending Verification' | 'Returned' | 'Available' | string;
+  notes?: string;
+  companyId: string;
+}
+
+const DEFAULT_ASSETS: DBAsset[] = [
+  {
+    id: 'ast-101',
+    assetCode: 'AST-1001',
+    name: 'Motorola Digital Walkie-Talkie TP-800',
+    type: 'Communication',
+    serialNumber: 'SN-MOT-889421',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 'site-001',
+    assignedTo: 'Khushi Rani',
+    assignedGuardId: 'guard-1',
+    assignedGuardEmail: 'khushirani@ranucle.com',
+    assignedDate: 'Aug 01, 2026',
+    condition: 'Excellent',
+    quantity: 1,
+    status: 'Assigned',
+    companyId: 'company-001',
+    notes: 'Primary encrypted dual-frequency radio unit.',
+  },
+  {
+    id: 'ast-102',
+    assetCode: 'AST-1002',
+    name: 'High-Power LED Tactical Flashlight',
+    type: 'Security Gear',
+    serialNumber: 'SN-FL-99102',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 'site-001',
+    assignedTo: 'Khushi Rani',
+    assignedGuardId: 'guard-1',
+    assignedGuardEmail: 'khushirani@ranucle.com',
+    assignedDate: 'Aug 01, 2026',
+    condition: 'Good',
+    quantity: 1,
+    status: 'Assigned',
+    companyId: 'company-001',
+    notes: '2000 lumens rechargeable aluminum patrol torch.',
+  },
+  {
+    id: 'ast-103',
+    assetCode: 'AST-1003',
+    name: 'Priority One Guard Uniform Roster Set',
+    type: 'Uniform',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 'site-001',
+    assignedTo: 'Khushi Rani',
+    assignedGuardId: 'guard-1',
+    assignedGuardEmail: 'khushirani@ranucle.com',
+    assignedDate: 'Jul 15, 2026',
+    condition: 'Excellent',
+    quantity: 2,
+    status: 'Assigned',
+    companyId: 'company-001',
+    notes: 'Official short-sleeve & long-sleeve uniform shirts with duty badges.',
+  },
+];
+
+const DEFAULT_INCIDENTS: DBIncident[] = [
+  {
+    id: 'inc-201',
+    incidentCode: 'INC-2026-089',
+    title: 'Unauthorized Perimeter Access Attempt',
+    category: 'Security Breach',
+    severity: 'High',
+    status: 'Under Review',
+    reportedBy: 'Khushi Rani',
+    reportedById: 'guard-1',
+    employeeId: 'GRD-1024',
+    role: 'Senior Security Officer',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 'site-001',
+    date: 'Aug 18, 2026',
+    exactTime: '02:30:15 PM',
+    createdAt: new Date().toISOString(),
+    details: 'Unidentified vehicle parked near Sector 4 North Gate perimeter fence without authorization badge. Guard instructed vehicle driver to move out of secure perimeter zone.',
+    observations: 'Vehicle license plate logged as GJ-01-AB-8890. Perimeter breach attempt intercepted at 14:30. Driver turned back toward highway.',
+    gps: '23.1145° N, 72.5821° E',
+    gpsStatus: 'GPS Verified — Inside Site Boundary',
+    companyId: 'company-001',
+    assignedTo: 'Jane Smith (Supervisor)',
+    attachments: [
+      { id: 'att-1', name: 'Perimeter_Vehicle_Log.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?w=800' },
+      { id: 'att-2', name: 'Gate_Security_Report.pdf', type: 'document', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', size: '1.2 MB' }
+    ],
+    comments: [
+      { id: 'c-1', author: 'Jane Smith', role: 'Security Supervisor', date: 'Aug 18, 2026 at 03:00 PM', text: 'Perimeter camera footage cross-verified. Extra patrol dispatched to Sector 4.' }
+    ]
+  },
+  {
+    id: 'inc-202',
+    incidentCode: 'INC-2026-074',
+    title: 'Patrol Radio Unit Connection Drop',
+    category: 'Equipment Damage',
+    severity: 'Medium',
+    status: 'Resolved',
+    reportedBy: 'Khushi Rani',
+    reportedById: 'guard-1',
+    employeeId: 'GRD-1024',
+    role: 'Senior Security Officer',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 'site-001',
+    date: 'Aug 16, 2026',
+    exactTime: '11:15:00 AM',
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+    details: 'Patrol radio unit R-014 lost signal transmission on dual-frequency Channel 2 during routine warehouse inspection.',
+    observations: 'Radio battery connector replaced by IT equipment supervisor. Communication fully restored.',
+    gps: '23.1148° N, 72.5823° E',
+    gpsStatus: 'GPS Verified — Inside Site Boundary',
+    companyId: 'company-001',
+    assignedTo: 'Mike Miller (IT Support)',
+    attachments: [
+      { id: 'att-3', name: 'Radio_Diagnostic_Sheet.pdf', type: 'document', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', size: '850 KB' }
+    ],
+    comments: [
+      { id: 'c-2', author: 'Mike Miller', role: 'Equipment Manager', date: 'Aug 16, 2026 at 01:20 PM', text: 'Unit battery terminal resoldered and tested with base radio.' }
+    ]
+  }
+];
+
 // CRUD Generic helpers
 export const getTable = async <T>(table: string): Promise<T[]> => {
   try {
     const raw = await AsyncStorage.getItem(`${DB_PREFIX}${table}`);
-    const data = raw ? JSON.parse(raw) : [];
+    let data: T[] = raw ? JSON.parse(raw) : [];
+    
+    if (table === 'assets') {
+      data = DEFAULT_ASSETS as unknown as T[];
+      await AsyncStorage.setItem(`${DB_PREFIX}assets`, JSON.stringify(DEFAULT_ASSETS));
+      return data;
+    }
+
+    if (table === 'incidents') {
+      if (!data || data.length === 0) {
+        data = DEFAULT_INCIDENTS as unknown as T[];
+        await AsyncStorage.setItem(`${DB_PREFIX}incidents`, JSON.stringify(DEFAULT_INCIDENTS));
+      }
+      return data;
+    }
+    
+    if ((!data || data.length === 0) && SEED_DATA[table as keyof typeof SEED_DATA]) {
+      const seedItems = SEED_DATA[table as keyof typeof SEED_DATA] as unknown as T[];
+      if (seedItems && seedItems.length > 0) {
+        data = seedItems;
+        await AsyncStorage.setItem(`${DB_PREFIX}${table}`, JSON.stringify(seedItems));
+        LoggerService.log(`[DB] getTable: seeded ${seedItems.length} rows to ${table}`);
+      }
+    }
+
+    if ((!data || data.length === 0) && table === 'assets') {
+      data = DEFAULT_ASSETS as unknown as T[];
+      await AsyncStorage.setItem(`${DB_PREFIX}assets`, JSON.stringify(DEFAULT_ASSETS));
+    }
+    
     LoggerService.log(`[DB] getTable: read ${table} table, returned ${data.length} rows`);
     return data;
   } catch (error: any) {

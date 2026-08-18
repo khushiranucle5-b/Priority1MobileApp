@@ -22,12 +22,18 @@ export type HomeStackParamList = {
   Patrol: undefined;
   Leave: undefined;
   Incident: undefined;
+  IncidentDetails: { incidentId: string };
+  FileIncident: { prefillTitle?: string } | undefined;
   Holidays: undefined;
+  HolidayDetails: { holidayId: string };
   Notifications: undefined;
   NotificationDetails: { notificationId: string };
   LoneWorker: undefined;
+  LoneWorkerDetails: { recordId: string };
+  SafetyHistory: undefined;
   PostOrders: undefined;
   Assets: undefined;
+  AssetDetails: { assetId: string };
   Documents: undefined;
   Messages: undefined;
   Policies: undefined;

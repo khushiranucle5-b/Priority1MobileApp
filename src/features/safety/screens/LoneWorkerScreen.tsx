@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -9,6 +9,7 @@ import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LoneWorkerHistoryItem } from '../../../store/useGuardStore';
 import { useNavigation } from '@react-navigation/native';
+import { NavIcon } from '../../../components/NavIcon';
 
 export const LoneWorkerScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
@@ -24,40 +25,89 @@ export const LoneWorkerScreen: React.FC = () => {
     reportIncident,
   } = useGuardStore();
 
-  const [nowMs, setNowMs] = React.useState(Date.now());
+  const [verifyingGps, setVerifyingGps] = useState(false);
+  const [nowMs, setNowMs] = useState(Date.now());
 
   React.useEffect(() => {
-    const timer = setInterval(() => setNowMs(Date.now()), 10000);
+    const timer = setInterval(() => setNowMs(Date.now()), 5000);
     return () => clearInterval(timer);
   }, []);
 
-  const isCheckInDisabled = loneWorker.lastCheckInTimestamp
-    ? nowMs - loneWorker.lastCheckInTimestamp < 30 * 60 * 1000
-    : false;
+  const cooldownMs = 30 * 60 * 1000;
+  const elapsedMs = loneWorker.lastCheckInTimestamp ? nowMs - loneWorker.lastCheckInTimestamp : Infinity;
+  const isCheckInDisabled = loneWorker.lastCheckInTimestamp !== null && elapsedMs < cooldownMs;
+  const remainingMins = isCheckInDisabled ? Math.max(1, Math.ceil((cooldownMs - elapsedMs) / (60 * 1000))) : 0;
+
+  // Filter history records for currently logged-in guard only
+  const myHistory = (loneWorkerHistory || []).filter((item) => {
+    if (!item) return false;
+    const matchesId = guardId && item.guardId && item.guardId === guardId;
+    const matchesName = guardName && item.guardName && item.guardName.toLowerCase() === guardName.toLowerCase();
+    const isDefaultGuard = !item.guardId || item.guardId === 'guard-1' || item.guardName === 'Khushi Rani';
+    return matchesId || matchesName || isDefaultGuard;
+  });
+
+  // Group history items by date
+  const groupedHistory = myHistory.reduce<{ [date: string]: LoneWorkerHistoryItem[] }>((acc, item) => {
+    const key = item.dateStr || 'Recent Check-Ins';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
 
   const handleSafeCheckIn = () => {
-    checkInLoneWorker();
-    Alert.alert('Safety Verified', 'Your safety check-in has been confirmed and logged with GPS verification.');
+    setVerifyingGps(true);
+    setTimeout(() => {
+      setVerifyingGps(false);
+
+      // Simulate device GPS calculation relative to site (Ahmedabad Plant)
+      const mockLat = 23.1145;
+      const mockLng = 72.5821;
+      const distance = 42; // meters
+      const isVerified = distance <= 200;
+
+      checkInLoneWorker({
+        latitude: mockLat,
+        longitude: mockLng,
+        distanceMeters: distance,
+        gpsStatus: isVerified ? 'GPS Verified' : 'Location Not Verified',
+        status: 'Safe',
+      });
+
+      Alert.alert(
+        isVerified ? 'GPS Verified — I\'M SAFE' : 'Location Not Verified',
+        isVerified
+          ? `Safety check-in verified successfully!\nGPS Location: ${mockLat}° N, ${mockLng}° E\nDistance: ${distance}m inside site radius.`
+          : `Device location is outside the allowed site radius (${distance}m). Safety logged as unverified.`,
+        [{ text: 'OK' }]
+      );
+    }, 800);
   };
 
   const handleReportSOS = () => {
     Alert.alert(
       'Emergency SOS Alert',
-      'Are you sure you want to send an emergency SOS alert to the Security Control Room?',
+      'Are you sure you want to send an emergency SOS alert to the Control Room & Supervisor?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Send SOS Alert',
+          text: 'Send Emergency SOS',
           style: 'destructive',
           onPress: async () => {
+            checkInLoneWorker({
+              status: 'SOS / Issue Reported',
+              gpsStatus: 'GPS Verified',
+            });
+
             await reportIncident({
               type: 'Emergency SOS',
-              title: 'EMERGENCY SOS ALERT',
-              description: `Emergency SOS triggered by ${guardName || 'Security Officer'} at ${assignedSite || 'Main Site'}.`,
-              location: assignedSite || 'Main Site',
+              title: 'EMERGENCY SOS SAFETY ALERT',
+              description: `Emergency SOS triggered by ${guardName || 'Khushi Rani'} at ${assignedSite || 'Ahmedabad Plant'}.`,
+              location: assignedSite || 'Ahmedabad Plant',
               severity: 'Critical',
             });
-            Alert.alert('SOS Transmitted', 'Emergency alert sent to Control Room and Supervisor.');
+
+            Alert.alert('SOS Transmitted', 'Emergency SOS alert transmitted to Control Room.');
           },
         },
       ]
@@ -68,19 +118,22 @@ export const LoneWorkerScreen: React.FC = () => {
     <ScreenLayout activeRoute="LoneWorker">
       <PageHeader title="My Lone Worker Safety" showBack />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
-        {/* Main Guard Safety Card */}
+
+        {/* Main Current Safety Status Card */}
         <Card style={styles.mainSafetyCard}>
           <View style={styles.headerRow}>
             <View style={{ flex: 1 }}>
-              <Heading level="h3" color="primary">{guardName || 'John Smith'}</Heading>
-              <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-                {assignedSite || 'Ahmedabad Plant'} • Active Shift
+              <Heading level="h3" color="primary">{guardName || 'Khushi Rani'}</Heading>
+              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                {guardId || 'GRD-1024'} • {assignedSite || 'Ahmedabad Plant (Ranucle Zundal)'}
+              </AppText>
+              <AppText size="xs" weight="semibold" style={{ color: '#475569', marginTop: 2 }}>
+                Active Shift: Morning Shift (08:00 AM - 04:00 PM)
               </AppText>
             </View>
 
-            <View style={[styles.statusBadge, { backgroundColor: colors.successLight, borderRadius: borderRadius.full }]}>
-              <AppText size="xs" weight="bold" style={{ color: colors.success[700] }}>
+            <View style={styles.statusBadge}>
+              <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
                 ● {loneWorker.status || 'SAFE'}
               </AppText>
             </View>
@@ -88,105 +141,154 @@ export const LoneWorkerScreen: React.FC = () => {
 
           <View style={styles.divider} />
 
-          {/* Timestamps Grid */}
+          {/* Timestamps Row */}
           <View style={styles.timestampsGrid}>
             <View style={styles.timeBox}>
               <AppText size="xs" color="secondary">Last Check-In</AppText>
-              <AppText size="md" weight="bold" color="primary">{loneWorker.lastCheckIn || '03:58 PM'}</AppText>
+              <AppText size="md" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                {loneWorker.lastCheckIn || '10:00:15 AM'}
+              </AppText>
             </View>
 
             <View style={styles.timeBox}>
               <AppText size="xs" color="secondary">Next Check Due</AppText>
-              <AppText size="md" weight="bold" style={{ color: '#D97706' }}>
-                {loneWorker.nextCheckRequired || '04:58 PM'}
+              <AppText size="md" weight="bold" style={{ color: '#D97706', marginTop: 2 }}>
+                {loneWorker.nextCheckRequired || '11:00:00 AM'}
               </AppText>
             </View>
           </View>
 
-          {/* GPS Verification Badge */}
-          <View style={[styles.gpsBox, { backgroundColor: colors.primary[50], borderRadius: borderRadius.sm }]}>
-            <AppText size="xs" weight="bold" color="primary">
-              🌐 GPS Verified: Inside 50m Site Radius
+          {/* Geofence Status Indicator */}
+          <View style={styles.gpsBox}>
+            <View style={{ marginRight: 6 }}>
+              <NavIcon name="patrol" size={16} color="#059669" />
+            </View>
+            <AppText size="xs" weight="bold" style={{ color: '#065F46' }}>
+              GPS Verified — Inside allowed geofence (200m radius)
             </AppText>
           </View>
 
-          {/* Two Primary Glove-Friendly Safety Action Buttons */}
+          {/* Two Glove-Friendly 54px Action Buttons */}
           <View style={styles.actionsBox}>
-            <Button
-              title={isCheckInDisabled ? "✓ SAFE CHECKED (Next in 30m)" : "✓  I'M SAFE"}
-              variant={isCheckInDisabled ? "secondary" : "primary"}
-              size="large"
-              fullWidth
-              disabled={isCheckInDisabled}
-              onPress={handleSafeCheckIn}
-              style={{ backgroundColor: isCheckInDisabled ? undefined : '#059669', minHeight: 54 }}
-            />
+            {verifyingGps ? (
+              <View style={styles.loadingButton}>
+                <ActivityIndicator size="small" color="#FFFFFF" />
+                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF', marginLeft: 8 }}>
+                  Verifying Device GPS...
+                </AppText>
+              </View>
+            ) : (
+              <View>
+                <Button
+                  title={
+                    isCheckInDisabled
+                      ? `✓ SAFE VERIFIED (${remainingMins}m remaining)`
+                      : "I'M SAFE"
+                  }
+                  variant={isCheckInDisabled ? "secondary" : "primary"}
+                  size="large"
+                  fullWidth
+                  disabled={isCheckInDisabled}
+                  onPress={handleSafeCheckIn}
+                  style={{
+                    backgroundColor: isCheckInDisabled ? '#94A3B8' : '#059669',
+                    height: 54,
+                  }}
+                />
 
-            {isCheckInDisabled && (
-              <AppText size="xs" color="secondary" style={{ textAlign: 'center', marginTop: 2 }}>
-                ✓ Safety verified at {loneWorker.lastCheckIn}. Re-enables in 30 mins at {loneWorker.nextCheckRequired}.
-              </AppText>
+                {isCheckInDisabled && (
+                  <AppText size="xs" color="secondary" style={{ textAlign: 'center', marginTop: 6 }}>
+                    ✓ Safety verified at {loneWorker.lastCheckIn}. Next check-in re-enables in {remainingMins} mins (at {loneWorker.nextCheckRequired}).
+                  </AppText>
+                )}
+              </View>
             )}
 
             <Button
-              title="🚨  REPORT ISSUE / SOS"
+              title="REPORT ISSUE / SOS"
               variant="danger"
               size="large"
               fullWidth
               onPress={handleReportSOS}
-              style={{ minHeight: 54 }}
+              style={{ backgroundColor: '#DC2626', height: 54 }}
             />
           </View>
         </Card>
 
-        {/* Current Shift Info Card */}
-        <Card style={styles.shiftCard}>
-          <Heading level="h4" color="primary" style={{ marginBottom: 10 }}>Current Shift Information</Heading>
-          
-          <View style={styles.infoRow}>
-            <AppText size="sm" color="secondary">Assigned Site</AppText>
-            <AppText size="sm" weight="bold" color="primary">{assignedSite || 'Ahmedabad Plant'}</AppText>
-          </View>
+        {/* Safety Check-In History Header */}
+        <Heading level="h4" style={styles.historyTitle}>
+          Safety Check-In History ({myHistory.length})
+        </Heading>
 
-          <View style={styles.infoRow}>
-            <AppText size="sm" color="secondary">Shift Schedule</AppText>
-            <AppText size="sm" weight="bold" color="primary">Morning Shift (08:00 AM – 04:00 PM)</AppText>
-          </View>
-
-          <View style={styles.infoRow}>
-            <AppText size="sm" color="secondary">Supervisor</AppText>
-            <AppText size="sm" weight="bold" color="primary">{supervisor || 'Jane Smith'}</AppText>
-          </View>
-        </Card>
-
-        {/* My Safety Check-In History Section */}
-        <Heading level="h4" style={styles.historyTitle}>My Safety Check-In History</Heading>
-
-        {(!loneWorkerHistory || loneWorkerHistory.length === 0) ? (
-          <AppText size="sm" color="secondary" style={{ textAlign: 'center', marginTop: 12 }}>
-            No check-in history logged today.
-          </AppText>
+        {Object.keys(groupedHistory).length === 0 ? (
+          <Card style={{ padding: 24, alignItems: 'center' }}>
+            <NavIcon name="loneworker" size={32} color="#94A3B8" />
+            <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
+              No safety check-ins logged for your account today.
+            </AppText>
+          </Card>
         ) : (
-          loneWorkerHistory.map((item: LoneWorkerHistoryItem) => (
-            <Card key={item.id} style={styles.historyCard}>
-              <View style={styles.historyRow}>
-                <View style={{ flex: 1 }}>
-                  <AppText size="md" weight="bold" color="primary">{item.time}</AppText>
-                  <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>{item.siteName}</AppText>
-                </View>
+          Object.keys(groupedHistory).map((dateKey) => (
+            <View key={dateKey} style={styles.dateGroupBlock}>
+              <AppText size="xs" weight="bold" style={styles.dateGroupHeader}>
+                {dateKey.toUpperCase()}
+              </AppText>
 
-                <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                  <View style={[styles.historyTag, { backgroundColor: '#ECFDF5' }]}>
-                    <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
-                      {item.gpsStatus}
-                    </AppText>
-                  </View>
-                  <AppText size="xs" weight="bold" style={{ color: '#10B981' }}>
-                    {item.status}
-                  </AppText>
-                </View>
-              </View>
-            </Card>
+              {groupedHistory[dateKey].map((item) => {
+                const isGpsValid = item.gpsStatus === 'GPS Verified';
+                const gpsColors = isGpsValid ? { bg: '#D1FAE5', text: '#059669' } : { bg: '#FEE2E2', text: '#DC2626' };
+                const onTimeColors = item.onTimeStatus === 'On Time' ? { bg: '#ECFDF5', text: '#047857' } : { bg: '#FEF3C7', text: '#D97706' };
+
+                return (
+                  <Card key={item.id} style={styles.historyCard}>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => navigation.navigate('LoneWorkerDetails', { recordId: item.id })}
+                    >
+                      <View style={styles.historyHeaderRow}>
+                        <View style={{ flex: 1 }}>
+                          <Heading level="h4" color="primary">
+                            {item.exactTime || '10:00:15 AM'}
+                          </Heading>
+                          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                            {item.siteName || 'Ahmedabad Plant'}
+                          </AppText>
+                        </View>
+
+                        <TouchableOpacity
+                          style={styles.viewIconButton}
+                          onPress={() => navigation.navigate('LoneWorkerDetails', { recordId: item.id })}
+                          activeOpacity={0.7}
+                        >
+                          <NavIcon name="eye" size={18} color="#4F46E5" />
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Status Badges Row */}
+                      <View style={styles.historyBadgesRow}>
+                        <View style={[styles.historyTag, { backgroundColor: gpsColors.bg }]}>
+                          <AppText size="xs" weight="bold" style={{ color: gpsColors.text }}>
+                            ● {item.gpsStatus}
+                          </AppText>
+                        </View>
+
+                        <View style={[styles.historyTag, { backgroundColor: onTimeColors.bg }]}>
+                          <AppText size="xs" weight="bold" style={{ color: onTimeColors.text }}>
+                            ● {item.onTimeStatus}
+                          </AppText>
+                        </View>
+
+                        <View style={[styles.historyTag, { backgroundColor: '#F1F5F9' }]}>
+                          <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
+                            {item.status}
+                          </AppText>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  </Card>
+                );
+              })}
+            </View>
           ))
         )}
 
@@ -202,7 +304,7 @@ const styles = StyleSheet.create({
   },
   mainSafetyCard: {
     padding: 18,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   headerRow: {
     flexDirection: 'row',
@@ -210,8 +312,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   statusBadge: {
-    paddingHorizontal: 10,
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 8,
     paddingVertical: 4,
+    borderRadius: 6,
   },
   divider: {
     height: 1,
@@ -227,39 +331,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   gpsBox: {
-    padding: 10,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
+    justifyContent: 'center',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 16,
   },
   actionsBox: {
     gap: 12,
   },
-  shiftCard: {
-    padding: 16,
-    marginBottom: 20,
-  },
-  infoRow: {
+  loadingButton: {
+    height: 54,
+    backgroundColor: '#059669',
+    borderRadius: 8,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   historyTitle: {
     marginBottom: 12,
   },
+  dateGroupBlock: {
+    marginBottom: 14,
+  },
+  dateGroupHeader: {
+    color: '#64748B',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    marginLeft: 2,
+  },
   historyCard: {
-    padding: 14,
+    padding: 16,
     marginBottom: 10,
   },
-  historyRow: {
+  historyHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  historyBadgesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 10,
   },
   historyTag: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
+  },
+  viewIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

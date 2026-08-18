@@ -8,7 +8,97 @@ import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
-import { getTable, DBSite } from '../../../services/db';
+import { getTable, saveTable, insertRow, DBSite } from '../../../services/db';
+
+const DEFAULT_SITES: DBSite[] = [
+  {
+    id: 's-12lnsg7-1786085509818',
+    companyId: 'c-1',
+    name: 'Ahmedabad Plant (Ranucle Zundal)',
+    code: 'SIT-RN-004',
+    clientName: 'Ranucle Corp',
+    branch: 'West Zone Branch',
+    facilityType: 'Industrial Plant & Logistics',
+    supervisorName: 'Daniel Brooks',
+    guardsCount: 6,
+    riskLevel: 'High',
+    contractEnd: '2027-12-31',
+    status: 'active',
+    addressLine1: 'Plot 42, Zundal Industrial Park',
+    addressLine2: 'Near SG Highway Ring Road',
+    city: 'Ahmedabad',
+    state: 'Gujarat',
+    postalCode: '382421',
+    country: 'India',
+    coordinates: {
+      latitude: 23.1189,
+      longitude: 72.5842,
+      radiusMeters: 100,
+    },
+    postOrders: [
+      { id: 'po-1', title: 'Perimeter Access Control Protocol', version: 'v2.4', lastUpdated: '2026-08-01', status: 'Active' },
+      { id: 'po-2', title: 'Night Patrol & Hazard Escort Procedure', version: 'v1.8', lastUpdated: '2026-07-15', status: 'Active' },
+    ],
+    checklists: [
+      { id: 'cl-1', title: 'Morning Shift Opening Inspection', category: 'Safety & Operational', itemsCount: 12, frequency: 'Daily', status: 'Active' },
+    ],
+    safetyRules: [
+      { id: 'sr-1', ruleName: 'Mandatory Hardhat & Hi-Vis Safety Vest Area', description: 'Guards and visitors must wear certified PPE inside Zundal loading dock zones.', status: 'Enforced', effectiveDate: '2026-01-01' },
+    ],
+    tourCheckpoints: [
+      { id: 'cp-1', name: 'Main Entry Gate A', code: 'CP-RN-01', location: 'North Entrance', status: 'Active', sequence: 1 },
+      { id: 'cp-2', name: 'Chemical Storage Bay', code: 'CP-RN-02', location: 'East Sector', status: 'Active', sequence: 2 },
+    ],
+    assignedUsers: [
+      { id: 'u-sup-1', name: 'Daniel Brooks', role: 'Supervisor', email: 'daniel.b@priority-one.io' },
+      { id: 'u-grd-1', name: 'John Smith', role: 'Guard', email: 'john@priority-one.io' },
+    ],
+    documents: [
+      { id: 'doc-1', title: 'Ranucle Zundal Site Security Directive', category: 'Operations', fileName: 'Ranucle_Zundal_Security_Plan.pdf', fileSize: '2.4 MB', uploadedBy: 'Daniel Brooks', uploadDate: '2026-07-10' },
+    ],
+  },
+  {
+    id: 's-02',
+    companyId: 'c-1',
+    name: 'HQ Corporate Tower',
+    code: 'SIT-HQ-002',
+    clientName: 'Priority One Corp',
+    branch: 'Central HQ Branch',
+    facilityType: 'Commercial High-rise',
+    supervisorName: 'Jane Smith',
+    guardsCount: 5,
+    riskLevel: 'Low',
+    contractEnd: '2028-01-15',
+    status: 'active',
+    addressLine1: '100 Financial Plaza',
+    addressLine2: 'Floors 1 - 15',
+    city: 'San Francisco',
+    state: 'California',
+    postalCode: '94111',
+    country: 'United States',
+    coordinates: { latitude: 37.7749, longitude: -122.4194, radiusMeters: 50 },
+  },
+  {
+    id: 's-01',
+    companyId: 'c-1',
+    name: 'Harbor Terminal 3',
+    code: 'SIT-HT-001',
+    clientName: 'Port Authority',
+    branch: 'Maritime District',
+    facilityType: 'Port & Container Terminal',
+    supervisorName: 'Elena Ruiz',
+    guardsCount: 8,
+    riskLevel: 'Medium',
+    contractEnd: '2027-06-30',
+    status: 'active',
+    addressLine1: 'Pier 44, Maritime Terminal Way',
+    city: 'San Francisco',
+    state: 'California',
+    postalCode: '94105',
+    country: 'United States',
+    coordinates: { latitude: 37.7751, longitude: -122.4192, radiusMeters: 150 },
+  },
+];
 
 export const SitesListScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
@@ -25,7 +115,12 @@ export const SitesListScreen: React.FC = () => {
 
   const loadSites = async () => {
     const data = await getTable<DBSite>('sites');
-    setSites(data);
+    if (!data || data.length === 0) {
+      setSites(DEFAULT_SITES);
+      await saveTable('sites', DEFAULT_SITES);
+    } else {
+      setSites(data);
+    }
   };
 
   const filteredSites = sites.filter((site) => {

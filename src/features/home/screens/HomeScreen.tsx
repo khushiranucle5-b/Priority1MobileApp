@@ -28,12 +28,9 @@ export const HomeScreen: React.FC = () => {
         <AttendanceCard />
         <TodayDutyCard />
         <ClockInOutActionCard />
-        <LoneWorkerCard />
-        <PatrolProgressSummaryCard />
-        <NotificationCard />
         <QuickActionsGrid />
-        <DailySummaryCard />
-
+        <PatrolProgressSummaryCard />        
+        <NotificationCard />        
       </ScrollView>
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </ScreenLayout>

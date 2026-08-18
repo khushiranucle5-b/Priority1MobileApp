@@ -16,7 +16,9 @@ export type NavIconName =
   | 'payslips'
   | 'holidays'
   | 'policies'
-  | 'messages';
+  | 'messages'
+  | 'search'
+  | 'eye';
 
 interface NavIconProps {
   name: NavIconName;
@@ -149,6 +151,25 @@ export const NavIcon: React.FC<NavIconProps> = ({
         <View style={[styles.container, { width: size, height: size, flexDirection: 'row' }]}>
           <View style={[styles.bookSpine, { backgroundColor: iconColor }]} />
           <View style={[styles.bookCover, { borderColor: iconColor, borderWidth: strokeWidth }]} />
+        </View>
+      );
+
+    case 'search':
+      // Outline Search Glass Icon
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={[styles.searchGlassCircle, { borderColor: iconColor, borderWidth: strokeWidth, borderRadius: (size * 0.75) / 2 }]} />
+          <View style={[styles.searchGlassHandle, { backgroundColor: iconColor }]} />
+        </View>
+      );
+
+    case 'eye':
+      // Outline Eye Icon
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={[styles.eyeShape, { borderColor: iconColor, borderWidth: strokeWidth }]}>
+            <View style={[styles.eyePupil, { backgroundColor: iconColor }]} />
+          </View>
         </View>
       );
 
@@ -333,5 +354,34 @@ const styles = StyleSheet.create({
   chatDot: {
     width: 4,
     height: 1.5,
+  },
+  // Search Glass
+  searchGlassCircle: {
+    width: 11,
+    height: 11,
+    position: 'absolute',
+    top: 1,
+    left: 1,
+  },
+  searchGlassHandle: {
+    position: 'absolute',
+    width: 2,
+    height: 5,
+    bottom: 1,
+    right: 2,
+    transform: [{ rotate: '-45deg' }],
+  },
+  // Eye Icon
+  eyeShape: {
+    width: 15,
+    height: 10,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  eyePupil: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
 });

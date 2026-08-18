@@ -6,40 +6,26 @@ import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
-const actions = [
-  { id: '4', title: 'Patrol', icon: '🚨', route: 'Patrol' },
-  { id: '5', title: 'Incident Report', icon: '⚠️', route: 'Incident' },
-  { id: '6', title: 'Leave Request', icon: '📅', route: 'Leave' },
+import { NavIcon, NavIconName } from '../../../components/NavIcon';
+
+const actions: { id: string; title: string; icon: NavIconName; route: string }[] = [
+  { id: '1', title: 'Patrol', icon: 'patrol', route: 'Patrol' },
+  { id: '2', title: 'Incident Report', icon: 'incidents', route: 'Incident' },
+  { id: '3', title: 'Leave Request', icon: 'leaves', route: 'Leave' },
 ];
 
 export const QuickActionsGrid: React.FC = () => {
   const { colors, borderRadius, shadows } = useTheme();
   const navigation = useNavigation<any>();
-  
-  const { isClockedIn, isClockedOut } = useGuardStore();
 
   const handlePress = (route: string) => {
-    if (route === 'ClockIn') {
-      navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock In' } });
-    } else if (route === 'ClockOut') {
-      navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock Out' } });
-    } else if (route === 'Duty') {
-      navigation.navigate('Duty');
-    } else if (route === 'Leave') {
+    if (route === 'Leave') {
       navigation.navigate('Leave');
     } else if (route === 'Incident') {
       navigation.navigate('Incident');
     } else if (route === 'Patrol') {
       navigation.navigate('Patrol');
-    } else if (route === 'Documents') {
-      navigation.navigate('Documents');
-    } else {
-      console.log(`Navigate to ${route}`);
     }
-  };
-
-  const isDisabled = (_route: string) => {
-    return false;
   };
 
   return (
@@ -53,14 +39,12 @@ export const QuickActionsGrid: React.FC = () => {
             style={[
               styles.card,
               { backgroundColor: colors.surface, borderRadius: borderRadius.lg, ...shadows.sm },
-              isDisabled(action.route) && { opacity: 0.5 }
             ]}
             onPress={() => handlePress(action.route)}
             activeOpacity={0.7}
-            disabled={isDisabled(action.route)}
           >
             <View style={[styles.iconContainer, { backgroundColor: colors.primary[50], borderRadius: borderRadius.full }]}>
-              <AppText style={styles.icon}>{action.icon}</AppText>
+              <NavIcon name={action.icon} size={20} color="#4F46E5" />
             </View>
             <AppText size="sm" weight="medium" style={styles.cardTitle}>{action.title}</AppText>
           </TouchableOpacity>

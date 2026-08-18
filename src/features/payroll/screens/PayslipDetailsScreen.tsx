@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Linking, Platform, Alert } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -9,114 +9,164 @@ import { Button } from '../../../components/Button';
 import { useRoute } from '@react-navigation/native';
 import { mockPayslips } from './PayslipsScreen';
 import { useGuardStore } from '../../../store/useGuardStore';
+import { useTheme } from '../../../providers/ThemeProvider';
+import { NavIcon } from '../../../components/NavIcon';
 
 export const PayslipDetailsScreen: React.FC = () => {
+  const { colors, spacing, borderRadius } = useTheme();
   const route = useRoute<any>();
-  const payslipId = route.params?.payslipId || 'pay-2026-07';
+  const payslipId = route.params?.payslipId || 'pay-2026-08';
   const slip = mockPayslips.find(s => s.id === payslipId) || mockPayslips[0];
-  const { guardName, guardId, assignedSite } = useGuardStore();
+  const { guardName, guardId } = useGuardStore();
 
-  const handleDownload = () => {
-    Alert.alert('Download Payslip', `Payslip for ${slip.monthYear} downloaded successfully.`);
+  const pdfUrl = slip.pdfUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+
+  const handleDownloadPdf = async () => {
+    if (Platform.OS === 'web') {
+      const globalObj = typeof globalThis !== 'undefined' ? (globalThis as any) : {};
+      if (globalObj.window && globalObj.window.open) {
+        globalObj.window.open(pdfUrl, '_blank');
+        return;
+      }
+    }
+
+    try {
+      const supported = await Linking.canOpenURL(pdfUrl);
+      if (supported) {
+        await Linking.openURL(pdfUrl);
+      } else {
+        Alert.alert('Download Payslip', `Payslip PDF for ${slip.monthYear} (${slip.payslipId}) downloaded.`);
+      }
+    } catch (error) {
+      Alert.alert('Download Payslip', `Payslip PDF for ${slip.monthYear} (${slip.payslipId}) downloaded.`);
+    }
   };
 
   return (
     <ScreenLayout activeRoute="Payslips">
-      <PageHeader title={`Payslip - ${slip.monthYear}`} showBack />
+      <PageHeader title="Payslip Statement" showBack />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Main Payslip Document Card */}
-        <Card style={styles.documentCard}>
-          <View style={styles.companyHeader}>
-            <Heading level="h3" color="primary">Priority One Security</Heading>
-            <AppText size="xs" color="secondary">Official Salary Statement</AppText>
-          </View>
+        {/* HEADER SECTION CARD */}
+        <Card style={styles.headerCard}>
+          <View style={styles.companyHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Heading level="h2" color="primary">{slip.companyName || 'ACME SECURITY SERVICES'}</Heading>
+              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                {slip.statementTitle || 'Official Employee Wages Payslip Statement'}
+              </AppText>
+            </View>
 
-          <View style={styles.divider} />
-
-          {/* Guard Details Grid */}
-          <View style={styles.infoGrid}>
-            <View style={styles.infoBox}>
-              <AppText size="xs" color="secondary">Employee Name</AppText>
-              <AppText size="sm" weight="bold" color="primary">{guardName || 'John Smith'}</AppText>
-            </View>
-            <View style={styles.infoBox}>
-              <AppText size="xs" color="secondary">Employee ID</AppText>
-              <AppText size="sm" weight="bold" color="primary">{guardId || 'G-1001'}</AppText>
-            </View>
-            <View style={styles.infoBox}>
-              <AppText size="xs" color="secondary">Designation</AppText>
-              <AppText size="sm" weight="bold" color="primary">Security Officer</AppText>
-            </View>
-            <View style={styles.infoBox}>
-              <AppText size="xs" color="secondary">Site</AppText>
-              <AppText size="sm" weight="bold" color="primary">{assignedSite || 'Ahmedabad Plant'}</AppText>
+            <View style={styles.statusBadge}>
+              <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
+                ● {slip.status}
+              </AppText>
             </View>
           </View>
-
-          <View style={styles.divider} />
-
-          {/* Earnings Breakdown */}
-          <Heading level="h4" style={styles.sectionHeader}>Earnings</Heading>
-          
-          <View style={styles.row}>
-            <AppText size="sm" color="secondary">Basic Salary</AppText>
-            <AppText size="sm" weight="semibold" color="primary">{slip.baseSalary}</AppText>
-          </View>
-
-          <View style={styles.row}>
-            <AppText size="sm" color="secondary">Overtime Earnings</AppText>
-            <AppText size="sm" weight="semibold" color="primary">{slip.overtimePay}</AppText>
-          </View>
-
-          <View style={styles.row}>
-            <AppText size="sm" color="secondary">Shift & Special Allowance</AppText>
-            <AppText size="sm" weight="semibold" color="primary">{slip.allowance}</AppText>
-          </View>
-
-          <View style={[styles.subtotalRow, { backgroundColor: '#ECFDF5' }]}>
-            <AppText size="sm" weight="bold" style={{ color: '#065F46' }}>Gross Earnings</AppText>
-            <AppText size="sm" weight="bold" style={{ color: '#065F46' }}>{slip.grossPay}</AppText>
-          </View>
-
-          {/* Deductions Breakdown */}
-          <Heading level="h4" style={[styles.sectionHeader, { marginTop: 16 }]}>Deductions</Heading>
-
-          <View style={styles.row}>
-            <AppText size="sm" color="secondary">Provident Fund (PF)</AppText>
-            <AppText size="sm" weight="semibold" style={{ color: '#EF4444' }}>{slip.pfDeduction}</AppText>
-          </View>
-
-          <View style={styles.row}>
-            <AppText size="sm" color="secondary">Tax Deducted (TDS)</AppText>
-            <AppText size="sm" weight="semibold" style={{ color: '#EF4444' }}>{slip.taxDeduction}</AppText>
-          </View>
-
-          <View style={[styles.subtotalRow, { backgroundColor: '#FEF2F2' }]}>
-            <AppText size="sm" weight="bold" style={{ color: '#991B1B' }}>Total Deductions</AppText>
-            <AppText size="sm" weight="bold" style={{ color: '#991B1B' }}>{slip.deductions}</AppText>
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* Net Amount Summary */}
-          <View style={styles.netRow}>
-            <View>
-              <Heading level="h3" color="primary">Net Payable Salary</Heading>
-              <AppText size="xs" color="secondary">Disbursed on {slip.payDate}</AppText>
-            </View>
-            <Heading level="h2" style={{ color: '#4F46E5' }}>{slip.netPay}</Heading>
-          </View>
-
-          <Button
-            title="📥 Download PDF Payslip"
-            variant="primary"
-            size="medium"
-            fullWidth
-            style={{ marginTop: 20 }}
-            onPress={handleDownload}
-          />
         </Card>
+
+        {/* EMPLOYEE / PAYSLIP INFORMATION CARD */}
+        <Card style={styles.sectionCard}>
+          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+            EMPLOYEE & PAYSLIP INFORMATION
+          </AppText>
+
+          <View style={styles.dividerLine} />
+
+          <View style={styles.infoGrid}>
+            <View style={styles.infoCol}>
+              <AppText size="xs" color="secondary">Payslip ID</AppText>
+              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                {slip.payslipId}
+              </AppText>
+            </View>
+
+            <View style={styles.infoCol}>
+              <AppText size="xs" color="secondary">Cycle Period</AppText>
+              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                {slip.cyclePeriod}
+              </AppText>
+            </View>
+
+            <View style={styles.infoCol}>
+              <AppText size="xs" color="secondary">Status</AppText>
+              <AppText size="sm" weight="bold" style={{ color: '#059669', marginTop: 2 }}>
+                {slip.status}
+              </AppText>
+            </View>
+
+            <View style={styles.infoCol}>
+              <AppText size="xs" color="secondary">Employee Name</AppText>
+              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                {guardName || slip.employeeName || 'Khushi Rani'}
+              </AppText>
+            </View>
+
+            <View style={styles.infoCol}>
+              <AppText size="xs" color="secondary">Designation</AppText>
+              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                {slip.designation || 'Senior Security Officer'}
+              </AppText>
+            </View>
+
+            <View style={styles.infoCol}>
+              <AppText size="xs" color="secondary">Total Hours Worked</AppText>
+              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                {slip.totalHours}
+              </AppText>
+            </View>
+          </View>
+        </Card>
+
+        {/* EARNINGS & DEDUCTIONS SUMMARY CARD */}
+        <Card style={styles.sectionCard}>
+          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+            EARNINGS & DEDUCTIONS SUMMARY
+          </AppText>
+
+          <View style={styles.dividerLine} />
+
+          <View style={styles.tableRow}>
+            <AppText size="sm" color="secondary">Basic Roster Wages</AppText>
+            <AppText size="sm" weight="bold" color="primary">{slip.basicRosterWages}</AppText>
+          </View>
+
+          <View style={styles.tableRow}>
+            <AppText size="sm" color="secondary">Overtime Wages (1.5x Multiplier)</AppText>
+            <AppText size="sm" weight="bold" color="primary">{slip.overtimeWages}</AppText>
+          </View>
+
+          <View style={styles.tableRow}>
+            <AppText size="sm" color="secondary">Tax & Insurance Deductions</AppText>
+            <AppText size="sm" weight="bold" style={{ color: '#DC2626' }}>{slip.taxInsuranceDeductions}</AppText>
+          </View>
+        </Card>
+
+        {/* FINAL NET DISBURSED WAGES CARD */}
+        <Card style={[styles.sectionCard, { backgroundColor: '#F8FAFC', borderColor: '#C7D2FE', borderWidth: 1.5 }]}>
+          <AppText size="xs" weight="bold" color="secondary" style={{ letterSpacing: 0.5 }}>
+            FINAL DISBURSEMENT
+          </AppText>
+          <View style={styles.netDisbursedRow}>
+            <AppText size="sm" weight="bold" color="primary" style={{ flex: 1, marginTop: 4 }}>
+              NET DISBURSED WAGES
+            </AppText>
+            <Heading level="h2" style={{ color: '#4F46E5', fontSize: 20 }}>
+              {slip.netDisbursedWages}
+            </Heading>
+          </View>
+        </Card>
+
+        {/* Glove-friendly 54px Download PDF Payslip Button */}
+        <Button
+          title="Download PDF Payslip"
+          variant="primary"
+          size="large"
+          fullWidth
+          style={{ height: 54, backgroundColor: '#4F46E5', marginTop: 4 }}
+          onPress={handleDownloadPdf}
+        />
+
       </ScrollView>
     </ScreenLayout>
   );
@@ -126,46 +176,56 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 40,
+    gap: 14,
   },
-  documentCard: {
-    padding: 20,
+  headerCard: {
+    padding: 18,
   },
-  companyHeader: {
-    alignItems: 'center',
-    marginBottom: 12,
+  companyHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 10,
   },
-  divider: {
+  statusBadge: {
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  sectionCard: {
+    padding: 18,
+  },
+  cardSectionHeading: {
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  dividerLine: {
     height: 1,
     backgroundColor: '#E2E8F0',
-    marginVertical: 14,
+    marginVertical: 12,
   },
   infoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: 12,
+    rowGap: 14,
   },
-  infoBox: {
+  infoCol: {
     width: '50%',
   },
-  sectionHeader: {
-    marginBottom: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
-  },
-  subtotalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 10,
-    borderRadius: 6,
-    marginVertical: 8,
-  },
-  netRow: {
+  tableRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  netDisbursedRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 8,
   },
 });

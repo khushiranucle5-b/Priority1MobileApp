@@ -8,96 +8,106 @@ import { Card } from '../../../components/Card';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { useGuardStore } from '../../../store/useGuardStore';
+import { NavIcon } from '../../../components/NavIcon';
 
 export interface PayslipItem {
   id: string;
+  companyName: string;
+  statementTitle: string;
+  payslipId: string;
   monthYear: string;
-  payDate: string;
-  grossPay: string;
-  deductions: string;
-  netPay: string;
-  status: 'Paid' | 'Processing';
-  baseSalary: string;
-  overtimePay: string;
-  allowance: string;
-  pfDeduction: string;
-  taxDeduction: string;
+  cyclePeriod: string;
+  status: string;
+  employeeName?: string;
+  designation: string;
+  totalHours: string;
+  basicRosterWages: string;
+  overtimeWages: string;
+  taxInsuranceDeductions: string;
+  netDisbursedWages: string;
+  pdfUrl?: string;
 }
 
 export const mockPayslips: PayslipItem[] = [
   {
+    id: 'pay-2026-08',
+    companyName: 'ACME SECURITY SERVICES',
+    statementTitle: 'Official Employee Wages Payslip Statement',
+    payslipId: 'PAY-2026-08',
+    monthYear: 'August 2026',
+    cyclePeriod: 'Aug 01, 2026 - Aug 31, 2026',
+    status: 'Disbursed & Finalized',
+    designation: 'Senior Security Officer',
+    totalHours: '176 hrs',
+    basicRosterWages: '₹24,000.00',
+    overtimeWages: '₹4,500.00',
+    taxInsuranceDeductions: '₹2,500.00',
+    netDisbursedWages: '₹26,000.00',
+    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+  },
+  {
     id: 'pay-2026-07',
+    companyName: 'ACME SECURITY SERVICES',
+    statementTitle: 'Official Employee Wages Payslip Statement',
+    payslipId: 'PAY-2026-07',
     monthYear: 'July 2026',
-    payDate: 'Aug 01, 2026',
-    grossPay: '₹28,500',
-    deductions: '₹2,100',
-    netPay: '₹26,400',
-    status: 'Paid',
-    baseSalary: '₹22,000',
-    overtimePay: '₹4,500',
-    allowance: '₹2,000',
-    pfDeduction: '₹1,500',
-    taxDeduction: '₹600',
+    cyclePeriod: 'Jul 01, 2026 - Jul 31, 2026',
+    status: 'Disbursed & Finalized',
+    designation: 'Senior Security Officer',
+    totalHours: '168 hrs',
+    basicRosterWages: '₹22,000.00',
+    overtimeWages: '₹4,500.00',
+    taxInsuranceDeductions: '₹2,100.00',
+    netDisbursedWages: '₹24,400.00',
+    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
   {
     id: 'pay-2026-06',
+    companyName: 'ACME SECURITY SERVICES',
+    statementTitle: 'Official Employee Wages Payslip Statement',
+    payslipId: 'PAY-2026-06',
     monthYear: 'June 2026',
-    payDate: 'Jul 01, 2026',
-    grossPay: '₹27,800',
-    deductions: '₹2,000',
-    netPay: '₹25,800',
-    status: 'Paid',
-    baseSalary: '₹22,000',
-    overtimePay: '₹3,800',
-    allowance: '₹2,000',
-    pfDeduction: '₹1,400',
-    taxDeduction: '₹600',
-  },
-  {
-    id: 'pay-2026-05',
-    monthYear: 'May 2026',
-    payDate: 'Jun 01, 2026',
-    grossPay: '₹26,500',
-    deductions: '₹1,900',
-    netPay: '₹24,600',
-    status: 'Paid',
-    baseSalary: '₹22,000',
-    overtimePay: '₹2,500',
-    allowance: '₹2,000',
-    pfDeduction: '₹1,300',
-    taxDeduction: '₹600',
+    cyclePeriod: 'Jun 01, 2026 - Jun 30, 2026',
+    status: 'Disbursed & Finalized',
+    designation: 'Senior Security Officer',
+    totalHours: '160 hrs',
+    basicRosterWages: '₹22,000.00',
+    overtimeWages: '₹3,800.00',
+    taxInsuranceDeductions: '₹2,000.00',
+    netDisbursedWages: '₹23,800.00',
+    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   },
 ];
 
 export const PayslipsScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
-  const { guardName, guardId } = useGuardStore();
+  const { guardName, guardId, assignedSite } = useGuardStore();
 
   return (
     <ScreenLayout activeRoute="Payslips">
       <PageHeader title="My Payslips" showBack />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Guard Info Card */}
+        {/* Employee Identity Summary Header */}
         <Card style={styles.guardHeaderCard}>
           <View style={styles.guardRow}>
             <View style={styles.avatar}>
-              <AppText style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 }}>
-                {guardName ? guardName.charAt(0).toUpperCase() : 'G'}
-              </AppText>
+              <NavIcon name="payslips" size={22} color="#FFFFFF" />
             </View>
             <View style={{ flex: 1 }}>
-              <Heading level="h4" color="primary">{guardName || 'John Smith'}</Heading>
-              <AppText size="xs" color="secondary">{guardId || 'G-1001'} • Security Officer</AppText>
+              <Heading level="h4" color="primary">{guardName || 'Khushi Rani'}</Heading>
+              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                {guardId || 'GRD-1024'} • Senior Security Officer
+              </AppText>
             </View>
             <View style={styles.payrollBadge}>
-              <AppText size="xs" weight="bold" style={{ color: '#10B981' }}>● Payroll Active</AppText>
+              <AppText size="xs" weight="bold" style={{ color: '#059669' }}>● Payroll Active</AppText>
             </View>
           </View>
         </Card>
 
-        <Heading level="h4" style={styles.sectionTitle}>Recent Pay Statements</Heading>
+        <Heading level="h4" style={styles.sectionTitle}>Pay Statements ({mockPayslips.length})</Heading>
 
         {mockPayslips.map((slip) => (
           <TouchableOpacity
@@ -107,29 +117,34 @@ export const PayslipsScreen: React.FC = () => {
           >
             <Card style={styles.payslipCard}>
               <View style={styles.cardHeader}>
-                <View>
+                <View style={{ flex: 1 }}>
                   <Heading level="h3" color="primary">{slip.monthYear}</Heading>
-                  <AppText size="xs" color="secondary">Pay Date: {slip.payDate}</AppText>
+                  <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                    ID: {slip.payslipId} • {slip.cyclePeriod}
+                  </AppText>
                 </View>
+
                 <View style={styles.paidTag}>
-                  <AppText size="xs" weight="bold" style={{ color: '#10B981' }}>{slip.status}</AppText>
+                  <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
+                    ● {slip.status}
+                  </AppText>
                 </View>
               </View>
 
               <View style={styles.payGrid}>
                 <View style={styles.payBox}>
-                  <AppText size="xs" color="secondary">Gross Pay</AppText>
-                  <AppText size="sm" weight="semibold" color="primary">{slip.grossPay}</AppText>
+                  <AppText size="xs" color="secondary">Basic Wages</AppText>
+                  <AppText size="sm" weight="bold" color="primary">{slip.basicRosterWages}</AppText>
                 </View>
 
                 <View style={styles.payBox}>
-                  <AppText size="xs" color="secondary">Deductions</AppText>
-                  <AppText size="sm" weight="semibold" style={{ color: '#EF4444' }}>{slip.deductions}</AppText>
+                  <AppText size="xs" color="secondary">Overtime (1.5x)</AppText>
+                  <AppText size="sm" weight="bold" color="primary">{slip.overtimeWages}</AppText>
                 </View>
 
                 <View style={styles.payBox}>
-                  <AppText size="xs" color="secondary">Net Pay</AppText>
-                  <AppText size="base" weight="bold" style={{ color: '#4F46E5' }}>{slip.netPay}</AppText>
+                  <AppText size="xs" color="secondary">Net Disbursed</AppText>
+                  <AppText size="base" weight="bold" style={{ color: '#4F46E5' }}>{slip.netDisbursedWages}</AppText>
                 </View>
               </View>
 
@@ -154,6 +169,8 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
     backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   guardRow: {
     flexDirection: 'row',
@@ -161,15 +178,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 10,
     backgroundColor: '#4F46E5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   payrollBadge: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -188,7 +205,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   paidTag: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
