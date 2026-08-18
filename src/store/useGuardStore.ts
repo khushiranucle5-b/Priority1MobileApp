@@ -76,9 +76,18 @@ export interface AppNotification {
   referenceId?: string;
 }
 
+export interface LoneWorkerHistoryItem {
+  id: string;
+  time: string;
+  siteName: string;
+  gpsStatus: string;
+  status: string;
+}
+
 export interface LoneWorkerState {
-  status: 'Checked In' | 'Pending Check-In' | 'Missed Check-In' | string;
+  status: 'SAFE' | 'Checked In' | 'Pending Check-In' | 'Missed Check-In' | string;
   lastCheckIn: string | null;
+  lastCheckInTimestamp: number | null;
   nextCheckRequired: string | null;
 }
 
@@ -115,12 +124,13 @@ interface GuardState {
   incidents: IncidentReport[];
   attendanceHistory: AttendanceRecord[];
   notifications: AppNotification[];
+  loneWorker: LoneWorkerState;
+  loneWorkerHistory: LoneWorkerHistoryItem[];
   shifts: DBShift[];
   todayShift: DBShift | null;
   patrols: DBPatrol[];
   activePatrol: DBPatrol | null;
   patrolCheckpoints: CheckpointData[];
-  loneWorker: LoneWorkerState;
   messages: DBMessage[];
   
   // Actions
@@ -168,10 +178,17 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   messages: [],
   
   loneWorker: {
-    status: 'Checked In',
-    lastCheckIn: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    nextCheckRequired: new Date(Date.now() + 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    status: 'SAFE',
+    lastCheckIn: '03:58 PM',
+    lastCheckInTimestamp: null,
+    nextCheckRequired: '04:28 PM',
   },
+  loneWorkerHistory: [
+    { id: 'lw-1', time: '03:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
+    { id: 'lw-2', time: '02:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
+    { id: 'lw-3', time: '01:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
+    { id: 'lw-4', time: '12:58 PM', siteName: 'Ahmedabad Plant', gpsStatus: '✓ GPS Verified', status: '✓ On Time' },
+  ],
   
   loadGuardData: async (guardId, email) => {
     try {
@@ -717,12 +734,27 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   },
   
   checkInLoneWorker: () => {
+    const nowMs = Date.now();
+    const nowStr = new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const nextStr = new Date(nowMs + 30 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const site = get().assignedSite || 'Ahmedabad Plant';
+
+    const newHistoryItem: LoneWorkerHistoryItem = {
+      id: `lw-${nowMs}`,
+      time: nowStr,
+      siteName: site,
+      gpsStatus: '✓ GPS Verified',
+      status: '✓ On Time',
+    };
+
     set((state) => ({
       loneWorker: {
-        status: 'Checked In',
-        lastCheckIn: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        nextCheckRequired: new Date(Date.now() + 60 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      }
+        status: 'SAFE',
+        lastCheckIn: nowStr,
+        lastCheckInTimestamp: nowMs,
+        nextCheckRequired: nextStr,
+      },
+      loneWorkerHistory: [newHistoryItem, ...(state.loneWorkerHistory || [])],
     }));
   },
 

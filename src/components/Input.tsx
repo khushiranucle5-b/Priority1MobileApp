@@ -114,11 +114,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    minHeight: 48,
+    minHeight: 50,
   },
   input: {
     flex: 1,
     paddingVertical: 12,
+    fontSize: 16,
     includeFontPadding: false,
   },
   helper: {

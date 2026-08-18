@@ -542,7 +542,147 @@ export const SEED_DATA = {
       "status": "in_progress"
     }
   ],
-  "sites": [],
+  "sites": [
+    {
+      "id": "s-12lnsg7-1786085509818",
+      "companyId": "c-1",
+      "name": "Ranucle zundal",
+      "code": "SIT-RN-004",
+      "clientName": "Ranucle",
+      "branch": "West Zone Branch",
+      "facilityType": "Industrial Plant & Logistics",
+      "supervisorName": "Daniel Brooks",
+      "guardsCount": 6,
+      "riskLevel": "High",
+      "contractEnd": "2027-12-31",
+      "status": "active",
+      "addressLine1": "Plot 42, Zundal Industrial Estate",
+      "addressLine2": "Near SG Highway Ring Road",
+      "city": "Ahmedabad",
+      "state": "Gujarat",
+      "postalCode": "382421",
+      "country": "India",
+      "coordinates": {
+        "latitude": 23.1189,
+        "longitude": 72.5842,
+        "radiusMeters": 100
+      },
+      "postOrders": [
+        { "id": "po-1", "title": "Perimeter Access Control Protocol", "version": "v2.4", "lastUpdated": "2026-08-01", "status": "Active" },
+        { "id": "po-2", "title": "Night Patrol & Hazard Escort Procedure", "version": "v1.8", "lastUpdated": "2026-07-15", "status": "Active" }
+      ],
+      "checklists": [
+        { "id": "cl-1", "title": "Morning Shift Opening Inspection", "category": "Safety & Operational", "itemsCount": 12, "frequency": "Daily", "status": "Active" },
+        { "id": "cl-2", "title": "Gate & Vehicle Entrance Audit", "category": "Access Control", "itemsCount": 8, "frequency": "Per Shift", "status": "Active" }
+      ],
+      "safetyRules": [
+        { "id": "sr-1", "ruleName": "Mandatory Hardhat & Hi-Vis Safety Vest Area", "description": "Guards and visitors must wear certified PPE inside Zundal loading dock zones.", "status": "Enforced", "effectiveDate": "2026-01-01" },
+        { "id": "sr-2", "ruleName": "No Smoking / Zero Flame Policy", "description": "Strict zero flame policy near fuel storage tanks and chemical bays.", "status": "Enforced", "effectiveDate": "2026-01-01" }
+      ],
+      "tourCheckpoints": [
+        { "id": "cp-1", "name": "Main Entry Gate A", "code": "CP-RN-01", "location": "North Entrance", "status": "Active", "sequence": 1 },
+        { "id": "cp-2", "name": "Chemical Storage Bay", "code": "CP-RN-02", "location": "East Sector", "status": "Active", "sequence": 2 },
+        { "id": "cp-3", "name": "Loading Dock 4", "code": "CP-RN-03", "location": "South Yard", "status": "Active", "sequence": 3 }
+      ],
+      "assignedUsers": [
+        { "id": "u-sup-1", "name": "Daniel Brooks", "role": "Supervisor", "email": "daniel.b@priority-one.io" },
+        { "id": "u-grd-1", "name": "John Smith", "role": "Guard", "email": "john@priority-one.io" },
+        { "id": "u-grd-2", "name": "David Chen", "role": "Guard", "email": "david.c@priority-one.io" }
+      ],
+      "documents": [
+        { "id": "doc-1", "title": "Ranucle Zundal Site Security Directive", "category": "Operations", "fileName": "Ranucle_Zundal_Security_Plan.pdf", "fileSize": "2.4 MB", "uploadedBy": "Daniel Brooks", "uploadDate": "2026-07-10" },
+        { "id": "doc-2", "title": "Emergency Evacuation & Fire Map", "category": "Compliance", "fileName": "Zundal_Evac_Map_2026.pdf", "fileSize": "1.1 MB", "uploadedBy": "Daniel Brooks", "uploadDate": "2026-07-12" }
+      ]
+    },
+    {
+      "id": "s-01",
+      "companyId": "c-1",
+      "name": "Harbor Terminal 3",
+      "code": "SIT-HT-001",
+      "clientName": "Port Authority",
+      "branch": "Maritime District",
+      "facilityType": "Port & Container Terminal",
+      "supervisorName": "Elena Ruiz",
+      "guardsCount": 8,
+      "riskLevel": "Medium",
+      "contractEnd": "2027-06-30",
+      "status": "active",
+      "addressLine1": "Pier 44, Maritime Terminal Way",
+      "addressLine2": "Gate 3 Cargo Docks",
+      "city": "San Francisco",
+      "state": "California",
+      "postalCode": "94105",
+      "country": "United States",
+      "coordinates": {
+        "latitude": 37.7751,
+        "longitude": -122.4192,
+        "radiusMeters": 150
+      },
+      "postOrders": [
+        { "id": "po-101", "title": "Port Maritime Customs Escort Protocol", "version": "v3.1", "lastUpdated": "2026-07-20", "status": "Active" }
+      ],
+      "checklists": [
+        { "id": "cl-101", "title": "Cargo Pier Night Patrol Checklist", "category": "Patrol & Safety", "itemsCount": 10, "frequency": "Nightly", "status": "Active" }
+      ],
+      "safetyRules": [
+        { "id": "sr-101", "ruleName": "TWIC Card Verification Required", "description": "All personnel entering Pier 44 must display valid TWIC credentials.", "status": "Enforced", "effectiveDate": "2026-02-15" }
+      ],
+      "tourCheckpoints": [
+        { "id": "cp-101", "name": "Pier 44 Gate House", "code": "CP-HT-01", "location": "Main Entrance", "status": "Active", "sequence": 1 },
+        { "id": "cp-102", "name": "Container Bay B", "code": "CP-HT-02", "location": "Pier Storage", "status": "Active", "sequence": 2 }
+      ],
+      "assignedUsers": [
+        { "id": "u-sup-2", "name": "Elena Ruiz", "role": "Supervisor", "email": "elena.r@priority-one.io" },
+        { "id": "u-grd-3", "name": "Marcus Bell", "role": "Guard", "email": "marcus.b@priority-one.io" }
+      ],
+      "documents": [
+        { "id": "doc-101", "title": "Port Terminal Maritime Security Manual", "category": "Regulatory", "fileName": "Port_Maritime_Security_Manual.pdf", "fileSize": "3.8 MB", "uploadedBy": "Elena Ruiz", "uploadDate": "2026-06-01" }
+      ]
+    },
+    {
+      "id": "s-02",
+      "companyId": "c-1",
+      "name": "HQ Corporate Tower",
+      "code": "SIT-HQ-002",
+      "clientName": "Priority One Corp",
+      "branch": "Central HQ Branch",
+      "facilityType": "Commercial High-rise",
+      "supervisorName": "Jane Smith",
+      "guardsCount": 5,
+      "riskLevel": "Low",
+      "contractEnd": "2028-01-15",
+      "status": "active",
+      "addressLine1": "100 Financial Plaza",
+      "addressLine2": "Floors 1 - 15",
+      "city": "San Francisco",
+      "state": "California",
+      "postalCode": "94111",
+      "country": "United States",
+      "coordinates": {
+        "latitude": 37.7749,
+        "longitude": -122.4194,
+        "radiusMeters": 50
+      },
+      "postOrders": [
+        { "id": "po-201", "title": "Lobby Visitor Badge Screening", "version": "v1.2", "lastUpdated": "2026-05-10", "status": "Active" }
+      ],
+      "checklists": [
+        { "id": "cl-201", "title": "Executive Floor Evening Lockdown", "category": "Building Access", "itemsCount": 6, "frequency": "Daily", "status": "Active" }
+      ],
+      "safetyRules": [
+        { "id": "sr-201", "ruleName": "Badge Tap Access Control", "description": "Tailgating strictly prohibited at all elevator turnstiles.", "status": "Enforced", "effectiveDate": "2026-01-10" }
+      ],
+      "tourCheckpoints": [
+        { "id": "cp-201", "name": "Main Lobby Turnstiles", "code": "CP-HQ-01", "location": "Floor 1 Lobby", "status": "Active", "sequence": 1 }
+      ],
+      "assignedUsers": [
+        { "id": "u-sup-3", "name": "Jane Smith", "role": "Supervisor", "email": "jane.s@priority-one.io" }
+      ],
+      "documents": [
+        { "id": "doc-201", "title": "Corporate Tower Evacuation Plan", "category": "Safety", "fileName": "Tower_Evac_Plan_2026.pdf", "fileSize": "1.8 MB", "uploadedBy": "Jane Smith", "uploadDate": "2026-05-02" }
+      ]
+    }
+  ],
   "users": [],
   "notifications": [
     {

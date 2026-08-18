@@ -696,3 +696,453 @@
 [0m
 [0m[2m[15:20:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:50:16.980Z] [INFO] [DB] getTable: read employees table, returned 4 rows
 [0m
+[0m[2m[15:43:18][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[15:43:23][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[15:43:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:13:26.228Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+                             [2m└ [22m[2026-08-18T10:13:26.251Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[15:43:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:13:26.536Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[15:43:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:13:26.907Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[15:43:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:13:27.330Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[15:43:28][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:13:28.089Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[15:43:35][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:13:35.656Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:00:38][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31m{ [Error: UnableToResolveError Unable to resolve module ./QuickAccessCard from D:\Priority1\Priority1MobileApp\src\features\home\components\index.ts:[39m
+                             [31m│ [39m[31m[39m
+                             [31m│ [39m[31mNone of these files exist:[39m
+                             [31m│ [39m[31m* src\features\home\components\QuickAccessCard(.android.js|.native.js|.js|.android.jsx|.native.jsx|.jsx|.android.json|.native.json|.json|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)[39m
+                             [31m│ [39m[31m* src\features\home\components\QuickAccessCard[39m
+                             [31m│ [39m[31m[0m [90m  8 |[31m [36mexport[31m [33m*[31m [36mfrom[31m [32m'./PatrolProgressSummaryCard'[31m[33m;[31m[39m
+                             [31m│ [39m[31m[90m  9 |[31m [36mexport[31m [33m*[31m [36mfrom[31m [32m'./ClockInOutActionCard'[31m[33m;[31m[39m
+                             [31m│ [39m[31m[31m[1m>[22m[31m[90m 10 |[31m[39m
+                             [31m└ [39m[31m[90m    |[31m [31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[0m] preventSymbolication: true }[39m
+[0m
+[0m[2m[16:00:38][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31m[2026-08-18T10:30:38.707Z] [ERROR] [ConsoleError] Error: UnableToResolveError Unable to resolve module ./QuickAccessCard from D:\Priority1\Priority1MobileApp\src\features\home\components\index.ts:[39m
+                             [31m│ [39m[31m[39m
+                             [31m│ [39m[31mNone of these files exist:[39m
+                             [31m│ [39m[31m* src\features\home\components\QuickAccessCard(.android.js|.native.js|.js|.android.jsx|.native.jsx|.jsx|.android.json|.native.json|.json|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)[39m
+                             [31m│ [39m[31m* src\features\home\components\QuickAccessCard[39m
+                             [31m│ [39m[31m[0m [90m  8 |[31m [36mexport[31m [33m*[31m [36mfrom[31m [32m'./PatrolProgressSummaryCard'[31m[33m;[31m[39m
+                             [31m│ [39m[31m[90m  9 |[31m [36mexport[31m [33m*[31m [36mfrom[31m [32m'./ClockInOutActionCard'[31m[33m;[31m[39m
+                             [31m│ [39m[31m[31m[1m>[22m[31m[90m 10 |[31m[39m
+                             [31m│ [39m[31m[90m    |[31m [31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[0m[39m
+                             [31m│ [39m[31mError: UnableToResolveError Unable to resolve module ./QuickAccessCard from D:\Priority1\Priority1MobileApp\src\features\home\components\index.ts:[39m
+                             [31m│ [39m[31m[39m
+                             [31m│ [39m[31mNone of these files exist:[39m
+                             [31m│ [39m[31m* src\features\home\components\QuickAccessCard(.android.js|.native.js|.js|.android.jsx|.native.jsx|.jsx|.android.json|.native.json|.json|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)[39m
+                             [31m│ [39m[31m* src\features\home\components\QuickAccessCard[39m
+                             [31m│ [39m[31m[0m [90m  8 |[31m [36mexport[31m [33m*[31m [36mfrom[31m [32m'./PatrolProgressSummaryCard'[31m[33m;[31m[39m
+                             [31m│ [39m[31m[90m  9 |[31m [36mexport[31m [33m*[31m [36mfrom[31m [32m'./ClockInOutActionCard'[31m[33m;[31m[39m
+                             [31m│ [39m[31m[31m[1m>[22m[31m[90m 10 |[31m[39m
+                             [31m│ [39m[31m[90m    |[31m [31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[31m[1m^[22m[31m[0m[39m
+                             [31m│ [39m[31mat showCompileError (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:50897:26)[39m
+                             [31m└ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:50823:29)[39m
+[0m
+[0m[2m[16:00:38][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31mat call (native)[39m
+                             [31m│ [39m[31mat emit (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:51410:35)[39m
+                             [31m│ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:51190:23)[39m
+                             [31m│ [39m[31mat invoke (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:20415:31)[39m
+                             [31m│ [39m[31mat dispatch (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:20347:13)[39m
+                             [31m│ [39m[31mat dispatchEvent (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:20297:17)[39m
+                             [31m│ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46641:29)[39m
+                             [31m│ [39m[31mat apply (native)[39m
+                             [31m│ [39m[31mat emit (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:5827:40)[39m
+                             [31m│ [39m[31mat apply (native)[39m
+                             [31m│ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:5693:200)[39m
+                             [31m└ [39m[31mat emit (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:5705:68)[39m
+[0m
+[0m[2m[16:02:37][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31m{ [Error: useTheme must be used within a ThemeProvider][39m
+[0m
+[0m[2m[16:02:37][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31mcomponentStack: '\n    at ClockInOutActionCard (http://10.0.2.2:8081/src/features/home/components/ClockInOutActionCard.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=true&runModule=true&sourcePaths=url-server&shallow=true:12:101)\n    at RCTView (<anonymous>)\n    at View_withRef (address at http://10.0.2.2:8081/index.bundle?platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:1:652521)\n    at RCTScrollView (<anonymous>)\n    at ScrollView (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:58054:36)\n    at ScrollView (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:58627:27)\n    at RCTView (<anonymous>)\n    at View_withRef (address at http://10.0.2.2:8081/index.bundle?platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:1:652521)\n    at RCTView (<anonymous>)\n    at View_withRef (address at http://10.0.2.2:8081/index.bundle?platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:1:652521)\n    at RNCSafeAreaView (<anonymous>)\n    at anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:100728:62)\n    at ScreenLayout (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:107304:22)\n    at HomeScreen (http://10.0.2.2:8081/src/features/home/screens/HomeScreen.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=true&runModule=true&sourcePaths=url-server&shallow=true:13:50)\n    at StaticContainer (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:95959:17)\n    at EnsureSingleNavigator (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:91163:3)\n    at SceneView (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:95832:3)\n    at NavigationProvider (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:91324:3)\n    at RNSScreenContentWrapper (<anonymous>)\n    at ScreenContentWrapper (<anonymous>)\n    at DebugContainer (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:105263:31)\n    at RNSScreen (<anonymous>)\n    at Animated(Anonymous) (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:62570:29)\n    at Suspender (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:104328:3)\n    at Suspense (<anonymous>)\n    at Freeze (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:104339:3)\[39m
+                             [31m│ [39m[31misComponentError: true }[39m
+                             [31m│ [39m[31m[2026-08-18T10:32:37.851Z] [ERROR] [ConsoleError] Error: useTheme must be used within a ThemeProvider[39m
+                             [31m│ [39m[31mError: useTheme must be used within a ThemeProvider[39m
+                             [31m│ [39m[31mat useTheme (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:84569:22)[39m
+                             [31m│ [39m[31mat ClockInOutActionCard (http://10.0.2.2:8081/src/features/home/components/ClockInOutActionCard.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=true&runModule=true&sourcePaths=url-server&shallow=true:12:101)[39m
+                             [31m│ [39m[31mat react_stack_bottom_frame (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:17664:29)[39m
+                             [31m│ [39m[31mat renderWithHooks (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:12300:40)[39m
+                             [31m│ [39m[31mat updateFunctionComponent (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:13586:34)[39m
+                             [31m│ [39m[31mat beginWork (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:14044:41)[39m
+                             [31m│ [39m[31mat run (native)[39m
+                             [31m│ [39m[31mat runWithFiberInDEV (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:9756:73)[39m
+                             [31m│ [39m[31mat performUnitOfWork (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:16104:97)[39m
+                             [31m│ [39m[31mat workLoopSync (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15999:57)[39m
+                             [31m│ [39m[31mat renderRootSync (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15984:21)[39m
+                             [31m│ [39m[31mat performWorkOnRoot (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15678:43)[39m
+                             [31m└ [39m[31mat performWorkOnRootViaSchedulerTask (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:11353:24)[39m
+[0m
+[0m[2m[16:02:38][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Tearing down gesture handler registered for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[16:02:38][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[16:02:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:39.749Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:02:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:40.501Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:02:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:40.580Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:02:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:40.605Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:02:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:40.772Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:02:41][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:41.093Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:02:41][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:41.918Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+                             [2m└ [22m[2026-08-18T10:32:41.923Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:02:42][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:42.299Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:02:42][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:42.320Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:02:43][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:43.305Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:02:43][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:43.334Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:02:43][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:43.435Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:02:43][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:43.448Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:02:43][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:43.997Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:02:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:44.440Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:02:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:44.483Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[16:02:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:44.606Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:02:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:44.643Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:02:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:32:44.758Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:03:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:57.578Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:03:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:57.889Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.034Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.078Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.103Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.122Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.141Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.158Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.160Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.296Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.316Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.360Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.370Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.734Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.843Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.870Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:03:58][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.949Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[16:03:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:58.985Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:03:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:59.018Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:03:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:33:59.061Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:05:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:01.455Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:05:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:01.488Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:05:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:01.707Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:05:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:01.978Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:05:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:02.118Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+                             [2m└ [22m[2026-08-18T10:35:02.161Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:05:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:02.379Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+                             [2m└ [22m[2026-08-18T10:35:02.383Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:05:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:02.512Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:05:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:02.610Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:05:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:02.751Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:05:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:02.942Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+                             [2m└ [22m[2026-08-18T10:35:02.972Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:05:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:05.365Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:05:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:05.606Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:05:06][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:06.728Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[16:05:07][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:07.208Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:05:07][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:07.327Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:05:07][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:07.648Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:05:22][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:22.649Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:05:22][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:22.826Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:05:22][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:22.906Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:05:23][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:23.054Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:05:23][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:23.423Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+                             [2m└ [22m[2026-08-18T10:35:23.432Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:05:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:25.071Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:05:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:25.775Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:05:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:25.878Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:05:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:26.251Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:05:30][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:30.270Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:05:30][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:30.286Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:05:30][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:30.464Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:05:30][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:30.633Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:05:30][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:30.685Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+                             [2m└ [22m[2026-08-18T10:35:30.710Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:05:30][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:30.884Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:05:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:32.550Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:05:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:32.765Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:05:33][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:33.775Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[16:05:34][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:34.039Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:05:34][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:34.099Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:05:34][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:35:34.259Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:07:53][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:53.590Z] [INFO] [DB] insertRow: inserting into incidents with id i-inc-1787049473588 - {"id":"i-inc-1787049473588","title":"EMERGENCY SOS ALERT","site":"Ahmedabad Plant","siteId":"s-01","reportedBy":"John Smith","reportedById":"G-1001","severity":"critical","status":"open","date":"2026-08-18","createdAt":"2026-08-18T10:37:53.588Z","details":"Emergency SOS triggered by John Smith at Ahmedabad Plant.","companyId":"c-1"}
+[0m
+[0m[2m[16:07:53][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:53.977Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.007Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.018Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.250Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.277Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.290Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.311Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.359Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:07:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:54.397Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:07:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:59.732Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:07:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:59.755Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:07:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:37:59.791Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:00.020Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+                             [2m└ [22m[2026-08-18T10:38:00.022Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:00.185Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:00.627Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:03][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:03.791Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:08:03][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:03.934Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:04.836Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:08:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:05.199Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:08:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:05.641Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:11.131Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:11.161Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:08:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:11.361Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:11.416Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:08:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:11.507Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:08:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:11.727Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:08:12][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:12.176Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:12][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:12.349Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:08:12][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:12.357Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:14.267Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:08:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:14.375Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:08:15][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:15.060Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:08:15][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:15.183Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:08:15][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:15.461Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:19][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31m'React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks\n\n   Previous render            Next render\n   ------------------------------------------------------\n%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n', 'LoneWorkerCard', '1. useContext                 useContext\n2. useCallback                useCallback\n3. useCallback                useCallback\n4. useSyncExternalStore       useSyncExternalStore\n5. useDebugValue              useDebugValue\n6. undefined                  useState\n'[39m
+                             [31m│ [39m[31m[2026-08-18T10:38:19.841Z] [ERROR] [ConsoleError] React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks[39m
+                             [31m│ [39m[31m[39m
+                             [31m│ [39m[31mPrevious render            Next render[39m
+                             [31m│ [39m[31m------------------------------------------------------[39m
+                             [31m│ [39m[31m%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[39m
+                             [31m│ [39m[31mLoneWorkerCard 1. useContext                 useContext[39m
+                             [31m│ [39m[31m2. useCallback                useCallback[39m
+                             [31m│ [39m[31m3. useCallback                useCallback[39m
+                             [31m│ [39m[31m4. useSyncExternalStore       useSyncExternalStore[39m
+                             [31m│ [39m[31m5. useDebugValue              useDebugValue[39m
+                             [31m└ [39m[31m6. undefined                  useState[39m
+[0m
+[0m[2m[16:08:20][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31m{ [Error: Rendered more hooks than during the previous render.][39m
+                             [31m│ [39m[31mcomponentStack: '\n    at LoneWorkerCard (http://10.0.2.2:8081/src/features/home/components/LoneWorkerCard.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=true&runModule=true&sourcePaths=url-server&shallow=true:13:101)\n    at RCTView (<anonymous>)\n    at View_withRef (address at http://10.0.2.2:8081/index.bundle?platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:1:652521)\n    at RCTScrollView (<anonymous>)\n    at ScrollView (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:58054:36)\n    at ScrollView (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:58627:27)\n    at RCTView (<anonymous>)\n    at View_withRef (address at http://10.0.2.2:8081/index.bundle?platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:1:652521)\n    at RCTView (<anonymous>)\n    at View_withRef (address at http://10.0.2.2:8081/index.bundle?platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:1:652521)\n    at RNCSafeAreaView (<anonymous>)\n    at anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:100728:62)\n    at ScreenLayout (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:107304:22)\n    at HomeScreen (http://10.0.2.2:8081/src/features/home/screens/HomeScreen.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=true&runModule=true&sourcePaths=url-server&shallow=true:13:50)\n    at StaticContainer (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:95959:17)\n    at EnsureSingleNavigator (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:91163:3)\n    at SceneView (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:95832:3)\n    at NavigationProvider (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:91324:3)\n    at RNSScreenContentWrapper (<anonymous>)\n    at ScreenContentWrapper (<anonymous>)\n    at DebugContainer (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:105263:31)\n    at RNSScreen (<anonymous>)\n    at Animated(Anonymous) (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:62570:29)\n    at Suspender (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:104328:3)\n    at Suspense (<anonymous>)\n    at Freeze (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:104339:3)\n    at Dela[39m
+                             [31m└ [39m[31misComponentError: true }[39m
+[0m
+[0m[2m[16:08:20][22m [31mE |[39m [1m[31mReactNativeJS[39m[22m [31m▶︎[39m [31m[2026-08-18T10:38:20.021Z] [ERROR] [ConsoleError] Error: Rendered more hooks than during the previous render.[39m
+                             [31m│ [39m[31mError: Rendered more hooks than during the previous render.[39m
+                             [31m│ [39m[31mat updateWorkInProgressHook (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:12409:22)[39m
+                             [31m│ [39m[31mat updateReducer (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:12500:42)[39m
+                             [31m│ [39m[31mat useState (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:18193:31)[39m
+                             [31m│ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:7334:42)[39m
+                             [31m│ [39m[31mat LoneWorkerCard (http://10.0.2.2:8081/src/features/home/components/LoneWorkerCard.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=true&runModule=true&sourcePaths=url-server&shallow=true:20:50)[39m
+                             [31m│ [39m[31mat react_stack_bottom_frame (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:17664:29)[39m
+                             [31m│ [39m[31mat renderWithHooks (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:12300:40)[39m
+                             [31m│ [39m[31mat updateFunctionComponent (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:13586:34)[39m
+                             [31m│ [39m[31mat beginWork (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:14044:41)[39m
+                             [31m│ [39m[31mat run (native)[39m
+                             [31m│ [39m[31mat runWithFiberInDEV (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:9756:73)[39m
+                             [31m│ [39m[31mat performUnitOfWork (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:16104:97)[39m
+                             [31m│ [39m[31mat workLoopSync (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15999:57)[39m
+                             [31m│ [39m[31mat renderRootSync (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15984:21)[39m
+                             [31m│ [39m[31mat performWorkOnRoot (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15678:43)[39m
+                             [31m│ [39m[31mat performSyncWorkOnRoot (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:11361:24)[39m
+                             [31m│ [39m[31mat flushSyncWorkAcrossRoots_impl (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:11280:329)[39m
+                             [31m│ [39m[31mat flushSyncWork (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:15795:113)[39m
+                             [31m│ [39m[31mat scheduleRefresh (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:9339:22)[39m
+                             [31m│ [39m[31mat apply (native)[39m
+                             [31m│ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:39974:45)[39m
+                             [31m│ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:51955:38)[39m
+                             [31m│ [39m[31mat forEach (native)[39m
+                             [31m│ [39m[31mat performReactRefresh (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:51947:39)[39m
+                             [31m│ [39m[31mat performReactRefresh (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:51701:48)[39m
+                             [31m└ [39m[31mat anonymous (http://10.0.2.2:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.myfirstapp&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:442:40)[39m
+[0m
+[0m[2m[16:08:20][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Tearing down gesture handler registered for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[16:08:30][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[16:08:31][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:31.482Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.088Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.289Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.336Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.400Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.432Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.436Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.647Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.659Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.664Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.779Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.791Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.801Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.908Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:08:32][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:32.912Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:33][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:33.191Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:08:33][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:33.367Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:08:33][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:33.442Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:08:33][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:33.464Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:08:33][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:33.495Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:50][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:50.859Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:08:50][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:50.881Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:08:51][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:50.996Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:08:51][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:51.744Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:08:51][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:51.903Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:08:52][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:52.068Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:08:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:54.367Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:08:54][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:54.665Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:08:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:55.741Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:08:56][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:56.278Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:08:56][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:38:56.405Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.610Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.674Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.732Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.796Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.863Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.954Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[16:09:55][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:55.984Z] [INFO] [DB] getTable: read incidents table, returned 13 rows
+[0m
+[0m[2m[16:09:56][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:56.069Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[16:09:56][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:56.165Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[16:09:56][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:56.275Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[16:09:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:39:59.180Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[16:12:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T10:42:11.737Z] [INFO] [DB] getTable: read sites table, returned 0 rows
+[0m

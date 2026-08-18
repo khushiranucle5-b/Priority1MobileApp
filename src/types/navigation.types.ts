@@ -30,6 +30,12 @@ export type HomeStackParamList = {
   Assets: undefined;
   Documents: undefined;
   Messages: undefined;
+  Policies: undefined;
+  PolicyDetails: { policyId: string };
+  Payslips: undefined;
+  PayslipDetails: { payslipId: string };
+  SitesList: undefined;
+  SiteDetails: { siteId: string };
 };
 
 export type TabParamList = {

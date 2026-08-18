@@ -7,4 +7,5 @@ export * from './feedback';
 export * from './typography';
 export { SidebarDrawer } from './SidebarDrawer';
 export { PersistentSidebar } from './PersistentSidebar';
+export { NavIcon } from './NavIcon';
 

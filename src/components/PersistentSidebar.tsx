@@ -7,6 +7,8 @@ import { useTheme } from '../providers/ThemeProvider';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
 
+import { NavIcon, NavIconName } from './NavIcon';
+
 interface PersistentSidebarProps {
   activeRoute?: string;
 }
@@ -29,28 +31,42 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
     }
   };
 
-  const sections = [
+  const sections: { title: string; items: { label: string; route: string; icon: NavIconName }[] }[] = [
     {
       title: 'Overview',
       items: [
-        { label: 'Dashboard', route: 'HomeScreen', icon: '🏠' },
+        { label: 'Dashboard', route: 'HomeScreen', icon: 'dashboard' },
+      ],
+    },
+    {
+      title: 'Organization',
+      items: [
+        { label: 'Sites', route: 'SitesList', icon: 'sites' },
       ],
     },
     {
       title: 'Operations',
       items: [
-        { label: 'Attendance', route: 'Attendance', icon: '⏱️' },
-        { label: 'Leaves', route: 'Leave', icon: '📅' },
-        { label: 'Patrol Logs', route: 'Patrol', icon: '🚨' },
-        { label: 'Incidents', route: 'Incident', icon: '⚠️' },
-        { label: 'Lone Worker Check', route: 'LoneWorker', icon: '🛡️' },
-        { label: 'Assets', route: 'Assets', icon: '📦' },
+        { label: 'Attendance', route: 'Attendance', icon: 'attendance' },
+        { label: 'Leaves', route: 'Leave', icon: 'leaves' },
+        { label: 'Patrol Logs', route: 'Patrol', icon: 'patrol' },
+        { label: 'Incidents', route: 'Incident', icon: 'incidents' },
+        { label: 'Lone Worker Check', route: 'LoneWorker', icon: 'loneworker' },
+        { label: 'Assets', route: 'Assets', icon: 'assets' },
+      ],
+    },
+    {
+      title: 'Finance & HR',
+      items: [
+        { label: 'My Payslips', route: 'Payslips', icon: 'payslips' },
+        { label: 'Holidays', route: 'Holidays', icon: 'holidays' },
+        { label: 'Policy Manual', route: 'Policies', icon: 'policies' },
       ],
     },
     {
       title: 'Communication',
       items: [
-        { label: 'Direct Messages', route: 'Messages', icon: '💬' },
+        { label: 'Direct Messages', route: 'Messages', icon: 'messages' },
       ],
     },
   ];
@@ -60,7 +76,7 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
       {/* Sidebar Header */}
       <View style={styles.header}>
         <Heading level="h4" style={{ color: '#FFFFFF' }}>Acme Security Services</Heading>
-        <AppText size="xs" style={{ color: '#94A3B8' }}>Security ERP • Guard Portal</AppText>
+        <AppText size="xs" style={{ color: '#94A3B8' }}>Security ERP • Portal</AppText>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 12 }}>
@@ -81,9 +97,9 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
                   ]}
                   onPress={() => navigateTo(item.route)}
                 >
-                  <AppText size="sm" style={styles.itemIcon}>
-                    {isActive ? '✓' : item.icon}
-                  </AppText>
+                  <View style={{ marginRight: 12, width: 20, alignItems: 'center' }}>
+                    <NavIcon name={item.icon} size={18} active={isActive} color="#94A3B8" />
+                  </View>
                   <AppText
                     size="sm"
                     weight={isActive ? 'bold' : 'medium'}

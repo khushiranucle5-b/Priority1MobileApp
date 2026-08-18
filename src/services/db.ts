@@ -47,6 +47,84 @@ export interface DBShift {
   status: 'confirmed' | 'in_progress' | 'completed' | string;
 }
 
+export interface DBSiteDocument {
+  id: string;
+  title: string;
+  category: string;
+  fileName: string;
+  fileSize: string;
+  uploadedBy: string;
+  uploadDate: string;
+  downloadUrl?: string;
+}
+
+export interface DBSiteCheckpoint {
+  id: string;
+  name: string;
+  code: string;
+  location: string;
+  status: string;
+  sequence: number;
+}
+
+export interface DBSiteSafetyRule {
+  id: string;
+  ruleName: string;
+  description: string;
+  status: string;
+  effectiveDate: string;
+}
+
+export interface DBSiteChecklist {
+  id: string;
+  title: string;
+  category: string;
+  itemsCount: number;
+  frequency: string;
+  status: string;
+}
+
+export interface DBSitePostOrder {
+  id: string;
+  title: string;
+  version: string;
+  lastUpdated: string;
+  status: string;
+}
+
+export interface DBSite {
+  id: string;
+  companyId: string;
+  name: string;
+  code: string;
+  clientName: string;
+  clientId?: string;
+  branch: string;
+  facilityType: string;
+  supervisorName: string;
+  guardsCount: number;
+  riskLevel: 'Low' | 'Medium' | 'High' | string;
+  contractEnd: string;
+  status: 'active' | 'inactive' | string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+  };
+  postOrders?: DBSitePostOrder[];
+  checklists?: DBSiteChecklist[];
+  safetyRules?: DBSiteSafetyRule[];
+  tourCheckpoints?: DBSiteCheckpoint[];
+  assignedUsers?: { id: string; name: string; role: string; email: string }[];
+  documents?: DBSiteDocument[];
+}
+
 export interface DBAttendance {
   id: string;
   employeeId: string;

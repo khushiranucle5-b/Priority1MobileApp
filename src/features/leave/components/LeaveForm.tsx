@@ -32,7 +32,7 @@ const toMachineDate = (date: Date) => {
 export const LeaveForm: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const applyLeave = useGuardStore((state) => state.applyLeave);
-  
+
   const [leaveType, setLeaveType] = useState('Annual Leave');
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
@@ -75,7 +75,7 @@ export const LeaveForm: React.FC = () => {
       newErrors.toDate = 'End Date cannot be before Start Date';
     }
     if (!reason.trim()) newErrors.reason = 'Reason is required';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -86,7 +86,7 @@ export const LeaveForm: React.FC = () => {
         type: [types.pdf, types.images, types.doc, types.docx],
       });
       const res = resList[0];
-      
+
       if (res.size && res.size > 10 * 1024 * 1024) {
         Alert.alert('File too large', 'Maximum file size is 10 MB.');
         return;
@@ -102,7 +102,7 @@ export const LeaveForm: React.FC = () => {
       if (copyRes.status === 'error') {
         throw new Error(copyRes.copyError || 'Failed to keep local copy');
       }
-      
+
       setAttachment({
         name: res.name || 'document',
         type: res.type || 'unknown',
@@ -135,14 +135,14 @@ export const LeaveForm: React.FC = () => {
       reason,
       attachment: attachment || undefined,
     });
-    
+
     setLeaveType('Annual Leave');
     setFromDate(null);
     setToDate(null);
     setReason('');
     setAttachment(null);
     setErrors({});
-    
+
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
   };
@@ -187,7 +187,7 @@ export const LeaveForm: React.FC = () => {
     // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentCellDate = new Date(currentCalendarYear, currentCalendarMonth, day);
-      const isSelected = pickingTarget === 'from' 
+      const isSelected = pickingTarget === 'from'
         ? fromDate && currentCellDate.toDateString() === fromDate.toDateString()
         : toDate && currentCellDate.toDateString() === toDate.toDateString();
       const isDisabled = !!(pickingTarget === 'to' && fromDate && currentCellDate < fromDate);
@@ -322,7 +322,7 @@ export const LeaveForm: React.FC = () => {
         <Input
           label="Reason"
           value={reason}
-          onChangeText={(val) => { setReason(val); setErrors({...errors, reason: ''}); }}
+          onChangeText={(val) => { setReason(val); setErrors({ ...errors, reason: '' }); }}
           multiline
           numberOfLines={4}
           placeholder="Enter detailed reason for leave..."
@@ -337,12 +337,12 @@ export const LeaveForm: React.FC = () => {
           Attachment (Max 10MB)
         </AppText>
         {!attachment ? (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.attachmentBox, 
-              { 
-                borderColor: colors.border, 
-                borderRadius: borderRadius.md, 
+              styles.attachmentBox,
+              {
+                borderColor: colors.border,
+                borderRadius: borderRadius.md,
                 borderStyle: 'dashed',
                 backgroundColor: colors.surfaceSecondary,
               }
@@ -351,7 +351,7 @@ export const LeaveForm: React.FC = () => {
             activeOpacity={0.7}
           >
             <AppText size="base" color="primary" weight="bold">Tap to upload file</AppText>
-            <AppText size="sm" color="secondary" style={{marginTop: 4}}>PDF, JPG, PNG, DOC, DOCX</AppText>
+            <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>PDF, JPG, PNG, DOC, DOCX</AppText>
           </TouchableOpacity>
         ) : (
           <View style={[styles.attachedFile, { borderColor: colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }]}>
@@ -360,7 +360,7 @@ export const LeaveForm: React.FC = () => {
               <AppText size="xs" color="secondary">{attachment.type.split('/').pop()?.toUpperCase()} • {formatSize(attachment.size)}</AppText>
             </View>
             <View style={styles.attachedFileActions}>
-              <TouchableOpacity onPress={() => setAttachment(null)} style={{marginRight: 16}}>
+              <TouchableOpacity onPress={() => setAttachment(null)} style={{ marginRight: 16 }}>
                 <AppText size="base" color="error" weight="bold">Remove</AppText>
               </TouchableOpacity>
               <TouchableOpacity onPress={handlePickDocument}>
@@ -372,13 +372,13 @@ export const LeaveForm: React.FC = () => {
       </View>
 
       {/* Submit Button */}
-      <Button 
-        title="Submit Request" 
-        variant="primary" 
-        size="large" 
-        fullWidth 
-        onPress={handleSubmit} 
-        style={styles.btn} 
+      <Button
+        title="Submit Request"
+        variant="primary"
+        size="large"
+        fullWidth
+        onPress={handleSubmit}
+        style={styles.btn}
       />
 
       <View style={{ height: 40 }} />
@@ -434,7 +434,7 @@ export const LeaveForm: React.FC = () => {
                 <AppText size="lg" weight="bold">▶</AppText>
               </TouchableOpacity>
             </View>
-            
+
             {/* Days of Week label */}
             <View style={styles.daysOfWeekRow}>
               {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, idx) => (
@@ -448,8 +448,8 @@ export const LeaveForm: React.FC = () => {
               {renderCalendar()}
             </View>
 
-            <TouchableOpacity 
-              style={[styles.cancelDateBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md }]} 
+            <TouchableOpacity
+              style={[styles.cancelDateBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md }]}
               onPress={() => setIsDatePickerVisible(false)}
             >
               <AppText size="base" weight="bold">Cancel</AppText>

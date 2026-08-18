@@ -7,11 +7,9 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
 const actions = [
-  { id: '3', title: "Today's Duty", icon: '📋', route: 'Duty' },
   { id: '4', title: 'Patrol', icon: '🚨', route: 'Patrol' },
   { id: '5', title: 'Incident Report', icon: '⚠️', route: 'Incident' },
   { id: '6', title: 'Leave Request', icon: '📅', route: 'Leave' },
-  { id: '7', title: 'Documents', icon: '📄', route: 'Documents' },
 ];
 
 export const QuickActionsGrid: React.FC = () => {

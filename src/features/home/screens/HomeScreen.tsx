@@ -1,15 +1,15 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
-import { 
-  HomeHeader, 
-  TodayDutyCard, 
+import {
+  HomeHeader,
+  TodayDutyCard,
   AttendanceCard,
   ClockInOutActionCard,
   LoneWorkerCard,
   PatrolProgressSummaryCard,
-  NotificationCard, 
-  QuickActionsGrid, 
+  NotificationCard,
+  QuickActionsGrid,
   DailySummaryCard,
 } from '../components';
 
@@ -20,7 +20,7 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="HomeScreen">
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -33,7 +33,7 @@ export const HomeScreen: React.FC = () => {
         <NotificationCard />
         <QuickActionsGrid />
         <DailySummaryCard />
-       
+
       </ScrollView>
       <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </ScreenLayout>

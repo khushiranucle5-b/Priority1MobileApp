@@ -13,6 +13,12 @@ import { PostOrdersScreen } from '../features/resources/screens/PostOrdersScreen
 import { AssetsScreen } from '../features/resources/screens/AssetsScreen';
 import { DocumentsScreen } from '../features/resources/screens/DocumentsScreen';
 import { MessagesScreen } from '../features/communication/screens/MessagesScreen';
+import { PoliciesScreen } from '../features/policies/screens/PoliciesScreen';
+import { PolicyDetailsScreen } from '../features/policies/screens/PolicyDetailsScreen';
+import { PayslipsScreen } from '../features/payroll/screens/PayslipsScreen';
+import { PayslipDetailsScreen } from '../features/payroll/screens/PayslipDetailsScreen';
+import { SitesListScreen } from '../features/sites/screens/SitesListScreen';
+import { SiteDetailsScreen } from '../features/sites/screens/SiteDetailsScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -31,6 +37,12 @@ export const HomeNavigator = () => {
       <Stack.Screen name="Assets" component={AssetsScreen} />
       <Stack.Screen name="Documents" component={DocumentsScreen} />
       <Stack.Screen name="Messages" component={MessagesScreen} />
+      <Stack.Screen name="Policies" component={PoliciesScreen} />
+      <Stack.Screen name="PolicyDetails" component={PolicyDetailsScreen} />
+      <Stack.Screen name="Payslips" component={PayslipsScreen} />
+      <Stack.Screen name="PayslipDetails" component={PayslipDetailsScreen} />
+      <Stack.Screen name="SitesList" component={SitesListScreen} />
+      <Stack.Screen name="SiteDetails" component={SiteDetailsScreen} />
     </Stack.Navigator>
   );
 };

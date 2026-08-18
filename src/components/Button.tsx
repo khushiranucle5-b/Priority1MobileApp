@@ -41,22 +41,22 @@ export const Button: React.FC<ButtonProps> = ({
   const getBg = () => {
     if (isDisabled) return colors.disabledBackground;
     switch (variant) {
-      case 'primary':   return colors.primary[600];
+      case 'primary': return colors.primary[600];
       case 'secondary': return colors.surfaceSecondary;
-      case 'danger':    return colors.error;
+      case 'danger': return colors.error;
       case 'outline':
-      case 'ghost':     return colors.transparent;
+      case 'ghost': return colors.transparent;
     }
   };
 
   const getTextColor = () => {
     if (isDisabled) return colors.disabledText;
     switch (variant) {
-      case 'primary':   return colors.textInverse;
+      case 'primary': return colors.textInverse;
       case 'secondary': return colors.text;
-      case 'danger':    return colors.textInverse;
-      case 'outline':   return colors.primary[600];
-      case 'ghost':     return colors.primary[600];
+      case 'danger': return colors.textInverse;
+      case 'outline': return colors.primary[600];
+      case 'ghost': return colors.primary[600];
     }
   };
 
@@ -72,17 +72,17 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getPadding = () => {
     switch (size) {
-      case 'small':  return { paddingVertical: spacing.xs, paddingHorizontal: spacing.md };
-      case 'large':  return { paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'] };
-      default:       return { paddingVertical: spacing.sm, paddingHorizontal: spacing.xl };
+      case 'small': return { paddingVertical: spacing.xs, paddingHorizontal: spacing.md };
+      case 'large': return { paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'] };
+      default: return { paddingVertical: spacing.sm, paddingHorizontal: spacing.xl };
     }
   };
 
   const getMinHeight = () => {
     switch (size) {
-      case 'small':  return 36;
-      case 'large':  return 56;
-      default:       return 48; // standard 48 dp minimum touch target
+      case 'small': return 36;
+      case 'large': return 56;
+      default: return 48; // standard 48 dp minimum touch target
     }
   };
 
@@ -98,7 +98,7 @@ export const Button: React.FC<ButtonProps> = ({
     switch (size) {
       case 'small': return typography.fontSize.sm;
       case 'large': return typography.fontSize.lg;
-      default:      return typography.fontSize.md;
+      default: return typography.fontSize.md;
     }
   };
 
