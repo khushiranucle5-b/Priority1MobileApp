@@ -10,6 +10,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { CameraPlaceholder, CapturedImagePreview, InstructionCard } from '../components/selfie';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
+import { LoggerService } from '../../../services';
 
 type ParamList = {
   SelfieVerification: {
@@ -96,20 +97,33 @@ export const SelfieVerificationScreen: React.FC = () => {
     handleCaptureSelfie();
   };
 
-  const handleConfirm = () => {
-    if (actionType === 'Clock In') {
-      clockIn();
-    } else {
-      clockOut();
+  const handleConfirm = async () => {
+    LoggerService.log(`[SelfieVerificationScreen] Confirming ${actionType}`);
+    try {
+      if (actionType === 'Clock In') {
+        await clockIn();
+      } else {
+        await clockOut();
+      }
+      
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigation.goBack();
+      }, 2000);
+    } catch (err: any) {
+      LoggerService.log(`[SelfieVerificationScreen] ${actionType} failed: ${err?.message || err}`, 'error');
+      Alert.alert(
+        'Attendance Failed',
+        err?.message || 'An unexpected error occurred during attendance verification.'
+      );
     }
-    
-    setShowSuccess(true);
-    setTimeout(() => {
-      navigation.goBack();
-    }, 2000);
   };
 
   const { workingHours, clockInTimeStr, clockOutTimeStr, attendanceStatus } = useLiveAttendance();
+
+  React.useEffect(() => {
+    LoggerService.log(`[SelfieVerificationScreen] Attendance Info - Status: ${attendanceStatus}, ClockIn: ${clockInTimeStr}, ClockOut: ${clockOutTimeStr}`);
+  }, [attendanceStatus, clockInTimeStr, clockOutTimeStr]);
 
   return (
     <ScreenLayout>

@@ -4,11 +4,16 @@ import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
+import { LoggerService } from '../../../services';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
 
 export const AttendanceCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const { workingHours, clockInTimeStr, clockOutTimeStr, attendanceStatus } = useLiveAttendance();
+  
+  React.useEffect(() => {
+    LoggerService.log(`[AttendanceCard] Current Attendance Info - Status: ${attendanceStatus}, ClockIn: ${clockInTimeStr}, ClockOut: ${clockOutTimeStr}`);
+  }, [attendanceStatus, clockInTimeStr, clockOutTimeStr]);
   
   const getStatusColor = () => {
     if (attendanceStatus === 'Checked In') return 'success';

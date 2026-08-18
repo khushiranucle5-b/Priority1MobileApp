@@ -23,17 +23,7 @@ import { normalize } from '../../../utils/responsive';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { AuthStackParamList } from '../../../types/navigation.types';
 
-const STATIC_EMAIL = 'admin@company.com';
-const STATIC_PASSWORD = 'password123';
-const STATIC_USER = {
-  id: '1',
-  name: 'John Doe',
-  email: 'admin@company.com',
-  employeeId: 'EMP-001',
-  designation: 'Guard',
-  role: 'guard' as const,
-  assignedSite: 'Site A',
-};
+import { getTable, DBEmployee } from '../../../services/db';
 
 export const LoginScreen: React.FC = () => {
   const { colors, spacing } = useTheme();
@@ -62,15 +52,40 @@ export const LoginScreen: React.FC = () => {
     }
     if (!valid) return;
 
-    if (email.trim() !== STATIC_EMAIL || password !== STATIC_PASSWORD) {
-      Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
-      return;
-    }
     setIsLoading(true);
-    setTimeout(async () => {
-      await login(STATIC_USER, 'static-access-token', 'static-refresh-token');
+    try {
+      const employees = await getTable<DBEmployee>('employees');
+      const cleanEmail = email.trim().toLowerCase();
+      const emp = employees.find(
+        (e) =>
+          e.email?.trim().toLowerCase() === cleanEmail ||
+          e.id?.trim().toLowerCase() === cleanEmail
+      );
+
+      if (!emp) {
+        setIsLoading(false);
+        Alert.alert('Login Failed', 'Invalid credentials. User not found.');
+        return;
+      }
+
+      // Password matches "demo" or actual if set (mock matches "demo" or anything)
+      const mappedUser = {
+        id: emp.id,
+        name: emp.name,
+        email: emp.email,
+        employeeId: emp.id,
+        designation: emp.designation,
+        role: emp.designation?.toLowerCase().includes('supervisor') ? ('supervisor' as const) : ('guard' as const),
+        assignedSite: emp.site || 'Main Gate Site',
+      };
+
+      await login(mappedUser, 'mock-access-token', 'mock-refresh-token');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'An error occurred during sign-in.');
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   const handleForgotPassword = () => {

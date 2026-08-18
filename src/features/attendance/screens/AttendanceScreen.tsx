@@ -1,58 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
-import {
-  AttendanceHeader,
-  ShiftCard,
-  AttendanceStatusCard,
-  AttendanceActionButtons,
-  AttendanceSummaryCard,
-  AttendanceTimeline,
-  AttendanceInfoCard,
-  EmptyAttendanceState
-} from '../components';
-import { Button } from '../../../components/Button';
-import { useNavigation } from '@react-navigation/native';
+import { GuardAttendanceTableView, AttendanceInfoCard } from '../components';
 
 export const AttendanceScreen: React.FC = () => {
-  // Mock state to demonstrate empty state vs populated state
-  // This is purely for UI demonstration
-  const [hasAttendance] = useState(true);
-  const navigation = useNavigation<any>();
-
   return (
-    <ScreenLayout>
-      <AttendanceHeader />
+    <ScreenLayout activeRoute="Attendance">
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <ShiftCard />
-        
-        {hasAttendance ? (
-          <>
-            <AttendanceStatusCard />
-            <AttendanceActionButtons />
-            <AttendanceSummaryCard />
-            <AttendanceTimeline />
-          </>
-        ) : (
-          <>
-            <AttendanceActionButtons />
-            <EmptyAttendanceState />
-          </>
-        )}
-        
+        <GuardAttendanceTableView />
         <AttendanceInfoCard />
-        
-        <Button 
-          title="View Attendance History" 
-          variant="outline" 
-          size="large" 
-          fullWidth 
-          style={styles.historyBtn}
-          onPress={() => navigation.navigate('AttendanceHistory')}
-        />
       </ScrollView>
     </ScreenLayout>
   );

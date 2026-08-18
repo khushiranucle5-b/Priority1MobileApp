@@ -9,3 +9,4 @@ export * from './AttendanceSummaryCard';
 export * from './AttendanceTimeline';
 export * from './AttendanceInfoCard';
 export * from './EmptyAttendanceState';
+export * from './GuardAttendanceTableView';

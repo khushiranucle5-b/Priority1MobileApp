@@ -5,8 +5,11 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 
+import { useGuardStore } from '../../../store/useGuardStore';
+
 export const PersonalInformationCard: React.FC = () => {
   const { colors, spacing } = useTheme();
+  const { guardName, guardEmail } = useGuardStore();
 
   const handleEditProfile = () => {
     // Placeholder function
@@ -25,7 +28,7 @@ export const PersonalInformationCard: React.FC = () => {
       <View style={[styles.grid, { marginTop: spacing.sm }]}>
         <View style={styles.row}>
           <AppText size="sm" color="secondary" style={styles.label}>Full Name</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>John Doe</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>{guardName || 'N/A'}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Mobile Number</AppText>
@@ -33,7 +36,7 @@ export const PersonalInformationCard: React.FC = () => {
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Email Address</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>johndoe@example.com</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>{guardEmail || 'N/A'}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Date of Birth</AppText>

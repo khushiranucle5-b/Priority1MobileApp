@@ -10,10 +10,14 @@ import { AppText } from '../../../components/typography/Text';
 
 type NavigationProp = NativeStackNavigationProp<HomeStackParamList>;
 
-export const HomeHeader: React.FC = () => {
+interface HomeHeaderProps {
+  onMenuPress?: () => void;
+}
+
+export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress }) => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<NavigationProp>();
-  const { notifications } = useGuardStore();
+  const { notifications, guardName } = useGuardStore();
   
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -24,21 +28,34 @@ export const HomeHeader: React.FC = () => {
     return 'Good Evening';
   };
 
+  const getFormattedDate = () => {
+    return new Date().toLocaleDateString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+    });
+  };
+
   return (
     <View style={[styles.container, { paddingHorizontal: spacing.base, paddingTop: spacing.md, paddingBottom: spacing.sm }]}>
       <View style={styles.profileSection}>
+        {onMenuPress && (
+          <TouchableOpacity onPress={onMenuPress} style={{ marginRight: 12 }}>
+            <AppText size="xl">☰</AppText>
+          </TouchableOpacity>
+        )}
         <Image
           source={{ uri: 'https://i.pravatar.cc/150?img=11' }}
           style={[styles.avatar, { borderRadius: borderRadius.full }]}
         />
         <View style={styles.textContainer}>
           <AppText size="sm" color="secondary">{getGreeting()}</AppText>
-          <Heading level="h4">John Doe</Heading>
+          <Heading level="h4">{guardName || 'Security Officer'}</Heading>
         </View>
       </View>
       
       <View style={styles.rightSection}>
-        <AppText size="xs" color="secondary" style={styles.date}>Aug 05, 2026</AppText>
+        <AppText size="xs" color="secondary" style={styles.date}>{getFormattedDate()}</AppText>
         <TouchableOpacity 
           style={[styles.notificationBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}
           onPress={() => navigation.navigate('Notifications')}

@@ -5,8 +5,13 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 
+import { useGuardStore } from '../../../store/useGuardStore';
+
 export const ProfileHeaderCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
+  const { guardName, guardId, companyName, attendanceStatus } = useGuardStore();
+
+  const isOnline = attendanceStatus === 'Checked In';
 
   return (
     <Card variant="elevated" style={styles.card}>
@@ -16,24 +21,25 @@ export const ProfileHeaderCard: React.FC = () => {
           style={[styles.avatar, { borderRadius: borderRadius.full, backgroundColor: colors.surfaceSecondary }]} 
         />
         <View style={styles.info}>
-          <Heading level="h3">John Doe</Heading>
-          <AppText size="sm" color="secondary">ID: GRD-2026-001</AppText>
-          <AppText size="sm" color="secondary">Senior Security Guard</AppText>
-          <AppText size="xs" color="secondary" style={styles.joined}>Joined: Jan 15, 2024</AppText>
+          <Heading level="h3">{guardName || 'Security Officer'}</Heading>
+          <AppText size="sm" color="secondary">ID: {guardId || 'N/A'}</AppText>
+          <AppText size="sm" color="secondary">Security Guard</AppText>
         </View>
       </View>
 
       <View style={[styles.statusContainer, { borderTopColor: colors.border, marginTop: spacing.sm }]}>
         <View style={styles.statusRow}>
           <AppText size="sm" color="secondary">Current Status</AppText>
-          <View style={[styles.badge, { backgroundColor: colors.successLight, borderRadius: borderRadius.full }]}>
-            <View style={[styles.dot, { backgroundColor: colors.success, borderRadius: borderRadius.full }]} />
-            <AppText size="sm" color="success" weight="bold">On Duty</AppText>
+          <View style={[styles.badge, { backgroundColor: isOnline ? colors.successLight : colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
+            <View style={[styles.dot, { backgroundColor: isOnline ? colors.success : colors.secondary, borderRadius: borderRadius.full }]} />
+            <AppText size="sm" color={isOnline ? 'success' : 'secondary'} weight="bold">
+              {isOnline ? 'On Duty' : 'Off Duty'}
+            </AppText>
           </View>
         </View>
         <View style={styles.statusRow}>
           <AppText size="sm" color="secondary">Assigned Company</AppText>
-          <AppText size="sm" weight="medium">PriorityOne Security</AppText>
+          <AppText size="sm" weight="medium">{companyName}</AppText>
         </View>
       </View>
     </Card>

@@ -3,14 +3,22 @@ import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Button } from '../../../components/Button';
 
+import { LoggerService } from '../../../services';
+
+import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
+
 export const AttendanceActionButtons: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { attendanceStatus } = useLiveAttendance();
+  const isCheckedIn = attendanceStatus === 'Checked In';
 
   const handleClockIn = () => {
+    LoggerService.log('[AttendanceActionButtons] Clock In pressed');
     navigation.navigate('SelfieVerification', { actionType: 'Clock In' });
   };
 
   const handleClockOut = () => {
+    LoggerService.log('[AttendanceActionButtons] Clock Out pressed');
     navigation.navigate('SelfieVerification', { actionType: 'Clock Out' });
   };
 
@@ -18,7 +26,7 @@ export const AttendanceActionButtons: React.FC = () => {
     <View style={styles.container}>
       <Button 
         title="Clock In" 
-        variant="primary" 
+        variant={isCheckedIn ? "outline" : "primary"} 
         size="large" 
         fullWidth 
         style={styles.button}
@@ -26,7 +34,7 @@ export const AttendanceActionButtons: React.FC = () => {
       />
       <Button 
         title="Clock Out" 
-        variant="secondary" 
+        variant={isCheckedIn ? "primary" : "secondary"} 
         size="large" 
         fullWidth 
         style={styles.button}

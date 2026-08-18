@@ -25,6 +25,11 @@ export type HomeStackParamList = {
   Holidays: undefined;
   Notifications: undefined;
   NotificationDetails: { notificationId: string };
+  LoneWorker: undefined;
+  PostOrders: undefined;
+  Assets: undefined;
+  Documents: undefined;
+  Messages: undefined;
 };
 
 export type TabParamList = {

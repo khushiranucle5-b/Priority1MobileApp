@@ -21,8 +21,8 @@ export const IncidentForm: React.FC = () => {
 
   const incidentTypes = ['Theft', 'Fire', 'Medical', 'Visitor', 'Equipment Damage', 'Safety Hazard', 'Other'];
 
-  const handleSubmit = () => {
-    reportIncident({
+  const handleSubmit = async () => {
+    await reportIncident({
       type,
       title,
       description,

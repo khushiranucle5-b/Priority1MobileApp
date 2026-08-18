@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
+import { useGuardStore } from '../../../store/useGuardStore';
 import {
   PatrolOverviewCard,
   PatrolProgressCard,
@@ -14,8 +15,8 @@ import {
 } from '../components';
 
 export const PatrolScreen: React.FC = () => {
-  // Mock state to toggle empty state vs populated state
-  const [hasPatrol] = useState(true);
+  const { patrols } = useGuardStore();
+  const hasPatrol = patrols.length > 0;
 
   return (
     <ScreenLayout>

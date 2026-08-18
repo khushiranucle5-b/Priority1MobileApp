@@ -7,12 +7,11 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
 const actions = [
-  { id: '1', title: 'Clock In', icon: '⏱️', route: 'ClockIn' },
-  { id: '2', title: 'Clock Out', icon: '🚪', route: 'ClockOut' },
   { id: '3', title: "Today's Duty", icon: '📋', route: 'Duty' },
   { id: '4', title: 'Patrol', icon: '🚨', route: 'Patrol' },
   { id: '5', title: 'Incident Report', icon: '⚠️', route: 'Incident' },
   { id: '6', title: 'Leave Request', icon: '📅', route: 'Leave' },
+  { id: '7', title: 'Documents', icon: '📄', route: 'Documents' },
 ];
 
 export const QuickActionsGrid: React.FC = () => {
@@ -34,14 +33,14 @@ export const QuickActionsGrid: React.FC = () => {
       navigation.navigate('Incident');
     } else if (route === 'Patrol') {
       navigation.navigate('Patrol');
+    } else if (route === 'Documents') {
+      navigation.navigate('Documents');
     } else {
       console.log(`Navigate to ${route}`);
     }
   };
 
-  const isDisabled = (route: string) => {
-    if (route === 'ClockIn' && isClockedIn) return true;
-    if (route === 'ClockOut' && (!isClockedIn || isClockedOut)) return true;
+  const isDisabled = (_route: string) => {
     return false;
   };
 

@@ -1,43 +1,68 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
-
-const mockNotifications = [
-  { id: '1', title: 'Shift Starting Soon', desc: 'Your morning shift starts in 30 mins.', time: '10m ago', icon: '⏰' },
-  { id: '2', title: 'New Message', desc: 'Supervisor sent you a message.', time: '1h ago', icon: '💬' },
-  { id: '3', title: 'Leave Approved', desc: 'Your leave for tomorrow is approved.', time: '2h ago', icon: '✅' },
-];
+import { useGuardStore } from '../../../store/useGuardStore';
 
 export const NotificationCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
+  const navigation = useNavigation<any>();
+  const notifications = useGuardStore((state) => state.notifications);
+
+  // Take the 3 most recent notifications
+  const recentNotifications = notifications.slice(0, 3);
+
+  const getIcon = (title: string) => {
+    const text = title.toLowerCase();
+    if (text.includes('clock') || text.includes('attendance') || text.includes('shift')) return '⏰';
+    if (text.includes('leave')) return '📄';
+    if (text.includes('patrol') || text.includes('checkpoint')) return '🚶';
+    return '🔔';
+  };
+
+  const handleViewAll = () => {
+    // Navigate to the notifications screen if it exists, or toggle sidebar drawer, or open notifications tab
+    // Let's check navigation routes, typically sidebar or we can just deep link to notifications
+    navigation.navigate('Notifications');
+  };
 
   return (
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
         <Heading level="h4">Recent Notifications</Heading>
-        <TouchableOpacity>
-          <AppText size="sm" color="primary" weight="medium">View All</AppText>
-        </TouchableOpacity>
+        {notifications.length > 0 && (
+          <TouchableOpacity onPress={handleViewAll}>
+            <AppText size="base" color="primary" weight="bold">View All</AppText>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.list}>
-        {mockNotifications.map((notif, index) => (
-          <View key={notif.id} style={[styles.item, index !== mockNotifications.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+        {recentNotifications.map((notif, index) => (
+          <View key={notif.id} style={[styles.item, index !== recentNotifications.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
             <View style={[styles.iconContainer, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
-              <AppText size="base">{notif.icon}</AppText>
+              <AppText style={styles.iconStyle}>{getIcon(notif.title)}</AppText>
             </View>
             <View style={styles.content}>
               <View style={styles.itemHeader}>
-                <AppText size="sm" weight="semibold">{notif.title}</AppText>
+                <AppText size="base" weight="semibold">{notif.title}</AppText>
                 <AppText size="xs" color="secondary">{notif.time}</AppText>
               </View>
-              <AppText size="xs" color="secondary" style={styles.desc}>{notif.desc}</AppText>
+              <AppText size="sm" color="secondary" style={styles.desc}>{notif.description}</AppText>
             </View>
           </View>
         ))}
+
+        {notifications.length === 0 && (
+          <View style={styles.emptyContainer}>
+            <AppText size="sm" color="secondary" style={styles.emptyText}>
+              You're All Caught Up{"\n"}No new notifications.
+            </AppText>
+          </View>
+        )}
       </View>
     </Card>
   );
@@ -63,11 +88,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+  },
+  iconStyle: {
+    fontSize: 20,
   },
   content: {
     flex: 1,
@@ -80,5 +108,13 @@ const styles = StyleSheet.create({
   },
   desc: {
     marginTop: 2,
+  },
+  emptyContainer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+    lineHeight: 18,
   }
 });

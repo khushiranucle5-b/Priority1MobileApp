@@ -4,7 +4,7 @@ import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
 
-export type CheckpointStatus = 'Pending' | 'Completed' | 'Missed';
+export type CheckpointStatus = 'Pending' | 'Completed' | 'Missed' | 'Skipped' | 'In Progress' | string;
 
 export interface CheckpointData {
   id: string;
@@ -26,6 +26,7 @@ export const CheckpointCard: React.FC<CheckpointCardProps> = ({ data }) => {
     switch (data.status) {
       case 'Completed': return colors.success;
       case 'Missed': return colors.error;
+      case 'Skipped': return colors.secondary;
       case 'Pending': default: return colors.info;
     }
   };
@@ -34,6 +35,7 @@ export const CheckpointCard: React.FC<CheckpointCardProps> = ({ data }) => {
     switch (data.status) {
       case 'Completed': return colors.successLight;
       case 'Missed': return colors.errorLight;
+      case 'Skipped': return colors.surfaceSecondary;
       case 'Pending': default: return colors.infoLight;
     }
   };

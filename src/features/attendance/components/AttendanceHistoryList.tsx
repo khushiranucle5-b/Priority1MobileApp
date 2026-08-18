@@ -82,7 +82,7 @@ export const AttendanceHistoryList: React.FC = () => {
               <AppText size="md" weight="bold" color="primary">{record.date}</AppText>
               <AppText size="xs" color="secondary" style={styles.day}>{record.day}</AppText>
             </View>
-            <AttendanceStatusBadge status={record.status} />
+            <AttendanceStatusBadge status={record.status as any} />
           </View>
           
           <View style={styles.detailsGrid}>

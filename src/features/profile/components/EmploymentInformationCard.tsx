@@ -5,8 +5,11 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 
+import { useGuardStore } from '../../../store/useGuardStore';
+
 export const EmploymentInformationCard: React.FC = () => {
   const { colors, spacing } = useTheme();
+  const { guardId, companyName, assignedSite, supervisor } = useGuardStore();
 
   return (
     <Card variant="elevated" style={styles.card}>
@@ -15,15 +18,11 @@ export const EmploymentInformationCard: React.FC = () => {
       <View style={[styles.grid, { marginTop: spacing.sm }]}>
         <View style={styles.row}>
           <AppText size="sm" color="secondary" style={styles.label}>Employee ID</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>GRD-2026-001</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>{guardId || 'N/A'}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Company Name</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>PriorityOne Security</AppText>
-        </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Branch</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>North Region Hub</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>{companyName}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Department</AppText>
@@ -31,19 +30,15 @@ export const EmploymentInformationCard: React.FC = () => {
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Designation</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>Senior Security Guard</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>Security Guard</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Reporting Supervisor</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>Jane Smith</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>{supervisor}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Work Location</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>Multiple Sites</AppText>
-        </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Shift Name</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>Rotational</AppText>
+          <AppText size="sm" weight="medium" style={styles.value}>{assignedSite}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Employment Type</AppText>

@@ -5,8 +5,27 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 
+import { useGuardStore } from '../../../store/useGuardStore';
+
 export const PatrolProgressCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
+  const { activePatrol } = useGuardStore();
+
+  if (!activePatrol) {
+    return (
+      <Card variant="flat" style={styles.card}>
+        <Heading level="h4" style={styles.title}>Progress</Heading>
+        <AppText size="sm" color="secondary" style={{ marginTop: spacing.xs }}>
+          No active patrol. Please start a patrol first.
+        </AppText>
+      </Card>
+    );
+  }
+
+  const total = activePatrol.checkpoints || 0;
+  const completed = activePatrol.scanned || 0;
+  const remaining = Math.max(0, total - completed);
+  const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return (
     <Card variant="flat" style={styles.card}>
@@ -15,21 +34,21 @@ export const PatrolProgressCard: React.FC = () => {
       <View style={[styles.grid, { marginTop: spacing.sm }]}>
         <View style={styles.row}>
           <AppText size="sm" color="secondary">Total Checkpoints</AppText>
-          <AppText size="sm" weight="semibold">10</AppText>
+          <AppText size="sm" weight="semibold">{total}</AppText>
         </View>
         <View style={styles.row}>
           <AppText size="sm" color="secondary">Completed</AppText>
-          <AppText size="sm" weight="semibold" color="success">4</AppText>
+          <AppText size="sm" weight="semibold" color="success">{completed}</AppText>
         </View>
         <View style={styles.row}>
           <AppText size="sm" color="secondary">Remaining</AppText>
-          <AppText size="sm" weight="semibold">6</AppText>
+          <AppText size="sm" weight="semibold">{remaining}</AppText>
         </View>
         
         <View style={[styles.progressBarContainer, { backgroundColor: colors.border, borderRadius: borderRadius.full }]}>
-          <View style={[styles.progressBarFill, { backgroundColor: colors.primary[500], borderRadius: borderRadius.full, width: '40%' }]} />
+          <View style={[styles.progressBarFill, { backgroundColor: colors.primary[500], borderRadius: borderRadius.full, width: `${percent}%` }]} />
         </View>
-        <AppText size="xs" color="secondary" style={styles.progressText}>40% Completed</AppText>
+        <AppText size="xs" color="secondary" style={styles.progressText}>{percent}% Completed</AppText>
       </View>
     </Card>
   );

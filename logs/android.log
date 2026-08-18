@@ -1,0 +1,698 @@
+[36m[1minfo[22m[39m [0mStarting logkitty[0m
+[0m[2m[13:24:51][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:54:51.840Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[13:25:00][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[13:25:00][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-18T07:55:00.860Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.560Z] [INFO] [SelfieVerificationScreen] Confirming Clock In
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.603Z] [INFO] [DB] insertRow: inserting into attendance with id att-1787039704595 - {"id":"att-1787039704595","employeeId":"G-1001","employeeName":"John Smith","employeeEmail":"john@priority-one.io","badge":"GRD-001","role":"guard","date":"2026-08-18","shift":"Morning Shift 08:00 AM - 04:00 PM","clockIn":"2026-08-18T07:55:04.595Z","clockOut":null,"status":"present","siteId":"s-01","siteName":"Ahmedabad Plant","companyId":"c-1"}
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.684Z] [INFO] [DB] getTable: read attendance table, returned 6 rows
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.723Z] [INFO] [DB] saveTable: saved 7 rows to attendance table
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.726Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787039704724 - {"id":"notif-1787039704724","userId":"G-1001","title":"Clocked In Successfully","message":"You clocked in at 1:25 PM at Ahmedabad Plant.","read":false,"createdAt":"2026-08-18T07:55:04.725Z"}
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.758Z] [INFO] [DB] getTable: read notifications table, returned 4 rows
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.793Z] [INFO] [DB] saveTable: saved 5 rows to notifications table
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.855Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.940Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[13:25:04][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:04.977Z] [INFO] [DB] getTable: read attendance table, returned 7 rows
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.015Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.038Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.048Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.069Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.082Z] [INFO] [DB] getTable: read notifications table, returned 5 rows
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.115Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.412Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 1:25 PM, ClockOut: --:--
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.431Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked In, ClockIn: 1:25 PM, ClockOut: --:--
+[0m
+[0m[2m[13:25:05][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T07:55:05.434Z] [INFO] [useGuardStore] clockIn completed successfully for G-1001
+[0m
+[0m[2m[13:35:41][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[13:35:42][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[36m[1minfo[22m[39m [0mStarting logkitty[0m
+[0m[2m[13:36:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:00.739Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked In, ClockIn: 1:25 PM, ClockOut: --:--
+[0m
+[0m[2m[13:36:12][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[13:36:12][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-18T08:06:12.753Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.585Z] [INFO] [SelfieVerificationScreen] Confirming Clock Out
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.610Z] [INFO] [DB] getTable: read attendance table, returned 7 rows
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.617Z] [INFO] [DB] updateRow: updating row id att-1787039704595 in table attendance with updates: {"clockOut":"2026-08-18T08:06:20.613Z","workingHours":"0.19 hrs"}
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.656Z] [INFO] [DB] getTable: read attendance table, returned 7 rows
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.760Z] [INFO] [DB] saveTable: saved 7 rows to attendance table
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.767Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787040380760 - {"id":"notif-1787040380760","userId":"G-1001","title":"Clocked Out Successfully","message":"You clocked out at 1:36 PM. Total: 0.19 hrs.","read":false,"createdAt":"2026-08-18T08:06:20.764Z"}
+[0m
+[0m[2m[13:36:20][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:20.806Z] [INFO] [DB] getTable: read notifications table, returned 5 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.049Z] [INFO] [DB] saveTable: saved 6 rows to notifications table
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.050Z] [INFO] [useGuardStore] clockOut update complete for record att-1787039704595
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.095Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.130Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.143Z] [INFO] [DB] getTable: read attendance table, returned 7 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.158Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.176Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.196Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.215Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.229Z] [INFO] [DB] getTable: read notifications table, returned 6 rows
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.254Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.532Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.549Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[13:36:21][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:06:21.554Z] [INFO] [useGuardStore] clockOut completed successfully for G-1001
+[0m
+[0m[2m[13:47:07][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:07.345Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[13:47:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:08.948Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.047Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.128Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.199Z] [INFO] [DB] getTable: read attendance table, returned 7 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.250Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.266Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.282Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.370Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.547Z] [INFO] [DB] getTable: read notifications table, returned 6 rows
+[0m
+[0m[2m[13:47:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:10.666Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[13:47:31][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:31.649Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.468Z] [INFO] [SelfieVerificationScreen] Confirming Clock In
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.484Z] [INFO] [DB] insertRow: inserting into attendance with id att-1787041065483 - {"id":"att-1787041065483","employeeId":"G-1001","employeeName":"John Smith","employeeEmail":"john@priority-one.io","badge":"GRD-001","role":"guard","date":"2026-08-18","shift":"Morning Shift 08:00 AM - 04:00 PM","clockIn":"2026-08-18T08:17:45.483Z","clockOut":null,"status":"present","siteId":"s-01","siteName":"Ahmedabad Plant","companyId":"c-1"}
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.531Z] [INFO] [DB] getTable: read attendance table, returned 7 rows
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.597Z] [INFO] [DB] saveTable: saved 8 rows to attendance table
+                             [2m└ [22m[2026-08-18T08:17:45.600Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787041065599 - {"id":"notif-1787041065599","userId":"G-1001","title":"Clocked In Successfully","message":"You clocked in at 1:47 PM at Ahmedabad Plant.","read":false,"createdAt":"2026-08-18T08:17:45.600Z"}
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.664Z] [INFO] [DB] getTable: read notifications table, returned 6 rows
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.769Z] [INFO] [DB] saveTable: saved 7 rows to notifications table
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.840Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.915Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.955Z] [INFO] [DB] getTable: read attendance table, returned 8 rows
+[0m
+[0m[2m[13:47:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:45.980Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.006Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.017Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.035Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.054Z] [INFO] [DB] getTable: read notifications table, returned 7 rows
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.101Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.489Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 1:47 PM, ClockOut: --:--
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.515Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked In, ClockIn: 1:47 PM, ClockOut: --:--
+[0m
+[0m[2m[13:47:46][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:17:46.519Z] [INFO] [useGuardStore] clockIn completed successfully for G-1001
+[0m
+[0m[2m[13:50:05][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[13:50:07][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{fa3ed91 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[13:50:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:20:08.832Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[13:50:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:20:09.188Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[13:50:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:20:09.440Z] [INFO] [DB] getTable: read notifications table, returned 7 rows
+[0m
+[0m[2m[13:50:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:20:10.174Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[13:50:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:20:14.741Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 1:47 PM, ClockOut: --:--
+[0m
+[0m[2m[14:02:07][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:07.219Z] [INFO] [ClockInOutActionCard] Clock Out tapped
+[0m
+[0m[2m[14:02:07][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:07.752Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked In, ClockIn: 1:47 PM, ClockOut: --:--
+[0m
+[0m[2m[14:02:18][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[14:02:18][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-18T08:32:18.166Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[14:02:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:25.634Z] [INFO] [SelfieVerificationScreen] Confirming Clock Out
+[0m
+[0m[2m[14:02:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:25.658Z] [INFO] [DB] getTable: read attendance table, returned 8 rows
+[0m
+[0m[2m[14:02:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:25.663Z] [INFO] [DB] updateRow: updating row id att-1787041065483 in table attendance with updates: {"clockOut":"2026-08-18T08:32:25.659Z","workingHours":"0.24 hrs"}
+[0m
+[0m[2m[14:02:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:25.700Z] [INFO] [DB] getTable: read attendance table, returned 8 rows
+[0m
+[0m[2m[14:02:25][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:25.834Z] [INFO] [DB] getTable: read notifications table, returned 7 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.004Z] [INFO] [DB] saveTable: saved 8 rows to notifications table
+                             [2m│ [22m[2026-08-18T08:32:26.006Z] [INFO] [useGuardStore] clockOut update complete for record att-1787041065483
+                             [2m└ [22m[2026-08-18T08:32:26.039Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.064Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.126Z] [INFO] [DB] getTable: read attendance table, returned 8 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.161Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.180Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.206Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.223Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.248Z] [INFO] [DB] getTable: read notifications table, returned 8 rows
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.290Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.699Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.723Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[14:02:26][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:32:26.728Z] [INFO] [useGuardStore] clockOut completed successfully for G-1001
+[0m
+[0m[2m[14:04:12][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[14:04:14][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{f017bb8 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[14:04:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:16.287Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:04:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:16.486Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:04:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:16.578Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:04:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:16.771Z] [INFO] [DB] getTable: read attendance table, returned 8 rows
+[0m
+[0m[2m[14:04:17][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:17.146Z] [INFO] [DB] getTable: read notifications table, returned 8 rows
+[0m
+[0m[2m[14:04:17][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:17.949Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:04:23][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T08:34:23.255Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[14:35:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:05:59.258Z] [INFO] [ClockInOutActionCard] Clock In tapped
+[0m
+[0m[2m[14:35:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:05:59.762Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked Out, ClockIn: 1:14 PM, ClockOut: 1:20 PM
+[0m
+[0m[2m[14:36:08][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[14:36:09][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-18T09:06:09.017Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.628Z] [INFO] [SelfieVerificationScreen] Confirming Clock In
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.664Z] [INFO] [DB] insertRow: inserting into attendance with id att-1787043973660 - {"id":"att-1787043973660","employeeId":"G-1001","employeeName":"John Smith","employeeEmail":"john@priority-one.io","badge":"GRD-001","role":"guard","date":"2026-08-18","shift":"Morning Shift 08:00 AM - 04:00 PM","clockIn":"2026-08-18T09:06:13.660Z","clockOut":null,"status":"present","siteId":"s-01","siteName":"Ahmedabad Plant","companyId":"c-1"}
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.701Z] [INFO] [DB] getTable: read attendance table, returned 8 rows
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.728Z] [INFO] [DB] saveTable: saved 9 rows to attendance table
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.740Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787043973738 - {"id":"notif-1787043973738","userId":"G-1001","title":"Clocked In Successfully","message":"You clocked in at 2:36 PM at Ahmedabad Plant.","read":false,"createdAt":"2026-08-18T09:06:13.740Z"}
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.774Z] [INFO] [DB] getTable: read notifications table, returned 8 rows
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.807Z] [INFO] [DB] saveTable: saved 9 rows to notifications table
+[0m
+[0m[2m[14:36:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:13.837Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.022Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.046Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.066Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.081Z] [INFO] [DB] getTable: read notifications table, returned 9 rows
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.107Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.485Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.508Z] [INFO] [SelfieVerificationScreen] Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[14:36:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:06:14.513Z] [INFO] [useGuardStore] clockIn completed successfully for G-1001
+[0m
+[0m[2m[14:40:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:08.984Z] [INFO] [DB] insertRow: inserting into leaves with id lv-1787044208983 - {"id":"lv-1787044208983","employeeId":"G-1001","employeeName":"John Smith","employeeEmail":"john@priority-one.io","role":"guard","type":"Sick Leave","startDate":"2026-08-09","endDate":"2026-08-10","days":2,"reason":"busy","status":"pending","appliedOn":"2026-08-18","companyId":"c-1"}
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.285Z] [INFO] [DB] getTable: read leaves table, returned 0 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.532Z] [INFO] [DB] saveTable: saved 1 rows to leaves table
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.553Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787044209553 - {"id":"notif-1787044209553","userId":"G-1001","title":"Leave Request Submitted","message":"Your Sick Leave request for 2 day(s) is pending approval.","read":false,"createdAt":"2026-08-18T09:10:09.553Z"}
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.568Z] [INFO] [DB] getTable: read notifications table, returned 9 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.587Z] [INFO] [DB] saveTable: saved 10 rows to notifications table
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.599Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.626Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.642Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.664Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.681Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.713Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.731Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.751Z] [INFO] [DB] getTable: read notifications table, returned 10 rows
+[0m
+[0m[2m[14:40:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:10:09.780Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:50:19][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Tearing down gesture handler registered for root view com.facebook.react.runtime.ReactSurfaceView{f017bb8 V.E...... ........ 0,0-1080,2400 #1}
+[0m
+[0m[2m[14:50:25][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[14:50:26][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{f017bb8 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[14:50:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:27.182Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:50:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:27.261Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:50:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:27.323Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:50:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:27.522Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:50:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:27.605Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+                             [2m└ [22m[2026-08-18T09:20:27.636Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:50:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:27.864Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:50:31][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:20:31.904Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[14:51:26][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[14:51:26][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-18T09:21:26.211Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[14:53:04][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[14:53:06][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{a5484f6 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[14:53:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:08.453Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:53:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:08.647Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:53:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:08.733Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:53:08][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:08.939Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[14:53:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:09.135Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:53:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:09.269Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:53:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:09.380Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:53:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:09.502Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:53:09][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:09.611Z] [INFO] [DB] getTable: read notifications table, returned 10 rows
+[0m
+[0m[2m[14:53:10][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:10.516Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:53:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:14.882Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:36 PM, ClockOut: --:--
+[0m
+[0m[2m[14:53:48][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:23:48.102Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.221Z] [INFO] [DB] updateRow: updating row id patrol-today in table patrols with updates: {"status":"in_progress","startTime":"2:54 PM"}
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.322Z] [INFO] [DB] saveTable: saved 1 rows to patrols table
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.399Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.437Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787045097425 - {"id":"notif-1787045097425","userId":"G-1001","title":"Patrol Started","message":"Morning Perimeter Patrol has been started at 2:54 PM.","read":false,"createdAt":"2026-08-18T09:24:57.425Z"}
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.451Z] [INFO] [DB] getTable: read notifications table, returned 10 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.600Z] [INFO] [DB] saveTable: saved 11 rows to notifications table
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.624Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.647Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.666Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.678Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.699Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.724Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.740Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.755Z] [INFO] [DB] getTable: read notifications table, returned 11 rows
+[0m
+[0m[2m[14:54:57][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:24:57.799Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:55:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:11.127Z] [INFO] [DB] updateRow: updating row id patrol-today in table patrols with updates: {"scanned":1,"status":"in_progress","endTime":""}
+[0m
+[0m[2m[14:55:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:11.156Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:55:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:11.231Z] [INFO] [DB] saveTable: saved 1 rows to patrols table
+[0m
+[0m[2m[14:55:11][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:11.235Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787045111235 - {"id":"notif-1787045111235","userId":"G-1001","title":"Checkpoint Scanned","message":"Main Gate recorded at 2:55 PM.","read":false,"createdAt":"2026-08-18T09:25:11.235Z"}
+[0m
+[0m[2m[14:55:12][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:12.187Z] [INFO] [DB] getTable: read notifications table, returned 11 rows
+[0m
+[0m[2m[14:55:12][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:12.294Z] [INFO] [DB] saveTable: saved 12 rows to notifications table
+[0m
+[0m[2m[14:55:12][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:12.416Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:55:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:13.199Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:55:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:13.250Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[14:55:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:13.313Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:55:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:13.339Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:55:13][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:13.400Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:55:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:14.722Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:55:14][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:14.903Z] [INFO] [DB] getTable: read notifications table, returned 12 rows
+[0m
+[0m[2m[14:55:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:16.547Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.216Z] [INFO] [DB] updateRow: updating row id patrol-today in table patrols with updates: {"scanned":2,"status":"in_progress","endTime":""}
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.280Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.309Z] [INFO] [DB] saveTable: saved 1 rows to patrols table
+                             [2m└ [22m[2026-08-18T09:25:39.311Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787045139311 - {"id":"notif-1787045139311","userId":"G-1001","title":"Checkpoint Scanned","message":"Reception Lobby recorded at 2:55 PM.","read":false,"createdAt":"2026-08-18T09:25:39.311Z"}
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.371Z] [INFO] [DB] getTable: read notifications table, returned 12 rows
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.420Z] [INFO] [DB] saveTable: saved 13 rows to notifications table
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.474Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:55:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:39.539Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:55:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:40.258Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[14:55:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:40.319Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:55:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:40.356Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:55:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:40.399Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:55:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:40.486Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:55:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:40.578Z] [INFO] [DB] getTable: read notifications table, returned 13 rows
+[0m
+[0m[2m[14:55:41][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:25:41.347Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[14:56:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:00.975Z] [INFO] [DB] updateRow: updating row id patrol-today in table patrols with updates: {"scanned":3,"status":"in_progress","endTime":""}
+[0m
+[0m[2m[14:56:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:00.990Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.046Z] [INFO] [DB] saveTable: saved 1 rows to patrols table
+                             [2m└ [22m[2026-08-18T09:26:01.048Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787045161048 - {"id":"notif-1787045161048","userId":"G-1001","title":"Checkpoint Scanned","message":"Parking Level 1 recorded at 2:56 PM.","read":false,"createdAt":"2026-08-18T09:26:01.048Z"}
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.098Z] [INFO] [DB] getTable: read notifications table, returned 13 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.122Z] [INFO] [DB] saveTable: saved 14 rows to notifications table
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.202Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.231Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.293Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.431Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.593Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[14:56:01][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:01.667Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[14:56:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:02.427Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[14:56:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:02.455Z] [INFO] [DB] getTable: read notifications table, returned 14 rows
+[0m
+[0m[2m[14:56:02][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:26:02.491Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.175Z] [INFO] [DB] updateRow: updating row id patrol-today in table patrols with updates: {"scanned":4,"status":"in_progress","endTime":""}
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.211Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.250Z] [INFO] [DB] saveTable: saved 1 rows to patrols table
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.255Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787046038255 - {"id":"notif-1787046038255","userId":"G-1001","title":"Checkpoint Scanned","message":"Server Room recorded at 3:10 PM.","read":false,"createdAt":"2026-08-18T09:40:38.255Z"}
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.347Z] [INFO] [DB] getTable: read notifications table, returned 14 rows
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.410Z] [INFO] [DB] saveTable: saved 15 rows to notifications table
+[0m
+[0m[2m[15:10:38][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:38.517Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[15:10:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:39.276Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[15:10:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:39.337Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[15:10:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:39.561Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[15:10:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:40.105Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[15:10:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:40.142Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[15:10:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:40.384Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[15:10:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:40.441Z] [INFO] [DB] getTable: read notifications table, returned 15 rows
+[0m
+[0m[2m[15:10:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:40:40.542Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[15:11:30][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[15:11:30][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-18T09:41:30.085Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[15:12:39][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:39.076Z] [INFO] [DB] updateRow: updating row id patrol-today in table patrols with updates: {"scanned":5,"status":"completed","endTime":"3:12 PM"}
+[0m
+[0m[2m[15:12:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:40.385Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[15:12:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:40.541Z] [INFO] [DB] saveTable: saved 1 rows to patrols table
+[0m
+[0m[2m[15:12:40][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:40.543Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787046160542 - {"id":"notif-1787046160542","userId":"G-1001","title":"Checkpoint Scanned","message":"Emergency Exit recorded at 3:12 PM.","read":false,"createdAt":"2026-08-18T09:42:40.543Z"}
+[0m
+[0m[2m[15:12:41][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:41.902Z] [INFO] [DB] getTable: read notifications table, returned 15 rows
+[0m
+[0m[2m[15:12:42][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:42.029Z] [INFO] [DB] saveTable: saved 16 rows to notifications table
+[0m
+[0m[2m[15:12:42][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:42.031Z] [INFO] [DB] insertRow: inserting into notifications with id notif-comp-1787046162031 - {"id":"notif-comp-1787046162031","userId":"G-1001","title":"Patrol Completed","message":"All 5 checkpoints completed at 3:12 PM.","read":false,"createdAt":"2026-08-18T09:42:42.031Z"}
+[0m
+[0m[2m[15:12:42][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:42.818Z] [INFO] [DB] getTable: read notifications table, returned 16 rows
+[0m
+[0m[2m[15:12:43][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:43.212Z] [INFO] [DB] saveTable: saved 17 rows to notifications table
+[0m
+[0m[2m[15:12:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:44.352Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[15:12:44][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:44.503Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[15:12:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:45.430Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[15:12:45][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:45.595Z] [INFO] [DB] getTable: read patrols table, returned 1 rows
+[0m
+[0m[2m[15:12:47][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:47.410Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[15:12:47][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:47.546Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[15:12:48][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:48.564Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[15:12:48][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:48.856Z] [INFO] [DB] getTable: read notifications table, returned 17 rows
+[0m
+[0m[2m[15:12:49][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:49.011Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[15:12:59][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:42:59.896Z] [INFO] [DB] insertRow: inserting into patrols with id patrol-1787046179893 - {"id":"patrol-1787046179893","companyId":"c-1","site":"Ahmedabad Plant","siteId":"s-01","guard":"John Smith","guardId":"G-1001","date":"2026-08-18","startTime":"3:12 PM","endTime":"","status":"in_progress","checkpoints":5,"scanned":0,"missed":0,"incidents":0}
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.094Z] [INFO] [DB] saveTable: saved 2 rows to patrols table
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.240Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.625Z] [INFO] [DB] insertRow: inserting into notifications with id notif-1787046180625 - {"id":"notif-1787046180625","userId":"G-1001","title":"Patrol Started","message":"Morning Perimeter Patrol has been started at 3:12 PM.","read":false,"createdAt":"2026-08-18T09:43:00.625Z"}
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.670Z] [INFO] [DB] getTable: read notifications table, returned 17 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.687Z] [INFO] [DB] saveTable: saved 18 rows to notifications table
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.720Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.758Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.780Z] [INFO] [DB] getTable: read attendance table, returned 9 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.797Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.820Z] [INFO] [DB] getTable: read leaves table, returned 1 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.852Z] [INFO] [DB] getTable: read incidents table, returned 12 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.888Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.907Z] [INFO] [DB] getTable: read notifications table, returned 18 rows
+[0m
+[0m[2m[15:13:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:43:00.962Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[15:20:16][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T09:50:16.980Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m

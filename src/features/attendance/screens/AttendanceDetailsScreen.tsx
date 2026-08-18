@@ -41,7 +41,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
               <Text style={[styles.dateText, { color: colors.text }]}>{record.date}</Text>
               <Text style={[styles.dayText, { color: colors.textSecondary }]}>{record.day}</Text>
             </View>
-            <AttendanceStatusBadge status={record.status} />
+            <AttendanceStatusBadge status={record.status as any} />
           </View>
 
           <View style={styles.grid}>

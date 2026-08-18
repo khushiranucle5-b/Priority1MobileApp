@@ -6,34 +6,70 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 
+import { useGuardStore } from '../../../store/useGuardStore';
+
 export const TodayDutyCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
+  const { todayShift, assignedSite } = useGuardStore();
+
+  const getStatusColor = () => {
+    if (!todayShift) return colors.secondary;
+    if (todayShift.status === 'in_progress') return colors.success;
+    if (todayShift.status === 'completed') return colors.primary[500];
+    return colors.info;
+  };
+
+  const getStatusBg = () => {
+    if (!todayShift) return colors.surfaceSecondary;
+    if (todayShift.status === 'in_progress') return colors.successLight;
+    if (todayShift.status === 'completed') return colors.primary[50];
+    return colors.infoLight;
+  };
+
+  const getStatusLabel = () => {
+    if (!todayShift) return 'Off Duty';
+    if (todayShift.status === 'in_progress') return 'In Progress';
+    if (todayShift.status === 'completed') return 'Completed';
+    return 'Assigned';
+  };
 
   return (
     <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('Duty')}>
       <Card variant="elevated" style={styles.card}>
         <View style={styles.header}>
           <Heading level="h4">Today's Duty</Heading>
-          <View style={[styles.statusBadge, { backgroundColor: colors.infoLight, borderRadius: borderRadius.full }]}>
-            <AppText size="xs" color={colors.info} weight="medium">Upcoming</AppText>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusBg(), borderRadius: borderRadius.full }]}>
+            <AppText size="xs" color={getStatusColor()} weight="medium">
+              {getStatusLabel()}
+            </AppText>
           </View>
         </View>
         
-        <View style={[styles.details, { marginTop: spacing.md }]}>
-          <View style={styles.detailRow}>
-            <AppText size="sm" color="secondary" style={styles.label}>Client:</AppText>
-            <AppText size="sm" weight="medium">ABC Industries</AppText>
+        {todayShift ? (
+          <View style={[styles.details, { marginTop: spacing.md }]}>
+            <View style={styles.detailRow}>
+              <AppText size="sm" color="secondary" style={styles.label}>Shift:</AppText>
+              <AppText size="sm" weight="medium">{todayShift.title}</AppText>
+            </View>
+            <View style={styles.detailRow}>
+              <AppText size="sm" color="secondary" style={styles.label}>Site:</AppText>
+              <AppText size="sm" weight="medium">{todayShift.site || assignedSite}</AppText>
+            </View>
+            <View style={styles.detailRow}>
+              <AppText size="sm" color="secondary" style={styles.label}>Time:</AppText>
+              <AppText size="sm" weight="medium">
+                {todayShift.startTime} - {todayShift.endTime}
+              </AppText>
+            </View>
           </View>
-          <View style={styles.detailRow}>
-            <AppText size="sm" color="secondary" style={styles.label}>Site:</AppText>
-            <AppText size="sm" weight="medium">Ahmedabad Plant</AppText>
+        ) : (
+          <View style={[styles.details, { marginTop: spacing.md }]}>
+            <AppText size="sm" color="secondary">
+              No shift scheduled for today.
+            </AppText>
           </View>
-          <View style={styles.detailRow}>
-            <AppText size="sm" color="secondary" style={styles.label}>Time:</AppText>
-            <AppText size="sm" weight="medium">09:00 AM - 06:00 PM</AppText>
-          </View>
-        </View>
+        )}
       </Card>
     </TouchableOpacity>
   );

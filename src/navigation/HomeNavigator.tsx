@@ -8,6 +8,11 @@ import { IncidentScreen } from '../features/incident/screens/IncidentScreen';
 import { HolidaysScreen } from '../features/holidays/screens/HolidaysScreen';
 import { NotificationsScreen } from '../features/notifications/screens/NotificationsScreen';
 import { NotificationDetailsScreen } from '../features/notifications/screens/NotificationDetailsScreen';
+import { LoneWorkerScreen } from '../features/safety/screens/LoneWorkerScreen';
+import { PostOrdersScreen } from '../features/resources/screens/PostOrdersScreen';
+import { AssetsScreen } from '../features/resources/screens/AssetsScreen';
+import { DocumentsScreen } from '../features/resources/screens/DocumentsScreen';
+import { MessagesScreen } from '../features/communication/screens/MessagesScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -21,6 +26,11 @@ export const HomeNavigator = () => {
       <Stack.Screen name="Holidays" component={HolidaysScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
       <Stack.Screen name="NotificationDetails" component={NotificationDetailsScreen} />
+      <Stack.Screen name="LoneWorker" component={LoneWorkerScreen} />
+      <Stack.Screen name="PostOrders" component={PostOrdersScreen} />
+      <Stack.Screen name="Assets" component={AssetsScreen} />
+      <Stack.Screen name="Documents" component={DocumentsScreen} />
+      <Stack.Screen name="Messages" component={MessagesScreen} />
     </Stack.Navigator>
   );
 };

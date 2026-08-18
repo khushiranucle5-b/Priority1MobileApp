@@ -9,7 +9,7 @@ export const PatrolInformationCard: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: colors.primary[50], borderRadius: borderRadius.md, padding: spacing.md }]}>
       <AppText size="sm" color={colors.primary[900]} style={styles.text}>
-        ℹ️ Complete all assigned checkpoints in the scheduled order. QR and NFC verification will be available once backend integration is completed.
+        ℹ️ Complete all assigned checkpoints in order. Tap "QR Scan" to scan checkpoint QR codes (CP-01 to CP-05) using the emulator scanning panel.
       </AppText>
     </View>
   );

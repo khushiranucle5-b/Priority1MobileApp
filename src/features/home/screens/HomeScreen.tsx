@@ -4,26 +4,38 @@ import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { 
   HomeHeader, 
   TodayDutyCard, 
-  AttendanceCard, 
-  QuickActionsGrid, 
+  AttendanceCard,
+  ClockInOutActionCard,
+  LoneWorkerCard,
+  PatrolProgressSummaryCard,
   NotificationCard, 
-  DailySummaryCard 
+  QuickActionsGrid, 
+  DailySummaryCard,
 } from '../components';
 
+import { SidebarDrawer } from '../../../components';
+
 export const HomeScreen: React.FC = () => {
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+
   return (
-    <ScreenLayout>
+    <ScreenLayout activeRoute="HomeScreen">
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <HomeHeader />
+        <HomeHeader onMenuPress={() => setIsDrawerOpen(true)} />
         <AttendanceCard />
         <TodayDutyCard />
+        <ClockInOutActionCard />
+        <LoneWorkerCard />
+        <PatrolProgressSummaryCard />
         <NotificationCard />
         <QuickActionsGrid />
         <DailySummaryCard />
+       
       </ScrollView>
+      <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </ScreenLayout>
   );
 };
