@@ -7,6 +7,7 @@ import { DutyScreen } from '../features/duty/screens/DutyScreen';
 import { PatrolScreen } from '../features/patrol/screens/PatrolScreen';
 import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
 import { useTheme } from '../providers/ThemeProvider';
+import { NavIcon } from '../components/NavIcon';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -24,11 +25,51 @@ export const TabNavigator = () => {
         headerShown: false // Hiding header in Tab Navigator so Stack headers can show if needed, or ScreenLayout handles it
       }}
     >
-      <Tab.Screen name="Home" component={HomeNavigator} />
-      <Tab.Screen name="Attendance" component={AttendanceNavigator} />
-      <Tab.Screen name="Duty" component={DutyScreen} />
-      <Tab.Screen name="Patrol" component={PatrolScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen 
+        name="Home" 
+        component={HomeNavigator}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <NavIcon name="dashboard" color={color} size={size} />
+          ),
+        }} 
+      />
+      <Tab.Screen 
+        name="Attendance" 
+        component={AttendanceNavigator}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <NavIcon name="leaves" color={color} size={size} />
+          ),
+        }} 
+      />
+      <Tab.Screen 
+        name="Duty" 
+        component={DutyScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <NavIcon name="payslips" color={color} size={size} />
+          ),
+        }} 
+      />
+      <Tab.Screen 
+        name="Patrol" 
+        component={PatrolScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <NavIcon name="loneworker" color={color} size={size} />
+          ),
+        }} 
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <NavIcon name="employees" color={color} size={size} />
+          ),
+        }} 
+      />
     </Tab.Navigator>
   );
 };

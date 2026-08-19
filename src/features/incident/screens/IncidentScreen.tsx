@@ -225,10 +225,10 @@ export const IncidentScreen: React.FC = () => {
 
                       <TouchableOpacity
                         style={styles.viewIconButton}
-                        onPress={() => navigation.navigate('IncidentDetails', { incidentId: item.id })}
+                        onPress={() => navigation.navigate('FileIncident', { incidentId: item.id })}
                         activeOpacity={0.7}
                       >
-                        <NavIcon name="eye" size={18} color="#4F46E5" />
+                        <NavIcon name="edit" size={18} color="#4F46E5" />
                       </TouchableOpacity>
                     </View>
 

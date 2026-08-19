@@ -23,7 +23,7 @@ export type HomeStackParamList = {
   Leave: undefined;
   Incident: undefined;
   IncidentDetails: { incidentId: string };
-  FileIncident: { prefillTitle?: string } | undefined;
+  FileIncident: { prefillTitle?: string, incidentId?: string } | undefined;
   Holidays: undefined;
   HolidayDetails: { holidayId: string };
   Notifications: undefined;

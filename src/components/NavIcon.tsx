@@ -18,7 +18,8 @@ export type NavIconName =
   | 'policies'
   | 'messages'
   | 'search'
-  | 'eye';
+  | 'eye'
+  | 'edit';
 
 interface NavIconProps {
   name: NavIconName;
@@ -170,6 +171,15 @@ export const NavIcon: React.FC<NavIconProps> = ({
           <View style={[styles.eyeShape, { borderColor: iconColor, borderWidth: strokeWidth }]}>
             <View style={[styles.eyePupil, { backgroundColor: iconColor }]} />
           </View>
+        </View>
+      );
+
+    case 'edit':
+      // Outline Pencil Icon
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={[styles.pencilBody, { borderColor: iconColor, borderWidth: strokeWidth }]} />
+          <View style={[styles.pencilTip, { borderBottomColor: iconColor, borderBottomWidth: strokeWidth }]} />
         </View>
       );
 
@@ -383,5 +393,20 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
+  },
+  // Pencil Icon
+  pencilBody: {
+    width: 6,
+    height: 12,
+    transform: [{ rotate: '45deg' }],
+    marginTop: -2,
+    marginLeft: 2,
+  },
+  pencilTip: {
+    width: 6,
+    height: 4,
+    transform: [{ rotate: '45deg' }],
+    marginTop: 2,
+    marginLeft: -4,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
@@ -9,7 +9,7 @@ import { Button } from '../../../components/Button';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { insertRow, DBIncident } from '../../../services/db';
+import { insertRow, updateRow, getTable, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
 
 export const FileIncidentScreen: React.FC = () => {
@@ -23,6 +23,7 @@ export const FileIncidentScreen: React.FC = () => {
   const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   // Form State
+  const [existingIncident, setExistingIncident] = useState<DBIncident | null>(null);
   const [title, setTitle] = useState(route.params?.prefillTitle || '');
   const [category, setCategory] = useState('Security Breach');
   const [severity, setSeverity] = useState<'Low' | 'Medium' | 'High' | 'Critical'>('Medium');
@@ -33,7 +34,38 @@ export const FileIncidentScreen: React.FC = () => {
   const [gpsLocation, setGpsLocation] = useState('23.1145° N, 72.5821° E');
   const [gpsRefreshing, setGpsRefreshing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(!!route.params?.incidentId);
   const [attachments, setAttachments] = useState<{ id: string; name: string; type: 'image' | 'video' | 'document'; url: string }[]>([]);
+
+  useEffect(() => {
+    const loadIncident = async () => {
+      const incidentId = route.params?.incidentId;
+      if (incidentId) {
+        try {
+          const all = await getTable<DBIncident>('incidents');
+          const inc = all.find(i => i.id === incidentId);
+          if (inc) {
+            setExistingIncident(inc);
+            setTitle(inc.title || '');
+            setCategory(inc.category || 'Security Breach');
+            if (['Low', 'Medium', 'High', 'Critical'].includes(inc.severity)) {
+              setSeverity(inc.severity as any);
+            }
+            setIncidentDate(inc.date || dateStr);
+            setIncidentTime(inc.exactTime || timeStr);
+            setDescription(inc.details || '');
+            setObservations(inc.observations || inc.details || '');
+            if (inc.gps) setGpsLocation(inc.gps);
+            if (inc.attachments) setAttachments(inc.attachments);
+          }
+        } catch (err) {
+          console.error('Failed to load incident for editing', err);
+        }
+      }
+      setLoadingInitial(false);
+    };
+    loadIncident();
+  }, [route.params?.incidentId]);
 
   const categories = [
     'Security Breach',
@@ -89,69 +121,107 @@ export const FileIncidentScreen: React.FC = () => {
 
     setSubmitting(true);
     try {
-      const incId = `inc-${Date.now()}`;
-      const code = `INC-2026-${Math.floor(100 + Math.random() * 900)}`;
+      const isEditing = !!existingIncident;
+      
+      if (isEditing && existingIncident) {
+        // Edit mode
+        const updates: Partial<DBIncident> = {
+          title: title.trim(),
+          category,
+          severity,
+          date: incidentDate,
+          exactTime: incidentTime,
+          details: description.trim(),
+          observations: observations.trim() || description.trim(),
+          attachments,
+        };
+        await updateRow('incidents', existingIncident.id, updates);
+        
+        Alert.alert('Incident Updated', `Incident report ${existingIncident.incidentCode || existingIncident.id} updated successfully!`, [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      } else {
+        // Create mode
+        const incId = `inc-${Date.now()}`;
+        const code = `INC-2026-${Math.floor(100 + Math.random() * 900)}`;
 
-      const newIncident: DBIncident = {
-        id: incId,
-        incidentCode: code,
-        title: title.trim(),
-        category,
-        severity,
-        status: 'Open',
-        reportedBy: guardName || 'Khushi Rani',
-        reportedById: guardId || 'guard-1',
-        employeeId: guardId || 'GRD-1024',
-        role: 'Senior Security Officer',
-        site: assignedSite || 'Ahmedabad Plant (Ranucle Zundal)',
-        siteId: 'site-001',
-        date: incidentDate,
-        exactTime: incidentTime,
-        createdAt: new Date().toISOString(),
-        details: description.trim(),
-        observations: observations.trim() || description.trim(),
-        gps: gpsLocation,
-        gpsStatus: 'GPS Verified — Inside Site Boundary',
-        companyId: 'company-001',
-        assignedTo: 'Security Control Room',
-        attachments,
-      };
+        const newIncident: DBIncident = {
+          id: incId,
+          incidentCode: code,
+          title: title.trim(),
+          category,
+          severity,
+          status: 'Open',
+          reportedBy: guardName || 'Khushi Rani',
+          reportedById: guardId || 'guard-1',
+          employeeId: guardId || 'GRD-1024',
+          role: 'Senior Security Officer',
+          site: assignedSite || 'Ahmedabad Plant (Ranucle Zundal)',
+          siteId: 'site-001',
+          date: incidentDate,
+          exactTime: incidentTime,
+          createdAt: new Date().toISOString(),
+          details: description.trim(),
+          observations: observations.trim() || description.trim(),
+          gps: gpsLocation,
+          gpsStatus: 'GPS Verified — Inside Site Boundary',
+          companyId: 'company-001',
+          assignedTo: 'Security Control Room',
+          attachments,
+        };
 
-      await insertRow('incidents', newIncident);
+        await insertRow('incidents', newIncident);
 
-      await reportIncident({
-        type: category,
-        title: title.trim(),
-        description: description.trim(),
-        location: assignedSite || 'Ahmedabad Plant (Ranucle Zundal)',
-        severity,
-      });
+        await reportIncident({
+          type: category,
+          title: title.trim(),
+          description: description.trim(),
+          location: assignedSite || 'Ahmedabad Plant (Ranucle Zundal)',
+          severity,
+        });
 
-      Alert.alert('Incident Filed', `Incident report ${code} filed successfully!`, [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ]);
+        Alert.alert('Incident Filed', `Incident report ${code} filed successfully!`, [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      }
     } catch (err) {
-      console.error('Failed to file incident', err);
-      Alert.alert('Error', 'Failed to file incident report. Please try again.');
+      console.error('Failed to save incident', err);
+      Alert.alert('Error', 'Failed to save incident report. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const isEditing = !!existingIncident;
+
+  if (loadingInitial) {
+    return (
+      <ScreenLayout activeRoute="Incident">
+        <PageHeader title="Edit Incident Report" showBack />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#4F46E5" />
+        </View>
+      </ScreenLayout>
+    );
+  }
+
   return (
     <ScreenLayout activeRoute="Incident">
-      <PageHeader title="File Incident Report" showBack />
+      <PageHeader title={isEditing ? "Edit Incident Report" : "File Incident Report"} showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
         {/* Header Block */}
         <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">File New Incident</Heading>
+          <Heading level="h2" color="primary">{isEditing ? "Edit Incident" : "File New Incident"}</Heading>
           <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            Complete the form below to submit an official security incident report.
+            {isEditing ? "Update the information for this incident report." : "Complete the form below to submit an official security incident report."}
           </AppText>
         </View>
 
@@ -364,7 +434,7 @@ export const FileIncidentScreen: React.FC = () => {
 
         {/* SUBMIT BUTTON */}
         <Button
-          title={submitting ? "Submitting Incident Report..." : "Submit Official Incident Report"}
+          title={submitting ? "Saving..." : (isEditing ? "Save Incident Updates" : "Submit Official Incident Report")}
           variant="primary"
           size="large"
           fullWidth
