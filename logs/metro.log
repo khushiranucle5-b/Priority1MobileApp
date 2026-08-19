@@ -36,3 +36,19 @@ Starting dev server on http://localhost:8081
  BUNDLE  ./index.js 
  BUNDLE  ./index.js ░░░░░░░░░░░░░░░░ 0% (0/1)
  BUNDLE  ./index.js 
+
+Welcome to React Native v0.86
+Starting dev server on http://localhost:8081
+
+[31m[1merror[22m[39m [0mlisten EADDRINUSE: address already in use :::8081.[0m
+[0mError: listen EADDRINUSE: address already in use :::8081
+    at Server.setupListenHandle [as _listen2] (node:net:1941:16)
+    at listenInCluster (node:net:1998:12)
+    at Server.listen (node:net:2103:7)
+    at D:\Priority1\Priority1MobileApp\node_modules\metro\src\index.flow.js:455:14
+    at new Promise (<anonymous>)
+    at earlyPortCheck (D:\Priority1\Priority1MobileApp\node_modules\metro\src\index.flow.js:451:11)
+    at Object.runServer (D:\Priority1\Priority1MobileApp\node_modules\metro\src\index.flow.js:201:9)
+    at Object.runServer [as func] (D:\Priority1\Priority1MobileApp\node_modules\@react-native\community-cli-plugin\dist\commands\start\runServer.js:147:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Command.handleAction (D:\Priority1\Priority1MobileApp\node_modules\@react-native-community\cli\build\index.js:139:9)[0m

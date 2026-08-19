@@ -77,19 +77,84 @@ export interface DBSiteSafetyRule {
 
 export interface DBSiteChecklist {
   id: string;
+  priority?: string;
   title: string;
   category: string;
-  itemsCount: number;
-  frequency: string;
+  description?: string;
+  steps?: string[];
+  itemsCount?: number;
+  frequency?: string;
   status: string;
 }
 
 export interface DBSitePostOrder {
   id: string;
+  priority?: string;
   title: string;
+  category?: string;
   version: string;
-  lastUpdated: string;
+  effectiveDate?: string;
+  expiryDate?: string;
+  lastUpdated?: string;
   status: string;
+}
+
+export interface DBSiteContact {
+  primaryContactName?: string;
+  contactEmail?: string;
+  primaryPhone?: string;
+  alternatePhone?: string;
+}
+
+export interface DBSiteOperationalSettings {
+  requireGpsEnabled?: boolean;
+  enableLocationTracking?: boolean;
+  enableShiftScheduling?: boolean;
+  allowGuardMobileAccess?: boolean;
+}
+
+export interface DBSiteGeofence {
+  boundaryType?: string;
+  latitude: number;
+  longitude: number;
+  radiusMeters: number;
+  status?: string;
+  enableGeofenceValidation?: boolean;
+  requireGeofenceClockIn?: boolean;
+  requireGeofenceClockOut?: boolean;
+  requireLocationPermission?: boolean;
+  outsideBoundaryAction?: string;
+  accuracyThresholdMeters?: number;
+}
+
+export interface DBSiteSafetyConfig {
+  shiftRules?: {
+    minMinsBeforeShift: number;
+    maxMinsAfterShift: number;
+    minMinsBeforeEnd: number;
+    maxMinsAfterEnd: number;
+  };
+  officerShiftChecks?: {
+    enabled: boolean;
+    intervalMins: number;
+    graceMins: number;
+  };
+  loneWorkerChecks?: {
+    enabled: boolean;
+    intervalMins: number;
+    graceMins: number;
+  };
+  customRules?: DBSiteSafetyRule[];
+}
+
+export interface DBSiteUser {
+  id: string;
+  name: string;
+  username?: string;
+  email: string;
+  role: string;
+  shiftTiming?: string;
+  shiftPeriod?: string;
 }
 
 export interface DBSite {
@@ -105,7 +170,7 @@ export interface DBSite {
   guardsCount: number;
   riskLevel: 'Low' | 'Medium' | 'High' | string;
   contractEnd: string;
-  status: 'active' | 'inactive' | string;
+  status: 'active' | 'inactive' | 'Active' | 'Inactive' | string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
@@ -117,11 +182,16 @@ export interface DBSite {
     longitude: number;
     radiusMeters: number;
   };
+  contact?: DBSiteContact;
+  operationalSettings?: DBSiteOperationalSettings;
+  internalNotes?: string;
+  geofence?: DBSiteGeofence;
   postOrders?: DBSitePostOrder[];
   checklists?: DBSiteChecklist[];
-  safetyRules?: DBSiteSafetyRule[];
+  safetyRules?: DBSiteSafetyRule[] | DBSiteSafetyConfig;
+  safetyConfig?: DBSiteSafetyConfig;
   tourCheckpoints?: DBSiteCheckpoint[];
-  assignedUsers?: { id: string; name: string; role: string; email: string }[];
+  assignedUsers?: DBSiteUser[];
   documents?: DBSiteDocument[];
 }
 
