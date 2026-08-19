@@ -26,8 +26,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false,
   return (
     <View style={[styles.container, { paddingHorizontal: spacing.base, paddingVertical: spacing.md }]}>
       {showBack && (
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={handleBack}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >

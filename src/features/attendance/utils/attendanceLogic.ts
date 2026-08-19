@@ -27,10 +27,13 @@ export const getDatesInRange = (startDateStr: string, endDateStr: string): strin
 // Gets the merged status of a specific date
 export const getMergedStatusForDate = (
   dateStr: string, 
-  attendanceHistory: AttendanceRecord[], 
-  leaves: LeaveRequest[]
+  attendanceHistory: AttendanceRecord[] = [], 
+  leaves: LeaveRequest[] = []
 ): MergedAttendanceRecord => {
-  const attendance = attendanceHistory.find(a => a.date === dateStr);
+  const safeAtt = Array.isArray(attendanceHistory) ? attendanceHistory : [];
+  const safeLeaves = Array.isArray(leaves) ? leaves : [];
+
+  const attendance = safeAtt.find(a => a.date === dateStr);
   
   if (attendance) {
     return {
@@ -42,7 +45,7 @@ export const getMergedStatusForDate = (
   }
 
   // Check if date falls in an approved leave
-  const approvedLeaves = leaves.filter(l => l.status.toLowerCase() === 'approved');
+  const approvedLeaves = safeLeaves.filter(l => l?.status?.toLowerCase() === 'approved');
   for (const leave of approvedLeaves) {
     const dates = getDatesInRange(leave.fromDate, leave.toDate);
     if (dates.includes(dateStr)) {
@@ -65,20 +68,23 @@ export const getMergedStatusForDate = (
 export const getMonthRecords = (
   year: number, 
   month: number, 
-  attendanceHistory: AttendanceRecord[], 
-  leaves: LeaveRequest[]
+  attendanceHistory: AttendanceRecord[] = [], 
+  leaves: LeaveRequest[] = []
 ): MergedAttendanceRecord[] => {
+  const safeAtt = Array.isArray(attendanceHistory) ? attendanceHistory : [];
+  const safeLeaves = Array.isArray(leaves) ? leaves : [];
+
   const records: MergedAttendanceRecord[] = [];
   const startDate = new Date(year, month, 1);
   const endDate = new Date(year, month + 1, 0);
 
-  const approvedLeaves = leaves.filter(l => l.status.toLowerCase() === 'approved');
+  const approvedLeaves = safeLeaves.filter(l => l?.status?.toLowerCase() === 'approved');
   
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const dateStr = d.toISOString().split('T')[0];
     
     // Fast path: find attendance
-    const attendance = attendanceHistory.find(a => a.date === dateStr);
+    const attendance = safeAtt.find(a => a.date === dateStr);
     if (attendance) {
       records.push({
         dateStr,

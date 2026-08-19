@@ -1,13 +1,15 @@
 import React from 'react';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../types/navigation.types';
 import { HomeNavigator } from './HomeNavigator';
 import { AttendanceNavigator } from './AttendanceNavigator';
 import { DutyScreen } from '../features/duty/screens/DutyScreen';
-import { PatrolScreen } from '../features/patrol/screens/PatrolScreen';
+import { PatrolNavigator } from './PatrolNavigator';
 import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
 import { useTheme } from '../providers/ThemeProvider';
 import { NavIcon } from '../components/NavIcon';
+import { LoneWorkerGlobalListener } from '../components/LoneWorkerGlobalListener';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -54,7 +56,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen 
         name="Patrol" 
-        component={PatrolScreen}
+        component={PatrolNavigator}
         options={{
           tabBarIcon: ({ color, size }) => (
             <NavIcon name="loneworker" color={color} size={size} />
@@ -73,3 +75,4 @@ export const TabNavigator = () => {
     </Tab.Navigator>
   );
 };
+

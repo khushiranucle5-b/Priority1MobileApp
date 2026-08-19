@@ -13,6 +13,8 @@ import { NotificationsScreen } from '../features/notifications/screens/Notificat
 import { NotificationDetailsScreen } from '../features/notifications/screens/NotificationDetailsScreen';
 import { LoneWorkerScreen } from '../features/safety/screens/LoneWorkerScreen';
 import { LoneWorkerDetailsScreen } from '../features/safety/screens/LoneWorkerDetailsScreen';
+import { SafetyHistoryScreen } from '../features/safety/screens/SafetyHistoryScreen';
+import { SafetyDateChecksScreen } from '../features/safety/screens/SafetyDateChecksScreen';
 import { PostOrdersScreen } from '../features/resources/screens/PostOrdersScreen';
 import { AssetsScreen } from '../features/resources/screens/AssetsScreen';
 import { AssetDetailsScreen } from '../features/resources/screens/AssetDetailsScreen';
@@ -24,6 +26,9 @@ import { PayslipsScreen } from '../features/payroll/screens/PayslipsScreen';
 import { PayslipDetailsScreen } from '../features/payroll/screens/PayslipDetailsScreen';
 import { SitesListScreen } from '../features/sites/screens/SitesListScreen';
 import { SiteDetailsScreen } from '../features/sites/screens/SiteDetailsScreen';
+
+import { PatrolDateLogsScreen } from '../features/patrol/screens/PatrolDateLogsScreen';
+import { PatrolDetailsScreen } from '../features/patrol/screens/PatrolDetailsScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -42,6 +47,10 @@ export const HomeNavigator = () => {
       <Stack.Screen name="NotificationDetails" component={NotificationDetailsScreen} />
       <Stack.Screen name="LoneWorker" component={LoneWorkerScreen} />
       <Stack.Screen name="LoneWorkerDetails" component={LoneWorkerDetailsScreen} />
+      <Stack.Screen name="PatrolDateLogs" component={PatrolDateLogsScreen} />
+      <Stack.Screen name="PatrolDetails" component={PatrolDetailsScreen} />
+      <Stack.Screen name="SafetyHistory" component={SafetyHistoryScreen} />
+      <Stack.Screen name="SafetyDateChecks" component={SafetyDateChecksScreen} />
       <Stack.Screen name="PostOrders" component={PostOrdersScreen} />
       <Stack.Screen name="Assets" component={AssetsScreen} />
       <Stack.Screen name="AssetDetails" component={AssetDetailsScreen} />

@@ -29,7 +29,8 @@ export const DatewiseAttendanceList = ({ monthRecords }: DatewiseAttendanceListP
   };
 
   // Only show dates that have an explicit status (Present, Absent, Leave)
-  const listRecords = monthRecords.filter(r => r.type !== 'none');
+  const safeMonthRecords = Array.isArray(monthRecords) ? monthRecords : [];
+  const listRecords = safeMonthRecords.filter(r => r.type !== 'none');
 
   if (listRecords.length === 0) {
     return (

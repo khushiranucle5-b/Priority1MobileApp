@@ -85,6 +85,7 @@ export const AttendanceScreen: React.FC = () => {
         <AttendanceCalendar 
           currentDate={currentDate} 
           selectedDate={selectedDate} 
+          monthRecords={monthRecords}
           onMonthChange={setCurrentDate} 
           onDateSelect={setSelectedDate} 
         />

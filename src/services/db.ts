@@ -157,19 +157,23 @@ export interface DBAttendance {
 
 export interface DBPatrol {
   id: string;
+  patrolCode?: string;
+  title?: string;
   companyId: string;
   site: string;
   siteId?: string;
+  route?: string;
   guard: string;
   guardId?: string;
   date: string;
   startTime: string;
-  endTime: string;
-  status: 'completed' | 'in_progress' | 'pending' | string;
+  endTime?: string;
+  status: 'completed' | 'in_progress' | 'assigned' | 'pending' | 'missed' | 'overdue' | string;
   checkpoints: number;
   scanned: number;
   missed: number;
   incidents: number;
+  lastCheckpoint?: string;
 }
 
 export interface DBLeave {

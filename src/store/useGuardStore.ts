@@ -16,7 +16,10 @@ import {
   saveLeaveBalances,
   DBMessage,
 } from '../services/db';
+
+export type { DBPatrol };
 import { LoggerService } from '../services/logger.service';
+import { soundAlertService } from '../services/soundAlert.service';
 
 export type AttendanceStatus = 'Not Checked In' | 'Checked In' | 'Checked Out';
 
@@ -95,10 +98,12 @@ export interface LoneWorkerHistoryItem {
 }
 
 export interface LoneWorkerState {
-  status: 'SAFE' | 'Checked In' | 'Pending Check-In' | 'Missed Check-In' | string;
+  status: 'SAFE' | 'Checked In' | 'Pending Check-In' | 'Missed Check-In' | 'CHECK REQUIRED' | 'OVERDUE' | 'SOS / Issue Reported' | 'NOT ACTIVE' | string;
   lastCheckIn: string | null;
   lastCheckInTimestamp: number | null;
   nextCheckRequired: string | null;
+  nextCheckTimestamp?: number | null;
+  isModalOpen?: boolean;
 }
 
 export interface CheckpointData {
@@ -149,7 +154,7 @@ interface GuardState {
   clockOut: () => Promise<void>;
   applyLeave: (leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
   reportIncident: (incident: Omit<IncidentReport, 'id' | 'status' | 'reportedDate'>) => Promise<void>;
-  startPatrol: () => Promise<void>;
+  startPatrol: (patrolId?: string) => Promise<any>;
   scanCheckpointCode: (code: string) => Promise<{ success: boolean; message: string }>;
   checkInLoneWorker: (customParams?: {
     latitude?: number;
@@ -158,6 +163,9 @@ interface GuardState {
     gpsStatus?: string;
     status?: string;
   }) => void;
+  openLoneWorkerModal: () => void;
+  closeLoneWorkerModal: () => void;
+  triggerSafetyCheckDue: () => void;
   sendMessage: (type: 'site' | 'direct', conversationId: string, receiverId: string | null, messageText: string) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   markAllNotificationsRead: () => Promise<void>;
@@ -194,10 +202,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   messages: [],
   
   loneWorker: {
-    status: 'SAFE',
-    lastCheckIn: '03:58 PM',
+    status: 'NOT ACTIVE',
+    lastCheckIn: null,
     lastCheckInTimestamp: null,
-    nextCheckRequired: '04:28 PM',
+    nextCheckRequired: null,
+    nextCheckTimestamp: null,
+    isModalOpen: false,
   },
   loneWorkerHistory: [
     {
@@ -361,17 +371,58 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       let clockInTime: number | null = null;
       let clockOutTime: number | null = null;
       
+      const safeParseMs = (str: string | null | undefined): number | null => {
+        if (!str) return null;
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) return d.getTime();
+        const n = Number(str);
+        if (!isNaN(n) && n > 0) return n;
+        return null;
+      };
+
+      const formatTime12h = (timestamp: number | null): string => {
+        if (!timestamp) return '--:--';
+        const d = new Date(timestamp);
+        if (isNaN(d.getTime())) return '--:--';
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      };
+
       if (openRecord && openRecord.clockIn) {
         attStatus = 'Checked In';
-        const parsedIn = openRecord.clockIn.includes('Z') || openRecord.clockIn.includes('T') ? new Date(openRecord.clockIn).getTime() : Date.now();
-        clockInTime = parsedIn;
+        clockInTime = safeParseMs(openRecord.clockIn);
         clockOutTime = null;
       } else if (latestCompletedRecord && latestCompletedRecord.clockIn && latestCompletedRecord.clockOut) {
         attStatus = 'Checked Out';
-        const parsedIn = latestCompletedRecord.clockIn.includes('Z') || latestCompletedRecord.clockIn.includes('T') ? new Date(latestCompletedRecord.clockIn).getTime() : Date.now() - 8 * 3600 * 1000;
-        const parsedOut = latestCompletedRecord.clockOut.includes('Z') || latestCompletedRecord.clockOut.includes('T') ? new Date(latestCompletedRecord.clockOut).getTime() : Date.now();
-        clockInTime = parsedIn;
-        clockOutTime = parsedOut;
+        clockInTime = safeParseMs(latestCompletedRecord.clockIn);
+        clockOutTime = safeParseMs(latestCompletedRecord.clockOut);
+      }
+
+      // Restore Lone Worker State from AsyncStorage
+      const rawLw = await AsyncStorage.getItem(`@lone_worker_state_${guardId}`);
+      let currentLoneWorker: LoneWorkerState = {
+        status: attStatus === 'Checked In' ? 'SAFE' : 'NOT ACTIVE',
+        lastCheckIn: clockInTime ? formatTime12h(clockInTime) : null,
+        lastCheckInTimestamp: clockInTime,
+        nextCheckRequired: clockInTime ? formatTime12h(clockInTime + 30 * 60 * 1000) : null,
+        nextCheckTimestamp: clockInTime ? clockInTime + 30 * 60 * 1000 : null,
+        isModalOpen: false,
+      };
+
+      if (rawLw && attStatus === 'Checked In') {
+        try {
+          const parsed = JSON.parse(rawLw);
+          currentLoneWorker = {
+            ...currentLoneWorker,
+            ...parsed,
+            isModalOpen: false, // reset modal open state on fresh hydration
+          };
+          if (!currentLoneWorker.nextCheckTimestamp && currentLoneWorker.lastCheckInTimestamp) {
+            currentLoneWorker.nextCheckTimestamp = currentLoneWorker.lastCheckInTimestamp + 30 * 60 * 1000;
+            currentLoneWorker.nextCheckRequired = formatTime12h(currentLoneWorker.nextCheckTimestamp);
+          }
+        } catch (e) {
+          // ignore
+        }
       }
       
       // Supervisor info
@@ -453,6 +504,51 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           notes: a.exceptionReason || '',
         };
       });
+
+      // INJECT MOCK DATA FOR AUGUST 2026
+      const presentDates = [3, 4, 5, 6, 7, 10, 11, 13, 14, 17, 18, 19, 21, 24, 25, 26, 27, 28, 31];
+      presentDates.forEach(d => {
+        const dateStr = `2026-08-${String(d).padStart(2, '0')}`;
+        if (!mappedHistory.some(a => a.date === dateStr)) {
+          mappedHistory.push({
+            id: `mock-att-${d}`,
+            date: dateStr,
+            day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' }),
+            siteName: 'Main Site',
+            shiftName: 'Day Shift',
+            clockIn: `${dateStr}T08:00:00.000Z`,
+            clockOut: `${dateStr}T17:00:00.000Z`,
+            workingHours: 9,
+            status: 'Present',
+            notes: 'Mock data',
+          });
+        }
+      });
+
+      if (!mappedLeaves.some(l => l.fromDate === '2026-08-12')) {
+        mappedLeaves.push({
+          id: 'mock-leave-12',
+          type: 'Annual Leave',
+          fromDate: '2026-08-12',
+          toDate: '2026-08-12',
+          days: 1,
+          reason: 'Personal',
+          status: 'Approved',
+          appliedDate: '2026-08-01',
+        });
+      }
+      if (!mappedLeaves.some(l => l.fromDate === '2026-08-20')) {
+        mappedLeaves.push({
+          id: 'mock-leave-20',
+          type: 'Sick Leave',
+          fromDate: '2026-08-20',
+          toDate: '2026-08-20',
+          days: 1,
+          reason: 'Medical',
+          status: 'Approved',
+          appliedDate: '2026-08-15',
+        });
+      }
       
       // Load leave balances
       const leaveBalances = await getLeaveBalances(guardId);
@@ -482,6 +578,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         patrolCheckpoints: activeCPs,
         notifications: mappedNotifs,
         messages: guardMessages,
+        loneWorker: currentLoneWorker,
         isInitialized: true,
       });
       LoggerService.log(`[GuardStore] Hydration completed successfully for ${guardId}`);
@@ -533,15 +630,26 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       await insertRow('notifications', newNotif);
 
       const nowMs = Date.now();
-      const nowClockStr = new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const nextClockStr = new Date(nowMs + 30 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const formatTime12h = (ts: number) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const nextMs = nowMs + 30 * 60 * 1000;
+      const lwState: LoneWorkerState = {
+        status: 'SAFE',
+        lastCheckIn: formatTime12h(nowMs),
+        lastCheckInTimestamp: nowMs,
+        nextCheckRequired: formatTime12h(nextMs),
+        nextCheckTimestamp: nextMs,
+        isModalOpen: false,
+      };
+
+      await AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState));
+
       set({
-        loneWorker: {
-          status: 'SAFE',
-          lastCheckIn: nowClockStr,
-          lastCheckInTimestamp: nowMs,
-          nextCheckRequired: nextClockStr,
-        },
+        attendanceStatus: 'Checked In',
+        clockInTimestamp: nowMs,
+        clockOutTimestamp: null,
+        isClockedIn: true,
+        isClockedOut: false,
+        loneWorker: lwState,
       });
 
       await get().loadGuardData(guardId, guardEmail || '');
@@ -554,21 +662,22 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   
   clockOut: async () => {
     try {
-      const { guardId, guardEmail, assignedSite } = get();
+      const { guardId, guardEmail, assignedSite, clockInTimestamp } = get();
       if (!guardId) {
         LoggerService.log('[useGuardStore] clockOut failed: guardId is null', 'warn');
         throw new Error('Cannot clock out: current guard identity has not been initialized.');
       }
       
-      const todayStr = new Date().toISOString().split('T')[0];
+      const nowMs = Date.now();
+      const nowStr = new Date(nowMs).toISOString();
+      const todayStr = new Date(nowMs).toISOString().split('T')[0];
       const currentAtt = await getTable<DBAttendance>('attendance');
       const todayRecord = currentAtt.slice().reverse().find(a => a.employeeId === guardId && a.date === todayStr && !a.clockOut)
         || currentAtt.slice().reverse().find(a => a.employeeId === guardId && a.date === todayStr);
       
       if (todayRecord) {
-        const nowStr = new Date().toISOString();
-        const inT = new Date(todayRecord.clockIn || nowStr).getTime();
-        const outT = new Date(nowStr).getTime();
+        const inT = (todayRecord.clockIn ? new Date(todayRecord.clockIn).getTime() : 0) || clockInTimestamp || nowMs;
+        const outT = nowMs;
         const diffHrs = Math.max(0.01, (outT - inT) / (1000 * 3600)).toFixed(2) + ' hrs';
         
         await updateRow<DBAttendance>('attendance', todayRecord.id, {
@@ -588,11 +697,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         await insertRow('notifications', newNotif);
         LoggerService.log(`[useGuardStore] clockOut update complete for record ${todayRecord.id}`);
       } else {
-        const now = Date.now();
-        const nowStr = new Date(now).toISOString();
-        const clockInStr = new Date(now - 8 * 3600 * 1000).toISOString();
         const fallbackRecord: DBAttendance = {
-          id: `att-${now}`,
+          id: `att-${nowMs}`,
           employeeId: guardId,
           employeeName: get().guardName || 'Security Officer',
           employeeEmail: guardEmail || '',
@@ -600,7 +706,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           role: 'guard',
           date: todayStr,
           shift: 'Morning Shift 08:00 AM - 04:00 PM',
-          clockIn: clockInStr,
+          clockIn: clockInTimestamp ? new Date(clockInTimestamp).toISOString() : new Date(nowMs - 8 * 3600 * 1000).toISOString(),
           clockOut: nowStr,
           workingHours: '8.00 hrs',
           status: 'present',
@@ -621,14 +727,26 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         await insertRow('notifications', newNotif);
         LoggerService.log(`[useGuardStore] clockOut fallback record created for ${guardId}`);
       }
+
+      soundAlertService.stopSafetyAlert();
       
+      const lwState: LoneWorkerState = {
+        status: 'NOT ACTIVE',
+        lastCheckIn: null,
+        lastCheckInTimestamp: null,
+        nextCheckRequired: null,
+        nextCheckTimestamp: null,
+        isModalOpen: false,
+      };
+
+      await AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState));
+
       set({
-        loneWorker: {
-          status: 'NOT ACTIVE',
-          lastCheckIn: null,
-          lastCheckInTimestamp: null,
-          nextCheckRequired: null,
-        },
+        attendanceStatus: 'Checked Out',
+        clockOutTimestamp: nowMs,
+        isClockedIn: false,
+        isClockedOut: true,
+        loneWorker: lwState,
       });
 
       await get().loadGuardData(guardId, guardEmail || '');
@@ -706,12 +824,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
-  startPatrol: async () => {
+  startPatrol: async (patrolId?: string) => {
     const { guardId, guardEmail, patrols } = get();
     if (!guardId) return;
 
-    // Find the today's pending patrol or build one
-    const activePat = patrols.find(p => p.status === 'pending' || p.status === 'in_progress');
+    // Find target patrol by ID or pending/in_progress
+    const activePat = (patrolId ? patrols.find(p => p.id === patrolId) : null) ||
+                      patrols.find(p => p.status === 'pending' || p.status === 'in_progress' || p.status === 'Assigned');
     const nowTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     if (activePat) {
@@ -846,7 +965,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
     const nowTimeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const shortTimeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const nextStr = new Date(nowMs + 30 * 60 * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const nextMs = nowMs + 30 * 60 * 1000;
+    const nextStr = new Date(nextMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const site = get().assignedSite || 'Ahmedabad Plant (Ranucle Zundal)';
     const guardId = get().guardId || 'guard-1';
     const guardName = get().guardName || 'Khushi Rani';
@@ -858,6 +978,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const isGpsValid = dist <= radius;
     const gpsStatus = customParams?.gpsStatus ?? (isGpsValid ? 'GPS Verified' : 'Location Not Verified');
     const checkStatus = customParams?.status ?? 'Safe';
+
+    soundAlertService.stopSafetyAlert();
 
     const newHistoryItem: LoneWorkerHistoryItem = {
       id: `lw-${nowMs}`,
@@ -877,14 +999,49 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       timestamp: nowMs,
     };
 
+    const lwState: LoneWorkerState = {
+      status: checkStatus === 'Safe' ? 'SAFE' : checkStatus === 'SOS / Issue Reported' ? 'SOS / Issue Reported' : checkStatus,
+      lastCheckIn: shortTimeStr,
+      lastCheckInTimestamp: nowMs,
+      nextCheckRequired: nextStr,
+      nextCheckTimestamp: nextMs,
+      isModalOpen: false,
+    };
+
+    if (guardId) {
+      AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState)).catch(() => {});
+    }
+
+    set((state) => ({
+      loneWorker: lwState,
+      loneWorkerHistory: [newHistoryItem, ...(state.loneWorkerHistory || [])],
+    }));
+  },
+
+  openLoneWorkerModal: () => {
+    set((state) => ({
+      loneWorker: { ...state.loneWorker, isModalOpen: true }
+    }));
+  },
+
+  closeLoneWorkerModal: () => {
+    soundAlertService.stopSafetyAlert();
+    set((state) => ({
+      loneWorker: { ...state.loneWorker, isModalOpen: false }
+    }));
+  },
+
+  triggerSafetyCheckDue: () => {
+    const { loneWorker, isClockedIn } = get();
+    if (!isClockedIn) return;
+    if (loneWorker.isModalOpen) return;
+    soundAlertService.startSafetyAlert();
     set((state) => ({
       loneWorker: {
-        status: checkStatus === 'Safe' ? 'SAFE' : 'SOS / Issue Reported',
-        lastCheckIn: shortTimeStr,
-        lastCheckInTimestamp: nowMs,
-        nextCheckRequired: nextStr,
-      },
-      loneWorkerHistory: [newHistoryItem, ...(state.loneWorkerHistory || [])],
+        ...state.loneWorker,
+        status: 'CHECK REQUIRED',
+        isModalOpen: true,
+      }
     }));
   },
 

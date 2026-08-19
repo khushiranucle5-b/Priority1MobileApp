@@ -10,9 +10,10 @@ interface MonthlySummaryProps {
 export const MonthlySummary = ({ monthRecords }: MonthlySummaryProps) => {
   const { colors, borderRadius } = useTheme();
 
-  const presentCount = monthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'present').length;
-  const absentCount = monthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'absent').length;
-  const leaveCount = monthRecords.filter(r => r.type === 'leave').length;
+  const safeMonthRecords = Array.isArray(monthRecords) ? monthRecords : [];
+  const presentCount = safeMonthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'present').length;
+  const absentCount = safeMonthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'absent').length;
+  const leaveCount = safeMonthRecords.filter(r => r.type === 'leave').length;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
