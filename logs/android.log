@@ -2767,3 +2767,54 @@
 [0m
 [0m[2m[19:54:00][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-18T14:24:00.202Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
 [0m
+^C[36m[1minfo[22m[39m [0mStarting logkitty[0m
+[0m[2m[15:25:21][22m I | [1mReactNativeJS[22m ▶︎ Running "MyFirstApp" with {"rootTag":1,"initialProps":{},"fabric":true}
+[0m
+[0m[2m[15:25:25][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Initialize gesture handler for root view com.facebook.react.runtime.ReactSurfaceView{a5484f6 V.E...... ......ID 0,0-1080,2400 #1}
+[0m
+[0m[2m[15:25:27][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:27.942Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[15:25:28][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:28.352Z] [INFO] [DB] getTable: read employees table, returned 4 rows
+[0m
+[0m[2m[15:25:28][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:28.942Z] [INFO] [DB] getTable: read shifts table, returned 1 rows
+[0m
+[0m[2m[15:25:29][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:29.033Z] [INFO] [DB] getTable: read attendance table, returned 12 rows
+[0m
+[0m[2m[15:25:29][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:29.253Z] [INFO] [DB] getTable: read patrols table, returned 2 rows
+[0m
+[0m[2m[15:25:29][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:29.604Z] [INFO] [DB] getTable: read messages table, returned 2 rows
+[0m
+[0m[2m[15:25:29][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:29.754Z] [INFO] [DB] getTable: read notifications table, returned 25 rows
+[0m
+[0m[2m[15:25:31][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:31.469Z] [INFO] [GuardStore] Hydration completed successfully for G-1001
+[0m
+[0m[2m[15:25:36][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:36.233Z] [INFO] [AttendanceCard] Current Attendance Info - Status: Checked In, ClockIn: 2:48 PM, ClockOut: --:--
+[0m
+[0m[2m[15:25:41][22m I | [1mReactNativeJS[22m ▶︎ [2026-08-19T09:55:41.492Z] [INFO] [SoundAlertService] Starting Lone Worker Safety Alert sound & vibration
+[0m
+[0m[2m[15:25:41][22m I | [1mReactNative[22m ▶︎ [GESTURE HANDLER] Tearing down gesture handler registered for root view com.facebook.react.runtime.ReactSurfaceView{a5484f6 V.E...... .......D 0,0-1080,2400 #1}
+[0m
+[0m[2m[15:29:09][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33mCannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m
+[0m[2m[15:29:09][22m [33mW |[39m [1m[33mReactNativeJS[39m[22m [33m▶︎[39m [33m[2026-08-19T09:59:09.680Z] [WARN] [ConsoleWarn] Cannot connect to Metro.[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mTry the following to fix the issue:[39m
+                             [33m│ [39m[33m- Ensure that Metro is running and available on the same network[39m
+                             [33m│ [39m[33m- Ensure that your device/emulator is connected to your machine and has USB debugging enabled - run 'adb devices' to see a list of connected devices[39m
+                             [33m│ [39m[33m- If you're on a physical device connected to the same machine, run 'adb reverse tcp:8081 tcp:8081' to forward requests from your device[39m
+                             [33m│ [39m[33m- If your device is on the same Wi-Fi network, set 'Debug server host & port for device' in 'Dev settings' to your machine's IP address and the port of the local dev server - e.g. 10.0.1.1:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m│ [39m[33mURL: 10.0.2.2:8081[39m
+                             [33m│ [39m[33m[39m
+                             [33m└ [39m[33mError: undefined[39m
+[0m

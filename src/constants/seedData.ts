@@ -547,51 +547,211 @@ export const SEED_DATA = {
       "id": "s-12lnsg7-1786085509818",
       "companyId": "c-1",
       "name": "Ranucle zundal",
-      "code": "SIT-RN-004",
+      "code": "s-12lnsg7-1786085509818",
       "clientName": "Ranucle",
       "branch": "West Zone Branch",
-      "facilityType": "Industrial Plant & Logistics",
+      "facilityType": "Commercial Port / Terminal",
       "supervisorName": "Daniel Brooks",
       "guardsCount": 6,
       "riskLevel": "High",
       "contractEnd": "2027-12-31",
       "status": "active",
-      "addressLine1": "Plot 42, Zundal Industrial Estate",
-      "addressLine2": "Near SG Highway Ring Road",
+      "addressLine1": "S.P.Ring Road (Zundal), Ahmedabad, Gujarat 382424, India",
+      "addressLine2": "Plot 42, Zundal Industrial Estate",
       "city": "Ahmedabad",
       "state": "Gujarat",
-      "postalCode": "382421",
+      "postalCode": "382424",
       "country": "India",
       "coordinates": {
-        "latitude": 23.1189,
-        "longitude": 72.5842,
-        "radiusMeters": 100
+        "latitude": 23.129695,
+        "longitude": 72.58482,
+        "radiusMeters": 150
+      },
+      "contact": {
+        "primaryContactName": "Daniel Brooks",
+        "contactEmail": "daniel.b@ranucle.com",
+        "primaryPhone": "+91 98765 43210",
+        "alternatePhone": "+91 98765 43211"
+      },
+      "operationalSettings": {
+        "requireGpsEnabled": true,
+        "enableLocationTracking": true,
+        "enableShiftScheduling": true,
+        "allowGuardMobileAccess": true
+      },
+      "internalNotes": "High priority commercial port & container terminal site. Strict geofence validation and PPE safety compliance required at all perimeter gates.",
+      "geofence": {
+        "boundaryType": "Circle",
+        "latitude": 23.129695,
+        "longitude": 72.58482,
+        "radiusMeters": 150,
+        "status": "ACTIVE GEOFENCE",
+        "enableGeofenceValidation": true,
+        "requireGeofenceClockIn": true,
+        "requireGeofenceClockOut": true,
+        "requireLocationPermission": true,
+        "outsideBoundaryAction": "Allow But Flag Exception",
+        "accuracyThresholdMeters": 50
       },
       "postOrders": [
-        { "id": "po-1", "title": "Perimeter Access Control Protocol", "version": "v2.4", "lastUpdated": "2026-08-01", "status": "Active" },
-        { "id": "po-2", "title": "Night Patrol & Hazard Escort Procedure", "version": "v1.8", "lastUpdated": "2026-07-15", "status": "Active" }
+        {
+          "id": "po-1",
+          "priority": "High",
+          "title": "aaaa",
+          "category": "Access Control",
+          "version": "v1.0",
+          "effectiveDate": "2026-08-11",
+          "expiryDate": "Indefinite",
+          "lastUpdated": "2026-08-11",
+          "status": "Active"
+        },
+        {
+          "id": "po-2",
+          "priority": "Medium",
+          "title": "Perimeter Access Control Protocol",
+          "category": "Security Protocol",
+          "version": "v2.4",
+          "effectiveDate": "2026-08-01",
+          "expiryDate": "2027-12-31",
+          "lastUpdated": "2026-08-01",
+          "status": "Active"
+        }
       ],
       "checklists": [
-        { "id": "cl-1", "title": "Morning Shift Opening Inspection", "category": "Safety & Operational", "itemsCount": 12, "frequency": "Daily", "status": "Active" },
-        { "id": "cl-2", "title": "Gate & Vehicle Entrance Audit", "category": "Access Control", "itemsCount": 8, "frequency": "Per Shift", "status": "Active" }
+        {
+          "id": "cl-1",
+          "priority": "High",
+          "title": "Medical Emergency Checklist",
+          "category": "Emergency Response",
+          "description": "Standard response procedure for on-site medical emergencies",
+          "steps": [
+            "1. Call 911 immediately",
+            "2. Render First Aid / CPR if certified",
+            "3. Guide paramedic unit to gate",
+            "4. Notify site supervisor"
+          ],
+          "itemsCount": 4,
+          "frequency": "Emergency",
+          "status": "Active"
+        },
+        {
+          "id": "cl-2",
+          "priority": "Medium",
+          "title": "Morning Shift Opening Inspection",
+          "category": "Safety & Operational",
+          "description": "Daily verification of perimeter gates, barrier locks, and guard room logbooks.",
+          "steps": [
+            "1. Verify main entry gate locks",
+            "2. Inspect CCTV monitor feeds",
+            "3. Check radio battery charge levels",
+            "4. Log shift handover report"
+          ],
+          "itemsCount": 12,
+          "frequency": "Daily",
+          "status": "Active"
+        }
       ],
-      "safetyRules": [
-        { "id": "sr-1", "ruleName": "Mandatory Hardhat & Hi-Vis Safety Vest Area", "description": "Guards and visitors must wear certified PPE inside Zundal loading dock zones.", "status": "Enforced", "effectiveDate": "2026-01-01" },
-        { "id": "sr-2", "ruleName": "No Smoking / Zero Flame Policy", "description": "Strict zero flame policy near fuel storage tanks and chemical bays.", "status": "Enforced", "effectiveDate": "2026-01-01" }
-      ],
+      "safetyConfig": {
+        "shiftRules": {
+          "minMinsBeforeShift": 15,
+          "maxMinsAfterShift": 30,
+          "minMinsBeforeEnd": 10,
+          "maxMinsAfterEnd": 15
+        },
+        "officerShiftChecks": {
+          "enabled": true,
+          "intervalMins": 60,
+          "graceMins": 10
+        },
+        "loneWorkerChecks": {
+          "enabled": true,
+          "intervalMins": 30,
+          "graceMins": 5
+        },
+        "customRules": [
+          {
+            "id": "sr-1",
+            "ruleName": "Mandatory Hardhat & Hi-Vis Safety Vest Area",
+            "description": "Guards and visitors must wear certified PPE inside Zundal loading dock zones.",
+            "status": "Enforced",
+            "effectiveDate": "2026-01-01"
+          }
+        ]
+      },
       "tourCheckpoints": [
-        { "id": "cp-1", "name": "Main Entry Gate A", "code": "CP-RN-01", "location": "North Entrance", "status": "Active", "sequence": 1 },
-        { "id": "cp-2", "name": "Chemical Storage Bay", "code": "CP-RN-02", "location": "East Sector", "status": "Active", "sequence": 2 },
-        { "id": "cp-3", "name": "Loading Dock 4", "code": "CP-RN-03", "location": "South Yard", "status": "Active", "sequence": 3 }
+        {
+          "id": "cp-1",
+          "name": "Main Entry Gate A",
+          "code": "CP-RN-01",
+          "location": "North Entrance",
+          "status": "Active",
+          "sequence": 1
+        },
+        {
+          "id": "cp-2",
+          "name": "Chemical Storage Bay",
+          "code": "CP-RN-02",
+          "location": "East Sector",
+          "status": "Active",
+          "sequence": 2
+        },
+        {
+          "id": "cp-3",
+          "name": "Loading Dock 4",
+          "code": "CP-RN-03",
+          "location": "South Dock",
+          "status": "Active",
+          "sequence": 3
+        }
       ],
       "assignedUsers": [
-        { "id": "u-sup-1", "name": "Daniel Brooks", "role": "Supervisor", "email": "daniel.b@priority-one.io" },
-        { "id": "u-grd-1", "name": "John Smith", "role": "Guard", "email": "john@priority-one.io" },
-        { "id": "u-grd-2", "name": "David Chen", "role": "Guard", "email": "david.c@priority-one.io" }
+        {
+          "id": "u-user-1",
+          "name": "Michael Carter",
+          "username": "michael.carter",
+          "email": "michael.carter@acme.io",
+          "role": "Command Supervisor",
+          "shiftTiming": "08:00 AM - 08:00 PM",
+          "shiftPeriod": "2026-08-01 to 2026-12-31"
+        },
+        {
+          "id": "u-user-2",
+          "name": "richerl Rohde",
+          "username": "richerl_rohde",
+          "email": "richerl@acme.io",
+          "role": "Security Guard",
+          "shiftTiming": "06:00 - 13:00",
+          "shiftPeriod": "August 13, 2026"
+        },
+        {
+          "id": "u-user-3",
+          "name": "abc xyz",
+          "username": "abc_xyz",
+          "email": "abc@acme.io",
+          "role": "Security Guard",
+          "shiftTiming": "08:00 AM - 04:00 PM",
+          "shiftPeriod": "2026-08-01 to 2026-12-31"
+        }
       ],
       "documents": [
-        { "id": "doc-1", "title": "Ranucle Zundal Site Security Directive", "category": "Operations", "fileName": "Ranucle_Zundal_Security_Plan.pdf", "fileSize": "2.4 MB", "uploadedBy": "Daniel Brooks", "uploadDate": "2026-07-10" },
-        { "id": "doc-2", "title": "Emergency Evacuation & Fire Map", "category": "Compliance", "fileName": "Zundal_Evac_Map_2026.pdf", "fileSize": "1.1 MB", "uploadedBy": "Daniel Brooks", "uploadDate": "2026-07-12" }
+        {
+          "id": "doc-1",
+          "title": "Ranucle Zundal Site Security Directive",
+          "category": "Operations",
+          "fileName": "Ranucle_Zundal_Security_Plan.pdf",
+          "fileSize": "2.4 MB",
+          "uploadedBy": "Daniel Brooks",
+          "uploadDate": "2026-07-10"
+        },
+        {
+          "id": "doc-2",
+          "title": "Emergency Evacuation & Fire Map",
+          "category": "Compliance",
+          "fileName": "Zundal_Evac_Map_2026.pdf",
+          "fileSize": "1.1 MB",
+          "uploadedBy": "Daniel Brooks",
+          "uploadDate": "2026-07-12"
+        }
       ]
     },
     {

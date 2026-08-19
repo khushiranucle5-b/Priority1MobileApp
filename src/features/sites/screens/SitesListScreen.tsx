@@ -7,51 +7,82 @@ import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { useNavigation } from '@react-navigation/native';
-import { getTable, saveTable, insertRow, DBSite } from '../../../services/db';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { getTable, saveTable, DBSite } from '../../../services/db';
+import { NavIcon } from '../../../components/NavIcon';
 
 const DEFAULT_SITES: DBSite[] = [
   {
     id: 's-12lnsg7-1786085509818',
     companyId: 'c-1',
-    name: 'Ahmedabad Plant (Ranucle Zundal)',
-    code: 'SIT-RN-004',
-    clientName: 'Ranucle Corp',
+    name: 'Ranucle zundal',
+    code: 's-12lnsg7-1786085509818',
+    clientName: 'Ranucle',
     branch: 'West Zone Branch',
-    facilityType: 'Industrial Plant & Logistics',
+    facilityType: 'Commercial Port / Terminal',
     supervisorName: 'Daniel Brooks',
     guardsCount: 6,
     riskLevel: 'High',
     contractEnd: '2027-12-31',
     status: 'active',
-    addressLine1: 'Plot 42, Zundal Industrial Park',
-    addressLine2: 'Near SG Highway Ring Road',
+    addressLine1: 'S.P.Ring Road (Zundal), Ahmedabad, Gujarat 382424, India',
+    addressLine2: 'Plot 42, Zundal Industrial Estate',
     city: 'Ahmedabad',
     state: 'Gujarat',
-    postalCode: '382421',
+    postalCode: '382424',
     country: 'India',
     coordinates: {
-      latitude: 23.1189,
-      longitude: 72.5842,
-      radiusMeters: 100,
+      latitude: 23.129695,
+      longitude: 72.58482,
+      radiusMeters: 150,
+    },
+    contact: {
+      primaryContactName: 'Daniel Brooks',
+      contactEmail: 'daniel.b@ranucle.com',
+      primaryPhone: '+91 98765 43210',
+      alternatePhone: '+91 98765 43211',
+    },
+    operationalSettings: {
+      requireGpsEnabled: true,
+      enableLocationTracking: true,
+      enableShiftScheduling: true,
+      allowGuardMobileAccess: true,
+    },
+    internalNotes: 'High priority commercial port & container terminal site.',
+    geofence: {
+      boundaryType: 'Circle',
+      latitude: 23.129695,
+      longitude: 72.58482,
+      radiusMeters: 150,
+      status: 'ACTIVE GEOFENCE',
+      enableGeofenceValidation: true,
+      requireGeofenceClockIn: true,
+      requireGeofenceClockOut: true,
+      requireLocationPermission: true,
+      outsideBoundaryAction: 'Allow But Flag Exception',
+      accuracyThresholdMeters: 50,
     },
     postOrders: [
-      { id: 'po-1', title: 'Perimeter Access Control Protocol', version: 'v2.4', lastUpdated: '2026-08-01', status: 'Active' },
-      { id: 'po-2', title: 'Night Patrol & Hazard Escort Procedure', version: 'v1.8', lastUpdated: '2026-07-15', status: 'Active' },
+      { id: 'po-1', priority: 'High', title: 'aaaa', category: 'Access Control', version: 'v1.0', effectiveDate: '2026-08-11', expiryDate: 'Indefinite', lastUpdated: '2026-08-11', status: 'Active' },
+      { id: 'po-2', priority: 'Medium', title: 'Perimeter Access Control Protocol', category: 'Security Protocol', version: 'v2.4', effectiveDate: '2026-08-01', expiryDate: '2027-12-31', lastUpdated: '2026-08-01', status: 'Active' },
     ],
     checklists: [
-      { id: 'cl-1', title: 'Morning Shift Opening Inspection', category: 'Safety & Operational', itemsCount: 12, frequency: 'Daily', status: 'Active' },
+      { id: 'cl-1', priority: 'High', title: 'Medical Emergency Checklist', category: 'Emergency Response', description: 'Standard response procedure for on-site medical emergencies', steps: ['1. Call 911 immediately', '2. Render First Aid / CPR if certified', '3. Guide paramedic unit to gate', '4. Notify site supervisor'], itemsCount: 4, frequency: 'Emergency', status: 'Active' },
     ],
-    safetyRules: [
-      { id: 'sr-1', ruleName: 'Mandatory Hardhat & Hi-Vis Safety Vest Area', description: 'Guards and visitors must wear certified PPE inside Zundal loading dock zones.', status: 'Enforced', effectiveDate: '2026-01-01' },
-    ],
+    safetyConfig: {
+      shiftRules: { minMinsBeforeShift: 15, maxMinsAfterShift: 30, minMinsBeforeEnd: 10, maxMinsAfterEnd: 15 },
+      officerShiftChecks: { enabled: true, intervalMins: 60, graceMins: 10 },
+      loneWorkerChecks: { enabled: true, intervalMins: 30, graceMins: 5 },
+    },
     tourCheckpoints: [
       { id: 'cp-1', name: 'Main Entry Gate A', code: 'CP-RN-01', location: 'North Entrance', status: 'Active', sequence: 1 },
       { id: 'cp-2', name: 'Chemical Storage Bay', code: 'CP-RN-02', location: 'East Sector', status: 'Active', sequence: 2 },
+      { id: 'cp-3', name: 'Loading Dock 4', code: 'CP-RN-03', location: 'South Dock', status: 'Active', sequence: 3 },
     ],
     assignedUsers: [
-      { id: 'u-sup-1', name: 'Daniel Brooks', role: 'Supervisor', email: 'daniel.b@priority-one.io' },
-      { id: 'u-grd-1', name: 'John Smith', role: 'Guard', email: 'john@priority-one.io' },
+      { id: 'u-user-1', name: 'Michael Carter', username: 'michael.carter', email: 'michael.carter@acme.io', role: 'Command Supervisor', shiftTiming: '08:00 AM - 08:00 PM', shiftPeriod: '2026-08-01 to 2026-12-31' },
+      { id: 'u-user-2', name: 'richerl Rohde', username: 'richerl_rohde', email: 'richerl@acme.io', role: 'Security Guard', shiftTiming: '06:00 - 13:00', shiftPeriod: 'August 13, 2026' },
+      { id: 'u-user-3', name: 'abc xyz', username: 'abc_xyz', email: 'abc@acme.io', role: 'Security Guard', shiftTiming: '08:00 AM - 04:00 PM', shiftPeriod: '2026-08-01 to 2026-12-31' },
     ],
     documents: [
       { id: 'doc-1', title: 'Ranucle Zundal Site Security Directive', category: 'Operations', fileName: 'Ranucle_Zundal_Security_Plan.pdf', fileSize: '2.4 MB', uploadedBy: 'Daniel Brooks', uploadDate: '2026-07-10' },
@@ -71,7 +102,6 @@ const DEFAULT_SITES: DBSite[] = [
     contractEnd: '2028-01-15',
     status: 'active',
     addressLine1: '100 Financial Plaza',
-    addressLine2: 'Floors 1 - 15',
     city: 'San Francisco',
     state: 'California',
     postalCode: '94111',
@@ -101,17 +131,22 @@ const DEFAULT_SITES: DBSite[] = [
 ];
 
 export const SitesListScreen: React.FC = () => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors } = useTheme();
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
 
   const [sites, setSites] = useState<DBSite[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [riskFilter, setRiskFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [riskFilter, setRiskFilter] = useState<string>('All');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [riskDropdownOpen, setRiskDropdownOpen] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   useEffect(() => {
-    loadSites();
-  }, []);
+    if (isFocused) {
+      loadSites();
+    }
+  }, [isFocused]);
 
   const loadSites = async () => {
     const data = await getTable<DBSite>('sites');
@@ -124,20 +159,32 @@ export const SitesListScreen: React.FC = () => {
   };
 
   const filteredSites = sites.filter((site) => {
+    const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      site.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      site.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      site.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      site.city.toLowerCase().includes(searchQuery.toLowerCase());
+      !q ||
+      (site.name || '').toLowerCase().includes(q) ||
+      (site.code || '').toLowerCase().includes(q) ||
+      (site.id || '').toLowerCase().includes(q) ||
+      (site.clientName || '').toLowerCase().includes(q) ||
+      (site.branch || '').toLowerCase().includes(q) ||
+      (site.supervisorName || '').toLowerCase().includes(q) ||
+      (site.addressLine1 || '').toLowerCase().includes(q) ||
+      (site.city || '').toLowerCase().includes(q) ||
+      (site.state || '').toLowerCase().includes(q);
 
-    const matchesRisk = riskFilter === 'All' || site.riskLevel.toLowerCase() === riskFilter.toLowerCase();
-    const matchesStatus = statusFilter === 'All' || site.status.toLowerCase() === statusFilter.toLowerCase();
+    const matchesRisk =
+      riskFilter === 'All' ||
+      (site.riskLevel || '').toLowerCase() === riskFilter.toLowerCase();
+
+    const matchesStatus =
+      statusFilter === 'All' ||
+      (site.status || '').toLowerCase() === statusFilter.toLowerCase();
 
     return matchesSearch && matchesRisk && matchesStatus;
   });
 
-  const getRiskBadgeColor = (risk: string) => {
-    switch (risk.toLowerCase()) {
+  const getRiskBadgeColor = (risk?: string) => {
+    switch ((risk || '').toLowerCase()) {
       case 'high':
         return { bg: '#FEE2E2', text: '#DC2626' };
       case 'medium':
@@ -148,167 +195,227 @@ export const SitesListScreen: React.FC = () => {
     }
   };
 
+  const getStatusBadgeColor = (status?: string) => {
+    switch ((status || '').toLowerCase()) {
+      case 'active':
+        return { bg: '#D1FAE5', text: '#059669' };
+      case 'inactive':
+      default:
+        return { bg: '#F1F5F9', text: '#64748B' };
+    }
+  };
+
   return (
     <ScreenLayout activeRoute="SitesList">
-      <PageHeader
-        title="Sites"
-        showBack
-      />
+      <PageHeader title="Sites" showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
-        {/* Header Subtitle */}
-        <View style={{ marginBottom: 14 }}>
-          <AppText size="sm" color="secondary">
+        {/* Header Block */}
+        <View style={styles.headerBlock}>
+          <Heading level="h2" color="primary">Sites</Heading>
+          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
             Protected Sites • Client sites, coverage, risk tier and geofencing.
           </AppText>
         </View>
 
-        {/* Filters Bar */}
-        <Card style={styles.filterCard}>
-          <View style={styles.searchBox}>
-            <AppText style={styles.searchIcon}>🔍</AppText>
+        {/* Search & Filter Bar Component (Matching Incident Reports style) */}
+        <View style={styles.searchFilterContainer}>
+          {/* Full-width rounded search input */}
+          <View style={styles.searchBar}>
+            <View style={{ marginRight: 8 }}>
+              <NavIcon name="search" size={16} color="#64748B" />
+            </View>
             <TextInput
+              style={styles.searchInput}
               placeholder="Search site, client, code, address..."
+              placeholderTextColor="#94A3B8"
               value={searchQuery}
               onChangeText={setSearchQuery}
-              style={styles.searchInput}
-              placeholderTextColor="#94A3B8"
             />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
+                <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+              </TouchableOpacity>
+            ) : null}
           </View>
 
-          <View style={styles.filterRow}>
-            {/* Risk Filters */}
-            <View style={styles.filterGroup}>
-              <AppText size="xs" color="secondary" style={styles.filterLabel}>Risk Tier:</AppText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
-                {['All', 'Low', 'Medium', 'High'].map((risk) => (
-                  <TouchableOpacity
-                    key={risk}
-                    onPress={() => setRiskFilter(risk)}
-                    style={[
-                      styles.chip,
-                      riskFilter === risk && styles.activeChip,
-                    ]}
-                  >
-                    <AppText
-                      size="xs"
-                      weight={riskFilter === risk ? 'bold' : 'regular'}
-                      style={{ color: riskFilter === risk ? '#FFFFFF' : '#475569' }}
-                    >
-                      {risk}
-                    </AppText>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
+          {/* Compact Filter Row matching Incident Reports */}
+          <View style={styles.filterTriggersRow}>
+            {/* Risk Tier Dropdown Trigger */}
+            <TouchableOpacity
+              style={styles.dropdownTrigger}
+              onPress={() => {
+                setRiskDropdownOpen(!riskDropdownOpen);
+                setStatusDropdownOpen(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <AppText size="xs" color="secondary" style={{ marginRight: 4 }}>Risk:</AppText>
+              <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+                {riskFilter}
+              </AppText>
+              <AppText size="xs" color="secondary">{riskDropdownOpen ? '▲' : '▼'}</AppText>
+            </TouchableOpacity>
 
-            {/* Status Filters */}
-            <View style={styles.filterGroup}>
-              <AppText size="xs" color="secondary" style={styles.filterLabel}>Status:</AppText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
-                {['All', 'Active', 'Inactive'].map((status) => (
-                  <TouchableOpacity
-                    key={status}
-                    onPress={() => setStatusFilter(status)}
-                    style={[
-                      styles.chip,
-                      statusFilter === status && styles.activeChip,
-                    ]}
-                  >
-                    <AppText
-                      size="xs"
-                      weight={statusFilter === status ? 'bold' : 'regular'}
-                      style={{ color: statusFilter === status ? '#FFFFFF' : '#475569' }}
-                    >
-                      {status}
-                    </AppText>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
+            {/* Status Dropdown Trigger */}
+            <TouchableOpacity
+              style={styles.dropdownTrigger}
+              onPress={() => {
+                setStatusDropdownOpen(!statusDropdownOpen);
+                setRiskDropdownOpen(false);
+              }}
+              activeOpacity={0.8}
+            >
+              <AppText size="xs" color="secondary" style={{ marginRight: 4 }}>Status:</AppText>
+              <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+                {statusFilter}
+              </AppText>
+              <AppText size="xs" color="secondary">{statusDropdownOpen ? '▲' : '▼'}</AppText>
+            </TouchableOpacity>
           </View>
-        </Card>
 
-        {/* Sites Table / List */}
-        <View style={styles.headerTitleRow}>
+          {/* Risk Tier Dropdown Options */}
+          {riskDropdownOpen && (
+            <View style={styles.dropdownMenu}>
+              {['All', 'Low', 'Medium', 'High'].map((r) => (
+                <TouchableOpacity
+                  key={r}
+                  style={[styles.dropdownItem, riskFilter === r && styles.dropdownItemActive]}
+                  onPress={() => {
+                    setRiskFilter(r);
+                    setRiskDropdownOpen(false);
+                  }}
+                >
+                  <AppText
+                    size="xs"
+                    weight={riskFilter === r ? 'bold' : 'medium'}
+                    style={{ color: riskFilter === r ? '#4F46E5' : '#334155' }}
+                  >
+                    {riskFilter === r ? `✓ Risk: ${r}` : `Risk: ${r}`}
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {/* Status Dropdown Options */}
+          {statusDropdownOpen && (
+            <View style={styles.dropdownMenu}>
+              {['All', 'Active', 'Inactive'].map((s) => (
+                <TouchableOpacity
+                  key={s}
+                  style={[styles.dropdownItem, statusFilter === s && styles.dropdownItemActive]}
+                  onPress={() => {
+                    setStatusFilter(s);
+                    setStatusDropdownOpen(false);
+                  }}
+                >
+                  <AppText
+                    size="xs"
+                    weight={statusFilter === s ? 'bold' : 'medium'}
+                    style={{ color: statusFilter === s ? '#4F46E5' : '#334155' }}
+                  >
+                    {statusFilter === s ? `✓ Status: ${s}` : `Status: ${s}`}
+                  </AppText>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* List Title */}
+        <View style={styles.listHeaderRow}>
           <Heading level="h4" color="primary">Protected Sites List ({filteredSites.length})</Heading>
         </View>
 
+        {/* Site Cards List */}
         {filteredSites.length === 0 ? (
           <Card style={{ padding: 24, alignItems: 'center' }}>
-            <AppText size="base" color="secondary">No sites match the current search or filters.</AppText>
+            <NavIcon name="sites" size={36} color="#94A3B8" />
+            <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
+              No sites match your search query or filter criteria.
+            </AppText>
           </Card>
         ) : (
           filteredSites.map((site) => {
             const riskColors = getRiskBadgeColor(site.riskLevel);
+            const statusColors = getStatusBadgeColor(site.status);
+
             return (
               <Card key={site.id} style={styles.siteCard}>
-                <View style={styles.siteHeader}>
-                  <View style={{ flex: 1 }}>
-                    <Heading level="h4" color="primary">{site.name}</Heading>
-                    <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                      {site.code} • Client: <AppText size="xs" weight="bold" color="primary">{site.clientName}</AppText>
-                    </AppText>
-                  </View>
-
-                  <View style={styles.badgeRow}>
-                    <View style={[styles.badge, { backgroundColor: riskColors.bg }]}>
-                      <AppText size="xs" weight="bold" style={{ color: riskColors.text }}>
-                        {site.riskLevel} Risk
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  onPress={() => navigation.navigate('SiteDetails', { siteId: site.id })}
+                >
+                  {/* Card Header */}
+                  <View style={styles.siteCardHeader}>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <Heading level="h4" color="primary">{site.name}</Heading>
+                      <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                        Client: <AppText size="xs" weight="bold" color="primary">{site.clientName}</AppText>
                       </AppText>
                     </View>
-                    <View style={[styles.badge, { backgroundColor: '#D1FAE5' }]}>
-                      <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
-                        {site.status.toUpperCase()}
-                      </AppText>
+
+                    <View style={styles.badgeGroup}>
+                      <View style={[styles.badge, { backgroundColor: riskColors.bg }]}>
+                        <AppText size="xs" weight="bold" style={{ color: riskColors.text }}>
+                          {site.riskLevel} Risk
+                        </AppText>
+                      </View>
+                      <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
+                        <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                          {(site.status || 'ACTIVE').toUpperCase()}
+                        </AppText>
+                      </View>
                     </View>
                   </View>
-                </View>
 
-                <View style={styles.divider} />
+                  <View style={styles.divider} />
 
-                {/* Details Grid */}
-                <View style={styles.grid}>
-                  <View style={styles.gridItem}>
-                    <AppText size="xs" color="secondary">Branch</AppText>
-                    <AppText size="sm" weight="bold" color="primary">{site.branch}</AppText>
+                  {/* Card Details Grid */}
+                  <View style={styles.grid}>
+                    <View style={styles.gridCol}>
+                      <AppText size="xs" color="secondary">Branch:</AppText>
+                      <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>{site.branch}</AppText>
+                    </View>
+
+                    <View style={styles.gridCol}>
+                      <AppText size="xs" color="secondary">Supervisor:</AppText>
+                      <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>{site.supervisorName}</AppText>
+                    </View>
+
+                    <View style={styles.gridCol}>
+                      <AppText size="xs" color="secondary">Guards on Site:</AppText>
+                      <AppText size="sm" weight="bold" color="primary">{site.guardsCount} Guards</AppText>
+                    </View>
+
+                    <View style={styles.gridCol}>
+                      <AppText size="xs" color="secondary">Contract End:</AppText>
+                      <AppText size="sm" weight="bold" color="primary">{site.contractEnd}</AppText>
+                    </View>
                   </View>
 
-                  <View style={styles.gridItem}>
-                    <AppText size="xs" color="secondary">Supervisor</AppText>
-                    <AppText size="sm" weight="bold" color="primary">{site.supervisorName}</AppText>
+                  {/* Card Address & Action Footer */}
+                  <View style={styles.cardFooter}>
+                    <View style={{ flex: 1, marginRight: 10 }}>
+                      <AppText size="xs" color="secondary" numberOfLines={2}>
+                        📍 {site.addressLine1}{site.city ? `, ${site.city}` : ''}
+                      </AppText>
+                    </View>
+
+                    <Button
+                      title="View Site →"
+                      variant="outline"
+                      size="small"
+                      onPress={() => navigation.navigate('SiteDetails', { siteId: site.id })}
+                      style={styles.viewSiteBtn}
+                    />
                   </View>
-
-                  <View style={styles.gridItem}>
-                    <AppText size="xs" color="secondary">Guards On Site</AppText>
-                    <AppText size="sm" weight="bold" color="primary">{site.guardsCount} Guards</AppText>
-                  </View>
-
-                  <View style={styles.gridItem}>
-                    <AppText size="xs" color="secondary">Contract End</AppText>
-                    <AppText size="sm" weight="bold" color="primary">{site.contractEnd}</AppText>
-                  </View>
-                </View>
-
-                <View style={styles.cardFooter}>
-                  <AppText size="xs" color="secondary">
-                    📍 {site.addressLine1}, {site.city}
-                  </AppText>
-
-                  <Button
-                    title="View Site Details →"
-                    variant="outline"
-                    size="medium"
-                    onPress={() => navigation.navigate('SiteDetails', { siteId: site.id })}
-                    style={{ minHeight: 44, paddingHorizontal: 16 }}
-                  />
-                </View>
+                </TouchableOpacity>
               </Card>
             );
           })
         )}
-
       </ScrollView>
     </ScreenLayout>
   );
@@ -319,68 +426,82 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  filterCard: {
-    padding: 16,
-    marginBottom: 20,
+  headerBlock: {
+    marginBottom: 12,
   },
-  searchBox: {
+  searchFilterContainer: {
+    marginBottom: 16,
+  },
+  searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 12,
-    height: 48,
-    marginBottom: 14,
-  },
-  searchIcon: {
-    marginRight: 8,
-    fontSize: 16,
+    height: 46,
+    marginBottom: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 14,
     color: '#0F172A',
+    paddingVertical: 0,
   },
-  filterRow: {
-    gap: 12,
+  filterTriggersRow: {
+    flexDirection: 'row',
+    gap: 8,
   },
-  filterGroup: {
-    gap: 4,
+  dropdownTrigger: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    height: 40,
+    paddingHorizontal: 10,
   },
-  filterLabel: {
-    marginBottom: 2,
+  dropdownMenu: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    padding: 4,
+    marginTop: 6,
+    elevation: 3,
   },
-  chip: {
+  dropdownItem: {
+    paddingVertical: 10,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#F1F5F9',
+    borderRadius: 6,
   },
-  activeChip: {
-    backgroundColor: '#4F46E5',
+  dropdownItemActive: {
+    backgroundColor: '#EEF2FF',
   },
-  headerTitleRow: {
+  listHeaderRow: {
     marginBottom: 12,
   },
   siteCard: {
     padding: 16,
     marginBottom: 14,
   },
-  siteHeader: {
+  siteCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  badgeRow: {
+  badgeGroup: {
     flexDirection: 'row',
     gap: 6,
   },
   badge: {
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   divider: {
     height: 1,
@@ -391,10 +512,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     rowGap: 10,
-    marginBottom: 14,
+    marginBottom: 12,
   },
-  gridItem: {
+  gridCol: {
     width: '50%',
+    paddingRight: 6,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -404,4 +526,9 @@ const styles = StyleSheet.create({
     borderTopColor: '#F1F5F9',
     paddingTop: 12,
   },
+  viewSiteBtn: {
+    minHeight: 38,
+    paddingHorizontal: 14,
+  },
 });
+
