@@ -22,6 +22,7 @@ export const IncidentScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Open' | 'Under Review' | 'Resolved' | 'High / Critical'>('All');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (isFocused) {
@@ -49,8 +50,6 @@ export const IncidentScreen: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const filterOptions = [
     'All Statuses',
@@ -117,7 +116,7 @@ export const IncidentScreen: React.FC = () => {
 
       <View style={styles.mainWrapper}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          
+
           {/* Header Block */}
           <View style={styles.headerBlock}>
             <Heading level="h2" color="primary">My Incident Reports</Heading>

@@ -24,8 +24,18 @@ export const RootNavigator = () => {
     }
   }, [isAuthenticated, user]);
 
+  // Safety fallback: ensure initialization resolves within 2 seconds
+  useEffect(() => {
+    if (isAuthenticated && !isInitialized) {
+      const timer = setTimeout(() => {
+        useGuardStore.setState({ isInitialized: true });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated, isInitialized]);
+
   if (isLoading || (isAuthenticated && !isInitialized)) {
-    return <LoadingState />;
+    return <LoadingState message="Loading Guard Workspace..." />;
   }
 
   return (

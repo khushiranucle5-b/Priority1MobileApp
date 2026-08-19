@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, Modal, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
@@ -7,6 +7,7 @@ import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
+import { soundAlertService } from '../../../services/soundAlert.service';
 
 interface LoneWorkerModalProps {
   visible: boolean;
@@ -16,7 +17,7 @@ interface LoneWorkerModalProps {
 export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClose }) => {
   const { colors, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
-  const { loneWorker, loneWorkerHistory, checkInLoneWorker, isClockedIn } = useGuardStore();
+  const { loneWorker, checkInLoneWorker, isClockedIn, closeLoneWorkerModal } = useGuardStore();
   const [nowMs, setNowMs] = useState(Date.now());
 
   useEffect(() => {
@@ -25,17 +26,15 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
   }, []);
 
   const elapsedMs = loneWorker.lastCheckInTimestamp ? nowMs - loneWorker.lastCheckInTimestamp : 0;
-  const isCheckInDisabled = !isClockedIn || (loneWorker.lastCheckInTimestamp !== null && elapsedMs < 30 * 60 * 1000);
-  const remainingMins = Math.max(1, Math.ceil((30 * 60 * 1000 - elapsedMs) / 60000));
 
   const getStatusInfo = () => {
     if (!isClockedIn) {
       return { label: 'NOT ACTIVE', color: '#94A3B8', bg: '#F1F5F9' };
     }
-    if (elapsedMs >= 45 * 60 * 1000) {
+    if (elapsedMs >= 45 * 60 * 1000 || loneWorker.status === 'OVERDUE') {
       return { label: 'OVERDUE', color: '#DC2626', bg: '#FEE2E2' };
     }
-    if (elapsedMs >= 30 * 60 * 1000) {
+    if (elapsedMs >= 30 * 60 * 1000 || loneWorker.status === 'CHECK REQUIRED' || loneWorker.isModalOpen) {
       return { label: 'CHECK REQUIRED', color: '#D97706', bg: '#FEF3C7' };
     }
     return { label: 'SAFE', color: '#059669', bg: '#D1FAE5' };
@@ -43,22 +42,38 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
 
   const statusInfo = getStatusInfo();
 
+  // SAFE CHECKED action
   const handleSafeCheckIn = () => {
-    checkInLoneWorker();
+    soundAlertService.stopSafetyAlert();
+    checkInLoneWorker({ status: 'Safe' });
+    closeLoneWorkerModal();
+    onClose();
   };
 
+  // REPORT ISSUE / SOS action
   const handleReportIssue = () => {
+    soundAlertService.stopSafetyAlert();
+    checkInLoneWorker({ status: 'SOS / Issue Reported' });
+    closeLoneWorkerModal();
     onClose();
     navigation.navigate('Incident');
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={() => {
+        // Mandatory non-dismissible popup: do nothing on back press
+      }}
+    >
       <View style={styles.overlay}>
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
-        
+        {/* Non-interactive backdrop: Tapping outside will NOT dismiss */}
+        <View style={styles.backdrop} />
+
         <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
-          {/* Header */}
+          {/* Header (No X / Close Button) */}
           <View style={styles.header}>
             <View style={styles.headerTitleRow}>
               <View style={{ marginRight: 8 }}>
@@ -67,15 +82,10 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
               <Heading level="h3" color="primary">Lone Worker Safety</Heading>
             </View>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
-                <AppText size="xs" weight="bold" style={{ color: statusInfo.color }}>
-                  ● {statusInfo.label}
-                </AppText>
-              </View>
-              <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                <AppText size="lg" color="secondary" weight="bold">✕</AppText>
-              </TouchableOpacity>
+            <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
+              <AppText size="xs" weight="bold" style={{ color: statusInfo.color }}>
+                ● {statusInfo.label}
+              </AppText>
             </View>
           </View>
 
@@ -88,13 +98,13 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
                   {statusInfo.label}
                 </AppText>
               </View>
-              
+
               <View style={styles.divider} />
-              
+
               <View style={styles.summaryRow}>
                 <AppText size="sm" color="secondary">Last Check-in</AppText>
                 <AppText size="sm" weight="bold" color="primary">
-                  {isClockedIn ? (loneWorker.lastCheckIn || '03:58 PM') : 'None'}
+                  {isClockedIn ? (loneWorker.lastCheckIn || '3:39 PM') : 'None'}
                 </AppText>
               </View>
 
@@ -102,61 +112,37 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
 
               <View style={styles.summaryRow}>
                 <AppText size="sm" color="secondary">Next Check Due</AppText>
-                <AppText size="sm" weight="bold" style={{ color: elapsedMs >= 30 * 60 * 1000 ? '#D97706' : '#4F46E5' }}>
-                  {!isClockedIn ? 'Clock In Required' : elapsedMs >= 30 * 60 * 1000 ? 'NOW' : (loneWorker.nextCheckRequired || '04:28 PM')}
+                <AppText size="sm" weight="bold" style={{ color: '#D97706' }}>
+                  {!isClockedIn ? 'Clock In Required' : 'NOW'}
                 </AppText>
               </View>
             </View>
 
-            {/* Action Buttons (54px Glove-friendly) */}
+            {/* Action Buttons (54px Glove-friendly, Mandatory Options ONLY) */}
             <View style={styles.buttonContainer}>
               <Button
-                title={!isClockedIn ? "Clock In Required" : isCheckInDisabled ? "✓ SAFE CHECKED" : "✓  I'M SAFE"}
-                variant={isCheckInDisabled ? "secondary" : "primary"}
+                title="SAFE CHECKED"
+                variant="primary"
                 size="large"
                 fullWidth
-                disabled={isCheckInDisabled}
                 onPress={handleSafeCheckIn}
                 style={[
                   styles.actionButton,
-                  { height: 54, backgroundColor: isCheckInDisabled ? undefined : '#059669' },
+                  { height: 54, backgroundColor: '#059669' },
                 ]}
               />
-              {isClockedIn && isCheckInDisabled && (
-                <AppText size="xs" color="secondary" style={styles.helperText}>
-                  Next check available in {remainingMins} min
-                </AppText>
-              )}
 
               <Button
-                title="⚠️ REPORT ISSUE"
+                title="⚠ REPORT ISSUE"
                 variant="outline"
                 size="large"
                 fullWidth
                 onPress={handleReportIssue}
-                style={[styles.actionButton, { height: 54, borderColor: '#DC2626' }]}
+                style={[
+                  styles.actionButton,
+                  { height: 54, borderColor: '#DC2626' },
+                ]}
               />
-            </View>
-
-            {/* Check-in History */}
-            <View style={styles.historySection}>
-              <AppText size="sm" weight="bold" color="primary" style={{ marginBottom: 8 }}>
-                Check-in History
-              </AppText>
-
-              {(!loneWorkerHistory || loneWorkerHistory.length === 0) ? (
-                <View style={styles.historyItem}>
-                  <AppText size="xs" color="secondary">03:58 PM</AppText>
-                  <AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Safe Check-in</AppText>
-                </View>
-              ) : (
-                loneWorkerHistory.slice(0, 5).map((item) => (
-                  <View key={item.id} style={styles.historyItem}>
-                    <AppText size="xs" color="secondary">{item.exactTime || '10:00 AM'}</AppText>
-                    <AppText size="xs" weight="bold" style={{ color: '#059669' }}>{item.status || '✓ Safe'}</AppText>
-                  </View>
-                ))
-              )}
             </View>
           </ScrollView>
         </View>
@@ -168,7 +154,7 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
     justifyContent: 'flex-end',
   },
   backdrop: {
@@ -178,7 +164,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    maxHeight: '85%',
+    paddingBottom: 28,
   },
   header: {
     flexDirection: 'row',
@@ -198,15 +184,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
-  closeBtn: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     gap: 16,
-    paddingBottom: 24,
   },
   summaryCard: {
     padding: 16,
@@ -224,28 +203,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   buttonContainer: {
-    gap: 10,
+    gap: 12,
+    marginTop: 4,
   },
   actionButton: {
     marginVertical: 0,
-  },
-  helperText: {
-    textAlign: 'center',
-    marginTop: -4,
-    marginBottom: 4,
-  },
-  historySection: {
-    marginTop: 8,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-  },
-  historyItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F8FAFC',
   },
 });

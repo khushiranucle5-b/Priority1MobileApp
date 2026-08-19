@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -9,39 +9,51 @@ import { Button } from '../../../components/Button';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useGuardStore, LoneWorkerHistoryItem } from '../../../store/useGuardStore';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { NavIcon } from '../../../components/NavIcon';
+import { formatDisplayDate, formatDisplayTime } from '../../../utils/dateUtils';
 
 export const LoneWorkerDetailsScreen: React.FC = () => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { guardName, guardId, loneWorkerHistory } = useGuardStore();
+  const { guardName, guardId, loneWorkerHistory, incidents } = useGuardStore();
 
   const recordId = route.params?.recordId;
-  const record: LoneWorkerHistoryItem =
-    (loneWorkerHistory || []).find((item) => item.id === recordId) ||
-    loneWorkerHistory[0] ||
-    {
-      id: 'lw-101',
-      guardId: guardId || 'guard-1',
-      guardName: guardName || 'Khushi Rani',
-      dateStr: 'Aug 18, 2026',
-      exactTime: '10:00:15 AM',
-      siteName: 'Ahmedabad Plant (Ranucle Zundal)',
-      latitude: 23.1145,
-      longitude: 72.5821,
-      distanceMeters: 42,
-      radiusMeters: 200,
-      gpsStatus: 'GPS Verified',
-      onTimeStatus: 'On Time',
-      status: 'Safe',
-      shiftInfo: 'Morning Shift (08:00 AM - 04:00 PM)',
-      timestamp: Date.now(),
-    };
+  const historyList = loneWorkerHistory || [];
+  const foundRecord = historyList.find((item) => item.id === recordId);
+  const record: LoneWorkerHistoryItem = foundRecord || (historyList.length > 0 ? historyList[0] : {
+    id: 'lw-101',
+    guardId: guardId || 'guard-1',
+    guardName: guardName || 'Khushi Rani',
+    dateStr: 'Aug 19, 2026',
+    exactTime: '10:00:15 AM',
+    siteName: 'Ahmedabad Plant',
+    latitude: 23.1145,
+    longitude: 72.5821,
+    distanceMeters: 42,
+    radiusMeters: 200,
+    gpsStatus: 'GPS Verified',
+    onTimeStatus: 'On Time',
+    status: 'Safe',
+    shiftInfo: 'Morning Shift (08:00 AM - 04:00 PM)',
+    timestamp: Date.now(),
+  });
 
   const isGpsValid = record.gpsStatus === 'GPS Verified';
+  const isSafe = record.status === 'Safe' || record.status === 'SAFE';
+  const isIssue = record.status === 'SOS / Issue Reported' || record.status?.includes('Issue') || record.status?.includes('SOS');
+
   const gpsColors = isGpsValid ? { bg: '#D1FAE5', text: '#059669' } : { bg: '#FEE2E2', text: '#DC2626' };
-  const onTimeColors = record.onTimeStatus === 'On Time' ? { bg: '#ECFDF5', text: '#047857' } : { bg: '#FEF3C7', text: '#D97706' };
+  const timingColors = record.onTimeStatus === 'On Time' ? { bg: '#ECFDF5', text: '#047857' } : { bg: '#FEF3C7', text: '#D97706' };
+  const statusColors = isSafe ? { bg: '#D1FAE5', text: '#059669' } : isIssue ? { bg: '#FEE2E2', text: '#DC2626' } : { bg: '#F1F5F9', text: '#475569' };
+
+  const formattedDate = formatDisplayDate(record.dateStr || record.timestamp);
+  const formattedTime = formatDisplayTime(record.exactTime || record.timestamp);
+  const nextCheckTime = record.timestamp
+    ? formatDisplayTime(record.timestamp + 30 * 60 * 1000)
+    : '--:--';
+
+  // Find linked incident if any
+  const linkedIncident = isIssue ? (incidents || [])[0] : null;
 
   return (
     <ScreenLayout activeRoute="LoneWorker">
@@ -49,21 +61,16 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Header Title Block */}
-        <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">Safety Check Detail</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            View complete GPS verification, time, and shift details for this safety check.
-          </AppText>
-        </View>
-
         {/* Main Status Banner Card */}
         <Card style={styles.statusBannerCard}>
           <View style={styles.bannerHeader}>
             <View style={{ flex: 1 }}>
-              <Heading level="h3" color="primary">Check-In Status: {record.status}</Heading>
-              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                {record.dateStr} at {record.exactTime || record.timestamp ? new Date(record.timestamp).toLocaleTimeString() : '10:00 AM'}
+              <AppText size="xs" color="secondary" weight="semibold">SAFETY STATUS</AppText>
+              <Heading level="h2" style={{ color: statusColors.text, marginTop: 2 }}>
+                {isSafe ? 'SAFE' : isIssue ? 'ISSUE REPORTED' : record.status}
+              </Heading>
+              <AppText size="xs" color="secondary" style={{ marginTop: 4 }}>
+                {formattedDate} at {formattedTime}
               </AppText>
             </View>
           </View>
@@ -71,14 +78,146 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
           <View style={styles.badgeRow}>
             <View style={[styles.badge, { backgroundColor: gpsColors.bg }]}>
               <AppText size="xs" weight="bold" style={{ color: gpsColors.text }}>
-                ● {record.gpsStatus}
+                ● {record.gpsStatus || 'GPS Verified'}
               </AppText>
             </View>
 
-            <View style={[styles.badge, { backgroundColor: onTimeColors.bg }]}>
-              <AppText size="xs" weight="bold" style={{ color: onTimeColors.text }}>
-                ● {record.onTimeStatus}
+            <View style={[styles.badge, { backgroundColor: timingColors.bg }]}>
+              <AppText size="xs" weight="bold" style={{ color: timingColors.text }}>
+                ● {record.onTimeStatus || 'On Time'}
               </AppText>
+            </View>
+          </View>
+        </Card>
+
+        {/* ISSUE INFORMATION CARD (Shown only if record contains an issue) */}
+        {isIssue && (
+          <Card style={[styles.infoCard, { borderColor: '#FCA5A5', backgroundColor: '#FEF2F2' }]}>
+            <AppText size="xs" weight="bold" style={{ color: '#DC2626', letterSpacing: 0.5 }}>
+              ISSUE / EMERGENCY DETAILS
+            </AppText>
+            <View style={[styles.dividerLine, { backgroundColor: '#FCA5A5' }]} />
+
+            <View style={styles.gridContainer}>
+              <View style={styles.gridRow}>
+                <View style={styles.gridColFull}>
+                  <AppText size="xs" color="secondary">Status</AppText>
+                  <AppText size="sm" weight="bold" style={{ color: '#DC2626', marginTop: 2 }}>
+                    ISSUE REPORTED / SOS TRIGGERED
+                  </AppText>
+                </View>
+              </View>
+
+              <View style={styles.gridRow}>
+                <View style={styles.gridColFull}>
+                  <AppText size="xs" color="secondary">Issue Summary</AppText>
+                  <AppText size="sm" weight="semibold" color="primary" style={{ marginTop: 2 }}>
+                    {linkedIncident?.title || 'Emergency SOS Safety Alert triggered during routine 30-min lone worker check-in.'}
+                  </AppText>
+                </View>
+              </View>
+
+              <View style={styles.gridRow}>
+                <View style={styles.gridCol}>
+                  <AppText size="xs" color="secondary">Reported At</AppText>
+                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                    {formattedTime}
+                  </AppText>
+                </View>
+
+                <View style={styles.gridCol}>
+                  <AppText size="xs" color="secondary">Action Taken</AppText>
+                  <AppText size="sm" weight="bold" style={{ color: '#047857', marginTop: 2 }}>
+                    Control Room Notified
+                  </AppText>
+                </View>
+              </View>
+            </View>
+          </Card>
+        )}
+
+        {/* COMPLETE SAFETY CHECK DETAILS CARD */}
+        <Card style={styles.infoCard}>
+          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+            SAFETY CHECK INFORMATION
+          </AppText>
+
+          <View style={styles.dividerLine} />
+
+          <View style={styles.gridContainer}>
+            <View style={styles.gridRow}>
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Date</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {formattedDate}
+                </AppText>
+              </View>
+
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Check-In Time</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {formattedTime}
+                </AppText>
+              </View>
+            </View>
+
+            <View style={styles.gridRow}>
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Site</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {record.siteName || 'Ahmedabad Plant'}
+                </AppText>
+              </View>
+
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Guard</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {record.guardName || guardName || 'John Smith'}
+                </AppText>
+              </View>
+            </View>
+
+            <View style={styles.gridRow}>
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Shift</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {record.shiftInfo || 'Morning Shift (08:00 AM - 04:00 PM)'}
+                </AppText>
+              </View>
+
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Timing</AppText>
+                <AppText size="sm" weight="bold" style={{ color: timingColors.text, marginTop: 2 }}>
+                  {record.onTimeStatus || 'On Time'}
+                </AppText>
+              </View>
+            </View>
+
+            <View style={styles.gridRow}>
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Check Completed</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {formattedTime}
+                </AppText>
+              </View>
+
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Next Check Scheduled</AppText>
+                <AppText size="sm" weight="bold" style={{ color: '#D97706', marginTop: 2 }}>
+                  {nextCheckTime}
+                </AppText>
+              </View>
+            </View>
+
+            <View style={styles.gridRow}>
+              <View style={styles.gridColFull}>
+                <AppText size="xs" color="secondary">Safety Check Result</AppText>
+                <View style={[styles.badge, { backgroundColor: statusColors.bg, marginTop: 4 }]}>
+                  <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                    {isSafe ? '✓ SAFE — Routine check-in confirmed' : isIssue ? '⚠️ ISSUE REPORTED — SOS alert logged' : record.status}
+                  </AppText>
+                </View>
+              </View>
             </View>
           </View>
         </Card>
@@ -94,88 +233,41 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
           <View style={styles.gridContainer}>
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">GPS Latitude</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                <AppText size="xs" color="secondary">GPS Verification</AppText>
+                <AppText size="sm" weight="bold" style={{ color: gpsColors.text, marginTop: 2 }}>
+                  {record.gpsStatus || 'GPS Verified'}
+                </AppText>
+              </View>
+
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Geofence Radius</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  Inside allowed geofence ({record.radiusMeters || 200}m)
+                </AppText>
+              </View>
+            </View>
+
+            <View style={styles.gridRow}>
+              <View style={styles.gridCol}>
+                <AppText size="xs" color="secondary">Latitude</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
                   {record.latitude ? `${record.latitude.toFixed(4)}° N` : '23.1145° N'}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">GPS Longitude</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                <AppText size="xs" color="secondary">Longitude</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
                   {record.longitude ? `${record.longitude.toFixed(4)}° E` : '72.5821° E'}
                 </AppText>
               </View>
             </View>
 
             <View style={styles.gridRow}>
-              <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Distance from Site</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {record.distanceMeters ?? 42} meters
-                </AppText>
-              </View>
-
-              <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Allowed Geofence Radius</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {record.radiusMeters ?? 200} meters
-                </AppText>
-              </View>
-            </View>
-
-            <View style={styles.gridRow}>
               <View style={styles.gridColFull}>
-                <AppText size="xs" color="secondary">Verification Result</AppText>
-                <View style={[styles.badge, { backgroundColor: gpsColors.bg, marginTop: 4 }]}>
-                  <AppText size="xs" weight="bold" style={{ color: gpsColors.text }}>
-                    {isGpsValid
-                      ? '✓ GPS Verified — Inside allowed site geofence radius'
-                      : '⚠️ Location Not Verified — Outside allowed radius or unavailable'}
-                  </AppText>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Card>
-
-        {/* SHIFT & GUARD DETAILS CARD */}
-        <Card style={styles.infoCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
-            SHIFT & GUARD INFORMATION
-          </AppText>
-
-          <View style={styles.dividerLine} />
-
-          <View style={styles.gridContainer}>
-            <View style={styles.gridRow}>
-              <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Guard Name</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {record.guardName || guardName || 'Khushi Rani'}
-                </AppText>
-              </View>
-
-              <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Guard ID</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {record.guardId || guardId || 'GRD-1024'}
-                </AppText>
-              </View>
-            </View>
-
-            <View style={styles.gridRow}>
-              <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Assigned Site</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {record.siteName || 'Ahmedabad Plant (Ranucle Zundal)'}
-                </AppText>
-              </View>
-
-              <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Active Shift</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {record.shiftInfo || 'Morning Shift (08:00 AM - 04:00 PM)'}
+                <AppText size="xs" color="secondary">Distance from Site Center</AppText>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {record.distanceMeters ?? 42} meters (Max allowed: {record.radiusMeters ?? 200}m)
                 </AppText>
               </View>
             </View>
@@ -184,12 +276,12 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
         {/* Back Button */}
         <Button
-          title="← Back to Safety Check-Ins"
-          variant="primary"
+          title="← Back"
+          variant="outline"
           size="large"
           fullWidth
           onPress={() => navigation.goBack()}
-          style={{ height: 52, backgroundColor: '#4F46E5', marginTop: 4 }}
+          style={{ height: 50, marginTop: 4, borderColor: '#CBD5E1' }}
         />
 
       </ScrollView>
@@ -202,9 +294,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
     gap: 16,
-  },
-  headerBlock: {
-    marginBottom: 4,
   },
   statusBannerCard: {
     padding: 18,
@@ -225,7 +314,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   infoCard: {
-    padding: 20,
+    padding: 18,
   },
   cardSectionHeading: {
     color: '#64748B',
@@ -237,7 +326,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   gridContainer: {
-    gap: 16,
+    gap: 14,
   },
   gridRow: {
     flexDirection: 'row',
