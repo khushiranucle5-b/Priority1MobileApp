@@ -5,6 +5,7 @@ import { useGuardStore } from '../store/useGuardStore';
 import { AuthNavigator } from './AuthNavigator';
 import { TabNavigator } from './TabNavigator';
 import { LoadingState } from '../components/feedback/LoadingState';
+import { TermsPopup } from '../components/TermsPopup';
 
 export const RootNavigator = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -40,7 +41,14 @@ export const RootNavigator = () => {
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? <TabNavigator /> : <AuthNavigator />}
+      {isAuthenticated ? (
+        <>
+          <TabNavigator />
+          <TermsPopup />
+        </>
+      ) : (
+        <AuthNavigator />
+      )}
     </NavigationContainer>
   );
 };

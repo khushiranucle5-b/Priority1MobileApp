@@ -15,9 +15,10 @@ import {
   getLeaveBalances,
   saveLeaveBalances,
   DBMessage,
+  DBEmployeeDocument,
 } from '../services/db';
 
-export type { DBPatrol };
+export type { DBPatrol, DBEmployeeDocument };
 import { LoggerService } from '../services/logger.service';
 import { soundAlertService } from '../services/soundAlert.service';
 
@@ -138,6 +139,7 @@ interface GuardState {
   leaveBalances: DBLeaveBalances;
   incidents: IncidentReport[];
   attendanceHistory: AttendanceRecord[];
+  documents: DBEmployeeDocument[];
   notifications: AppNotification[];
   loneWorker: LoneWorkerState;
   loneWorkerHistory: LoneWorkerHistoryItem[];
@@ -154,6 +156,7 @@ interface GuardState {
   clockOut: () => Promise<void>;
   applyLeave: (leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
   reportIncident: (incident: Omit<IncidentReport, 'id' | 'status' | 'reportedDate'>) => Promise<void>;
+  uploadDocument: (docInfo: { name: string, type: string, uri: string, fileName: string, mimeType: string }) => Promise<void>;
   startPatrol: (patrolId?: string) => Promise<any>;
   scanCheckpointCode: (code: string) => Promise<{ success: boolean; message: string }>;
   checkInLoneWorker: (customParams?: {
@@ -193,6 +196,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   leaveBalances: { annual: 12, sick: 5, casual: 3 },
   incidents: [],
   attendanceHistory: [],
+  documents: [],
   notifications: [],
   shifts: [],
   todayShift: null,
@@ -305,6 +309,10 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       // Resolve incidents
       const allIncidents = await getTable<DBIncident>('incidents');
       const guardIncidents = allIncidents.filter(i => i.reportedById === guardId || i.reportedBy === emp?.name);
+
+      // Resolve documents
+      const allDocs = await getTable<DBEmployeeDocument>('employeeDocuments');
+      const guardDocs = allDocs.filter(d => d.employeeId === guardId);
 
       // Resolve messages
       const allMessages = await getTable<DBMessage>('messages');
@@ -571,6 +579,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         leaveBalances,
         incidents: mappedIncidents,
         attendanceHistory: mappedHistory,
+        documents: guardDocs,
         shifts: guardShifts,
         todayShift,
         patrols: guardPatrols,
@@ -821,6 +830,26 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     };
     
     await insertRow('incidents', newIncident);
+    await get().loadGuardData(guardId, guardEmail || '');
+  },
+
+  uploadDocument: async (docInfo) => {
+    const { guardId, guardEmail } = get();
+    if (!guardId) return;
+
+    const newDoc: DBEmployeeDocument = {
+      id: `doc-${Date.now()}`,
+      employeeId: guardId,
+      name: docInfo.name,
+      type: docInfo.type,
+      uri: docInfo.uri,
+      fileName: docInfo.fileName,
+      mimeType: docInfo.mimeType,
+      uploadedAt: new Date().toISOString(),
+      status: 'Pending',
+    };
+
+    await insertRow('employeeDocuments', newDoc);
     await get().loadGuardData(guardId, guardEmail || '');
   },
 

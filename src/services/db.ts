@@ -58,6 +58,18 @@ export interface DBSiteDocument {
   downloadUrl?: string;
 }
 
+export interface DBEmployeeDocument {
+  id: string;
+  employeeId: string;
+  name: string;
+  type: string;
+  uri: string;
+  fileName: string;
+  mimeType: string;
+  uploadedAt: string;
+  status: 'Pending' | 'Verified' | 'Expired' | string;
+}
+
 export interface DBSiteCheckpoint {
   id: string;
   name: string;

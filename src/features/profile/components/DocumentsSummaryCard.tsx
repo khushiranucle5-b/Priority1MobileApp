@@ -5,15 +5,15 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 
-const documents = [
-  { id: '1', name: 'ID Card', status: 'Verified' },
-  { id: '2', name: 'Driving License', status: 'Verified' },
-  { id: '3', name: 'Training Certificates', status: 'Pending' },
-  { id: '4', name: 'Employment Contract', status: 'Expired' },
-];
+import * as DocumentPicker from '@react-native-documents/picker';
+import { useGuardStore, DBEmployeeDocument } from '../../../store/useGuardStore';
+import { Button } from '../../../components/Button';
 
 export const DocumentsSummaryCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
+  const documents = useGuardStore((state) => state.documents);
+  const uploadDocument = useGuardStore((state) => state.uploadDocument);
+  const [isUploading, setIsUploading] = React.useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -33,19 +33,63 @@ export const DocumentsSummaryCard: React.FC = () => {
     }
   };
 
+  const handleUpload = async () => {
+    try {
+      setIsUploading(true);
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf, DocumentPicker.types.images],
+        allowMultiSelection: false,
+      });
+      const res = result[0];
+      
+      if (res && res.uri) {
+        await uploadDocument({
+          name: res.name || 'Uploaded Document',
+          type: 'General',
+          uri: res.uri,
+          fileName: res.name || 'document',
+          mimeType: res.type || 'application/octet-stream',
+        });
+      }
+    } catch (err) {
+      if (DocumentPicker.isErrorWithCode(err) && err.code === DocumentPicker.errorCodes.OPERATION_CANCELED) {
+        // User cancelled
+      } else {
+        console.error('Document picker error:', err);
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <Card variant="elevated" style={styles.card}>
-      <Heading level="h4" style={styles.title}>Documents</Heading>
+      <View style={styles.headerRow}>
+        <Heading level="h4" style={styles.title}>Documents</Heading>
+        <Button 
+          title={isUploading ? "Uploading..." : "Upload"} 
+          onPress={handleUpload} 
+          variant="outline" 
+          size="small" 
+          disabled={isUploading}
+        />
+      </View>
       
       <View style={[styles.list, { marginTop: spacing.sm }]}>
-        {documents.map((doc, index) => (
-          <View key={doc.id} style={[styles.row, index !== documents.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
-            <AppText size="sm" weight="medium">{doc.name}</AppText>
-            <View style={[styles.badge, { backgroundColor: getStatusBgColor(doc.status), borderRadius: borderRadius.full }]}>
-              <AppText size="xs" color={getStatusColor(doc.status)} weight="medium">{doc.status}</AppText>
+        {documents.length === 0 ? (
+          <AppText size="sm" color="secondary" style={{ paddingVertical: 12 }}>No documents uploaded yet.</AppText>
+        ) : (
+          documents.map((doc: DBEmployeeDocument, index: number) => (
+            <View key={doc.id} style={[styles.row, index !== documents.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <AppText size="sm" weight="medium" numberOfLines={1}>{doc.name}</AppText>
+              </View>
+              <View style={[styles.badge, { backgroundColor: getStatusBgColor(doc.status), borderRadius: borderRadius.full }]}>
+                <AppText size="xs" color={getStatusColor(doc.status)} weight="medium">{doc.status}</AppText>
+              </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </View>
     </Card>
   );
@@ -57,6 +101,12 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   title: {
+    marginBottom: 0,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 4,
   },
   list: {
