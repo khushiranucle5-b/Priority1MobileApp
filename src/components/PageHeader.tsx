@@ -9,9 +9,10 @@ interface PageHeaderProps {
   title: string;
   showBack?: boolean;
   onBack?: () => void;
+  rightComponent?: React.ReactNode;
 }
 
-export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false, onBack }) => {
+export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false, onBack, rightComponent }) => {
   const { spacing, colors } = useTheme();
   const navigation = useNavigation();
 
@@ -35,6 +36,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false,
         </TouchableOpacity>
       )}
       <Heading level="h3" style={styles.title}>{title}</Heading>
+      {rightComponent && (
+        <View style={styles.rightComponentContainer}>
+          {rightComponent}
+        </View>
+      )}
     </View>
   );
 };
@@ -56,5 +62,12 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
+  },
+  rightComponentContainer: {
+    position: 'absolute',
+    right: 16,
+    zIndex: 10,
+    justifyContent: 'center',
+    height: '100%',
   }
 });

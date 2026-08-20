@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { AppText } from '../../../components/typography/Text';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import {
@@ -7,7 +9,6 @@ import {
   PersonalInformationCard,
   EmploymentInformationCard,
   EmergencyContactCard,
-  SettingsSection,
   DocumentsSummaryCard,
   ApplicationInformationCard,
   LogoutSection,
@@ -15,12 +16,20 @@ import {
 } from '../components';
 
 export const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   // Mock state to toggle empty state vs populated state
   const [hasProfile] = useState(true);
 
   return (
     <ScreenLayout>
-      <PageHeader title="My Profile" />
+      <PageHeader 
+        title="My Profile" 
+        rightComponent={
+          <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.gearButton}>
+            <AppText style={styles.gearIcon}>⚙️</AppText>
+          </TouchableOpacity>
+        }
+      />
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -31,7 +40,6 @@ export const ProfileScreen: React.FC = () => {
             <PersonalInformationCard />
             <EmploymentInformationCard />
             <EmergencyContactCard />
-            <SettingsSection />
             <DocumentsSummaryCard />
             <ApplicationInformationCard />
             <LogoutSection />
@@ -48,4 +56,10 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 24,
   },
+  gearButton: {
+    padding: 8,
+  },
+  gearIcon: {
+    fontSize: 20,
+  }
 });

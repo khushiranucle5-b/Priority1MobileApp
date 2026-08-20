@@ -2,7 +2,6 @@ export * from './ProfileHeaderCard';
 export * from './PersonalInformationCard';
 export * from './EmploymentInformationCard';
 export * from './EmergencyContactCard';
-export * from './SettingsSection';
 export * from './DocumentsSummaryCard';
 export * from './ApplicationInformationCard';
 export * from './LogoutSection';

@@ -6,7 +6,7 @@ import { HomeNavigator } from './HomeNavigator';
 import { AttendanceNavigator } from './AttendanceNavigator';
 import { DutyScreen } from '../features/duty/screens/DutyScreen';
 import { PatrolNavigator } from './PatrolNavigator';
-import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
+import { ProfileNavigator } from './ProfileNavigator';
 import { useTheme } from '../providers/ThemeProvider';
 import { NavIcon } from '../components/NavIcon';
 import { LoneWorkerGlobalListener } from '../components/LoneWorkerGlobalListener';
@@ -65,7 +65,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen 
         name="Profile" 
-        component={ProfileScreen}
+        component={ProfileNavigator}
         options={{
           tabBarIcon: ({ color, size }) => (
             <NavIcon name="employees" color={color} size={size} />
