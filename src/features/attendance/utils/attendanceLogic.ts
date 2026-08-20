@@ -5,20 +5,34 @@ export interface MergedAttendanceRecord {
   type: 'attendance' | 'leave' | 'none';
   status: string;
   attendance?: AttendanceRecord;
+  attendances?: AttendanceRecord[];
   leave?: LeaveRequest;
 }
+
+// Helper to format Date into local YYYY-MM-DD string without UTC offset conversion issues
+export const formatDateKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 // Utility to generate array of dates between start and end (inclusive)
 export const getDatesInRange = (startDateStr: string, endDateStr: string): string[] => {
   const dates: string[] = [];
-  const start = new Date(startDateStr);
-  const end = new Date(endDateStr);
-  
+  const startParts = startDateStr.split('-').map(Number);
+  const endParts = endDateStr.split('-').map(Number);
+
+  if (startParts.length !== 3 || endParts.length !== 3) return dates;
+
+  const start = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+  const end = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+
   if (isNaN(start.getTime()) || isNaN(end.getTime())) return dates;
 
   let current = new Date(start);
   while (current <= end) {
-    dates.push(current.toISOString().split('T')[0]);
+    dates.push(formatDateKey(current));
     current.setDate(current.getDate() + 1);
   }
   return dates;
@@ -32,15 +46,34 @@ export const getMergedStatusForDate = (
 ): MergedAttendanceRecord => {
   const safeAtt = Array.isArray(attendanceHistory) ? attendanceHistory : [];
   const safeLeaves = Array.isArray(leaves) ? leaves : [];
+  const todayStr = formatDateKey(new Date());
 
-  const attendance = safeAtt.find(a => a.date === dateStr);
+  // Future dates have no attendance data
+  if (dateStr > todayStr) {
+    return {
+      dateStr,
+      type: 'none',
+      status: 'No record',
+    };
+  }
+
+  const dateAttendances = safeAtt.filter(a => a.date === dateStr);
   
-  if (attendance) {
+  if (dateAttendances.length > 0) {
+    // Determine combined status: Half Day takes precedence if explicitly set, else Present/Absent
+    let status = dateAttendances[0].status;
+    if (dateAttendances.some(a => a.status.toLowerCase() === 'half day')) {
+      status = 'Half Day';
+    } else if (dateAttendances.some(a => a.status.toLowerCase() === 'present')) {
+      status = 'Present';
+    }
+
     return {
       dateStr,
       type: 'attendance',
-      status: attendance.status,
-      attendance
+      status,
+      attendance: dateAttendances[0],
+      attendances: dateAttendances,
     };
   }
 
@@ -73,24 +106,43 @@ export const getMonthRecords = (
 ): MergedAttendanceRecord[] => {
   const safeAtt = Array.isArray(attendanceHistory) ? attendanceHistory : [];
   const safeLeaves = Array.isArray(leaves) ? leaves : [];
+  const todayStr = formatDateKey(new Date());
 
   const records: MergedAttendanceRecord[] = [];
-  const startDate = new Date(year, month, 1);
-  const endDate = new Date(year, month + 1, 0);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const approvedLeaves = safeLeaves.filter(l => l?.status?.toLowerCase() === 'approved');
   
-  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-    const dateStr = d.toISOString().split('T')[0];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = new Date(year, month, day);
+    const dateStr = formatDateKey(d);
+
+    // Future dates in the month get No record
+    if (dateStr > todayStr) {
+      records.push({
+        dateStr,
+        type: 'none',
+        status: 'No record',
+      });
+      continue;
+    }
     
-    // Fast path: find attendance
-    const attendance = safeAtt.find(a => a.date === dateStr);
-    if (attendance) {
+    // Fast path: find all attendance logs for this day
+    const dateAttendances = safeAtt.filter(a => a.date === dateStr);
+    if (dateAttendances.length > 0) {
+      let status = dateAttendances[0].status;
+      if (dateAttendances.some(a => a.status.toLowerCase() === 'half day')) {
+        status = 'Half Day';
+      } else if (dateAttendances.some(a => a.status.toLowerCase() === 'present')) {
+        status = 'Present';
+      }
+
       records.push({
         dateStr,
         type: 'attendance',
-        status: attendance.status,
-        attendance
+        status,
+        attendance: dateAttendances[0],
+        attendances: dateAttendances,
       });
       continue;
     }

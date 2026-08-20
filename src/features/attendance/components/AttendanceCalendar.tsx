@@ -21,8 +21,8 @@ export const AttendanceCalendar = ({
 }: AttendanceCalendarProps) => {
   const { colors, borderRadius } = useTheme();
 
-  const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
-  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+  const getDaysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
+  const getFirstDayOfMonth = (y: number, m: number) => new Date(y, m, 1).getDay();
 
   const handlePrevMonth = () => {
     onMonthChange(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -32,87 +32,129 @@ export const AttendanceCalendar = ({
     onMonthChange(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  const renderCalendarDays = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const daysInMonth = getDaysInMonth(year, month);
-    const firstDay = getFirstDayOfMonth(year, month);
-    
-    const days = [];
-    
-    // Empty slots before the 1st
-    for (let i = 0; i < firstDay; i++) {
-      days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
-    }
+  const today = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
 
-    // Actual days
-    for (let i = 1; i <= daysInMonth; i++) {
-      const isSelected = 
-        selectedDate.getDate() === i &&
-        selectedDate.getMonth() === month &&
-        selectedDate.getFullYear() === year;
+  // Render dynamic calendar weeks (4, 5, or 6 rows)
+  const renderCalendarWeeks = () => {
+    const totalCells = firstDay + daysInMonth;
+    const totalRows = Math.ceil(totalCells / 7);
+    const weeks = [];
 
-      // Extract yyyy-mm-dd
-      const dateStr = new Date(year, month, i, 12).toISOString().split('T')[0];
-      const safeMonthRecords = Array.isArray(monthRecords) ? monthRecords : [];
-      const record = safeMonthRecords.find(r => r.dateStr === dateStr);
-      let borderColor = undefined;
-      let borderWidth = 0;
+    const safeMonthRecords = Array.isArray(monthRecords) ? monthRecords : [];
 
-      if (!isSelected && record && record.type !== 'none') {
-        borderWidth = 1.5;
-        if (record.status.toLowerCase() === 'present') borderColor = colors.success ? colors.success[600] || '#16a34a' : '#16a34a';
-        else if (record.status.toLowerCase() === 'absent') borderColor = colors.error ? colors.error[600] || '#dc2626' : '#dc2626';
-        else if (record.status.toLowerCase() === 'leave') borderColor = colors.warning ? colors.warning[600] || '#ea580c' : '#ea580c';
+    for (let row = 0; row < totalRows; row++) {
+      const weekCells = [];
+      for (let col = 0; col < 7; col++) {
+        const cellIndex = row * 7 + col;
+        const dayNum = cellIndex - firstDay + 1;
+
+        if (cellIndex < firstDay || dayNum > daysInMonth) {
+          // Empty slot outside current month
+          weekCells.push(
+            <View key={`empty-${row}-${col}`} style={styles.dayCell} />
+          );
+        } else {
+          const isSelected =
+            selectedDate.getDate() === dayNum &&
+            selectedDate.getMonth() === month &&
+            selectedDate.getFullYear() === year;
+
+          const isToday =
+            today.getDate() === dayNum &&
+            today.getMonth() === month &&
+            today.getFullYear() === year;
+
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+          const record = safeMonthRecords.find(r => r.dateStr === dateStr);
+
+          let borderColor = undefined;
+          let borderWidth = 0;
+
+          if (record && record.type !== 'none') {
+            borderWidth = 1.5;
+            const statusLower = record.status.toLowerCase();
+            if (statusLower === 'present') {
+              borderColor = colors.success ? colors.success[600] || '#16a34a' : '#16a34a';
+            } else if (statusLower === 'absent') {
+              borderColor = colors.error ? colors.error[600] || '#dc2626' : '#dc2626';
+            } else if (statusLower === 'leave') {
+              borderColor = colors.warning ? colors.warning[600] || '#ea580c' : '#ea580c';
+            } else if (statusLower === 'half day') {
+              borderColor = '#8b5cf6';
+            }
+          }
+
+          weekCells.push(
+            <TouchableOpacity
+              key={`day-${year}-${month}-${dayNum}`}
+              style={styles.dayCell}
+              onPress={() => onDateSelect(new Date(year, month, dayNum))}
+              activeOpacity={0.7}
+            >
+              <View
+                style={[
+                  styles.dateCircle,
+                  isSelected && {
+                    backgroundColor: colors.primary[600],
+                    borderColor: borderColor || 'transparent',
+                    borderWidth: borderColor ? 2 : 0,
+                  },
+                  !isSelected && borderColor ? { borderColor, borderWidth } : null,
+                  !isSelected && !borderColor && isToday ? { borderColor: colors.primary[500] || '#2563eb', borderWidth: 1.5 } : null,
+                ]}
+              >
+                <AppText
+                  size="sm"
+                  weight={isSelected || isToday ? 'bold' : 'medium'}
+                  style={{ color: isSelected ? '#FFFFFF' : colors.text }}
+                >
+                  {dayNum}
+                </AppText>
+              </View>
+              {isToday && (
+                <View style={[styles.todayIndicator, { backgroundColor: isSelected ? '#FFFFFF' : (colors.primary[600] || '#2563eb') }]} />
+              )}
+            </TouchableOpacity>
+          );
+        }
       }
 
-      days.push(
-        <TouchableOpacity
-          key={i}
-          style={styles.dayCell}
-          onPress={() => onDateSelect(new Date(year, month, i))}
-        >
-          <View
-            style={[
-              styles.dateCircle,
-              isSelected && { backgroundColor: colors.primary[600], borderColor: 'transparent', borderWidth: 0 },
-              (!isSelected && borderColor) ? { borderColor, borderWidth } : null
-            ]}
-          >
-            <AppText
-              size="sm"
-              weight={isSelected ? 'bold' : undefined}
-              style={{ color: isSelected ? '#FFFFFF' : colors.text }}
-            >
-              {i}
-            </AppText>
-          </View>
-        </TouchableOpacity>
+      weeks.push(
+        <View key={`week-${year}-${month}-${row}`} style={styles.weekRow}>
+          {weekCells}
+        </View>
       );
     }
-    return days;
+
+    return weeks;
   };
 
-  const monthNames = ["January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"];
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn}>
-          <AppText size="lg" color="primary">‹</AppText>
+        <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <AppText size="lg" weight="bold" color="primary">‹</AppText>
         </TouchableOpacity>
         
         <AppText size="md" weight="bold" color="primary">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </AppText>
         
-        <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn}>
-          <AppText size="lg" color="primary">›</AppText>
+        <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <AppText size="lg" weight="bold" color="primary">›</AppText>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.weekRow}>
+      <View style={styles.headerWeekRow}>
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
           <View key={day} style={styles.dayCell}>
             <AppText size="xs" color="secondary" weight="bold">{day}</AppText>
@@ -120,8 +162,8 @@ export const AttendanceCalendar = ({
         ))}
       </View>
 
-      <View style={styles.daysGrid}>
-        {renderCalendarDays()}
+      <View style={styles.calendarGrid}>
+        {renderCalendarWeeks()}
       </View>
       
       <View style={[styles.legendContainer, { borderTopColor: colors.border }]}>
@@ -132,6 +174,10 @@ export const AttendanceCalendar = ({
         <View style={styles.legendItem}>
           <View style={[styles.legendCircle, { borderColor: colors.error ? colors.error[600] || '#dc2626' : '#dc2626' }]} />
           <AppText size="xs" color="secondary">Absent</AppText>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendCircle, { borderColor: '#8b5cf6' }]} />
+          <AppText size="xs" color="secondary">Half Day</AppText>
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendCircle, { borderColor: colors.warning ? colors.warning[600] || '#ea580c' : '#ea580c' }]} />
@@ -164,28 +210,38 @@ const styles = StyleSheet.create({
     minWidth: 40,
     alignItems: 'center',
   },
-  weekRow: {
+  headerWeekRow: {
     flexDirection: 'row',
     marginBottom: 8,
   },
-  daysGrid: {
+  calendarGrid: {
+    flexDirection: 'column',
+  },
+  weekRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    marginBottom: 4,
+    alignItems: 'center',
   },
   dayCell: {
-    width: '14.28%',
-    aspectRatio: 1,
+    flex: 1,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    position: 'relative',
   },
   dateCircle: {
     width: 36,
     height: 36,
-    borderRadius: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+  },
+  todayIndicator: {
+    position: 'absolute',
+    bottom: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
   legendContainer: {
     flexDirection: 'row',

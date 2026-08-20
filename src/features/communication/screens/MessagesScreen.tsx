@@ -10,6 +10,8 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { getTable, DBEmployee } from '../../../services/db';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 interface ChatTarget {
   id: string; // receiverId for direct, siteId for site
   name: string;
@@ -93,7 +95,7 @@ export const MessagesScreen: React.FC = () => {
 
   return (
     <ScreenLayout>
-      <PageHeader title="Messages" />
+      <PageHeader title="Messages" showBack />
       
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
         {/* SITE CONVERSATION SECTION */}
@@ -207,24 +209,34 @@ export const MessagesScreen: React.FC = () => {
       </ScrollView>
 
       {/* CHAT INTERACTIVE MODAL */}
-      <Modal visible={selectedChat !== null} animationType="slide">
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.modalContainer}
-        >
-          {/* Header */}
-          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-            <TouchableOpacity onPress={() => setSelectedChat(null)} style={styles.backButton}>
-              <AppText size="lg" color="primary" weight="bold">◀ Back</AppText>
-            </TouchableOpacity>
-            <View style={styles.headerTitleContainer}>
-              <AppText size="base" weight="bold">{selectedChat?.name}</AppText>
-              <AppText size="xs" color="secondary">
-                {selectedChat?.type === 'site' ? 'Site Broadcast Chat' : 'Direct secure message'}
-              </AppText>
+      <Modal 
+        visible={selectedChat !== null} 
+        animationType="slide"
+        onRequestClose={() => setSelectedChat(null)}
+      >
+        <SafeAreaView style={[styles.modalSafeArea, { backgroundColor: colors.surface }]} edges={['top', 'bottom']}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.modalContainer}
+          >
+            {/* Header */}
+            <View style={[styles.modalHeader, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
+              <TouchableOpacity 
+                onPress={() => setSelectedChat(null)} 
+                style={styles.backButton}
+                hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+                activeOpacity={0.6}
+              >
+                <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
+              </TouchableOpacity>
+              <View style={styles.headerTitleContainer}>
+                <AppText size="base" weight="bold" style={{ color: colors.text }}>{selectedChat?.name}</AppText>
+                <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                  {selectedChat?.type === 'site' ? 'Site Broadcast Chat' : 'Direct secure message'}
+                </AppText>
+              </View>
+              <View style={{ width: 40 }} />
             </View>
-            <View style={{ width: 60 }} />
-          </View>
 
           {/* Messages list */}
           <ScrollView
@@ -302,9 +314,10 @@ export const MessagesScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
-    </ScreenLayout>
-  );
+      </SafeAreaView>
+    </Modal>
+  </ScreenLayout>
+);
 };
 
 const styles = StyleSheet.create({
@@ -354,6 +367,9 @@ const styles = StyleSheet.create({
   directList: {
     gap: 8,
   },
+  modalSafeArea: {
+    flex: 1,
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -363,12 +379,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingTop: Platform.OS === 'android' ? 12 : 8,
+    paddingBottom: 14,
     borderBottomWidth: 1,
+    minHeight: 56,
   },
   backButton: {
-    width: 60,
+    paddingRight: 16,
+    paddingVertical: 6,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backArrowText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    lineHeight: 32,
   },
   headerTitleContainer: {
     alignItems: 'center',

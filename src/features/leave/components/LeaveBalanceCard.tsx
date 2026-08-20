@@ -25,8 +25,8 @@ export const LeaveBalanceCard: React.FC = () => {
           <AppText size="base" weight="semibold">{leaveBalances.sick}</AppText>
         </View>
         <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Casual</AppText>
-          <AppText size="base" weight="semibold">{leaveBalances.casual}</AppText>
+          <AppText size="xs" color="secondary">Unpaid</AppText>
+          <AppText size="base" weight="semibold">Unlimited</AppText>
         </View>
       </View>
     </Card>

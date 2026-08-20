@@ -30,9 +30,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false,
         <TouchableOpacity
           style={styles.backButton}
           onPress={handleBack}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+          activeOpacity={0.7}
         >
-          <AppText size="xl" color="primary">←</AppText>
+          <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
         </TouchableOpacity>
       )}
       <Heading level="h3" style={styles.title}>{title}</Heading>
@@ -58,7 +59,14 @@ const styles = StyleSheet.create({
     left: 16,
     zIndex: 10,
     justifyContent: 'center',
+    alignItems: 'center',
     height: '100%',
+    paddingRight: 8,
+  },
+  backArrowText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    lineHeight: 30,
   },
   title: {
     textAlign: 'center',

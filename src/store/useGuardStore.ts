@@ -155,6 +155,8 @@ interface GuardState {
   clockIn: () => Promise<void>;
   clockOut: () => Promise<void>;
   applyLeave: (leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
+  updateLeave: (leaveId: string, leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
+  cancelLeave: (leaveId: string) => Promise<void>;
   reportIncident: (incident: Omit<IncidentReport, 'id' | 'status' | 'reportedDate'>) => Promise<void>;
   uploadDocument: (docInfo: { name: string, type: string, uri: string, fileName: string, mimeType: string }) => Promise<void>;
   startPatrol: (patrolId?: string) => Promise<any>;
@@ -303,7 +305,67 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       const guardPatrols = allPatrols.filter(p => p.guardId === guardId || p.guard === emp?.name);
       
       // Resolve leaves
-      const allLeaves = await getTable<DBLeave>('leaves');
+      let allLeaves = await getTable<DBLeave>('leaves');
+
+      const defaultMockDBLeaves: DBLeave[] = [
+        {
+          id: 'mock-leave-pending-1',
+          employeeId: guardId,
+          employeeName: emp?.name || 'Khushi Rani',
+          employeeEmail: email || '',
+          role: 'guard',
+          type: 'Sick Leave',
+          startDate: '2026-08-09',
+          endDate: '2026-08-10',
+          days: 2,
+          reason: 'busy',
+          status: 'pending',
+          appliedOn: '2026-08-04',
+          companyId: 'c-1',
+        },
+        {
+          id: 'mock-leave-12',
+          employeeId: guardId,
+          employeeName: emp?.name || 'Khushi Rani',
+          employeeEmail: email || '',
+          role: 'guard',
+          type: 'Annual Leave',
+          startDate: '2026-08-12',
+          endDate: '2026-08-12',
+          days: 1,
+          reason: 'Personal',
+          status: 'approved',
+          appliedOn: '2026-08-01',
+          companyId: 'c-1',
+        },
+        {
+          id: 'mock-leave-20',
+          employeeId: guardId,
+          employeeName: emp?.name || 'Khushi Rani',
+          employeeEmail: email || '',
+          role: 'guard',
+          type: 'Sick Leave',
+          startDate: '2026-08-20',
+          endDate: '2026-08-20',
+          days: 1,
+          reason: 'Medical',
+          status: 'approved',
+          appliedOn: '2026-08-15',
+          companyId: 'c-1',
+        },
+      ];
+
+      let seededAny = false;
+      for (const mockL of defaultMockDBLeaves) {
+        if (!allLeaves.some(l => l.id === mockL.id)) {
+          allLeaves.push(mockL);
+          seededAny = true;
+        }
+      }
+      if (seededAny) {
+        await saveTable('leaves', allLeaves);
+      }
+
       const guardLeaves = allLeaves.filter(l => l.employeeId === guardId || l.employeeEmail === email);
       
       // Resolve incidents
@@ -513,8 +575,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         };
       });
 
-      // INJECT MOCK DATA FOR AUGUST 2026
-      const presentDates = [3, 4, 5, 6, 7, 10, 11, 13, 14, 17, 18, 19, 21, 24, 25, 26, 27, 28, 31];
+      // INJECT MOCK DATA FOR AUGUST 2026 (UP TO TODAY, AUG 20)
+      const presentDates = [3, 4, 5, 7, 10, 11, 13, 17];
       presentDates.forEach(d => {
         const dateStr = `2026-08-${String(d).padStart(2, '0')}`;
         if (!mappedHistory.some(a => a.date === dateStr)) {
@@ -522,16 +584,118 @@ export const useGuardStore = create<GuardState>((set, get) => ({
             id: `mock-att-${d}`,
             date: dateStr,
             day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' }),
-            siteName: 'Main Site',
-            shiftName: 'Day Shift',
+            siteName: 'Ahmedabad Plant',
+            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
             clockIn: `${dateStr}T08:00:00.000Z`,
             clockOut: `${dateStr}T17:00:00.000Z`,
             workingHours: 9,
             status: 'Present',
-            notes: 'Mock data',
+            notes: 'Standard shift',
           });
         }
       });
+
+      // Inject Half Day records (Aug 6, Aug 18)
+      if (!mappedHistory.some(a => a.date === '2026-08-06')) {
+        mappedHistory.push({
+          id: 'mock-att-06',
+          date: '2026-08-06',
+          day: 'Thursday',
+          siteName: 'Ahmedabad Plant',
+          shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+          clockIn: '2026-08-06T08:00:00.000Z',
+          clockOut: '2026-08-06T12:00:00.000Z',
+          workingHours: 4,
+          status: 'Half Day',
+          notes: 'Half day duty',
+        });
+      }
+      if (!mappedHistory.some(a => a.date === '2026-08-18')) {
+        mappedHistory.push({
+          id: 'mock-att-18',
+          date: '2026-08-18',
+          day: 'Tuesday',
+          siteName: 'Ahmedabad Plant',
+          shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+          clockIn: '2026-08-18T08:04:00.000Z',
+          clockOut: '2026-08-18T12:05:00.000Z',
+          workingHours: 4.016,
+          status: 'Half Day',
+          notes: 'Half day duty',
+        });
+      }
+
+      // Inject 3-session Present record on Aug 20 (Today: Total Hours 8h 00m)
+      if (!mappedHistory.some(a => a.id === 'mock-att-20-1')) {
+        mappedHistory.push(
+          {
+            id: 'mock-att-20-1',
+            date: '2026-08-20',
+            day: 'Thursday',
+            siteName: 'Ahmedabad Plant',
+            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+            clockIn: '2026-08-20T08:00:00.000Z',
+            clockOut: '2026-08-20T12:00:00.000Z',
+            workingHours: 4,
+            status: 'Present',
+            notes: 'Session 1',
+          },
+          {
+            id: 'mock-att-20-2',
+            date: '2026-08-20',
+            day: 'Thursday',
+            siteName: 'Ahmedabad Plant',
+            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+            clockIn: '2026-08-20T12:45:00.000Z',
+            clockOut: '2026-08-20T15:00:00.000Z',
+            workingHours: 2.25,
+            status: 'Present',
+            notes: 'Session 2',
+          },
+          {
+            id: 'mock-att-20-3',
+            date: '2026-08-20',
+            day: 'Thursday',
+            siteName: 'Ahmedabad Plant',
+            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+            clockIn: '2026-08-20T15:30:00.000Z',
+            clockOut: '2026-08-20T17:15:00.000Z',
+            workingHours: 1.75,
+            status: 'Present',
+            notes: 'Session 3',
+          }
+        );
+      }
+
+      // Inject 2-session record with Active open session on Aug 14
+      if (!mappedHistory.some(a => a.id === 'mock-att-14-1')) {
+        mappedHistory.push(
+          {
+            id: 'mock-att-14-1',
+            date: '2026-08-14',
+            day: 'Friday',
+            siteName: 'Ahmedabad Plant',
+            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+            clockIn: '2026-08-14T08:05:00.000Z',
+            clockOut: '2026-08-14T12:00:00.000Z',
+            workingHours: 3.916,
+            status: 'Present',
+            notes: 'Completed session 1',
+          },
+          {
+            id: 'mock-att-14-2',
+            date: '2026-08-14',
+            day: 'Friday',
+            siteName: 'Ahmedabad Plant',
+            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
+            clockIn: '2026-08-14T13:00:00.000Z',
+            clockOut: null,
+            workingHours: 0,
+            status: 'Present',
+            notes: 'Active open session',
+          }
+        );
+      }
 
       if (!mappedLeaves.some(l => l.fromDate === '2026-08-12')) {
         mappedLeaves.push({
@@ -807,6 +971,82 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     };
     await insertRow('notifications', newNotif);
     
+    await get().loadGuardData(guardId, guardEmail || '');
+  },
+
+  updateLeave: async (leaveId, leave) => {
+    const { guardId, guardEmail, leaves, leaveBalances } = get();
+    if (!guardId) return;
+
+    const existingLeave = leaves.find(l => l.id === leaveId);
+    if (!existingLeave) return;
+
+    const oldDays = existingLeave.days || 0;
+    const newDays = leave.days || 0;
+
+    const oldTypeKey = (existingLeave.type.toLowerCase().includes('annual') ? 'annual' :
+                        existingLeave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
+    const newTypeKey = (leave.type.toLowerCase().includes('annual') ? 'annual' :
+                        leave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
+
+    const updatedBalances = { ...leaveBalances };
+
+    // Restore old days first
+    if (oldTypeKey in updatedBalances) {
+      updatedBalances[oldTypeKey] = (updatedBalances[oldTypeKey] || 0) + oldDays;
+    }
+    // Deduct new days
+    if (newTypeKey in updatedBalances) {
+      updatedBalances[newTypeKey] = Math.max(0, (updatedBalances[newTypeKey] || 0) - newDays);
+    }
+
+    await saveLeaveBalances(guardId, updatedBalances);
+
+    // Update leave DB record in AsyncStorage
+    await updateRow<DBLeave>('leaves', leaveId, {
+      type: leave.type,
+      startDate: leave.fromDate,
+      endDate: leave.toDate,
+      days: leave.days,
+      reason: leave.reason,
+    });
+
+    await get().loadGuardData(guardId, guardEmail || '');
+  },
+
+  cancelLeave: async (leaveId) => {
+    const { guardId, guardEmail, leaves, leaveBalances } = get();
+    if (!guardId) return;
+
+    const existingLeave = leaves.find(l => l.id === leaveId);
+    if (!existingLeave) return;
+
+    const leaveDays = existingLeave.days || 0;
+    const leaveTypeKey = (existingLeave.type.toLowerCase().includes('annual') ? 'annual' :
+                         existingLeave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
+
+    const updatedBalances = { ...leaveBalances };
+    if (leaveTypeKey in updatedBalances) {
+      updatedBalances[leaveTypeKey] = (updatedBalances[leaveTypeKey] || 0) + leaveDays;
+      await saveLeaveBalances(guardId, updatedBalances);
+    }
+
+    // Update status to 'cancelled' in DB
+    await updateRow<DBLeave>('leaves', leaveId, {
+      status: 'cancelled',
+    });
+
+    // Create notification
+    const newNotif = {
+      id: `notif-${Date.now()}`,
+      userId: guardId,
+      title: 'Leave Application Cancelled',
+      message: `Your ${existingLeave.type} request for ${existingLeave.fromDate} has been cancelled.`,
+      read: false,
+      createdAt: new Date().toISOString()
+    };
+    await insertRow('notifications', newNotif);
+
     await get().loadGuardData(guardId, guardEmail || '');
   },
   

@@ -1,83 +1,104 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { Heading } from '../../../components/typography/Heading';
 import { AppText } from '../../../components/typography/Text';
-import { Button } from '../../../components/Button';
-import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
-import { LoggerService } from '../../../services';
 
 import { 
   MonthlySummary, 
   AttendanceCalendar, 
-  SelectedDateDetails, 
-  DatewiseAttendanceList 
+  SelectedDateDetails
 } from '../components';
-import { getMonthRecords, getMergedStatusForDate } from '../utils/attendanceLogic';
+import { getMonthRecords, getMergedStatusForDate, formatDateKey } from '../utils/attendanceLogic';
 
 export const AttendanceScreen: React.FC = () => {
-  const { colors } = useTheme();
-  const navigation = useNavigation<any>();
-  const { isClockedIn, attendanceHistory, leaves } = useGuardStore();
+  const { isClockedIn, clockInTimestamp, attendanceHistory, leaves, shifts, todayShift, assignedSite } = useGuardStore();
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
-
-  const handleClockIn = () => {
-    LoggerService.log('[AttendanceScreen] Clock In pressed');
-    navigation.navigate('SelfieVerification', { actionType: 'Clock In' });
-  };
-
-  const handleClockOut = () => {
-    LoggerService.log('[AttendanceScreen] Clock Out pressed');
-    navigation.navigate('SelfieVerification', { actionType: 'Clock Out' });
-  };
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [detailsY, setDetailsY] = useState<number>(0);
 
   const monthRecords = useMemo(() => {
     return getMonthRecords(currentDate.getFullYear(), currentDate.getMonth(), attendanceHistory, leaves);
   }, [currentDate, attendanceHistory, leaves]);
 
+  const dateStr = useMemo(() => {
+    return formatDateKey(selectedDate);
+  }, [selectedDate]);
+
   const selectedRecord = useMemo(() => {
-    const dateStr = selectedDate.toISOString().split('T')[0];
-    return getMergedStatusForDate(dateStr, attendanceHistory, leaves);
-  }, [selectedDate, attendanceHistory, leaves]);
+    const baseRecord = getMergedStatusForDate(dateStr, attendanceHistory, leaves);
+    const todayStr = formatDateKey(new Date());
+
+    // Dynamic connection with today's live Clock-In state
+    if (dateStr === todayStr && isClockedIn) {
+      const activeSession = {
+        id: `live-clock-in-${clockInTimestamp || Date.now()}`,
+        date: todayStr,
+        day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+        siteName: assignedSite || 'Ahmedabad Plant',
+        shiftName: todayShift?.title || 'Morning Shift 08:00 AM - 04:00 PM',
+        clockIn: clockInTimestamp ? new Date(clockInTimestamp).toISOString() : new Date().toISOString(),
+        clockOut: null,
+        workingHours: 0,
+        status: 'Present',
+        notes: 'Live Clocked In',
+      };
+
+      const existingSessions = baseRecord.attendances ? [...baseRecord.attendances] : (baseRecord.attendance ? [baseRecord.attendance] : []);
+      const hasActiveAlready = existingSessions.some(s => s.clockIn && (!s.clockOut || s.clockOut === '—' || s.clockOut === 'Ongoing'));
+      
+      if (!hasActiveAlready) {
+        existingSessions.push(activeSession);
+      }
+
+      return {
+        dateStr: todayStr,
+        type: 'attendance' as const,
+        status: 'Present',
+        attendance: existingSessions[0],
+        attendances: existingSessions,
+      };
+    }
+
+    return baseRecord;
+  }, [dateStr, attendanceHistory, leaves, isClockedIn, clockInTimestamp, assignedSite, todayShift]);
+
+  const selectedShift = useMemo(() => {
+    return shifts.find(s => s.date === dateStr) || (dateStr === formatDateKey(new Date()) ? todayShift : null);
+  }, [shifts, todayShift, dateStr]);
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    if (scrollViewRef.current && detailsY > 0) {
+      scrollViewRef.current.scrollTo({ y: detailsY - 12, animated: true });
+    }
+  };
+
+  const handleMonthChange = (newDate: Date) => {
+    setCurrentDate(newDate);
+    const year = newDate.getFullYear();
+    const month = newDate.getMonth();
+    const daysInNewMonth = new Date(year, month + 1, 0).getDate();
+    const targetDay = Math.min(selectedDate.getDate(), daysInNewMonth);
+    setSelectedDate(new Date(year, month, targetDay));
+  };
 
   return (
     <ScreenLayout activeRoute="Attendance">
       <ScrollView 
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.topContainer}>
-          <View style={styles.topHeader}>
-            <View style={styles.titleArea}>
-              <Heading level="h2" color="primary">My Shift & Attendance</Heading>
-              <AppText size="sm" color="secondary" style={styles.subtitle}>
-                Unified Attendance, Geofence Verification, Overtime Calculation, and Payroll Connection.
-              </AppText>
-            </View>
-
-            <View style={styles.topActions}>
-              <Button
-                title="Clock In"
-                variant={isClockedIn ? "secondary" : "primary"}
-                size="medium"
-                disabled={isClockedIn}
-                onPress={handleClockIn}
-                style={styles.topBtn}
-              />
-              <Button
-                title="Clock Out"
-                variant={isClockedIn ? "primary" : "secondary"}
-                size="medium"
-                disabled={!isClockedIn}
-                onPress={handleClockOut}
-                style={styles.topBtn}
-              />
-            </View>
-          </View>
+          <Heading level="h2" color="primary">My Shift & Attendance</Heading>
+          <AppText size="sm" color="secondary" style={styles.subtitle}>
+            Unified Attendance, Geofence Verification, Overtime Calculation, and Payroll Connection.
+          </AppText>
         </View>
 
         <MonthlySummary monthRecords={monthRecords} />
@@ -86,14 +107,22 @@ export const AttendanceScreen: React.FC = () => {
           currentDate={currentDate} 
           selectedDate={selectedDate} 
           monthRecords={monthRecords}
-          onMonthChange={setCurrentDate} 
-          onDateSelect={setSelectedDate} 
+          onMonthChange={handleMonthChange} 
+          onDateSelect={handleDateSelect} 
         />
         
-        <SelectedDateDetails record={selectedRecord} selectedDate={selectedDate} />
-        
-        <DatewiseAttendanceList monthRecords={monthRecords} />
-
+        <View 
+          onLayout={(e) => {
+            const layout = e.nativeEvent.layout;
+            setDetailsY(layout.y);
+          }}
+        >
+          <SelectedDateDetails 
+            record={selectedRecord} 
+            selectedDate={selectedDate} 
+            shift={selectedShift}
+          />
+        </View>
       </ScrollView>
     </ScreenLayout>
   );
@@ -106,27 +135,8 @@ const styles = StyleSheet.create({
   topContainer: {
     padding: 16,
   },
-  topHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  titleArea: {
-    flex: 1,
-    minWidth: 240,
-  },
   subtitle: {
     marginTop: 4,
     lineHeight: 18,
   },
-  topActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  topBtn: {
-    minWidth: 100,
-  }
 });

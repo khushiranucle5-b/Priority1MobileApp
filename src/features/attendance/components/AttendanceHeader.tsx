@@ -14,9 +14,10 @@ export const AttendanceHeader: React.FC = () => {
       <TouchableOpacity 
         style={styles.backButton} 
         onPress={() => navigation.goBack()}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+        activeOpacity={0.7}
       >
-        <AppText size="lg" color="primary">←</AppText>
+        <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
       </TouchableOpacity>
       <Heading level="h3" style={styles.title}>Attendance</Heading>
       <View style={styles.rightPlaceholder} />
@@ -32,12 +33,19 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backArrowText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    lineHeight: 30,
   },
   title: {
     flex: 1,
     textAlign: 'center',
   },
   rightPlaceholder: {
-    width: 24, // Matches approx back button width to center the title
+    width: 32, // Matches back button width to center the title
   }
 });

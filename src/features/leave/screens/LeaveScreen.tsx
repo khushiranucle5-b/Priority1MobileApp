@@ -8,9 +8,22 @@ import { LeaveBalanceCard } from '../components/LeaveBalanceCard';
 import { LeaveForm } from '../components/LeaveForm';
 import { LeaveHistory } from '../components/LeaveHistory';
 
+import { LeaveRequest } from '../../../store/useGuardStore';
+
 export const LeaveScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'Apply' | 'History'>('Apply');
+  const [editingLeave, setEditingLeave] = useState<LeaveRequest | null>(null);
   const { colors, borderRadius } = useTheme();
+
+  const handleEditLeave = (leave: LeaveRequest) => {
+    setEditingLeave(leave);
+    setActiveTab('Apply');
+  };
+
+  const handleFinishedEdit = () => {
+    setEditingLeave(null);
+    setActiveTab('History');
+  };
 
   return (
     <ScreenLayout>
@@ -23,18 +36,29 @@ export const LeaveScreen: React.FC = () => {
           style={[styles.tab, activeTab === 'Apply' && { backgroundColor: colors.primary[50], borderRadius: borderRadius.md }]} 
           onPress={() => setActiveTab('Apply')}
         >
-          <AppText weight={activeTab === 'Apply' ? 'bold' : 'medium'} color={activeTab === 'Apply' ? 'primary' : 'secondary'}>Apply Leave</AppText>
+          <AppText weight={activeTab === 'Apply' ? 'bold' : 'medium'} color={activeTab === 'Apply' ? 'primary' : 'secondary'}>
+            {editingLeave ? 'Edit Leave' : 'Apply Leave'}
+          </AppText>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tab, activeTab === 'History' && { backgroundColor: colors.primary[50], borderRadius: borderRadius.md }]} 
-          onPress={() => setActiveTab('History')}
+          onPress={() => {
+            setEditingLeave(null);
+            setActiveTab('History');
+          }}
         >
-          <AppText weight={activeTab === 'History' ? 'bold' : 'medium'} color={activeTab === 'History' ? 'primary' : 'secondary'}>My Leave History</AppText>
+          <AppText weight={activeTab === 'History' ? 'bold' : 'medium'} color={activeTab === 'History' ? 'primary' : 'secondary'}>
+            My Leave History
+          </AppText>
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        {activeTab === 'Apply' ? <LeaveForm /> : <LeaveHistory />}
+        {activeTab === 'Apply' ? (
+          <LeaveForm editingLeave={editingLeave} onFinishedEdit={handleFinishedEdit} />
+        ) : (
+          <LeaveHistory onEditLeave={handleEditLeave} />
+        )}
       </View>
     </ScreenLayout>
   );

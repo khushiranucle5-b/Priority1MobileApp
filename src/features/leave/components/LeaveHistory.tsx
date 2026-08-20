@@ -1,60 +1,195 @@
-import React from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { useGuardStore } from '../../../store/useGuardStore';
+import { useGuardStore, LeaveRequest } from '../../../store/useGuardStore';
 
-export const LeaveHistory: React.FC = () => {
+interface LeaveHistoryProps {
+  onEditLeave: (leave: LeaveRequest) => void;
+}
+
+export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
   const { colors, spacing, borderRadius } = useTheme();
   const leaves = useGuardStore((state) => state.leaves);
+  const cancelLeave = useGuardStore((state) => state.cancelLeave);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Approved': return colors.success;
-      case 'Rejected': return colors.error;
-      default: return colors.warning;
+  const [leaveToCancel, setLeaveToCancel] = useState<LeaveRequest | null>(null);
+  const [showToast, setShowToast] = useState(false);
+
+  const getStatusColors = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === 'approved') {
+      return {
+        bg: colors.successLight || '#dcfce7',
+        text: colors.success ? colors.success[700] || '#15803d' : '#15803d',
+      };
+    } else if (s === 'rejected') {
+      return {
+        bg: colors.errorLight || '#fee2e2',
+        text: colors.error ? colors.error[700] || '#b91c1c' : '#b91c1c',
+      };
+    } else if (s === 'cancelled') {
+      return {
+        bg: colors.surfaceSecondary || '#e2e8f0',
+        text: colors.textSecondary || '#64748b',
+      };
+    }
+    return {
+      bg: colors.warningLight || '#ffedd5',
+      text: colors.warning ? colors.warning[700] || '#c2410c' : '#c2410c',
+    };
+  };
+
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleConfirmCancel = async () => {
+    if (!leaveToCancel || isCancelling) return;
+    const targetId = leaveToCancel.id;
+    setIsCancelling(true);
+
+    try {
+      await cancelLeave(targetId);
+      setLeaveToCancel(null);
+      setIsCancelling(false);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    } catch (err: any) {
+      setIsCancelling(false);
+      console.error('[LeaveHistory] Cancel leave error:', err);
+      Alert.alert('Error', 'Unable to cancel leave application. Please try again.');
     }
   };
 
-  const getStatusBg = (status: string) => {
-    switch (status) {
-      case 'Approved': return colors.successLight;
-      case 'Rejected': return colors.errorLight;
-      default: return colors.surfaceSecondary;
-    }
-  };
+  const todayStr = new Date().toISOString().split('T')[0];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {leaves.map((leave) => (
-        <Card key={leave.id} variant="elevated" style={styles.card}>
-          <View style={styles.headerRow}>
-            <AppText size="base" weight="semibold">{leave.type}</AppText>
-            <View style={[styles.badge, { backgroundColor: getStatusBg(leave.status), borderRadius: borderRadius.full }]}>
-              <AppText size="xs" weight="medium" color={getStatusColor(leave.status)}>{leave.status}</AppText>
+      {leaves.map((leave) => {
+        const statusColors = getStatusColors(leave.status);
+        const statusLower = leave.status.toLowerCase();
+
+        // Business rules for actions:
+        // Pending: Edit allowed (if not past), Cancel allowed
+        // Approved: Cancel allowed if future start date, Edit disabled
+        // Rejected/Cancelled: Actions disabled
+        const canEdit = statusLower === 'pending' && leave.toDate >= todayStr;
+        const canCancel = statusLower === 'pending' || (statusLower === 'approved' && leave.fromDate > todayStr);
+
+        return (
+          <Card key={leave.id} variant="elevated" style={styles.card}>
+            <View style={styles.headerRow}>
+              <AppText size="base" weight="bold" color="primary">{leave.type}</AppText>
+              <View style={[styles.badge, { backgroundColor: statusColors.bg, borderRadius: borderRadius.full }]}>
+                <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                  {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
+                </AppText>
+              </View>
             </View>
-          </View>
-          <View style={[styles.detailRow, { marginTop: spacing.xs }]}>
-            <AppText size="sm" color="secondary">Date: {leave.fromDate} to {leave.toDate}</AppText>
-            <AppText size="sm" color="secondary">{leave.days} Day(s)</AppText>
-          </View>
-          <View style={{ marginTop: 4 }}>
-            <AppText size="sm" color="secondary">Applied: {leave.appliedDate}</AppText>
-          </View>
-          <View style={{ marginTop: 4 }}>
-            <AppText size="sm" color="secondary">Reason: {leave.reason}</AppText>
-          </View>
-          {leave.attachment && (
-            <View style={[styles.attachmentBadge, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.sm, marginTop: 8 }]}>
-              <AppText size="xs" color="primary">📎 {leave.attachment.name}</AppText>
-              <AppText size="xs" color="secondary">{(leave.attachment.size / 1024).toFixed(1)} KB</AppText>
+            
+            <View style={[styles.detailRow, { marginTop: spacing.xs }]}>
+              <AppText size="sm" color="secondary">
+                Date: {leave.fromDate} to {leave.toDate}
+              </AppText>
+              <AppText size="sm" weight="bold" color="primary">
+                {leave.days} Day(s)
+              </AppText>
             </View>
-          )}
-        </Card>
-      ))}
+
+            {leave.appliedDate && (
+              <View style={{ marginTop: 4 }}>
+                <AppText size="xs" color="secondary">Applied: {leave.appliedDate}</AppText>
+              </View>
+            )}
+
+            <View style={{ marginTop: 4 }}>
+              <AppText size="sm" color="text">Reason: {leave.reason}</AppText>
+            </View>
+
+            {leave.attachment && (
+              <View style={[styles.attachmentBadge, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.sm, marginTop: 8 }]}>
+                <AppText size="xs" color="primary">📎 {leave.attachment.name}</AppText>
+                <AppText size="xs" color="secondary">{(leave.attachment.size / 1024).toFixed(1)} KB</AppText>
+              </View>
+            )}
+
+            {(canEdit || canCancel) && (
+              <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
+                {canEdit && (
+                  <TouchableOpacity
+                    style={[styles.actionBtn, { borderColor: colors.primary[600] || '#8b5cf6' }]}
+                    onPress={() => onEditLeave(leave)}
+                    activeOpacity={0.7}
+                  >
+                    <AppText size="xs" weight="bold" style={{ color: colors.primary[600] || '#8b5cf6' }}>
+                      Edit
+                    </AppText>
+                  </TouchableOpacity>
+                )}
+
+                {canCancel && (
+                  <TouchableOpacity
+                    style={[styles.actionBtn, { borderColor: colors.error || '#dc2626' }]}
+                    onPress={() => setLeaveToCancel(leave)}
+                    activeOpacity={0.7}
+                  >
+                    <AppText size="xs" weight="bold" style={{ color: colors.error || '#dc2626' }}>
+                      Cancel
+                    </AppText>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </Card>
+        );
+      })}
+
       {leaves.length === 0 && (
-        <AppText size="base" color="secondary" style={styles.empty}>No leave history found.</AppText>
+        <AppText size="base" color="secondary" style={styles.empty}>
+          No leave history found.
+        </AppText>
+      )}
+
+      {/* Confirmation Dialog for Cancel Leave */}
+      <Modal visible={!!leaveToCancel} animationType="fade" transparent>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => !isCancelling && setLeaveToCancel(null)}>
+          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]} onStartShouldSetResponder={() => true}>
+            <AppText size="md" weight="bold" color="primary" style={{ marginBottom: 8 }}>
+              Cancel Leave Application?
+            </AppText>
+            <AppText size="sm" color="secondary" style={{ marginBottom: 20 }}>
+              Are you sure you want to cancel this leave application ({leaveToCancel?.type} from {leaveToCancel?.fromDate} to {leaveToCancel?.toDate})?
+            </AppText>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                disabled={isCancelling}
+                style={[styles.modalBtn, { borderColor: colors.border, borderRadius: borderRadius.md }, isCancelling && { opacity: 0.5 }]}
+                onPress={() => setLeaveToCancel(null)}
+              >
+                <AppText size="sm" weight="bold" color="primary">Keep Leave</AppText>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                disabled={isCancelling}
+                style={[styles.modalBtn, { backgroundColor: colors.error || '#dc2626', borderRadius: borderRadius.md }, isCancelling && { opacity: 0.6 }]}
+                onPress={handleConfirmCancel}
+              >
+                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>
+                  {isCancelling ? 'Cancelling...' : 'Cancel Leave'}
+                </AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {showToast && (
+        <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
+          <AppText color="surface" weight="semibold" size="sm">
+            Leave application cancelled successfully.
+          </AppText>
+        </View>
       )}
     </ScrollView>
   );
@@ -74,12 +209,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   empty: {
     textAlign: 'center',
@@ -90,5 +226,59 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  }
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  actionBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    minWidth: 70,
+    alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 400,
+    borderWidth: 1,
+    padding: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+  },
+  modalBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  snackbar: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
 });

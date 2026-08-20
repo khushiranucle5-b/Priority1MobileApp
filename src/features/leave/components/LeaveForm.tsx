@@ -1,19 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, Alert, Modal, FlatList, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Alert, Modal, ScrollView, useWindowDimensions } from 'react-native';
 import { pick, keepLocalCopy, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import { Button } from '../../../components/Button';
 import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { useGuardStore, LeaveAttachment } from '../../../store/useGuardStore';
+import { useGuardStore, LeaveAttachment, LeaveRequest } from '../../../store/useGuardStore';
 import { Input } from '../../../components/Input';
-
-const LEAVE_TYPES = [
-  'Annual Leave',
-  'Sick Leave',
-  'Casual Leave',
-  'Emergency Leave',
-  'Unpaid Leave',
-];
+import { getHolidayInfoForDate, checkDateRangeForHolidays } from '../../holidays/data/holidaysData';
 
 // Helper to format date nicely
 const formatDateString = (date: Date) => {
@@ -24,21 +17,56 @@ const formatDateString = (date: Date) => {
   return `${day} ${month} ${year}`; // e.g. "20 Aug 2026"
 };
 
-// Helper for standard machine readable format
 const toMachineDate = (date: Date) => {
-  return date.toISOString().split('T')[0];
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 };
 
-export const LeaveForm: React.FC = () => {
+interface LeaveFormProps {
+  editingLeave?: LeaveRequest | null;
+  onFinishedEdit?: () => void;
+}
+
+export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEdit }) => {
   const { colors, spacing, borderRadius } = useTheme();
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 600;
+
   const applyLeave = useGuardStore((state) => state.applyLeave);
+  const updateLeave = useGuardStore((state) => state.updateLeave);
+  const leaveBalances = useGuardStore((state) => state.leaveBalances);
 
   const [leaveType, setLeaveType] = useState('Annual Leave');
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
+  const [isHalfDay, setIsHalfDay] = useState(false);
   const [reason, setReason] = useState('');
   const [attachment, setAttachment] = useState<LeaveAttachment | null>(null);
   const [durationDays, setDurationDays] = useState(0);
+
+  // Pre-fill form if editing an existing leave
+  useEffect(() => {
+    if (editingLeave) {
+      setLeaveType(editingLeave.type || 'Annual Leave');
+      if (editingLeave.fromDate) {
+        const p = editingLeave.fromDate.split('-').map(Number);
+        if (p.length === 3) {
+          setFromDate(new Date(p[0], p[1] - 1, p[2]));
+        }
+      }
+      if (editingLeave.toDate) {
+        const p = editingLeave.toDate.split('-').map(Number);
+        if (p.length === 3) {
+          setToDate(new Date(p[0], p[1] - 1, p[2]));
+        }
+      }
+      setIsHalfDay(editingLeave.days === 0.5);
+      setReason(editingLeave.reason || '');
+      setAttachment(editingLeave.attachment || null);
+    }
+  }, [editingLeave]);
 
   const [isTypeModalVisible, setIsTypeModalVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -51,30 +79,96 @@ export const LeaveForm: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Available balance getter
+  const getAvailableBalance = (typeStr: string): number | string => {
+    const s = typeStr.toLowerCase();
+    if (s.includes('annual')) return leaveBalances?.annual ?? 12;
+    if (s.includes('sick')) return leaveBalances?.sick ?? 5;
+    if (s.includes('unpaid')) return 'Unlimited';
+    return 0;
+  };
+
+  const currentAvailableBal = getAvailableBalance(leaveType);
+
+  // Leave types configuration with live balance
+  const LEAVE_TYPE_OPTIONS = [
+    { type: 'Annual Leave', balance: leaveBalances?.annual ?? 12, exhausted: (leaveBalances?.annual ?? 12) <= 0 },
+    { type: 'Sick Leave', balance: leaveBalances?.sick ?? 5, exhausted: (leaveBalances?.sick ?? 5) <= 0 },
+    { type: 'Unpaid Leave', balance: 'Unlimited', exhausted: false },
+  ];
+
   // Auto calculate duration in days
   useEffect(() => {
     if (fromDate && toDate) {
-      const diffTime = toDate.getTime() - fromDate.getTime();
-      if (diffTime >= 0) {
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        setDurationDays(diffDays);
+      if (isHalfDay) {
+        setDurationDays(0.5);
       } else {
-        setDurationDays(0);
+        const diffTime = toDate.getTime() - fromDate.getTime();
+        if (diffTime >= 0) {
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+          setDurationDays(diffDays);
+        } else {
+          setDurationDays(0);
+        }
       }
+    } else if (fromDate && isHalfDay) {
+      setDurationDays(0.5);
     } else {
       setDurationDays(0);
     }
-  }, [fromDate, toDate]);
+  }, [fromDate, toDate, isHalfDay]);
 
-  const validate = () => {
+  const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!leaveType) newErrors.leaveType = 'Leave Type is required';
-    if (!fromDate) newErrors.fromDate = 'From Date is required';
-    if (!toDate) newErrors.toDate = 'To Date is required';
-    if (fromDate && toDate && fromDate > toDate) {
-      newErrors.toDate = 'End Date cannot be before Start Date';
+
+    if (!leaveType) {
+      newErrors.leaveType = 'Leave Type is required.';
     }
-    if (!reason.trim()) newErrors.reason = 'Reason is required';
+
+    if (!fromDate) {
+      newErrors.fromDate = 'Start Date is required.';
+    }
+
+    if (!toDate && !isHalfDay) {
+      newErrors.toDate = 'End Date is required.';
+    }
+
+    const effectiveToDate = toDate || fromDate;
+
+    if (fromDate && effectiveToDate && fromDate > effectiveToDate) {
+      newErrors.toDate = 'End Date cannot be before Start Date.';
+    }
+
+    // HOLIDAY VALIDATIONS (Strict Business Rule)
+    if (fromDate) {
+      const fromHoliday = getHolidayInfoForDate(fromDate);
+      if (fromHoliday.isHoliday) {
+        newErrors.fromDate = `Leave cannot be applied for a holiday. (${fromHoliday.holidayName})`;
+      }
+    }
+
+    if (effectiveToDate) {
+      const toHoliday = getHolidayInfoForDate(effectiveToDate);
+      if (toHoliday.isHoliday) {
+        newErrors.toDate = `Leave cannot be applied for a holiday. (${toHoliday.holidayName})`;
+      }
+    }
+
+    if (fromDate && effectiveToDate && !newErrors.fromDate && !newErrors.toDate) {
+      const rangeHoliday = checkDateRangeForHolidays(fromDate, effectiveToDate);
+      if (rangeHoliday.hasHoliday) {
+        newErrors.general = `Your selected leave period includes a holiday (${rangeHoliday.holidayName} on ${rangeHoliday.holidayDateStr}). Please select different dates.`;
+      }
+    }
+
+    // Leave Balance Validation
+    if (typeof currentAvailableBal === 'number' && durationDays > currentAvailableBal) {
+      newErrors.leaveType = `Insufficient leave balance. Available balance is ${currentAvailableBal} day(s).`;
+    }
+
+    if (!reason.trim()) {
+      newErrors.reason = 'Reason / Description is required.';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -92,7 +186,6 @@ export const LeaveForm: React.FC = () => {
         return;
       }
 
-      // Copy file to permanent local storage
       const copyResults = await keepLocalCopy({
         files: [{ uri: res.uri, fileName: res.name || 'document' }],
         destination: 'documentDirectory',
@@ -118,78 +211,118 @@ export const LeaveForm: React.FC = () => {
     }
   };
 
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1048576).toFixed(1) + ' MB';
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
-
-    await applyLeave({
-      type: leaveType,
-      fromDate: toMachineDate(fromDate!),
-      toDate: toMachineDate(toDate!),
-      days: durationDays,
-      reason,
-      attachment: attachment || undefined,
-    });
-
+  const handleResetForm = () => {
     setLeaveType('Annual Leave');
     setFromDate(null);
     setToDate(null);
+    setIsHalfDay(false);
     setReason('');
     setAttachment(null);
     setErrors({});
-
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  // Calendar Helpers
-  const getDaysInMonth = (month: number, year: number) => {
-    return new Date(year, month + 1, 0).getDate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!validate() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const startDateStr = toMachineDate(fromDate!);
+      const endDateStr = toDate ? toMachineDate(toDate!) : startDateStr;
+
+      if (editingLeave) {
+        await updateLeave(editingLeave.id, {
+          type: leaveType,
+          fromDate: startDateStr,
+          toDate: endDateStr,
+          days: durationDays,
+          reason,
+          attachment: attachment || undefined,
+        });
+        handleResetForm();
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setIsSubmitting(false);
+          if (onFinishedEdit) onFinishedEdit();
+        }, 1200);
+      } else {
+        await applyLeave({
+          type: leaveType,
+          fromDate: startDateStr,
+          toDate: endDateStr,
+          days: durationDays,
+          reason,
+          attachment: attachment || undefined,
+        });
+
+        handleResetForm();
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setIsSubmitting(false);
+        }, 2500);
+      }
+    } catch (err: any) {
+      setIsSubmitting(false);
+      console.error('[LeaveForm] Submission error:', err);
+      Alert.alert(
+        'Error',
+        editingLeave
+          ? 'Unable to update leave application. Please try again.'
+          : 'Unable to submit leave application. Please try again.'
+      );
+    }
   };
 
   const handleSelectDay = (day: number) => {
     const selected = new Date(currentCalendarYear, currentCalendarMonth, day);
+    const holidayCheck = getHolidayInfoForDate(selected);
+
+    if (holidayCheck.isHoliday) {
+      Alert.alert(
+        'Holiday Selected',
+        `Selected date (${formatDateString(selected)}) is an official holiday: ${holidayCheck.holidayName}.\n\nLeave cannot be applied for a holiday.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     if (pickingTarget === 'from') {
       setFromDate(selected);
-      setErrors((prev) => ({ ...prev, fromDate: '' }));
-      // Auto adjust To Date if it is now invalid
+      setErrors((prev) => ({ ...prev, fromDate: '', general: '' }));
       if (toDate && selected > toDate) {
-        setToDate(null);
+        setToDate(selected);
       }
     } else {
       if (fromDate && selected < fromDate) {
-        Alert.alert('Invalid Range', 'End Date cannot be before Start Date.');
+        Alert.alert('Invalid Date Range', 'End Date cannot be before Start Date.');
         return;
       }
       setToDate(selected);
-      setErrors((prev) => ({ ...prev, toDate: '' }));
+      setErrors((prev) => ({ ...prev, toDate: '', general: '' }));
     }
     setIsDatePickerVisible(false);
   };
 
   const renderCalendar = () => {
-    const daysInMonth = getDaysInMonth(currentCalendarMonth, currentCalendarYear);
+    const daysInMonth = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
     const firstDayIndex = new Date(currentCalendarYear, currentCalendarMonth, 1).getDay();
-    // Adjust for Monday start (0 for Sunday -> shift to index 6, etc)
-    const adjustedFirstDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
 
     const cells = [];
-    // Empty cells before start of month
-    for (let i = 0; i < adjustedFirstDay; i++) {
+    for (let i = 0; i < firstDayIndex; i++) {
       cells.push(<View key={`empty-${i}`} style={styles.calendarCell} />);
     }
 
-    // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
       const currentCellDate = new Date(currentCalendarYear, currentCalendarMonth, day);
+      const holidayCheck = getHolidayInfoForDate(currentCellDate);
+
       const isSelected = pickingTarget === 'from'
         ? fromDate && currentCellDate.toDateString() === fromDate.toDateString()
         : toDate && currentCellDate.toDateString() === toDate.toDateString();
+
       const isDisabled = !!(pickingTarget === 'to' && fromDate && currentCellDate < fromDate);
 
       cells.push(
@@ -198,18 +331,26 @@ export const LeaveForm: React.FC = () => {
           disabled={isDisabled}
           style={[
             styles.calendarCell,
-            isSelected && { backgroundColor: colors.primary[600], borderRadius: 20 },
+            isSelected && { backgroundColor: colors.primary[600] || '#8b5cf6', borderRadius: 20 },
+            holidayCheck.isHoliday && !isSelected && { backgroundColor: '#fff7ed', borderColor: '#ea580c', borderWidth: 1, borderRadius: 20 },
             isDisabled && { opacity: 0.25 },
           ]}
           onPress={() => handleSelectDay(day)}
         >
           <AppText
-            size="base"
-            weight={isSelected ? 'bold' : 'medium'}
-            style={{ color: isSelected ? '#FFFFFF' : isDisabled ? colors.textSecondary : colors.text }}
+            size="xs"
+            weight={isSelected || holidayCheck.isHoliday ? 'bold' : 'medium'}
+            style={{
+              color: isSelected ? '#FFFFFF' : holidayCheck.isHoliday ? '#c2410c' : isDisabled ? colors.textDisabled : colors.text
+            }}
           >
             {day}
           </AppText>
+          {holidayCheck.isHoliday && !isSelected && (
+            <AppText size="xs" style={{ fontSize: 7, color: '#c2410c', marginTop: -2 }}>
+              Holiday
+            </AppText>
+          )}
         </TouchableOpacity>
       );
     }
@@ -241,188 +382,266 @@ export const LeaveForm: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-      {/* Leave Type Selector Trigger */}
-      <View style={styles.field}>
-        <AppText size="base" weight="semibold" style={{ color: colors.text, marginBottom: spacing.xs }}>Leave Type</AppText>
-        <TouchableOpacity
-          style={[
-            styles.selectTrigger,
-            { borderColor: errors.leaveType ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }
-          ]}
-          onPress={() => setIsTypeModalVisible(true)}
-          activeOpacity={0.7}
-        >
-          <AppText size="base" style={{ color: leaveType ? colors.text : colors.textSecondary }}>
-            {leaveType || 'Select Leave Type'}
-          </AppText>
-          <AppText size="sm" color="secondary">▼</AppText>
-        </TouchableOpacity>
-        {errors.leaveType && <AppText size="xs" color="error" style={{ marginTop: 4 }}>{errors.leaveType}</AppText>}
-      </View>
-
-      {/* Date Fields row */}
-      <View style={styles.row}>
-        {/* From Date Trigger */}
-        <View style={{ flex: 1, marginRight: 8 }}>
-          <AppText size="base" weight="semibold" style={{ color: colors.text, marginBottom: spacing.xs }}>From Date</AppText>
-          <TouchableOpacity
-            style={[
-              styles.selectTrigger,
-              { borderColor: errors.fromDate ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }
-            ]}
-            onPress={() => {
-              setPickingTarget('from');
-              setIsDatePickerVisible(true);
-            }}
-            activeOpacity={0.7}
-          >
-            <AppText size="base" style={{ color: fromDate ? colors.text : colors.textSecondary }}>
-              {fromDate ? formatDateString(fromDate) : 'Select Date'}
-            </AppText>
-            <AppText size="sm">📅</AppText>
-          </TouchableOpacity>
-          {errors.fromDate && <AppText size="xs" color="error" style={{ marginTop: 4 }}>{errors.fromDate}</AppText>}
-        </View>
-
-        {/* To Date Trigger */}
-        <View style={{ flex: 1, marginLeft: 8 }}>
-          <AppText size="base" weight="semibold" style={{ color: colors.text, marginBottom: spacing.xs }}>To Date</AppText>
-          <TouchableOpacity
-            style={[
-              styles.selectTrigger,
-              { borderColor: errors.toDate ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }
-            ]}
-            onPress={() => {
-              setPickingTarget('to');
-              setIsDatePickerVisible(true);
-            }}
-            activeOpacity={0.7}
-          >
-            <AppText size="base" style={{ color: toDate ? colors.text : colors.textSecondary }}>
-              {toDate ? formatDateString(toDate) : 'Select Date'}
-            </AppText>
-            <AppText size="sm">📅</AppText>
-          </TouchableOpacity>
-          {errors.toDate && <AppText size="xs" color="error" style={{ marginTop: 4 }}>{errors.toDate}</AppText>}
-        </View>
-      </View>
-
-      {/* Duration Label */}
-      {durationDays > 0 && (
-        <View style={[styles.durationBadge, { backgroundColor: colors.primary[50], borderRadius: borderRadius.md }]}>
-          <AppText size="base" weight="semibold" color="primary">
-            Calculated Duration: {durationDays} Day(s)
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="handled">
+      {/* Main Leave Application Details Card */}
+      <View style={[styles.mainCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
+        {/* Header */}
+        <View style={styles.cardHeader}>
+          <AppText size="md" weight="bold" color="primary" style={styles.headerTitle}>
+            {editingLeave ? 'EDIT LEAVE APPLICATION DETAILS' : 'LEAVE APPLICATION DETAILS'}
           </AppText>
         </View>
-      )}
 
-      {/* Reason Field */}
-      <View style={styles.field}>
-        <Input
-          label="Reason"
-          value={reason}
-          onChangeText={(val) => { setReason(val); setErrors({ ...errors, reason: '' }); }}
-          multiline
-          numberOfLines={4}
-          placeholder="Enter detailed reason for leave..."
-          error={errors.reason}
-          style={styles.textArea}
-        />
-      </View>
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-      {/* File Upload Field */}
-      <View style={styles.field}>
-        <AppText size="base" weight="semibold" style={{ color: colors.text, marginBottom: spacing.xs }}>
-          Attachment (Max 10MB)
-        </AppText>
-        {!attachment ? (
-          <TouchableOpacity
-            style={[
-              styles.attachmentBox,
-              {
-                borderColor: colors.border,
-                borderRadius: borderRadius.md,
-                borderStyle: 'dashed',
-                backgroundColor: colors.surfaceSecondary,
-              }
-            ]}
-            onPress={handlePickDocument}
-            activeOpacity={0.7}
-          >
-            <AppText size="base" color="primary" weight="bold">Tap to upload file</AppText>
-            <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>PDF, JPG, PNG, DOC, DOCX</AppText>
-          </TouchableOpacity>
-        ) : (
-          <View style={[styles.attachedFile, { borderColor: colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }]}>
-            <View style={styles.attachedFileInfo}>
-              <AppText size="base" weight="semibold" numberOfLines={1}>{attachment.name}</AppText>
-              <AppText size="xs" color="secondary">{attachment.type.split('/').pop()?.toUpperCase()} • {formatSize(attachment.size)}</AppText>
+        <View style={styles.formBody}>
+          {/* General Error Banner */}
+          {errors.general && (
+            <View style={[styles.errorBanner, { backgroundColor: colors.errorLight || '#fee2e2', borderColor: colors.error }]}>
+              <AppText size="xs" weight="bold" style={{ color: colors.errorDark || '#b91c1c' }}>
+                ⚠️ {errors.general}
+              </AppText>
             </View>
-            <View style={styles.attachedFileActions}>
-              <TouchableOpacity onPress={() => setAttachment(null)} style={{ marginRight: 16 }}>
-                <AppText size="base" color="error" weight="bold">Remove</AppText>
+          )}
+
+          {/* Start Date & End Date Row */}
+          <View style={[styles.fieldRow, isDesktop ? styles.rowHorizontal : styles.rowVertical]}>
+            {/* Start Date */}
+            <View style={[styles.fieldCol, isDesktop && { marginRight: 8 }]}>
+              <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
+                Start Date <AppText size="sm" style={{ color: colors.error }}>*</AppText>
+              </AppText>
+              <TouchableOpacity
+                style={[
+                  styles.inputTrigger,
+                  { borderColor: errors.fromDate ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                ]}
+                onPress={() => {
+                  setPickingTarget('from');
+                  if (fromDate) {
+                    setCurrentCalendarMonth(fromDate.getMonth());
+                    setCurrentCalendarYear(fromDate.getFullYear());
+                  }
+                  setIsDatePickerVisible(true);
+                }}
+                activeOpacity={0.7}
+              >
+                <AppText size="sm" style={{ color: fromDate ? colors.text : colors.textSecondary }}>
+                  {fromDate ? formatDateString(fromDate) : 'mm/dd/yyyy'}
+                </AppText>
+                <AppText size="base">📅</AppText>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handlePickDocument}>
-                <AppText size="base" color="primary" weight="bold">Replace</AppText>
+              {errors.fromDate && <AppText size="xs" color="error" style={styles.errorText}>{errors.fromDate}</AppText>}
+            </View>
+
+            {/* End Date */}
+            <View style={[styles.fieldCol, isDesktop && { marginLeft: 8 }]}>
+              <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
+                End Date <AppText size="sm" style={{ color: colors.error }}>*</AppText>
+              </AppText>
+              <TouchableOpacity
+                style={[
+                  styles.inputTrigger,
+                  { borderColor: errors.toDate ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                ]}
+                onPress={() => {
+                  setPickingTarget('to');
+                  if (toDate) {
+                    setCurrentCalendarMonth(toDate.getMonth());
+                    setCurrentCalendarYear(toDate.getFullYear());
+                  } else if (fromDate) {
+                    setCurrentCalendarMonth(fromDate.getMonth());
+                    setCurrentCalendarYear(fromDate.getFullYear());
+                  }
+                  setIsDatePickerVisible(true);
+                }}
+                activeOpacity={0.7}
+              >
+                <AppText size="sm" style={{ color: toDate ? colors.text : colors.textSecondary }}>
+                  {toDate ? formatDateString(toDate) : 'mm/dd/yyyy'}
+                </AppText>
+                <AppText size="base">📅</AppText>
+              </TouchableOpacity>
+              {errors.toDate && <AppText size="xs" color="error" style={styles.errorText}>{errors.toDate}</AppText>}
+            </View>
+          </View>
+
+          {/* Half-Day Checkbox */}
+          <TouchableOpacity
+            style={styles.checkboxContainer}
+            onPress={() => setIsHalfDay(!isHalfDay)}
+            activeOpacity={0.8}
+          >
+            <View style={[
+              styles.checkboxBox,
+              { borderColor: isHalfDay ? (colors.primary[600] || '#8b5cf6') : colors.border },
+              isHalfDay && { backgroundColor: colors.primary[600] || '#8b5cf6' }
+            ]}>
+              {isHalfDay && <AppText size="xs" weight="bold" style={{ color: '#FFFFFF' }}>✓</AppText>}
+            </View>
+            <AppText size="sm" weight="medium" color="primary" style={styles.checkboxLabel}>
+              Apply for half day only
+            </AppText>
+          </TouchableOpacity>
+
+          {/* Duration Badge if dates selected */}
+          {durationDays > 0 && (
+            <View style={[styles.durationContainer, { backgroundColor: colors.primary[50] || '#f3e8ff', borderRadius: borderRadius.md }]}>
+              <AppText size="xs" weight="bold" color="primary">
+                Calculated Duration: {durationDays} Day(s) {isHalfDay ? '(Half-Day)' : ''}
+              </AppText>
+            </View>
+          )}
+
+          {/* Leave Type + Available Paid Balance & Attachments Row */}
+          <View style={[styles.fieldRow, isDesktop ? styles.rowHorizontal : styles.rowVertical]}>
+            {/* Leave Type Dropdown */}
+            <View style={[styles.fieldCol, isDesktop && { marginRight: 8 }]}>
+              <View style={styles.labelWithBalanceRow}>
+                <AppText size="sm" weight="bold" color="primary">
+                  Leave Type <AppText size="sm" style={{ color: colors.error }}>*</AppText>
+                </AppText>
+                <AppText size="xs" weight="semibold" color="secondary">
+                  Available Paid Balance: {currentAvailableBal} {typeof currentAvailableBal === 'number' ? 'days' : ''}
+                </AppText>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.inputTrigger,
+                  { borderColor: errors.leaveType ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                ]}
+                onPress={() => setIsTypeModalVisible(true)}
+                activeOpacity={0.7}
+              >
+                <AppText size="sm" weight="medium" style={{ color: leaveType ? colors.text : colors.textSecondary }}>
+                  {leaveType || 'Select Leave Type'}
+                </AppText>
+                <AppText size="xs" color="secondary">▼</AppText>
+              </TouchableOpacity>
+              {errors.leaveType && <AppText size="xs" color="error" style={styles.errorText}>{errors.leaveType}</AppText>}
+            </View>
+
+            {/* Attachments */}
+            <View style={[styles.fieldCol, isDesktop && { marginLeft: 8 }]}>
+              <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
+                📎 Attachments
+              </AppText>
+              <TouchableOpacity
+                style={[
+                  styles.attachmentTrigger,
+                  { borderColor: colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                ]}
+                onPress={handlePickDocument}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.chooseFileBtn, { backgroundColor: colors.border || '#e2e8f0' }]}>
+                  <AppText size="xs" weight="bold" color="primary">Choose File</AppText>
+                </View>
+                <AppText size="xs" color="secondary" numberOfLines={1} style={styles.fileNameText}>
+                  {attachment ? attachment.name : 'No file chosen'}
+                </AppText>
               </TouchableOpacity>
             </View>
           </View>
-        )}
+
+          {/* Reason / Description Textarea */}
+          <View style={styles.fieldCol}>
+            <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
+              Reason / Description <AppText size="sm" style={{ color: colors.error }}>*</AppText>
+            </AppText>
+            <Input
+              value={reason}
+              onChangeText={(val) => { setReason(val); setErrors((prev) => ({ ...prev, reason: '' })); }}
+              multiline
+              numberOfLines={4}
+              placeholder="Enter reason or detailed description for leave application..."
+              error={errors.reason}
+              style={styles.textArea}
+            />
+          </View>
+
+          <View style={[styles.bottomDivider, { backgroundColor: colors.border }]} />
+
+          {/* Action Buttons (Bottom-Right Aligned) */}
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={[styles.cancelBtn, { borderColor: colors.border, borderRadius: borderRadius.md }]}
+              onPress={() => {
+                handleResetForm();
+                if (editingLeave && onFinishedEdit) onFinishedEdit();
+              }}
+              activeOpacity={0.7}
+            >
+              <AppText size="sm" weight="bold" color="secondary">Cancel</AppText>
+            </TouchableOpacity>
+
+            <Button
+              title={
+                isSubmitting
+                  ? (editingLeave ? "Updating..." : "Submitting...")
+                  : (editingLeave ? "Update Leave Application" : "Submit Leave Application")
+              }
+              disabled={isSubmitting}
+              variant="primary"
+              size="medium"
+              onPress={handleSubmit}
+              style={[styles.submitBtn, { backgroundColor: colors.primary[600] || '#8b5cf6' }, isSubmitting && { opacity: 0.6 }]}
+            />
+          </View>
+        </View>
       </View>
 
-      {/* Submit Button */}
-      <Button
-        title="Submit Request"
-        variant="primary"
-        size="large"
-        fullWidth
-        onPress={handleSubmit}
-        style={styles.btn}
-      />
-
-      <View style={{ height: 40 }} />
-
-      {/* LEAVE TYPE DROPDOWN MODAL */}
-      <Modal visible={isTypeModalVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalSheet, { backgroundColor: colors.surface, borderTopLeftRadius: borderRadius.xl, borderTopRightRadius: borderRadius.xl }]}>
-            <View style={styles.modalHeader}>
-              <AppText size="lg" weight="bold">Select Leave Type</AppText>
-              <TouchableOpacity onPress={() => setIsTypeModalVisible(false)} style={styles.closeBtn}>
-                <AppText size="base" color="primary" weight="bold">Close</AppText>
+      {/* Leave Type Selector Modal */}
+      <Modal visible={isTypeModalVisible} animationType="fade" transparent>
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsTypeModalVisible(false)}
+        >
+          <View style={[styles.dropdownCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
+            <View style={styles.dropdownHeader}>
+              <AppText size="sm" weight="bold" color="primary">Select Leave Type</AppText>
+              <TouchableOpacity onPress={() => setIsTypeModalVisible(false)}>
+                <AppText size="xs" weight="bold" color="secondary">✕</AppText>
               </TouchableOpacity>
             </View>
-            <FlatList
-              data={LEAVE_TYPES}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
+
+            {LEAVE_TYPE_OPTIONS.map((opt) => {
+              const isSelected = leaveType === opt.type;
+              return (
                 <TouchableOpacity
+                  key={opt.type}
+                  disabled={opt.exhausted}
                   style={[
-                    styles.typeOption,
+                    styles.dropdownOption,
                     { borderBottomColor: colors.border },
-                    leaveType === item && { backgroundColor: colors.primary[50] }
+                    isSelected && { backgroundColor: colors.primary[50] || '#f3e8ff' },
+                    opt.exhausted && { opacity: 0.5 }
                   ]}
                   onPress={() => {
-                    setLeaveType(item);
+                    setLeaveType(opt.type);
                     setErrors((prev) => ({ ...prev, leaveType: '' }));
                     setIsTypeModalVisible(false);
                   }}
                 >
-                  <AppText size="base" weight={leaveType === item ? 'bold' : 'medium'} color={leaveType === item ? 'primary' : 'primary'}>
-                    {item}
-                  </AppText>
+                  <View style={styles.optionLabelRow}>
+                    <AppText size="sm" weight={isSelected ? 'bold' : 'medium'} color={opt.exhausted ? 'disabled' : 'primary'}>
+                      {opt.type} ({opt.balance}) {opt.exhausted ? '— Exhausted' : ''}
+                    </AppText>
+                    {isSelected && <AppText size="sm" weight="bold" style={{ color: colors.primary[600] || '#8b5cf6' }}>✓</AppText>}
+                  </View>
                 </TouchableOpacity>
-              )}
-            />
+              );
+            })}
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
 
-      {/* DATE PICKER CALENDAR MODAL */}
+      {/* Date Picker Modal with Holiday Visual Indicators */}
       <Modal visible={isDatePickerVisible} animationType="fade" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.calendarSheet, { backgroundColor: colors.surface, borderRadius: borderRadius.xl }]}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsDatePickerVisible(false)}>
+          <View style={[styles.calendarSheet, { backgroundColor: colors.surface, borderRadius: borderRadius.xl }]} onStartShouldSetResponder={() => true}>
             <View style={styles.calendarHeader}>
               <TouchableOpacity onPress={() => changeMonth('prev')} style={styles.navArrow}>
                 <AppText size="lg" weight="bold">◀</AppText>
@@ -437,8 +656,8 @@ export const LeaveForm: React.FC = () => {
 
             {/* Days of Week label */}
             <View style={styles.daysOfWeekRow}>
-              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, idx) => (
-                <View key={`label-${idx}`} style={styles.calendarCell}>
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <View key={`label-${day}`} style={styles.calendarCell}>
                   <AppText size="xs" color="secondary" weight="semibold">{day}</AppText>
                 </View>
               ))}
@@ -452,15 +671,17 @@ export const LeaveForm: React.FC = () => {
               style={[styles.cancelDateBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md }]}
               onPress={() => setIsDatePickerVisible(false)}
             >
-              <AppText size="base" weight="bold">Cancel</AppText>
+              <AppText size="sm" weight="bold">Cancel</AppText>
             </TouchableOpacity>
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
 
       {showSuccess && (
-        <View style={[styles.snackbar, { backgroundColor: colors.success }]}>
-          <AppText color="surface" weight="semibold" size="base">Leave Request Submitted Successfully</AppText>
+        <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
+          <AppText color="surface" weight="semibold" size="sm">
+            Leave Request Submitted Successfully!
+          </AppText>
         </View>
       )}
     </ScrollView>
@@ -468,104 +689,174 @@ export const LeaveForm: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  field: {
-    marginBottom: 20,
-  },
-  row: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  selectTrigger: {
-    borderWidth: 1.5,
-    paddingHorizontal: 16,
-    height: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-    fontSize: 16,
-  },
-  durationBadge: {
-    padding: 12,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  attachmentBox: {
-    borderWidth: 1.5,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  attachedFile: {
-    borderWidth: 1.5,
-    padding: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  attachedFileInfo: {
+  scrollContainer: {
     flex: 1,
+  },
+  contentContainer: {
+    padding: 16,
+  },
+  mainCard: {
+    borderWidth: 1,
+    paddingVertical: 16,
+    overflow: 'hidden',
+  },
+  cardHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+  },
+  headerTitle: {
+    letterSpacing: 0.5,
+  },
+  divider: {
+    height: 1,
+    marginBottom: 16,
+  },
+  formBody: {
+    paddingHorizontal: 20,
+  },
+  errorBanner: {
+    padding: 12,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  fieldRow: {
+    marginBottom: 16,
+  },
+  rowHorizontal: {
+    flexDirection: 'row',
+  },
+  rowVertical: {
+    flexDirection: 'column',
+    gap: 16,
+  },
+  fieldCol: {
+    flex: 1,
+  },
+  fieldLabel: {
+    marginBottom: 6,
+  },
+  labelWithBalanceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  inputTrigger: {
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  attachmentTrigger: {
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chooseFileBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 4,
+    marginRight: 10,
+  },
+  fileNameText: {
+    flex: 1,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  checkboxBox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 8,
   },
-  attachedFileActions: {
+  checkboxLabel: {
+    letterSpacing: 0.2,
+  },
+  durationContainer: {
+    padding: 10,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  textArea: {
+    height: 110,
+    textAlignVertical: 'top',
+    fontSize: 14,
+    paddingTop: 10,
+  },
+  errorText: {
+    marginTop: 4,
+  },
+  bottomDivider: {
+    height: 1,
+    marginTop: 20,
+    marginBottom: 16,
+  },
+  actionRow: {
     flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: 12,
   },
-  btn: {
-    height: 52,
-    justifyContent: 'center',
-    marginTop: 8,
+  cancelBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderWidth: 1,
   },
-  snackbar: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    zIndex: 1000,
+  submitBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  modalSheet: {
-    maxHeight: '60%',
-    paddingBottom: 40,
+  dropdownCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderWidth: 1,
+    padding: 16,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
-  modalHeader: {
+  dropdownHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingBottom: 12,
+    marginBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
   },
-  closeBtn: {
-    padding: 4,
-  },
-  typeOption: {
-    paddingVertical: 18,
-    paddingHorizontal: 24,
+  dropdownOption: {
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
   },
+  optionLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   calendarSheet: {
-    margin: 20,
     padding: 16,
-    alignSelf: 'center',
-    width: '90%',
-    maxWidth: 400,
-    marginTop: 'auto',
-    marginBottom: 'auto',
+    width: '100%',
+    maxWidth: 380,
     elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -578,7 +869,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   navArrow: {
-    padding: 12,
+    padding: 8,
   },
   daysOfWeekRow: {
     flexDirection: 'row',
@@ -598,8 +889,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelDateBtn: {
-    paddingVertical: 14,
+    paddingVertical: 10,
     alignItems: 'center',
-    marginTop: 8,
-  }
+    marginTop: 4,
+  },
+  snackbar: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
 });
