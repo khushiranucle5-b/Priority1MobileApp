@@ -273,17 +273,6 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
             </View>
           </View>
         </Card>
-
-        {/* Back Button */}
-        <Button
-          title="← Back"
-          variant="outline"
-          size="large"
-          fullWidth
-          onPress={() => navigation.goBack()}
-          style={{ height: 50, marginTop: 4, borderColor: '#CBD5E1' }}
-        />
-
       </ScrollView>
     </ScreenLayout>
   );

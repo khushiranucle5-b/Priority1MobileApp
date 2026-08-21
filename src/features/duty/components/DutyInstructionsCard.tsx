@@ -14,17 +14,19 @@ const instructions = [
 ];
 
 export const DutyInstructionsCard: React.FC = () => {
-  const { spacing, colors } = useTheme();
+  const { borderRadius, colors } = useTheme();
 
   return (
-    <Card variant="elevated" style={styles.card}>
-      <Heading level="h4" style={styles.title}>Duty Instructions</Heading>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+      <Heading level="h3" color="primary" style={styles.title}>DUTY INSTRUCTIONS</Heading>
       
-      <View style={[styles.list, { marginTop: spacing.sm }]}>
+      <View style={styles.divider} />
+
+      <View style={styles.list}>
         {instructions.map((instruction, index) => (
           <View key={index} style={styles.listItem}>
-            <AppText color="primary" style={styles.bullet}>•</AppText>
-            <AppText size="sm" color="secondary" style={styles.text}>{instruction}</AppText>
+            <AppText style={[styles.bullet, { color: colors.primary[600] || '#2563EB' }]}>•</AppText>
+            <AppText size="base" style={styles.text}>{instruction}</AppText>
           </View>
         ))}
       </View>
@@ -36,24 +38,42 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   title: {
-    marginBottom: 4,
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  divider: {
+    height: 1.5,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 12,
   },
   list: {
-    gap: 8,
+    gap: 10,
   },
   listItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   bullet: {
-    marginRight: 8,
-    marginTop: -2,
-    fontSize: 16,
+    marginRight: 10,
+    fontSize: 20,
+    lineHeight: 22,
   },
   text: {
     flex: 1,
-    lineHeight: 20,
+    fontSize: 15.5,
+    fontWeight: '500',
+    color: '#334155',
+    lineHeight: 22,
   }
 });

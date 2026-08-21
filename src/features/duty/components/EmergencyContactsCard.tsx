@@ -4,12 +4,12 @@ import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
+import { NavIcon } from '../../../components/NavIcon';
 
 export const EmergencyContactsCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
 
   const handleCall = () => {
-    // Placeholder logic
     console.log('Call Emergency Contact');
   };
 
@@ -23,8 +23,8 @@ export const EmergencyContactsCard: React.FC = () => {
             <AppText size="sm" color="secondary">Client Emergency Number</AppText>
             <AppText size="base" weight="medium">100</AppText>
           </View>
-          <TouchableOpacity style={[styles.btn, { backgroundColor: colors.errorLight, borderRadius: borderRadius.full }]} onPress={handleCall}>
-            <AppText size="base">🚨</AppText>
+          <TouchableOpacity style={[styles.btn, { backgroundColor: colors.errorLight || '#FEE2E2', borderRadius: borderRadius.full }]} onPress={handleCall}>
+            <NavIcon name="loneworker" size={20} color="#DC2626" />
           </TouchableOpacity>
         </View>
 
@@ -33,8 +33,8 @@ export const EmergencyContactsCard: React.FC = () => {
             <AppText size="sm" color="secondary">Supervisor Number</AppText>
             <AppText size="base" weight="medium">+1 987-654-3210</AppText>
           </View>
-          <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary[50], borderRadius: borderRadius.full }]} onPress={handleCall}>
-            <AppText size="base">📞</AppText>
+          <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary[50] || '#EFF6FF', borderRadius: borderRadius.full }]} onPress={handleCall}>
+            <NavIcon name="messages" size={20} color="#2563EB" />
           </TouchableOpacity>
         </View>
 
@@ -43,8 +43,8 @@ export const EmergencyContactsCard: React.FC = () => {
             <AppText size="sm" color="secondary">Company Helpdesk Number</AppText>
             <AppText size="base" weight="medium">+1 800-123-4567</AppText>
           </View>
-          <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary[50], borderRadius: borderRadius.full }]} onPress={handleCall}>
-            <AppText size="base">📞</AppText>
+          <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary[50] || '#EFF6FF', borderRadius: borderRadius.full }]} onPress={handleCall}>
+            <NavIcon name="messages" size={20} color="#2563EB" />
           </TouchableOpacity>
         </View>
       </View>
@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   btn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   }

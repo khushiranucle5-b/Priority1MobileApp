@@ -113,17 +113,17 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    minHeight: 50,
+    borderWidth: 1.5,
+    minHeight: 54,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 16,
     includeFontPadding: false,
   },
   helper: {
-    marginTop: 4,
+    marginTop: 6,
     includeFontPadding: false,
   },
 });

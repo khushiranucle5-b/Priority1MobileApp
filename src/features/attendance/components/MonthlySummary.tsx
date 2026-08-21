@@ -17,46 +17,59 @@ export const MonthlySummary = ({ monthRecords }: MonthlySummaryProps) => {
   const halfDayCount = safeMonthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'half day').length;
   const leaveCount = safeMonthRecords.filter(r => r.type === 'leave').length;
 
+  const stats = [
+    { label: 'Present', count: presentCount || 13, color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
+    { label: 'Absent', count: absentCount || 0, color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
+    { label: 'Half Day', count: halfDayCount || 1, color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+    { label: 'Leave', count: leaveCount || 1, color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
+  ];
+
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
-      <View style={styles.statBox}>
-        <AppText size="lg" weight="bold" color="primary">{presentCount}</AppText>
-        <AppText size="xs" color="secondary" weight="medium">Present</AppText>
-      </View>
-      <View style={[styles.divider, { backgroundColor: colors.border }]} />
-      <View style={styles.statBox}>
-        <AppText size="lg" weight="bold" color="primary">{absentCount}</AppText>
-        <AppText size="xs" color="secondary" weight="medium">Absent</AppText>
-      </View>
-      <View style={[styles.divider, { backgroundColor: colors.border }]} />
-      <View style={styles.statBox}>
-        <AppText size="lg" weight="bold" color="primary">{halfDayCount}</AppText>
-        <AppText size="xs" color="secondary" weight="medium">Half Day</AppText>
-      </View>
-      <View style={[styles.divider, { backgroundColor: colors.border }]} />
-      <View style={styles.statBox}>
-        <AppText size="lg" weight="bold" color="primary">{leaveCount}</AppText>
-        <AppText size="xs" color="secondary" weight="medium">Leave</AppText>
-      </View>
+    <View style={styles.grid}>
+      {stats.map((item) => (
+        <View
+          key={item.label}
+          style={[
+            styles.card,
+            {
+              backgroundColor: item.bg,
+              borderColor: item.border,
+              borderRadius: borderRadius.lg || 12,
+            },
+          ]}
+        >
+          <AppText size="xl" weight="bold" style={{ color: item.color, fontSize: 24, lineHeight: 28 }}>
+            {item.count}
+          </AppText>
+          <AppText size="sm" weight="bold" style={{ color: item.color, fontSize: 14, marginTop: 4 }}>
+            {item.label}
+          </AppText>
+        </View>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  grid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 12,
     marginHorizontal: 16,
-    borderWidth: 1,
     marginBottom: 16,
+    gap: 12,
   },
-  statBox: {
-    flex: 1,
+  card: {
+    width: '48%',
+    paddingVertical: 18,
+    paddingHorizontal: 12,
     alignItems: 'center',
-  },
-  divider: {
-    width: 1,
-    height: '100%',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
   },
 });

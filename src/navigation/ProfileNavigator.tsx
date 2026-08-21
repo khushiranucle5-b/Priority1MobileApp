@@ -20,6 +20,9 @@ import { AppPermissionsScreen } from '../features/profile/screens/AppPermissions
 import { DataStorageScreen } from '../features/profile/screens/DataStorageScreen';
 import { AboutApplicationScreen } from '../features/profile/screens/AboutApplicationScreen';
 
+import { DocumentsScreen } from '../features/resources/screens/DocumentsScreen';
+import { UploadDocumentScreen } from '../features/resources/screens/UploadDocumentScreen';
+
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
 export const ProfileNavigator = () => {
@@ -42,6 +45,8 @@ export const ProfileNavigator = () => {
       <Stack.Screen name="AppPermissions" component={AppPermissionsScreen} />
       <Stack.Screen name="DataStorage" component={DataStorageScreen} />
       <Stack.Screen name="AboutApplication" component={AboutApplicationScreen} />
+      <Stack.Screen name="Documents" component={DocumentsScreen} />
+      <Stack.Screen name="UploadDocument" component={UploadDocumentScreen} />
     </Stack.Navigator>
   );
 };

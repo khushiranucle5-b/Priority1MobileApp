@@ -8,51 +8,45 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
 export const PersonalInformationCard: React.FC = () => {
-  const { colors, spacing } = useTheme();
-  const { guardName, guardEmail } = useGuardStore();
-
-  const handleEditProfile = () => {
-    // Placeholder function
-    console.log('handleEditProfile called');
-  };
+  const { borderRadius, colors } = useTheme();
+  const { guardName, guardEmail, phone, dateOfBirth, gender, bloodGroup, address } = useGuardStore();
 
   return (
-    <Card variant="elevated" style={styles.card}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
       <View style={styles.header}>
-        <Heading level="h4">Personal Information</Heading>
-        <TouchableOpacity onPress={handleEditProfile} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <AppText size="sm" color="primary" weight="medium">Edit</AppText>
-        </TouchableOpacity>
+        <Heading level="h3" color="primary" style={styles.title}>PERSONAL INFORMATION</Heading>
       </View>
       
-      <View style={[styles.grid, { marginTop: spacing.sm }]}>
+      <View style={styles.divider} />
+
+      <View style={styles.grid}>
         <View style={styles.row}>
           <AppText size="sm" color="secondary" style={styles.label}>Full Name</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>{guardName || 'N/A'}</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{guardName || 'Security Officer'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Mobile Number</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>+1 987-654-3210</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{phone || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Email Address</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>{guardEmail || 'N/A'}</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{guardEmail || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Date of Birth</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>Oct 12, 1990</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{dateOfBirth || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Gender</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>Male</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{gender || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Blood Group</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>O+</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{bloodGroup || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
           <AppText size="sm" color="secondary" style={styles.label}>Address</AppText>
-          <AppText size="sm" weight="medium" style={styles.value}>123 Main St, Springfield, IL</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.value}>{address || 'N/A'}</AppText>
         </View>
       </View>
     </Card>
@@ -63,27 +57,48 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  divider: {
+    height: 1.5,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 12,
   },
   grid: {
-    gap: 8,
+    gap: 10,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingVertical: 2,
+    alignItems: 'center',
   },
   label: {
     flex: 1,
+    fontSize: 13.5,
+    fontWeight: '600',
+    color: '#64748B',
   },
   value: {
-    flex: 2,
+    flex: 1.5,
     textAlign: 'right',
-  }
+    fontSize: 15.5,
+    fontWeight: '700',
+  },
 });

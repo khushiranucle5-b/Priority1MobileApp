@@ -12,7 +12,7 @@ export type AttendanceStackParamList = {
   AttendanceMain: undefined;
   SelfieVerification: { actionType: 'Clock In' | 'Clock Out' };
   AttendanceHistory: undefined;
-  AttendanceDetails: { recordId: string };
+  AttendanceDetails: { recordId?: string; dateStr?: string };
 };
 
 export type PatrolStackParamList = {
@@ -44,6 +44,7 @@ export type HomeStackParamList = {
   Assets: undefined;
   AssetDetails: { assetId: string };
   Documents: undefined;
+  UploadDocument: { documentId?: string } | undefined;
   Messages: undefined;
   Policies: undefined;
   PolicyDetails: { policyId: string };
@@ -71,6 +72,8 @@ export type ProfileStackParamList = {
   AppPermissions: undefined;
   DataStorage: undefined;
   AboutApplication: undefined;
+  Documents: undefined;
+  UploadDocument: { documentId?: string } | undefined;
 };
 
 export type TabParamList = {

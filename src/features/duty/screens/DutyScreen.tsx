@@ -11,7 +11,6 @@ import {
   DutyInstructionsCard,
   EquipmentCard,
   EmergencyContactsCard,
-  AdditionalNotesCard,
   EmptyDutyState
 } from '../components';
 
@@ -36,7 +35,6 @@ export const DutyScreen: React.FC = () => {
             <DutyInstructionsCard />
             <EquipmentCard />
             <EmergencyContactsCard />
-            <AdditionalNotesCard />
           </>
         ) : (
           <EmptyDutyState />

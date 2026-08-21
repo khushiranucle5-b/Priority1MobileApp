@@ -5,15 +5,16 @@ import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Button } from '../../../components/Button';
+import { StatusBadge } from '../../../components/StatusBadge';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { LoggerService } from '../../../services';
 
 export const ClockInOutActionCard: React.FC = () => {
-  const { colors, spacing, borderRadius, shadows } = useTheme();
+  const { colors } = useTheme();
   const navigation = useNavigation<any>();
-  const { workingHours, clockInTimeStr, attendanceStatus } = useLiveAttendance();
+  const { attendanceStatus, workingHours, clockInTimeStr } = useLiveAttendance();
   const { isClockedIn } = useGuardStore();
 
   const handleClockIn = () => {
@@ -27,67 +28,53 @@ export const ClockInOutActionCard: React.FC = () => {
   };
 
   return (
-    <Card variant="elevated" style={[styles.card, { backgroundColor: colors.surface, ...shadows.md }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.headerRow}>
-        <Heading level="h4" color="primary">Shift Attendance </Heading>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor: isClockedIn ? '#D1FAE5' : '#FEF3C7',
-              borderRadius: borderRadius.full,
-            },
-          ]}
-        >
-          <AppText
-            size="xs"
-            weight="bold"
-            style={{ color: isClockedIn ? '#059669' : '#D97706' }}
-          >
-            {attendanceStatus}
+        <View>
+          <Heading level="h4" color="primary">ATTENDANCE</Heading>
+          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>Real-time Shift Status</AppText>
+        </View>
+        <StatusBadge status={isClockedIn ? 'Checked In' : 'Clocked Out'} size="md" />
+      </View>
+
+      <View style={styles.divider} />
+
+      <View style={styles.statsRow}>
+        <View style={styles.statBox}>
+          <AppText size="xs" color="secondary" weight="semibold">CLOCK IN TIME</AppText>
+          <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
+            {isClockedIn ? clockInTimeStr || '03:10 PM' : '--:--'}
+          </AppText>
+        </View>
+
+        <View style={styles.statBox}>
+          <AppText size="xs" color="secondary" weight="semibold">WORKING HOURS</AppText>
+          <AppText size="base" weight="bold" style={{ color: isClockedIn ? '#059669' : '#64748b', marginTop: 2 }}>
+            {isClockedIn ? workingHours || '04:32:15' : '00:00:00'}
           </AppText>
         </View>
       </View>
 
-      {/* Clock Details Row */}
-    
-
-      {/* Mutually Exclusive Glove-Friendly Side-by-Side Action Buttons */}
-      <View style={styles.actionsContainer}>
+      {/* Dominant 60px Primary Action Button */}
+      <View style={styles.actionBox}>
         {isClockedIn ? (
-          <>
-            <Button
-              title="Clocked In"
-              variant="secondary"
-              size="large"
-              disabled
-              style={[styles.actionBtn, { height: 54, opacity: 0.6 }]}
-            />
-            <Button
-              title="CLOCK OUT"
-              variant="primary"
-              size="large"
-              onPress={handleClockOut}
-              style={[styles.actionBtn, { height: 54, backgroundColor: '#DC2626' }]}
-            />
-          </>
+          <Button
+            title="CLOCK OUT"
+            variant="danger"
+            size="large"
+            fullWidth
+            onPress={handleClockOut}
+            style={styles.actionBtn}
+          />
         ) : (
-          <>
-            <Button
-              title="CLOCK IN"
-              variant="primary"
-              size="large"
-              onPress={handleClockIn}
-              style={[styles.actionBtn, { height: 54, backgroundColor: '#4F46E5' }]}
-            />
-            <Button
-              title="Clocked Out"
-              variant="secondary"
-              size="large"
-              disabled
-              style={[styles.actionBtn, { height: 54, opacity: 0.6 }]}
-            />
-          </>
+          <Button
+            title="CLOCK IN"
+            variant="primary"
+            size="large"
+            fullWidth
+            onPress={handleClockIn}
+            style={styles.actionBtn}
+          />
         )}
       </View>
     </Card>
@@ -97,43 +84,33 @@ export const ClockInOutActionCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 16,
+    marginVertical: 10,
+    padding: 18,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+  divider: {
+    height: 1.5,
+    backgroundColor: '#cbd5e1',
+    marginVertical: 14,
   },
-  detailsBox: {
+  statsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     marginBottom: 16,
   },
-  detailItem: {
-    alignItems: 'center',
+  statBox: {
+    flex: 1,
   },
-  detailDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: '#CBD5E1',
-  },
-  hintText: {
-    marginBottom: 14,
-    lineHeight: 18,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    gap: 10,
+  actionBox: {
+    marginTop: 4,
   },
   actionBtn: {
-    flex: 1,
-    marginVertical: 0,
+    height: 60,
   },
 });

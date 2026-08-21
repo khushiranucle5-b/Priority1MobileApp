@@ -108,9 +108,9 @@ export const AttendanceCalendar = ({
                 ]}
               >
                 <AppText
-                  size="sm"
-                  weight={isSelected || isToday ? 'bold' : 'medium'}
-                  style={{ color: isSelected ? '#FFFFFF' : colors.text }}
+                  size="base"
+                  weight={isSelected || isToday ? 'bold' : 'bold'}
+                  style={{ color: isSelected ? '#FFFFFF' : colors.text, fontSize: 16, lineHeight: 20 }}
                 >
                   {dayNum}
                 </AppText>
@@ -139,25 +139,25 @@ export const AttendanceCalendar = ({
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
+    <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: '#cbd5e1' }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <AppText size="lg" weight="bold" color="primary">‹</AppText>
+          <AppText size="lg" weight="bold" color="primary" style={styles.navArrow}>‹</AppText>
         </TouchableOpacity>
         
-        <AppText size="md" weight="bold" color="primary">
+        <AppText size="md" weight="bold" color="primary" style={styles.monthTitle}>
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </AppText>
         
         <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <AppText size="lg" weight="bold" color="primary">›</AppText>
+          <AppText size="lg" weight="bold" color="primary" style={styles.navArrow}>›</AppText>
         </TouchableOpacity>
       </View>
 
       <View style={styles.headerWeekRow}>
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
           <View key={day} style={styles.dayCell}>
-            <AppText size="xs" color="secondary" weight="bold">{day}</AppText>
+            <AppText size="xs" color="secondary" weight="bold" style={styles.weekLabel}>{day}</AppText>
           </View>
         ))}
       </View>
@@ -166,26 +166,26 @@ export const AttendanceCalendar = ({
         {renderCalendarWeeks()}
       </View>
       
-      <View style={[styles.legendContainer, { borderTopColor: colors.border }]}>
+      <View style={[styles.legendContainer, { borderTopColor: '#E2E8F0' }]}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: colors.success ? colors.success[600] || '#16a34a' : '#16a34a' }]} />
-          <AppText size="xs" color="secondary">Present</AppText>
+          <View style={[styles.legendCircle, { borderColor: '#059669', backgroundColor: '#ECFDF5' }]} />
+          <AppText size="xs" color="secondary" style={styles.legendText}>Present</AppText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: colors.error ? colors.error[600] || '#dc2626' : '#dc2626' }]} />
-          <AppText size="xs" color="secondary">Absent</AppText>
+          <View style={[styles.legendCircle, { borderColor: '#DC2626', backgroundColor: '#FEF2F2' }]} />
+          <AppText size="xs" color="secondary" style={styles.legendText}>Absent</AppText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: '#8b5cf6' }]} />
-          <AppText size="xs" color="secondary">Half Day</AppText>
+          <View style={[styles.legendCircle, { borderColor: '#7C3AED', backgroundColor: '#F5F3FF' }]} />
+          <AppText size="xs" color="secondary" style={styles.legendText}>Half Day</AppText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: colors.warning ? colors.warning[600] || '#ea580c' : '#ea580c' }]} />
-          <AppText size="xs" color="secondary">Leave</AppText>
+          <View style={[styles.legendCircle, { borderColor: '#D97706', backgroundColor: '#FFFBEB' }]} />
+          <AppText size="xs" color="secondary" style={styles.legendText}>Leave</AppText>
         </View>
         <View style={styles.legendItem}>
           <AppText size="xs" color="secondary" style={styles.legendDot}>•</AppText>
-          <AppText size="xs" color="secondary">No Record</AppText>
+          <AppText size="xs" color="secondary" style={styles.legendText}>No Record</AppText>
         </View>
       </View>
     </View>
@@ -196,8 +196,13 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     marginHorizontal: 16,
-    borderWidth: 1,
+    borderWidth: 1.5,
     marginBottom: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   header: {
     flexDirection: 'row',
@@ -206,13 +211,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   navBtn: {
-    padding: 8,
-    minWidth: 40,
+    padding: 4,
+    minWidth: 42,
+    minHeight: 42,
+    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 21,
+    backgroundColor: '#F1F5F9',
+  },
+  navArrow: {
+    fontSize: 24,
+    lineHeight: 26,
+  },
+  monthTitle: {
+    fontSize: 18,
+    fontWeight: '700',
   },
   headerWeekRow: {
     flexDirection: 'row',
     marginBottom: 8,
+  },
+  weekLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#475569',
   },
   calendarGrid: {
     flexDirection: 'column',
@@ -224,45 +246,53 @@ const styles = StyleSheet.create({
   },
   dayCell: {
     flex: 1,
-    height: 44,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   dateCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   todayIndicator: {
     position: 'absolute',
     bottom: 2,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
   },
   legendContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 12,
     marginTop: 16,
-    paddingTop: 16,
+    paddingTop: 14,
     borderTopWidth: 1,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
+  },
+  legendText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#334155',
   },
   legendCircle: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    borderWidth: 1.5,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
   },
   legendDot: {
+    fontSize: 16,
     marginRight: 2,
+    color: '#94A3B8',
   }
 });

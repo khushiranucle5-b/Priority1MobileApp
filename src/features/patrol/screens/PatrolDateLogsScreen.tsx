@@ -1,121 +1,83 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
+import { Button } from '../../../components/Button';
 import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
 import { formatDisplayDate } from '../../../utils/dateUtils';
+import { getPatrolAvailability } from '../utils/patrolUtils';
 
 export const PatrolDateLogsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { patrols, guardId, guardName, assignedSite } = useGuardStore();
+  const { patrols, startPatrol } = useGuardStore();
 
-  const selectedDateStr = route.params?.dateStr || 'Aug 19, 2026';
+  // Live timer tick every 10 seconds to dynamically update button availability
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const selectedDateStr = route.params?.dateStr || 'Aug 21, 2026';
   const displayTitleDate = formatDisplayDate(selectedDateStr);
-
-  const defaultPatrolList: DBPatrol[] = useMemo(() => {
-    return [
-      {
-        id: 'PT-2026-001',
-        patrolCode: 'PT-2026-001',
-        title: 'Night Perimeter Patrol',
-        companyId: 'c-1',
-        site: assignedSite || 'Ahmedabad Plant',
-        route: 'Night Perimeter Patrol Route',
-        guard: guardName || 'John Smith',
-        guardId: guardId || 'G-1001',
-        date: 'Aug 19, 2026',
-        startTime: '10:05 PM',
-        endTime: undefined,
-        status: 'In Progress',
-        checkpoints: 5,
-        scanned: 4,
-        missed: 0,
-        incidents: 0,
-        lastCheckpoint: 'Warehouse Entrance',
-      },
-      {
-        id: 'PT-2026-002',
-        patrolCode: 'PT-2026-002',
-        title: 'Morning Perimeter Patrol',
-        companyId: 'c-1',
-        site: assignedSite || 'Ahmedabad Plant',
-        route: 'Morning Perimeter Patrol Route',
-        guard: guardName || 'John Smith',
-        guardId: guardId || 'G-1001',
-        date: 'Aug 19, 2026',
-        startTime: '08:00 AM',
-        endTime: '08:42 AM',
-        status: 'Completed',
-        checkpoints: 5,
-        scanned: 5,
-        missed: 0,
-        incidents: 0,
-        lastCheckpoint: 'Emergency Exit B',
-      },
-      {
-        id: 'PT-2026-003',
-        patrolCode: 'PT-2026-003',
-        title: 'Chemical Storage Area Inspection',
-        companyId: 'c-1',
-        site: assignedSite || 'Ahmedabad Plant',
-        route: 'Chemical Bay Route',
-        guard: guardName || 'John Smith',
-        guardId: guardId || 'G-1001',
-        date: 'Aug 18, 2026',
-        startTime: '02:00 PM',
-        endTime: '02:35 PM',
-        status: 'Completed',
-        checkpoints: 4,
-        scanned: 4,
-        missed: 0,
-        incidents: 1,
-        lastCheckpoint: 'Chemical Storage Tank 2',
-      },
-    ];
-  }, [assignedSite, guardName, guardId]);
-
-  const allPatrolsList: DBPatrol[] = useMemo(() => {
-    if (!patrols || patrols.length === 0) return defaultPatrolList;
-    return patrols.map((p: any, idx: number) => ({
-      id: p.id || `PT-2026-00${idx + 1}`,
-      patrolCode: p.patrolCode || p.id || `PT-2026-00${idx + 1}`,
-      title: p.title || p.patrolName || 'Perimeter Security Patrol',
-      companyId: p.companyId || 'c-1',
-      site: p.site || assignedSite || 'Ahmedabad Plant',
-      route: p.route || 'Perimeter Route',
-      guard: p.guard || guardName || 'John Smith',
-      guardId: p.guardId || guardId || 'G-1001',
-      date: p.date || 'Aug 19, 2026',
-      startTime: p.startTime || '08:00 AM',
-      endTime: p.endTime,
-      status: p.status === 'in_progress' ? 'In Progress' : p.status === 'completed' ? 'Completed' : p.status || 'Assigned',
-      checkpoints: p.checkpoints || 5,
-      scanned: p.scanned || 0,
-      missed: p.missed || 0,
-      incidents: p.incidents || 0,
-      lastCheckpoint: p.lastCheckpoint || 'Main Gate A',
-    }));
-  }, [patrols, defaultPatrolList, assignedSite, guardName, guardId]);
 
   // Filter records for selected date only
   const recordsForDate = useMemo(() => {
-    return allPatrolsList.filter((item) => {
+    return (patrols || []).filter((item) => {
       const itemDateFormatted = formatDisplayDate(item.date);
       return itemDateFormatted.toLowerCase() === displayTitleDate.toLowerCase();
     });
-  }, [allPatrolsList, displayTitleDate]);
+  }, [patrols, displayTitleDate]);
+
+  const handlePatrolAction = async (patrol: DBPatrol) => {
+    const avail = getPatrolAvailability(patrol, 15, now);
+
+    if (avail.isCompleted) {
+      navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+      return;
+    }
+
+    if (avail.isInProgress) {
+      navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+      return;
+    }
+
+    if (!avail.canStart) {
+      if (avail.isPastDate) {
+        Alert.alert('Past Date', 'Past patrols cannot be started or modified.');
+      } else if (avail.isBeforeBuffer) {
+        Alert.alert(
+          'Patrol Not Started Yet',
+          `This patrol is scheduled for ${patrol.scheduledStartTime || patrol.startTime}. You can start it from ${avail.startWindowStartStr} (15-min buffer window).`
+        );
+      } else if (avail.isFutureDate) {
+        Alert.alert('Future Date', `This patrol is scheduled for ${patrol.date} at ${patrol.scheduledStartTime || patrol.startTime}.`);
+      } else if (avail.isExpired) {
+        Alert.alert('Patrol Expired', 'The scheduled window for this patrol has passed.');
+      }
+      return;
+    }
+
+    // Start patrol
+    if (startPatrol) {
+      await startPatrol(patrol.id);
+    }
+    navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+  };
 
   const getStatusBadgeStyle = (statusStr?: string) => {
     const s = (statusStr || '').toLowerCase();
     if (s === 'completed') return { bg: '#D1FAE5', text: '#059669' };
     if (s === 'in progress' || s === 'in_progress') return { bg: '#E0F2FE', text: '#0284C7' };
-    if (s === 'assigned' || s === 'pending') return { bg: '#FEF3C7', text: '#D97706' };
+    if (s === 'assigned' || s === 'pending' || s === 'scheduled') return { bg: '#FEF3C7', text: '#D97706' };
     return { bg: '#FEE2E2', text: '#DC2626' };
   };
 
@@ -126,101 +88,87 @@ export const PatrolDateLogsScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header Summary Banner */}
         <View style={styles.summaryHeader}>
-          <Heading level="h3" color="primary">{displayTitleDate}</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            {recordsForDate.length} Patrol{recordsForDate.length !== 1 ? 's' : ''} logged for this date
+          <Heading level="h2" color="primary" style={styles.headerDateTitle}>
+            {displayTitleDate}
+          </Heading>
+          <AppText size="sm" color="secondary" weight="medium" style={styles.headerSubtitle}>
+            {recordsForDate.length} Patrol{recordsForDate.length !== 1 ? 's' : ''} assigned for this date
           </AppText>
         </View>
 
         {recordsForDate.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <NavIcon name="patrol" size={32} color="#94A3B8" />
-            <Heading level="h4" color="primary" style={{ marginTop: 10 }}>
-              No patrols for {displayTitleDate}
+            <NavIcon name="patrol" size={40} color="#94A3B8" />
+            <Heading level="h3" color="primary" style={{ marginTop: 12, fontSize: 18 }}>
+              No Patrols Scheduled
             </Heading>
-            <AppText size="xs" color="secondary" style={{ marginTop: 4, textAlign: 'center' }}>
-              No patrol activity recorded on this date.
+            <AppText size="sm" color="secondary" style={{ marginTop: 4, textAlign: 'center' }}>
+              There are no patrols assigned for {displayTitleDate}.
             </AppText>
           </Card>
         ) : (
           recordsForDate.map((item) => {
-            const badgeStyle = getStatusBadgeStyle(item.status);
-            const isCompleted = item.status === 'Completed';
+            const avail = getPatrolAvailability(item, 15, now);
+            const badgeStyle = getStatusBadgeStyle(avail.statusLabel);
+            const timeDisplay = `${item.scheduledStartTime || item.startTime || '08:00 AM'} - ${item.scheduledEndTime || '09:00 AM'}`;
 
             return (
               <Card key={item.id} style={styles.patrolCard}>
                 <View style={styles.cardHeaderRow}>
-                  {/* Left Column */}
+                  {/* Left Column: Enlarged Patrol Title */}
                   <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Heading level="h4" color="primary">
+                    <Heading level="h3" color="primary" style={styles.patrolTitle}>
                       {item.title}
                     </Heading>
-                    <AppText size="xs" color="secondary" weight="medium" style={{ marginTop: 2 }}>
-                      ID: {item.patrolCode || item.id} • {item.site}
-                    </AppText>
                   </View>
 
-                  {/* Right Action: EYE ICON BUTTON ONLY (NO TEXT "View") */}
+                  {/* Right Action: Eye Icon Button */}
                   <TouchableOpacity
                     style={styles.eyeIconButton}
                     onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id })}
                     activeOpacity={0.7}
-                    accessibilityRole="button"
-                    accessibilityLabel={`View patrol details for ${item.title}`}
                   >
-                    <NavIcon name="eye" size={18} color="#4F46E5" />
+                    <NavIcon name="eye" size={22} color="#4F46E5" />
                   </TouchableOpacity>
                 </View>
 
-                {/* Status & Checkpoints Badges */}
+                {/* Enlarged Status, Checkpoint Progress & Scheduled Time Chips */}
                 <View style={styles.badgesRow}>
                   <View style={[styles.statusBadge, { backgroundColor: badgeStyle.bg }]}>
-                    <AppText size="xs" weight="bold" style={{ color: badgeStyle.text }}>
-                      ● {item.status}
+                    <AppText style={[styles.badgeText, { color: badgeStyle.text }]}>
+                      ● {avail.statusLabel}
                     </AppText>
                   </View>
 
                   <View style={[styles.statusBadge, { backgroundColor: '#F1F5F9' }]}>
-                    <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
-                      ● {item.scanned}/{item.checkpoints} Checkpoints
+                    <AppText style={[styles.badgeText, { color: '#334155' }]}>
+                      {item.scanned}/{item.checkpoints} Checkpoints
+                    </AppText>
+                  </View>
+
+                  <View style={[styles.statusBadge, { backgroundColor: '#EEF2FF' }]}>
+                    <AppText style={[styles.badgeText, { color: '#4F46E5' }]}>
+                      🕒 {timeDisplay}
                     </AppText>
                   </View>
                 </View>
 
-                {/* Details Grid */}
-                <View style={styles.detailsGrid}>
-                  {item.route ? (
-                    <View style={styles.detailItemRow}>
-                      <AppText size="xs" color="secondary">Route:</AppText>
-                      <AppText size="xs" weight="semibold" color="primary" style={{ marginLeft: 4 }}>
-                        {item.route}
-                      </AppText>
-                    </View>
-                  ) : null}
-
-                  <View style={styles.detailItemRow}>
-                    <AppText size="xs" color="secondary">Started:</AppText>
-                    <AppText size="xs" weight="semibold" color="primary" style={{ marginLeft: 4 }}>
-                      {item.startTime}
-                    </AppText>
-                  </View>
-
-                  {isCompleted && item.endTime ? (
-                    <View style={styles.detailItemRow}>
-                      <AppText size="xs" color="secondary">Completed:</AppText>
-                      <AppText size="xs" weight="semibold" style={{ color: '#059669', marginLeft: 4 }}>
-                        {item.endTime}
-                      </AppText>
-                    </View>
-                  ) : (
-                    <View style={styles.detailItemRow}>
-                      <AppText size="xs" color="secondary">Last Checkpoint:</AppText>
-                      <AppText size="xs" weight="semibold" color="primary" style={{ marginLeft: 4 }}>
-                        {item.lastCheckpoint || 'Main Gate'}
-                      </AppText>
-                    </View>
-                  )}
-                </View>
+                {/* Enlarged Dynamic Action Button */}
+                {!avail.isPastDate && (
+                  <Button
+                    title={avail.buttonText}
+                    variant={avail.canStart ? "primary" : "secondary"}
+                    size="large"
+                    fullWidth
+                    disabled={!avail.canStart && !avail.isCompleted && !avail.isInProgress}
+                    onPress={() => handlePatrolAction(item)}
+                    style={[
+                      styles.actionBtn,
+                      avail.isInProgress && { backgroundColor: '#0284C7' },
+                      avail.isCompleted && { backgroundColor: '#D1FAE5' },
+                    ]}
+                  />
+                )}
               </Card>
             );
           })
@@ -236,23 +184,39 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   summaryHeader: {
-    marginBottom: 14,
+    marginBottom: 16,
+  },
+  headerDateTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  headerSubtitle: {
+    fontSize: 14.5,
+    marginTop: 3,
+    color: '#64748B',
   },
   patrolCard: {
-    padding: 16,
-    marginBottom: 12,
+    padding: 18,
+    marginBottom: 16,
+    borderRadius: 12,
   },
   cardHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+  },
+  patrolTitle: {
+    fontSize: 18.5,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   eyeIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     backgroundColor: '#EEF2FF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
@@ -260,25 +224,27 @@ const styles = StyleSheet.create({
   badgesRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 10,
+    gap: 10,
+    marginTop: 14,
+    marginBottom: 16,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
     alignSelf: 'flex-start',
   },
-  detailsGrid: {
-    marginTop: 12,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-    gap: 4,
+  badgeText: {
+    fontSize: 14.5,
+    fontWeight: '700',
   },
-  detailItemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  actionBtn: {
+    height: 54,
+    borderRadius: 10,
+  },
+  actionBtnText: {
+    fontSize: 16.5,
+    fontWeight: '700',
   },
   emptyCard: {
     padding: 32,

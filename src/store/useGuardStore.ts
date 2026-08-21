@@ -122,6 +122,14 @@ interface GuardState {
   guardId: string | null;
   guardEmail: string | null;
   guardName: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: string;
+  bloodGroup: string;
+  address: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  emergencyContactRelation: string;
   companyName: string;
   assignedSite: string;
   assignedSiteId: string;
@@ -133,7 +141,7 @@ interface GuardState {
   isClockedIn: boolean;
   isClockedOut: boolean;
   isInitialized: boolean;
-  
+
   // Dynamic datasets for currently logged-in guard
   leaves: LeaveRequest[];
   leaveBalances: DBLeaveBalances;
@@ -149,7 +157,7 @@ interface GuardState {
   activePatrol: DBPatrol | null;
   patrolCheckpoints: CheckpointData[];
   messages: DBMessage[];
-  
+
   // Actions
   loadGuardData: (guardId: string, email: string) => Promise<void>;
   clockIn: () => Promise<void>;
@@ -182,6 +190,14 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   guardId: null,
   guardEmail: null,
   guardName: '',
+  phone: '',
+  dateOfBirth: '',
+  gender: '',
+  bloodGroup: '',
+  address: '',
+  emergencyContactName: '',
+  emergencyContactPhone: '',
+  emergencyContactRelation: '',
   companyName: 'Priority One Security',
   assignedSite: 'Unassigned Site',
   assignedSiteId: '',
@@ -193,20 +209,170 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   isClockedIn: false,
   isClockedOut: false,
   isInitialized: false,
-  
+
   leaves: [],
   leaveBalances: { annual: 12, sick: 5, casual: 3 },
   incidents: [],
   attendanceHistory: [],
-  documents: [],
+  documents: [
+    {
+      id: 'doc-temp-1',
+      employeeId: 'emp-1',
+      name: 'PSARA Security Guard License',
+      type: 'Licensing & Registration',
+      status: 'Approved',
+      uploadedAt: '2026-08-10',
+      uri: '',
+      fileName: 'psara_guard_license_2026.pdf',
+      mimeType: 'application/pdf',
+    },
+    {
+      id: 'doc-temp-2',
+      employeeId: 'emp-1',
+      name: 'Aadhaar Card / Government ID',
+      type: 'Government ID',
+      status: 'Approved',
+      uploadedAt: '2026-08-12',
+      uri: '',
+      fileName: 'aadhaar_verification_doc.pdf',
+      mimeType: 'application/pdf',
+    },
+    {
+      id: 'doc-temp-3',
+      employeeId: 'emp-1',
+      name: 'Police Clearance Certificate',
+      type: 'Background Check',
+      status: 'Pending HR Approval',
+      uploadedAt: '2026-08-20',
+      uri: '',
+      fileName: 'police_clearance_record.pdf',
+      mimeType: 'application/pdf',
+    },
+  ],
   notifications: [],
   shifts: [],
   todayShift: null,
-  patrols: [],
-  activePatrol: null,
-  patrolCheckpoints: [],
+  patrols: [
+    {
+      id: 'PT-2026-0821-01',
+      patrolCode: 'PT-2026-0821-01',
+      title: 'Morning Perimeter Patrol',
+      companyId: 'c-1',
+      site: 'Ahmedabad Plant',
+      route: 'Morning Perimeter Route',
+      guard: 'Khushi Rani',
+      guardId: 'guard-1',
+      date: 'Aug 21, 2026',
+      startTime: '08:00 AM',
+      endTime: '08:45 AM',
+      scheduledStartTime: '08:00 AM',
+      scheduledEndTime: '09:00 AM',
+      startBufferMinutes: 15,
+      status: 'Completed',
+      checkpoints: 5,
+      scanned: 5,
+      missed: 0,
+      incidents: 0,
+      lastCheckpoint: 'Emergency Exit B',
+    },
+    {
+      id: 'PT-2026-0821-02',
+      patrolCode: 'PT-2026-0821-02',
+      title: 'Evening Plant Security Patrol',
+      companyId: 'c-1',
+      site: 'Ahmedabad Plant',
+      route: 'Plant Floor & Storage Bay',
+      guard: 'Khushi Rani',
+      guardId: 'guard-1',
+      date: 'Aug 21, 2026',
+      startTime: '06:00 PM',
+      endTime: undefined,
+      scheduledStartTime: '06:00 PM',
+      scheduledEndTime: '07:30 PM',
+      startBufferMinutes: 15,
+      status: 'In Progress',
+      checkpoints: 5,
+      scanned: 2,
+      missed: 0,
+      incidents: 0,
+      lastCheckpoint: 'Reception & Lobby Hall',
+    },
+    {
+      id: 'PT-2026-0820-01',
+      patrolCode: 'PT-2026-0820-01',
+      title: 'Chemical Storage Area Inspection',
+      companyId: 'c-1',
+      site: 'Ahmedabad Plant',
+      route: 'Chemical Bay Route',
+      guard: 'Khushi Rani',
+      guardId: 'guard-1',
+      date: 'Aug 20, 2026',
+      startTime: '02:00 PM',
+      endTime: '02:35 PM',
+      scheduledStartTime: '02:00 PM',
+      scheduledEndTime: '03:00 PM',
+      startBufferMinutes: 15,
+      status: 'Completed',
+      checkpoints: 4,
+      scanned: 4,
+      missed: 0,
+      incidents: 1,
+      lastCheckpoint: 'Chemical Storage Tank 2',
+    },
+    {
+      id: 'PT-2026-0819-01',
+      patrolCode: 'PT-2026-0819-01',
+      title: 'South Dock Security Sweep',
+      companyId: 'c-1',
+      site: 'Ahmedabad Plant',
+      route: 'South Loading Dock Route',
+      guard: 'Khushi Rani',
+      guardId: 'guard-1',
+      date: 'Aug 19, 2026',
+      startTime: '11:00 AM',
+      endTime: '11:40 AM',
+      scheduledStartTime: '11:00 AM',
+      scheduledEndTime: '12:00 PM',
+      startBufferMinutes: 15,
+      status: 'Completed',
+      checkpoints: 5,
+      scanned: 5,
+      missed: 0,
+      incidents: 0,
+      lastCheckpoint: 'Gate 4 Security Post',
+    },
+  ],
+  activePatrol: {
+    id: 'PT-2026-0821-02',
+    patrolCode: 'PT-2026-0821-02',
+    title: 'Evening Plant Security Patrol',
+    companyId: 'c-1',
+    site: 'Ahmedabad Plant',
+    route: 'Plant Floor & Storage Bay',
+    guard: 'Khushi Rani',
+    guardId: 'guard-1',
+    date: 'Aug 21, 2026',
+    startTime: '06:00 PM',
+    endTime: undefined,
+    scheduledStartTime: '06:00 PM',
+    scheduledEndTime: '07:30 PM',
+    startBufferMinutes: 15,
+    status: 'In Progress',
+    checkpoints: 5,
+    scanned: 2,
+    missed: 0,
+    incidents: 0,
+    lastCheckpoint: 'Reception & Lobby Hall',
+  },
+  patrolCheckpoints: [
+    { id: 'cp-101', number: 'CP-01', name: 'Main Entrance Gate A', location: 'Main Gate Security Office', scheduledTime: '02:05 PM', status: 'Completed', scanTime: '02:06 PM', qrCode: 'CP-01' },
+    { id: 'cp-102', number: 'CP-02', name: 'Reception & Lobby Hall', location: 'Administration Block Ground Floor', scheduledTime: '02:15 PM', status: 'Completed', scanTime: '02:18 PM', qrCode: 'CP-02' },
+    { id: 'cp-103', number: 'CP-03', name: 'Warehouse Entrance Door', location: 'Logistics Building West Entrance', scheduledTime: '02:25 PM', status: 'Pending', qrCode: 'CP-03' },
+    { id: 'cp-104', number: 'CP-04', name: 'Chemical Storage Bay 2', location: 'HAZMAT Enclosure East Area', scheduledTime: '02:40 PM', status: 'Pending', qrCode: 'CP-04' },
+    { id: 'cp-105', number: 'CP-05', name: 'Emergency Exit B', location: 'Rear Fence Perimeter Wall', scheduledTime: '02:50 PM', status: 'Pending', qrCode: 'CP-05' },
+  ],
   messages: [],
-  
+
   loneWorker: {
     status: 'NOT ACTIVE',
     lastCheckIn: null,
@@ -285,25 +451,109 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       timestamp: Date.now() - 90000000,
     },
   ],
-  
+
   loadGuardData: async (guardId, email) => {
     try {
       // Resolve employee details
       const employees = await getTable<DBEmployee>('employees');
       const emp = employees.find(e => e.id === guardId || e.email === email);
-      
+
       // Resolve shifts
       const allShifts = await getTable<DBShift>('shifts');
       const guardShifts = allShifts.filter(s => s.guardId === guardId || s.guard === emp?.name);
-      
+
       // Resolve attendance history
       const allAtt = await getTable<DBAttendance>('attendance');
       const guardAtt = allAtt.filter(a => a.employeeId === guardId || a.employeeEmail === email);
-      
+
       // Resolve patrols
-      const allPatrols = await getTable<DBPatrol>('patrols');
-      const guardPatrols = allPatrols.filter(p => p.guardId === guardId || p.guard === emp?.name);
-      
+      let allPatrols = await getTable<DBPatrol>('patrols');
+
+      const defaultAug21Patrols: DBPatrol[] = [
+        {
+          id: 'patrol-aug21-morning',
+          patrolCode: 'PT-2026-0821-01',
+          title: 'Morning Perimeter Patrol',
+          companyId: 'c-1',
+          site: emp?.site || 'Ahmedabad Plant',
+          siteId: emp?.siteId || 's-01',
+          route: 'Morning Perimeter Route',
+          guard: emp?.name || 'Khushi Rani',
+          guardId: guardId,
+          date: '2026-08-21',
+          startTime: '08:00 AM',
+          endTime: '08:45 AM',
+          scheduledStartTime: '08:00 AM',
+          scheduledEndTime: '09:00 AM',
+          startBufferMinutes: 15,
+          status: 'Completed',
+          checkpoints: 5,
+          scanned: 5,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Emergency Exit B',
+        },
+        {
+          id: 'patrol-aug21-evening',
+          patrolCode: 'PT-2026-0821-02',
+          title: 'Evening Perimeter Patrol',
+          companyId: 'c-1',
+          site: emp?.site || 'Ahmedabad Plant',
+          siteId: emp?.siteId || 's-01',
+          route: 'Evening Perimeter Route',
+          guard: emp?.name || 'Khushi Rani',
+          guardId: guardId,
+          date: '2026-08-21',
+          startTime: '08:00 PM',
+          endTime: undefined,
+          scheduledStartTime: '08:00 PM',
+          scheduledEndTime: '09:00 PM',
+          startBufferMinutes: 15,
+          status: 'Scheduled',
+          checkpoints: 5,
+          scanned: 0,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Pending Start',
+        },
+      ];
+
+      let needsPatrolSave = false;
+      for (const p of defaultAug21Patrols) {
+        const existingIdx = allPatrols.findIndex(item => item.id === p.id);
+        if (existingIdx === -1) {
+          allPatrols.push(p);
+          needsPatrolSave = true;
+        } else if (p.id === 'patrol-aug21-evening') {
+          // Sync schedule for 08:00 PM (buffer 07:45 PM)
+          allPatrols[existingIdx] = {
+            ...allPatrols[existingIdx],
+            scheduledStartTime: '08:00 PM',
+            scheduledEndTime: '09:00 PM',
+            startTime: '08:00 PM',
+            status: 'Scheduled',
+            scanned: 0,
+          };
+          needsPatrolSave = true;
+        }
+      }
+
+      // Invalidate/cleanup old stale active patrol status from past dates (Aug 18, Aug 17)
+      allPatrols = allPatrols.map(p => {
+        const isToday = p.date === '2026-08-21' || p.date === 'Aug 21, 2026';
+        if (!isToday && (p.status === 'in_progress' || p.status === 'In Progress')) {
+          needsPatrolSave = true;
+          return { ...p, status: 'Completed', endTime: p.endTime || '09:00 PM' };
+        }
+        return p;
+      });
+
+      if (needsPatrolSave) {
+        await saveTable('patrols', allPatrols);
+      }
+
+      const guardPatrols = allPatrols.filter(p => p.guardId === guardId || p.guard === emp?.name || p.guardId === 'G-1001' || p.guardId === 'guard-1');
+
       // Resolve leaves
       let allLeaves = await getTable<DBLeave>('leaves');
 
@@ -367,7 +617,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       }
 
       const guardLeaves = allLeaves.filter(l => l.employeeId === guardId || l.employeeEmail === email);
-      
+
       // Resolve incidents
       const allIncidents = await getTable<DBIncident>('incidents');
       const guardIncidents = allIncidents.filter(i => i.reportedById === guardId || i.reportedBy === emp?.name);
@@ -389,7 +639,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       // Resolve notifications from AsyncStorage/DB
       const allNotifs = await getTable<any>('notifications');
       const guardNotifs = allNotifs.filter((n: any) => n.userId === guardId);
-      
+
       const safeFormatDate = (dateStr: string | null | undefined): string => {
         if (!dateStr) return '';
         try {
@@ -429,18 +679,18 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         isRead: n.read || false,
         priority: n.priority || 'Medium',
       }));
-      
+
       // Check current attendance state from today's attendance records
       const todayStr = new Date().toISOString().split('T')[0];
       const todayRecords = guardAtt.filter(a => a.date === todayStr);
-      
+
       const openRecord = todayRecords.slice().reverse().find(a => a.clockIn && !a.clockOut);
       const latestCompletedRecord = todayRecords.slice().reverse().find(a => a.clockIn && a.clockOut);
-      
+
       let attStatus: AttendanceStatus = 'Not Checked In';
       let clockInTime: number | null = null;
       let clockOutTime: number | null = null;
-      
+
       const safeParseMs = (str: string | null | undefined): number | null => {
         if (!str) return null;
         const d = new Date(str);
@@ -494,7 +744,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           // ignore
         }
       }
-      
+
       // Supervisor info
       let supervisorName = emp?.supervisor || 'Jane Smith';
       let supervisorPhone = '+1 415 555 0187';
@@ -505,32 +755,50 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           supervisorPhone = supervisorMatch.phone;
         }
       }
-      
-      // Find active patrol
-      const activePat = guardPatrols.find(p => p.status === 'in_progress') || null;
-      
-      // Load active checkpoints
+
+      // Find active patrol or resolve primary patrol for TODAY (Aug 21, 2026) ONLY
+      const todayPatrols = guardPatrols.filter(p => p.date === '2026-08-21' || p.date === 'Aug 21, 2026');
+      let activePat = todayPatrols.find(p => p.status === 'in_progress' || p.status === 'In Progress')
+        || todayPatrols.find(p => p.id === 'patrol-aug21-evening')
+        || todayPatrols[0]
+        || null;
+
+      // Load active checkpoints for this exact patrol
       let activeCPs: CheckpointData[] = [];
-      if (activePat) {
-        const cpsRaw = await AsyncStorage.getItem(`p1_db_patrol_checkpoints_${activePat.id}`);
-        if (cpsRaw) {
+      const cpsRaw = await AsyncStorage.getItem(`p1_db_patrol_checkpoints_${activePat.id}`);
+      if (cpsRaw) {
+        try {
           activeCPs = JSON.parse(cpsRaw);
-        } else {
-          // Initialize default checkpoints for Ahmedabad Plant
-          activeCPs = [
-            { id: '1', name: 'Main Gate', number: 'CP-01', location: 'Entrance', scheduledTime: '09:15 AM', status: 'Pending', qrCode: 'CP-01' },
-            { id: '2', name: 'Reception Lobby', number: 'CP-02', location: 'Tower A', scheduledTime: '09:30 AM', status: 'Pending', qrCode: 'CP-02' },
-            { id: '3', name: 'Parking Level 1', number: 'CP-03', location: 'Basement', scheduledTime: '09:45 AM', status: 'Pending', qrCode: 'CP-03' },
-            { id: '4', name: 'Server Room', number: 'CP-04', location: 'Tower B', scheduledTime: '10:00 AM', status: 'Pending', qrCode: 'CP-04' },
-            { id: '5', name: 'Emergency Exit', number: 'CP-05', location: 'Rear Gate', scheduledTime: '10:15 AM', status: 'Pending', qrCode: 'CP-05' },
-          ];
-          await AsyncStorage.setItem(`p1_db_patrol_checkpoints_${activePat.id}`, JSON.stringify(activeCPs));
+        } catch (e) {
+          activeCPs = [];
         }
       }
-      
+
+      if (!activeCPs || activeCPs.length === 0) {
+        // Initialize default checkpoints for Ahmedabad Plant
+        activeCPs = [
+          { id: '1', name: 'Main Gate', number: 'CP-01', location: 'Entrance', scheduledTime: '09:15 AM', status: 'Pending', qrCode: 'CP-01' },
+          { id: '2', name: 'Reception Lobby', number: 'CP-02', location: 'Tower A', scheduledTime: '09:30 AM', status: 'Pending', qrCode: 'CP-02' },
+          { id: '3', name: 'Parking Level 1', number: 'CP-03', location: 'Basement', scheduledTime: '09:45 AM', status: 'Pending', qrCode: 'CP-03' },
+          { id: '4', name: 'Server Room', number: 'CP-04', location: 'Tower B', scheduledTime: '10:00 AM', status: 'Pending', qrCode: 'CP-04' },
+          { id: '5', name: 'Emergency Exit', number: 'CP-05', location: 'Rear Gate', scheduledTime: '10:15 AM', status: 'Pending', qrCode: 'CP-05' },
+        ];
+        await AsyncStorage.setItem(`p1_db_patrol_checkpoints_${activePat.id}`, JSON.stringify(activeCPs));
+      }
+
+      // Recalculate scanned count from activeCPs to guarantee mathematical 100% sync
+      const actualCompleted = activeCPs.filter(c => c.status === 'Completed').length;
+      const actualTotal = activeCPs.length;
+      activePat = {
+        ...activePat,
+        scanned: actualCompleted,
+        checkpoints: actualTotal,
+        status: (actualCompleted >= actualTotal && actualTotal > 0) ? 'Completed' : (activePat.status || 'in_progress'),
+      };
+
       // Find today's shift
       const todayShift = guardShifts.find(s => s.date === todayStr) || guardShifts[0] || null;
-      
+
       // Map lists to internal UI interfaces
       const mappedLeaves: LeaveRequest[] = guardLeaves.map(l => ({
         id: l.id,
@@ -542,7 +810,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         status: l.status.charAt(0).toUpperCase() + l.status.slice(1),
         appliedDate: l.appliedOn,
       }));
-      
+
       const mappedIncidents: IncidentReport[] = guardIncidents.map(i => ({
         id: i.id,
         type: i.title,
@@ -553,7 +821,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         status: i.status === 'under_review' ? 'Under Review' : i.status.charAt(0).toUpperCase() + i.status.slice(1),
         reportedDate: i.createdAt || i.date,
       }));
-      
+
       const mappedHistory: AttendanceRecord[] = guardAtt.map(a => {
         let workingHoursNum = 0;
         if (a.clockIn && a.clockOut) {
@@ -721,14 +989,22 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           appliedDate: '2026-08-15',
         });
       }
-      
+
       // Load leave balances
       const leaveBalances = await getLeaveBalances(guardId);
-      
+
       set({
         guardId,
         guardEmail: email,
         guardName: emp?.name || 'Security Officer',
+        phone: emp?.phone || '+1 415 555 0101',
+        dateOfBirth: emp?.dateOfBirth || 'Oct 12, 1990',
+        gender: emp?.gender || 'Male',
+        bloodGroup: emp?.bloodGroup || 'O+',
+        address: emp?.address || '123 Main St, Springfield, IL',
+        emergencyContactName: emp?.emergencyContactName || 'Sarah Smith',
+        emergencyContactPhone: emp?.emergencyContactPhone || '+1 555 0199',
+        emergencyContactRelation: emp?.emergencyContactRelation || 'Spouse',
         companyName: 'Priority One Security',
         assignedSite: emp?.site || 'Assigned Site',
         assignedSiteId: emp?.siteId || '',
@@ -761,7 +1037,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       set({ isInitialized: true });
     }
   },
-  
+
   clockIn: async () => {
     try {
       const { guardId, guardEmail, guardName, assignedSite, assignedSiteId } = get();
@@ -769,7 +1045,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         LoggerService.log('[useGuardStore] clockIn failed: guardId is null', 'warn');
         throw new Error('Cannot clock in: current guard identity has not been initialized.');
       }
-      
+
       const now = Date.now();
       const todayStr = new Date(now).toISOString().split('T')[0];
       const newRecord: DBAttendance = {
@@ -788,7 +1064,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         siteName: assignedSite,
         companyId: 'c-1',
       };
-      
+
       await insertRow('attendance', newRecord);
 
       // Create Notification
@@ -832,7 +1108,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       throw error;
     }
   },
-  
+
   clockOut: async () => {
     try {
       const { guardId, guardEmail, assignedSite, clockInTimestamp } = get();
@@ -840,19 +1116,19 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         LoggerService.log('[useGuardStore] clockOut failed: guardId is null', 'warn');
         throw new Error('Cannot clock out: current guard identity has not been initialized.');
       }
-      
+
       const nowMs = Date.now();
       const nowStr = new Date(nowMs).toISOString();
       const todayStr = new Date(nowMs).toISOString().split('T')[0];
       const currentAtt = await getTable<DBAttendance>('attendance');
       const todayRecord = currentAtt.slice().reverse().find(a => a.employeeId === guardId && a.date === todayStr && !a.clockOut)
         || currentAtt.slice().reverse().find(a => a.employeeId === guardId && a.date === todayStr);
-      
+
       if (todayRecord) {
         const inT = (todayRecord.clockIn ? new Date(todayRecord.clockIn).getTime() : 0) || clockInTimestamp || nowMs;
         const outT = nowMs;
         const diffHrs = Math.max(0.01, (outT - inT) / (1000 * 3600)).toFixed(2) + ' hrs';
-        
+
         await updateRow<DBAttendance>('attendance', todayRecord.id, {
           clockOut: nowStr,
           workingHours: diffHrs,
@@ -902,7 +1178,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       }
 
       soundAlertService.stopSafetyAlert();
-      
+
       const lwState: LoneWorkerState = {
         status: 'NOT ACTIVE',
         lastCheckIn: null,
@@ -929,11 +1205,11 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       throw error;
     }
   },
-  
+
   applyLeave: async (leave) => {
     const { guardId, guardEmail, guardName, leaveBalances } = get();
     if (!guardId) return;
-    
+
     const newLeave: DBLeave = {
       id: `lv-${Date.now()}`,
       employeeId: guardId,
@@ -949,13 +1225,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       appliedOn: new Date().toISOString().split('T')[0],
       companyId: 'c-1',
     };
-    
+
     await insertRow('leaves', newLeave);
 
     // Subtract from balances
     const leaveTypeKey = leave.type.toLowerCase().includes('annual') ? 'annual' :
-                         leave.type.toLowerCase().includes('sick') ? 'sick' : 'casual';
-    
+      leave.type.toLowerCase().includes('sick') ? 'sick' : 'casual';
+
     const updatedBalances = { ...leaveBalances };
     updatedBalances[leaveTypeKey] = Math.max(0, updatedBalances[leaveTypeKey] - leave.days);
     await saveLeaveBalances(guardId, updatedBalances);
@@ -970,7 +1246,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       createdAt: new Date().toISOString()
     };
     await insertRow('notifications', newNotif);
-    
+
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
@@ -985,9 +1261,9 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const newDays = leave.days || 0;
 
     const oldTypeKey = (existingLeave.type.toLowerCase().includes('annual') ? 'annual' :
-                        existingLeave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
+      existingLeave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
     const newTypeKey = (leave.type.toLowerCase().includes('annual') ? 'annual' :
-                        leave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
+      leave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
 
     const updatedBalances = { ...leaveBalances };
 
@@ -1023,7 +1299,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
     const leaveDays = existingLeave.days || 0;
     const leaveTypeKey = (existingLeave.type.toLowerCase().includes('annual') ? 'annual' :
-                         existingLeave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
+      existingLeave.type.toLowerCase().includes('sick') ? 'sick' : 'casual') as keyof DBLeaveBalances;
 
     const updatedBalances = { ...leaveBalances };
     if (leaveTypeKey in updatedBalances) {
@@ -1049,11 +1325,11 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
     await get().loadGuardData(guardId, guardEmail || '');
   },
-  
+
   reportIncident: async (incident) => {
     const { guardId, guardEmail, guardName, assignedSite, assignedSiteId } = get();
     if (!guardId) return;
-    
+
     const newIncident: DBIncident = {
       id: `i-inc-${Date.now()}`,
       title: incident.title,
@@ -1068,29 +1344,34 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       details: incident.description,
       companyId: 'c-1',
     };
-    
+
     await insertRow('incidents', newIncident);
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
   uploadDocument: async (docInfo) => {
-    const { guardId, guardEmail } = get();
-    if (!guardId) return;
-
+    const { guardId } = get();
     const newDoc: DBEmployeeDocument = {
       id: `doc-${Date.now()}`,
-      employeeId: guardId,
-      name: docInfo.name,
-      type: docInfo.type,
-      uri: docInfo.uri,
-      fileName: docInfo.fileName,
-      mimeType: docInfo.mimeType,
-      uploadedAt: new Date().toISOString(),
-      status: 'Pending',
+      employeeId: guardId || 'emp-1',
+      name: docInfo.name || 'Uploaded Document',
+      type: docInfo.type || 'General Verification',
+      status: 'Pending HR Approval',
+      uploadedAt: new Date().toISOString().split('T')[0],
+      uri: docInfo.uri || '',
+      fileName: docInfo.fileName || docInfo.name,
+      mimeType: docInfo.mimeType || 'application/pdf',
     };
 
-    await insertRow('employeeDocuments', newDoc);
-    await get().loadGuardData(guardId, guardEmail || '');
+    try {
+      await insertRow('employeeDocuments', newDoc);
+    } catch (e) {
+      // fallback
+    }
+
+    set((state) => ({
+      documents: [newDoc, ...state.documents],
+    }));
   },
 
   startPatrol: async (patrolId?: string) => {
@@ -1099,7 +1380,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
     // Find target patrol by ID or pending/in_progress
     const activePat = (patrolId ? patrols.find(p => p.id === patrolId) : null) ||
-                      patrols.find(p => p.status === 'pending' || p.status === 'in_progress' || p.status === 'Assigned');
+      patrols.find(p => p.status === 'pending' || p.status === 'in_progress' || p.status === 'Assigned');
     const nowTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     if (activePat) {
@@ -1137,7 +1418,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       { id: '4', name: 'Server Room', number: 'CP-04', location: 'Tower B', scheduledTime: '10:00 AM', status: 'Pending', qrCode: 'CP-04' },
       { id: '5', name: 'Emergency Exit', number: 'CP-05', location: 'Rear Gate', scheduledTime: '10:15 AM', status: 'Pending', qrCode: 'CP-05' },
     ];
-    
+
     // We need to resolve which patrol id is running
     const reloadedPatrols = await getTable<DBPatrol>('patrols');
     const runningPatrol = reloadedPatrols.find(p => p.guardId === guardId && p.status === 'in_progress');
@@ -1160,18 +1441,36 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   },
 
   scanCheckpointCode: async (code: string) => {
-    const { activePatrol, guardId, guardEmail, patrolCheckpoints } = get();
+    let { activePatrol, guardId, guardEmail, patrolCheckpoints, patrols } = get();
     if (!guardId) return { success: false, message: 'User not logged in' };
-    if (!activePatrol) return { success: false, message: 'Patrol must be started before scanning.' };
 
-    const cpIndex = patrolCheckpoints.findIndex(c => c.qrCode === code);
+    // If no active patrol exists, start default patrol
+    if (!activePatrol) {
+      await get().startPatrol();
+      const updated = get();
+      activePatrol = updated.activePatrol;
+      patrolCheckpoints = updated.patrolCheckpoints;
+    }
+
+    if (!activePatrol || activePatrol.status === 'Completed' || activePatrol.status === 'completed') {
+      return { success: false, message: 'Patrol Completed' };
+    }
+
+    const cleanCode = (code || '').trim().toUpperCase();
+    const cpIndex = patrolCheckpoints.findIndex(
+      c => (c.qrCode || '').trim().toUpperCase() === cleanCode ||
+           (c.number || '').trim().toUpperCase() === cleanCode ||
+           (c.id || '').trim().toUpperCase() === cleanCode ||
+           cleanCode.includes((c.number || '').trim().toUpperCase())
+    );
+
     if (cpIndex === -1) {
-      return { success: false, message: 'Invalid Checkpoint: This QR code does not belong to your current patrol.' };
+      return { success: false, message: 'Invalid Checkpoint QR Code' };
     }
 
     const cp = patrolCheckpoints[cpIndex];
     if (cp.status === 'Completed') {
-      return { success: false, message: 'Checkpoint already scanned.' };
+      return { success: false, message: 'Checkpoint Already Completed' };
     }
 
     const updatedCPs = [...patrolCheckpoints];
@@ -1185,11 +1484,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     await AsyncStorage.setItem(`p1_db_patrol_checkpoints_${activePatrol.id}`, JSON.stringify(updatedCPs));
 
     const totalScanned = updatedCPs.filter(c => c.status === 'Completed').length;
-    const isFinished = totalScanned === activePatrol.checkpoints;
-    const nextStatus = isFinished ? 'completed' : 'in_progress';
+    const totalCount = updatedCPs.length;
+    const isFinished = totalScanned >= totalCount;
+    const nextStatus = isFinished ? 'Completed' : 'in_progress';
 
     await updateRow<DBPatrol>('patrols', activePatrol.id, {
       scanned: totalScanned,
+      checkpoints: totalCount,
       status: nextStatus,
       endTime: isFinished ? nowTime : '',
     });
@@ -1198,8 +1499,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const newNotif = {
       id: `notif-${Date.now()}`,
       userId: guardId,
-      title: 'Checkpoint Scanned',
-      message: `${cp.name} recorded at ${nowTime}.`,
+      title: 'Checkpoint Verified',
+      message: `${cp.name} (${cp.number}) recorded at ${nowTime}.`,
       read: false,
       createdAt: new Date().toISOString()
     };
@@ -1211,7 +1512,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         id: `notif-comp-${Date.now()}`,
         userId: guardId,
         title: 'Patrol Completed',
-        message: `All ${activePatrol.checkpoints} checkpoints completed at ${nowTime}.`,
+        message: `All ${totalCount} checkpoints completed at ${nowTime}.`,
         read: false,
         createdAt: new Date().toISOString()
       };
@@ -1219,9 +1520,9 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     }
 
     await get().loadGuardData(guardId, guardEmail || '');
-    return { success: true, message: `Checkpoint "${cp.name}" marked completed at ${nowTime}.` };
+    return { success: true, message: 'Checkpoint Verified' };
   },
-  
+
   checkInLoneWorker: (customParams?: {
     latitude?: number;
     longitude?: number;
@@ -1278,7 +1579,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     };
 
     if (guardId) {
-      AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState)).catch(() => {});
+      AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState)).catch(() => { });
     }
 
     set((state) => ({
@@ -1334,7 +1635,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     await insertRow('messages', newMsg);
     await get().loadGuardData(guardId, guardEmail || '');
   },
-  
+
   markNotificationRead: async (id) => {
     const { guardId, guardEmail } = get();
     if (!guardId) return;

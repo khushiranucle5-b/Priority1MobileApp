@@ -15,13 +15,14 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   const { colors, spacing } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, padding: spacing.xl }]}>
       <ActivityIndicator size={size} color={colors.primary[600]} />
       {message && (
         <AppText
-          size="sm"
-          color="secondary"
-          style={{ marginTop: spacing.sm, textAlign: 'center' }}
+          size="base"
+          weight="semibold"
+          color="primary"
+          style={{ marginTop: spacing.md, textAlign: 'center' }}
         >
           {message}
         </AppText>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Alert, Platform, PermissionsAndroid } from 'react-native';
+import { StyleSheet, View, Alert, Platform, PermissionsAndroid, Modal } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { launchCamera, CameraOptions } from 'react-native-image-picker';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
@@ -107,9 +107,6 @@ export const SelfieVerificationScreen: React.FC = () => {
       }
       
       setShowSuccess(true);
-      setTimeout(() => {
-        navigation.goBack();
-      }, 2000);
     } catch (err: any) {
       LoggerService.log(`[SelfieVerificationScreen] ${actionType} failed: ${err?.message || err}`, 'error');
       Alert.alert(
@@ -117,6 +114,11 @@ export const SelfieVerificationScreen: React.FC = () => {
         err?.message || 'An unexpected error occurred during attendance verification.'
       );
     }
+  };
+
+  const handleFinishSuccess = () => {
+    setShowSuccess(false);
+    navigation.goBack();
   };
 
   const { workingHours, clockInTimeStr, clockOutTimeStr, attendanceStatus } = useLiveAttendance();
@@ -178,20 +180,39 @@ export const SelfieVerificationScreen: React.FC = () => {
         )}
       </View>
 
-      {/* Success Bottom Sheet Overlay */}
-      {showSuccess && (
-        <View style={[styles.successOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-          <View style={[styles.successSheet, { backgroundColor: colors.surface, borderTopLeftRadius: borderRadius.xl, borderTopRightRadius: borderRadius.xl, padding: spacing.xl }]}>
+      {/* Success Modal Dialogue (Fully Visible & Glove Touch Friendly) */}
+      <Modal visible={showSuccess} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.successCard, { backgroundColor: colors.surface, borderRadius: borderRadius.xl, borderColor: colors.border }]}>
             <AppText style={styles.successIcon}>✅</AppText>
             <AppText size="xl" weight="bold" color="success" style={styles.successTitle}>
               {actionType} Successful
             </AppText>
-            <AppText size="base" color="secondary" style={styles.successText}>Time: {actionType === 'Clock In' ? clockInTimeStr : clockOutTimeStr}</AppText>
-            <AppText size="base" color="secondary" style={styles.successText}>Status: {attendanceStatus}</AppText>
-            <AppText size="base" color="secondary" style={styles.successText}>Working Hours: {workingHours}</AppText>
+            
+            <View style={styles.detailBox}>
+              <AppText size="base" color="secondary" style={styles.successText}>
+                Time: <AppText size="base" weight="bold" color="primary">{actionType === 'Clock In' ? clockInTimeStr : clockOutTimeStr}</AppText>
+              </AppText>
+              <AppText size="base" color="secondary" style={styles.successText}>
+                Status: <AppText size="base" weight="bold" color="primary">{attendanceStatus}</AppText>
+              </AppText>
+              <AppText size="base" color="secondary" style={styles.successText}>
+                Working Hours: <AppText size="base" weight="bold" color="primary">{workingHours}</AppText>
+              </AppText>
+            </View>
+
+            {/* Prominent Visible 56px Done Action Button */}
+            <Button
+              title="✓ DONE"
+              variant="primary"
+              size="large"
+              fullWidth
+              onPress={handleFinishSuccess}
+              style={styles.doneBtn}
+            />
           </View>
         </View>
-      )}
+      </Modal>
     </ScreenLayout>
   );
 };
@@ -218,23 +239,48 @@ const styles = StyleSheet.create({
   btn: {
     marginVertical: 0,
   },
-  successOverlay: {
-    ...StyleSheet.absoluteFill,
-    justifyContent: 'flex-end',
-    zIndex: 1000,
-  },
-  successSheet: {
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 48,
+    padding: 20,
+    zIndex: 2000,
+  },
+  successCard: {
+    width: '100%',
+    maxWidth: 380,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 2,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
   },
   successIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 56,
+    marginBottom: 12,
   },
   successTitle: {
-    marginBottom: 16,
+    marginBottom: 14,
+    textAlign: 'center',
+  },
+  detailBox: {
+    width: '100%',
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 20,
+    gap: 6,
   },
   successText: {
-    marginBottom: 4,
-  }
+    fontSize: 15,
+  },
+  doneBtn: {
+    height: 56,
+  },
 });

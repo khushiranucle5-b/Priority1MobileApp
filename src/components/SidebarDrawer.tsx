@@ -1,31 +1,91 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Modal, ScrollView } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { StyleSheet, View, TouchableOpacity, Modal, ScrollView, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { AppText } from './typography/Text';
 import { Heading } from './typography/Heading';
 import { useTheme } from '../providers/ThemeProvider';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
-
 import { NavIcon, NavIconName } from './NavIcon';
 
 interface SidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  activeRouteName?: string;
 }
 
-export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose }) => {
-  const { spacing, borderRadius } = useTheme();
+interface DrawerMenuItem {
+  label: string;
+  route: string;
+  icon: NavIconName;
+  params?: any;
+}
+
+// Helper to find innermost active route name recursively
+const getActiveRouteName = (state: any): string | undefined => {
+  if (!state || !state.routes || state.routes.length === 0) return undefined;
+  const route = state.routes[state.index ?? 0];
+  if (route.state) {
+    return getActiveRouteName(route.state);
+  }
+  return route.name;
+};
+
+// Helper to check if a drawer item matches the current active screen
+const isRouteActive = (itemRoute: string, currentRoute?: string) => {
+  if (!itemRoute || !currentRoute) return false;
+  if (itemRoute === currentRoute) return true;
+
+  const routeMap: Record<string, string[]> = {
+    HomeScreen: ['Home', 'HomeMain', 'HomeScreen'],
+    Attendance: ['Attendance', 'AttendanceMain'],
+    Patrol: ['Patrol', 'PatrolMain', 'PatrolDateLogs', 'PatrolDetails'],
+    Leave: ['Leave', 'Leaves'],
+    Incident: ['Incident', 'IncidentDetails', 'FileIncident'],
+    LoneWorker: ['LoneWorker', 'LoneWorkerDetails', 'SafetyHistory'],
+    SitesList: ['SitesList', 'SiteDetails'],
+    Payslips: ['Payslips', 'PayslipDetails'],
+    Holidays: ['Holidays', 'HolidayDetails'],
+    Policies: ['Policies', 'PolicyDetails'],
+    Messages: ['Messages'],
+  };
+
+  const matches = routeMap[itemRoute];
+  if (matches && matches.includes(currentRoute)) return true;
+
+  return itemRoute.toLowerCase() === currentRoute.toLowerCase();
+};
+
+const getInitials = (name?: string) => {
+  if (!name || !name.trim()) return 'DJ';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
+export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose, activeRouteName }) => {
+  const { borderRadius } = useTheme();
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
-  const currentRoute = useRoute();
-  const logout = useAuthStore((state) => state.logout);
+
+  const currentRouteName = useNavigationState((state) => getActiveRouteName(state));
+  const { user, logout } = useAuthStore();
   const { guardName, guardId, assignedSite } = useGuardStore();
 
-  const activeName = currentRoute.name;
+  // Drawer Width: 80-85% of mobile screen width
+  const drawerWidth = Math.min(Math.round(width * 0.82), 360);
+  const activeName = activeRouteName || currentRouteName || 'HomeScreen';
+
+  const topPadding = Math.max(insets.top + 16, 52);
+  const bottomInset = Math.max(insets.bottom, 16);
 
   const navigateTo = (route: string, params?: any) => {
     onClose();
-    const tabRoutes = ['Attendance', 'Duty', 'Patrol', 'Profile'];
+    const tabRoutes = ['Home', 'Attendance', 'Duty', 'Patrol', 'Profile'];
     if (tabRoutes.includes(route)) {
       navigation.navigate(route);
     } else {
@@ -33,21 +93,21 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose })
     }
   };
 
-  const sections: { title: string; items: { label: string; route: string; icon: NavIconName }[] }[] = [
+  const sections: { title: string; items: DrawerMenuItem[] }[] = [
     {
-      title: 'Overview',
+      title: 'OVERVIEW',
       items: [
         { label: 'Dashboard', route: 'HomeScreen', icon: 'dashboard' },
       ],
     },
     {
-      title: 'Organization',
+      title: 'ORGANIZATION',
       items: [
         { label: 'Sites', route: 'SitesList', icon: 'sites' },
       ],
     },
     {
-      title: 'Operations',
+      title: 'OPERATIONS',
       items: [
         { label: 'Attendance', route: 'Attendance', icon: 'attendance' },
         { label: 'Leaves', route: 'Leave', icon: 'leaves' },
@@ -58,7 +118,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose })
       ],
     },
     {
-      title: 'Finance & HR',
+      title: 'FINANCE & HR',
       items: [
         { label: 'My Payslips', route: 'Payslips', icon: 'payslips' },
         { label: 'Holidays', route: 'Holidays', icon: 'holidays' },
@@ -66,7 +126,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose })
       ],
     },
     {
-      title: 'Communication',
+      title: 'COMMUNICATION',
       items: [
         { label: 'Direct Messages', route: 'Messages', icon: 'messages' },
       ],
@@ -81,44 +141,46 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose })
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        {/* Sidebar Panel - Left-Aligned Drawer */}
-        <View style={styles.panel}>
-          {/* Header */}
-          <View style={[styles.header, { paddingHorizontal: spacing.md, paddingVertical: spacing.md }]}>
+        {/* Mobile Drawer Panel */}
+        <View style={[styles.panel, { width: drawerWidth }]}>
+          {/* Top Header UI */}
+          <View style={[styles.header, { paddingTop: topPadding }]}>
             <View>
-              <Heading level="h3" style={{ color: '#FFFFFF', fontSize: 18 }}>Priority One</Heading>
-              <AppText size="xs" style={{ color: '#94A3B8', marginTop: 2 }}>Security ERP • Portal</AppText>
+              <Heading level="h3" style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>Priority One</Heading>
+              <AppText size="xs" style={{ color: '#94A3B8', marginTop: 3, fontWeight: '600' }}>Security ERP • Portal</AppText>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <AppText size="lg" style={{ color: '#94A3B8', fontSize: 20 }}>✕</AppText>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+              <AppText style={{ color: '#94A3B8', fontSize: 24, fontWeight: 'bold' }}>✕</AppText>
             </TouchableOpacity>
           </View>
 
-          <ScrollView contentContainerStyle={{ padding: spacing.md }}>
+          {/* Navigation Sections */}
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
             {sections.map((sec, idx) => (
               <View key={idx} style={styles.section}>
                 <AppText size="xs" weight="bold" style={styles.sectionTitle}>
-                  {sec.title.toUpperCase()}
+                  {sec.title}
                 </AppText>
                 {sec.items.map((item, itemIdx) => {
-                  const isActive = activeName === item.route;
+                  const isActive = isRouteActive(item.route, activeName);
                   return (
                     <TouchableOpacity
                       key={itemIdx}
                       style={[
                         styles.item,
-                        { borderRadius: borderRadius.sm },
+                        { borderRadius: borderRadius.md },
                         isActive && styles.activeItem,
                       ]}
                       onPress={() => navigateTo(item.route)}
+                      activeOpacity={0.7}
                     >
-                      <View style={{ marginRight: 12, width: 20, alignItems: 'center' }}>
-                        <NavIcon name={item.icon} size={18} active={isActive} color="#94A3B8" />
+                      <View style={styles.iconContainer}>
+                        <NavIcon name={item.icon} size={28} color={isActive ? '#3B82F6' : '#94A3B8'} />
                       </View>
                       <AppText
                         style={[
                           styles.itemLabel,
-                          isActive && { color: '#FFFFFF', fontWeight: 'bold' },
+                          isActive && { color: '#FFFFFF', fontWeight: '500' },
                         ]}
                       >
                         {item.label}
@@ -128,33 +190,41 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose })
                 })}
               </View>
             ))}
+          </ScrollView>
 
-            {/* Guard Profile Footer */}
-            <View style={styles.profileBox}>
-              <View style={styles.avatar}>
-                <AppText style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 }}>
-                  {guardName ? guardName.charAt(0).toUpperCase() : 'G'}
-                </AppText>
-              </View>
-              <View style={{ flex: 1 }}>
-                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF', fontSize: 15 }}>{guardName || 'Security Officer'}</AppText>
-                <AppText size="xs" style={{ color: '#94A3B8', fontSize: 12 }}>{guardId || 'GRD-001'} • {assignedSite || 'Main Site'}</AppText>
-              </View>
-            </View>
-
+          {/* Fixed Bottom Footer (User Profile & Sign Out Button Row) */}
+          <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8 }]}>
             <TouchableOpacity
-              style={[styles.logoutBtn, { borderRadius: borderRadius.md }]}
+              style={styles.userSignoutRow}
               onPress={async () => {
                 onClose();
                 await logout();
               }}
+              activeOpacity={0.7}
             >
-              <AppText style={{ color: '#EF4444', textAlign: 'center', fontWeight: 'bold', fontSize: 15 }}>Sign Out</AppText>
+              <View style={styles.avatarCircle}>
+                <AppText style={styles.avatarText}>
+                  {getInitials(guardName || user?.name)}
+                </AppText>
+              </View>
+
+              <View style={styles.userInfoContainer}>
+                <AppText style={styles.userNameText} numberOfLines={1}>
+                  {guardName || user?.name || 'David Johnson'}
+                </AppText>
+                <AppText style={styles.userRoleText} numberOfLines={1}>
+                  {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Guard'}
+                </AppText>
+              </View>
+
+              <View style={styles.signoutIconBox}>
+                <NavIcon name="logout" size={20} color="#94A3B8" />
+              </View>
             </TouchableOpacity>
-          </ScrollView>
+          </View>
         </View>
 
-        {/* Dark Backdrop (Tapping closes drawer) */}
+        {/* Backdrop (Tapping closes drawer) */}
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
       </View>
     </Modal>
@@ -167,82 +237,122 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   panel: {
-    width: 290,
     height: '100%',
     backgroundColor: '#0F172A',
     elevation: 20,
     shadowColor: '#000',
     shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    justifyContent: 'space-between',
   },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottomWidth: 1,
+    borderBottomWidth: 1.5,
     borderBottomColor: '#1E293B',
-    paddingTop: 16,
+    paddingHorizontal: 20,
+    paddingBottom: 18,
   },
   closeBtn: {
-    padding: 6,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bottomFooter: {
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#1E293B',
+    backgroundColor: '#0F172A',
+  },
+  userSignoutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  avatarCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  avatarText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  userInfoContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  userNameText: {
+    color: '#FFFFFF',
+    fontSize: 15.5,
+    fontWeight: '600',
+  },
+  userRoleText: {
+    color: '#94A3B8',
+    fontSize: 13,
+    marginTop: 2,
+    fontWeight: '400',
+  },
+  signoutIconBox: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 6,
   },
   section: {
     marginBottom: 20,
   },
   sectionTitle: {
     marginBottom: 8,
-    color: '#64748B',
-    letterSpacing: 1.2,
-    fontSize: 11,
-    paddingLeft: 4,
+    color: '#94A3B8',
+    letterSpacing: 1.4,
+    fontSize: 12.5,
+    fontWeight: '600',
+    paddingLeft: 6,
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginBottom: 3,
-    minHeight: 46,
+    paddingHorizontal: 14,
+    marginVertical: 3,
+    minHeight: 56,
   },
   activeItem: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#1E293B',
+    borderLeftWidth: 4,
+    borderLeftColor: '#3B82F6',
+    paddingLeft: 10,
   },
-  itemIcon: {
-    marginRight: 12,
-    fontSize: 18,
-    color: '#FFFFFF',
+  iconContainer: {
+    width: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
   },
   itemLabel: {
-    color: '#CBD5E1',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  profileBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-    backgroundColor: '#1E293B',
-    borderRadius: 8,
-    marginTop: 16,
-    marginBottom: 12,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#4F46E5',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoutBtn: {
-    paddingVertical: 14,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    marginBottom: 40,
+    color: '#E2E8F0',
+    fontSize: 17,
+    fontWeight: '400',
+    letterSpacing: 0.2,
   },
 });

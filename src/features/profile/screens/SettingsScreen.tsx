@@ -8,10 +8,12 @@ import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
+import { NavIcon, NavIconName } from '../../../components/NavIcon';
+import { Button } from '../../../components/Button';
 
 interface SettingItem {
   id: string;
-  icon: string;
+  icon: NavIconName;
   title: string;
   section: string;
   onPress?: () => void;
@@ -39,26 +41,26 @@ export const SettingsScreen: React.FC = () => {
   };
 
   const allSettings: SettingItem[] = [
-    { id: 'profile', icon: '⚙️', title: 'Profile Settings', section: 'Account', onPress: () => navigation.navigate('ProfileSettings') },
-    { id: 'password', icon: '🔑', title: 'Change Password', section: 'Account', onPress: () => navigation.navigate('ChangePassword') },
-    { id: 'notification', icon: '🔔', title: 'Notification Settings', section: 'Account', onPress: () => navigation.navigate('NotificationSettings') },
+    { id: 'profile', icon: 'profile', title: 'Profile Settings', section: 'Account', onPress: () => navigation.navigate('ProfileSettings') },
+    { id: 'password', icon: 'settings', title: 'Change Password', section: 'Account', onPress: () => navigation.navigate('ChangePassword') },
+    { id: 'notification', icon: 'messages', title: 'Notification Settings', section: 'Account', onPress: () => navigation.navigate('NotificationSettings') },
     
-    { id: 'privacy', icon: '🛡️', title: 'Privacy & Security', section: 'Privacy & Security', onPress: () => navigation.navigate('PrivacySecurity') },
-    { id: 'biometric', icon: '👆', title: 'Biometric / App Lock', section: 'Privacy & Security', onPress: () => navigation.navigate('BiometricAppLock') },
-    { id: 'policy', icon: '🔒', title: 'Privacy Policy', section: 'Privacy & Security', onPress: () => navigation.navigate('PrivacyPolicy') },
-    { id: 'terms', icon: '📜', title: 'Terms & Conditions', section: 'Privacy & Security', onPress: () => navigation.navigate('TermsConditions') },
+    { id: 'privacy', icon: 'loneworker', title: 'Privacy & Security', section: 'Privacy & Security', onPress: () => navigation.navigate('PrivacySecurity') },
+    { id: 'biometric', icon: 'profile', title: 'Biometric / App Lock', section: 'Privacy & Security', onPress: () => navigation.navigate('BiometricAppLock') },
+    { id: 'policy', icon: 'policies', title: 'Privacy Policy', section: 'Privacy & Security', onPress: () => navigation.navigate('PrivacyPolicy') },
+    { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Privacy & Security', onPress: () => navigation.navigate('TermsConditions') },
     
-    { id: 'location', icon: '📍', title: 'Location & GPS', section: 'Attendance & Location', onPress: () => navigation.navigate('LocationGPS') },
-    { id: 'attendance_settings', icon: '🕒', title: 'Attendance Settings', section: 'Attendance & Location', onPress: () => navigation.navigate('AttendanceSettings') },
+    { id: 'location', icon: 'sites', title: 'Location & GPS', section: 'Attendance & Location', onPress: () => navigation.navigate('LocationGPS') },
+    { id: 'attendance_settings', icon: 'attendance', title: 'Attendance Settings', section: 'Attendance & Location', onPress: () => navigation.navigate('AttendanceSettings') },
     
-    { id: 'appearance', icon: '🎨', title: 'Appearance', section: 'App Preferences', onPress: () => navigation.navigate('Appearance') },
+    { id: 'appearance', icon: 'settings', title: 'Appearance', section: 'App Preferences', onPress: () => navigation.navigate('Appearance') },
     
-    { id: 'support', icon: '❓', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
-    { id: 'contact', icon: '✉️', title: 'Contact Support', section: 'Support', onPress: () => navigation.navigate('ContactSupport') },
+    { id: 'support', icon: 'messages', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
+    { id: 'contact', icon: 'messages', title: 'Contact Support', section: 'Support', onPress: () => navigation.navigate('ContactSupport') },
     
-    { id: 'permissions', icon: '🔐', title: 'App Permissions', section: 'Application', onPress: () => navigation.navigate('AppPermissions') },
-    { id: 'storage', icon: '💾', title: 'Data & Storage', section: 'Application', onPress: () => navigation.navigate('DataStorage') },
-    { id: 'about', icon: '📱', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
+    { id: 'permissions', icon: 'settings', title: 'App Permissions', section: 'Application', onPress: () => navigation.navigate('AppPermissions') },
+    { id: 'storage', icon: 'assets', title: 'Data & Storage', section: 'Application', onPress: () => navigation.navigate('DataStorage') },
+    { id: 'about', icon: 'dashboard', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
   ];
 
   const filteredSettings = useMemo(() => {
@@ -85,7 +87,9 @@ export const SettingsScreen: React.FC = () => {
       <PageHeader title="Settings" showBack onBack={() => navigation.goBack()} />
       
       <View style={[styles.searchContainer, { backgroundColor: colors.card, marginHorizontal: spacing.base, borderRadius: borderRadius.md, marginTop: spacing.md }]}>
-        <AppText style={styles.searchIcon} color="secondary">🔍</AppText>
+        <View style={styles.searchIcon}>
+          <NavIcon name="search" size={18} color="#64748B" />
+        </View>
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
           placeholder="Search for a setting..."
@@ -117,7 +121,7 @@ export const SettingsScreen: React.FC = () => {
                       onPress={setting.onPress}
                     >
                       <View style={styles.left}>
-                        <AppText style={styles.icon}>{setting.icon}</AppText>
+                        <NavIcon name={setting.icon} size={22} color={colors.primary[600] || '#2563eb'} />
                         <AppText size="base" weight="medium">{setting.title}</AppText>
                       </View>
                       
@@ -131,18 +135,14 @@ export const SettingsScreen: React.FC = () => {
         )}
 
         {/* Log Out Section */}
-        <View style={{ marginTop: spacing.xl }}>
-           <View style={[styles.sectionCard, { backgroundColor: colors.card, borderRadius: borderRadius.lg }]}>
-              <TouchableOpacity 
-                style={styles.row} 
-                onPress={handleLogout}
-              >
-                <View style={styles.left}>
-                  <AppText style={styles.icon}>🚪</AppText>
-                  <AppText size="base" weight="bold" color="error">Log Out</AppText>
-                </View>
-              </TouchableOpacity>
-           </View>
+        <View style={{ marginTop: spacing.xl, marginBottom: spacing.md }}>
+          <Button
+            title="Logout"
+            variant="danger"
+            size="large"
+            fullWidth
+            onPress={handleLogout}
+          />
         </View>
 
       </ScrollView>
@@ -154,11 +154,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    height: 48,
+    paddingHorizontal: 14,
+    height: 52,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
   },
   searchIcon: {
-    fontSize: 16,
     marginRight: 8,
   },
   searchInput: {
@@ -181,22 +182,20 @@ const styles = StyleSheet.create({
   },
   sectionCard: {
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 16,
+    minHeight: 56,
   },
   left: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
-  icon: {
-    fontSize: 20,
-    width: 24,
-    textAlign: 'center',
-  }
 });

@@ -25,13 +25,14 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false,
   };
 
   return (
-    <View style={[styles.container, { paddingHorizontal: spacing.base, paddingVertical: spacing.md }]}>
+    <View style={[styles.container, { paddingHorizontal: spacing.base, paddingVertical: spacing.sm }]}>
       {showBack && (
         <TouchableOpacity
           style={styles.backButton}
           onPress={handleBack}
-          hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           activeOpacity={0.7}
+          accessibilityLabel="Go back"
         >
           <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
         </TouchableOpacity>
@@ -52,30 +53,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    minHeight: 56,
+    minHeight: 60,
   },
   backButton: {
     position: 'absolute',
-    left: 16,
+    left: 12,
+    zIndex: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+  },
+  backArrowText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    lineHeight: 32,
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 20,
+  },
+  rightComponentContainer: {
+    position: 'absolute',
+    right: 12,
     zIndex: 10,
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
-    paddingRight: 8,
-  },
-  backArrowText: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    lineHeight: 30,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  rightComponentContainer: {
-    position: 'absolute',
-    right: 16,
-    zIndex: 10,
-    justifyContent: 'center',
-    height: '100%',
+    minWidth: 48,
+    minHeight: 48,
   }
 });

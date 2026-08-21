@@ -44,7 +44,7 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
     if (!session.clockOut || session.clockOut === '—' || session.clockOut === 'Ongoing') {
       return { minutes: 0, text: 'Active' };
     }
-    
+
     if (session.clockIn && session.clockOut) {
       const inDate = new Date(session.clockIn);
       const outDate = new Date(session.clockOut);
@@ -110,8 +110,8 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
   const statusStyle = getStatusColors(record.status);
 
   // All punch sessions for this date
-  const sessions: AttendanceRecord[] = record.attendances && record.attendances.length > 0 
-    ? record.attendances 
+  const sessions: AttendanceRecord[] = record.attendances && record.attendances.length > 0
+    ? record.attendances
     : (record.attendance ? [record.attendance] : []);
 
   const completedMins = sessions.reduce((sum: number, s: AttendanceRecord) => {
@@ -134,7 +134,7 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
             {formattedDate}
           </AppText>
         </View>
-        
+
         <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg, borderColor: statusStyle.border }]}>
           <AppText size="xs" weight="bold" style={{ color: statusStyle.text }}>
             {record.status}
@@ -181,10 +181,10 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
             {sessions.map((sess: AttendanceRecord, idx: number) => {
               const dur = getSessionDuration(sess);
               return (
-                <View 
-                  key={sess.id || idx} 
+                <View
+                  key={sess.id || idx}
                   style={[
-                    styles.tableBodyRow, 
+                    styles.tableBodyRow,
                     { borderBottomColor: colors.border },
                     idx === sessions.length - 1 ? { borderBottomWidth: 0 } : null
                   ]}
@@ -198,9 +198,9 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
                   <AppText size="xs" color="primary" style={styles.colTime}>
                     {sess.clockOut ? formatTimeStr(sess.clockOut) : '—'}
                   </AppText>
-                  <AppText 
-                    size="xs" 
-                    weight="bold" 
+                  <AppText
+                    size="xs"
+                    weight="bold"
                     style={[
                       styles.colDuration,
                       { color: dur.text === 'Active' ? (colors.primary[600] || '#2563eb') : colors.text }

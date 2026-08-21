@@ -5,10 +5,10 @@ const palette = {
     50: '#eff6ff',
     100: '#dbeafe',
     200: '#bfdbfe',
-    400: '#60a5fa',
-    500: '#3b82f6',
-    600: '#2563eb',
-    700: '#1d4ed8',
+    400: '#3b82f6',
+    500: '#2563eb',
+    600: '#1d4ed8',
+    700: '#1e40af',
     900: '#1e3a8a',
   },
   slate: {
@@ -18,28 +18,32 @@ const palette = {
     300: '#cbd5e1',
     400: '#94a3b8',
     500: '#64748b',
-    600: '#475569',
-    700: '#334155',
-    800: '#1e293b',
-    900: '#0f172a',
+    600: '#334155',
+    700: '#1e293b',
+    800: '#0f172a',
+    900: '#020617',
   },
   red: {
     50: '#fef2f2',
     100: '#fee2e2',
+    200: '#fecaca',
     500: '#ef4444',
     600: '#dc2626',
+    700: '#b91c1c',
   },
   green: {
     50: '#f0fdf4',
     100: '#dcfce7',
-    500: '#22c55e',
-    600: '#16a34a',
+    200: '#bbf7d0',
+    500: '#16a34a',
+    600: '#15803d',
   },
   amber: {
     50: '#fffbeb',
     100: '#fef3c7',
-    500: '#f59e0b',
-    600: '#d97706',
+    200: '#fde68a',
+    500: '#d97706',
+    600: '#b45309',
   },
   white: '#ffffff',
   black: '#000000',
@@ -67,38 +71,43 @@ export const colors = {
   surfaceSecondary: palette.slate[100] as string,
   surfacePressed: palette.slate[200] as string,
   card: palette.white as string,
-  overlay: 'rgba(0, 0, 0, 0.5)' as string,
+  overlay: 'rgba(0, 0, 0, 0.65)' as string,
 
-  // Text hierarchy
-  text: palette.slate[900] as string,
-  textSecondary: palette.slate[600] as string,
-  textTertiary: palette.slate[400] as string,
+  // Text hierarchy (Outdoor High Contrast)
+  text: '#0f172a' as string,
+  textSecondary: '#334155' as string,
+  textTertiary: '#64748b' as string,
   textInverse: palette.white as string,
-  textDisabled: palette.slate[300] as string,
+  textDisabled: '#94a3b8' as string,
   textLink: palette.blue[600] as string,
 
   // Borders
-  border: palette.slate[200] as string,
-  borderStrong: palette.slate[300] as string,
-  borderFocus: palette.blue[500] as string,
+  border: '#cbd5e1' as string,
+  borderStrong: '#94a3b8' as string,
+  borderFocus: palette.blue[600] as string,
 
   // Semantic — secondary
-  secondary: palette.slate[600] as string,
+  secondary: '#475569' as string,
+
+  // Emergency (Guard Red)
+  emergency: palette.red[600] as string,
+  emergencyLight: palette.red[50] as string,
+  emergencyBorder: palette.red[100] as string,
 
   // Status — info
-  info: palette.blue[500] as string,
+  info: palette.blue[600] as string,
   infoLight: palette.blue[50] as string,
-  infoBorder: palette.blue[100] as string,
+  infoBorder: palette.blue[200] as string,
 
   // Status — purple
-  purple: '#9b59b6' as string,
+  purple: '#8e44ad' as string,
   purpleLight: '#f5eef8' as string,
 
   // Status — error
-  error: palette.red[500] as string,
+  error: palette.red[600] as string,
   errorLight: palette.red[50] as string,
-  errorBorder: palette.red[100] as string,
-  errorDark: palette.red[600] as string,
+  errorBorder: palette.red[200] as string,
+  errorDark: palette.red[700] as string,
 
   // Status — success
   success: palette.green[500] as string,
@@ -113,9 +122,9 @@ export const colors = {
   warningDark: palette.amber[600] as string,
 
   // Disabled states
-  disabledBackground: palette.slate[100] as string,
-  disabledText: palette.slate[300] as string,
-  disabledBorder: palette.slate[200] as string,
+  disabledBackground: palette.slate[200] as string,
+  disabledText: palette.slate[400] as string,
+  disabledBorder: palette.slate[300] as string,
 
   // Skeleton
   skeletonBase: palette.slate[200] as string,
@@ -150,54 +159,59 @@ export const darkColors: ThemeColors = {
   surfaceSecondary: palette.slate[700],
   surfacePressed: palette.slate[600],
   card: palette.slate[800],
-  overlay: 'rgba(0, 0, 0, 0.7)',
+  overlay: 'rgba(0, 0, 0, 0.8)',
 
   // Text hierarchy
-  text: palette.slate[50],
-  textSecondary: palette.slate[400],
-  textTertiary: palette.slate[500],
+  text: '#ffffff',
+  textSecondary: palette.slate[300],
+  textTertiary: palette.slate[400],
   textInverse: palette.slate[900],
-  textDisabled: palette.slate[600],
+  textDisabled: palette.slate[500],
   textLink: palette.blue[400],
 
   // Borders
-  border: palette.slate[700],
-  borderStrong: palette.slate[600],
+  border: palette.slate[600],
+  borderStrong: palette.slate[500],
   borderFocus: palette.blue[400],
 
   // Semantic — secondary
-  secondary: palette.slate[400],
+  secondary: palette.slate[300],
+
+  // Emergency
+  emergency: palette.red[500],
+  emergencyLight: 'rgba(239, 68, 68, 0.2)',
+  emergencyBorder: 'rgba(239, 68, 68, 0.4)',
 
   // Status — info
   info: palette.blue[400],
-  infoLight: 'rgba(96, 165, 250, 0.15)',
-  infoBorder: 'rgba(96, 165, 250, 0.3)',
+  infoLight: 'rgba(59, 130, 246, 0.2)',
+  infoBorder: 'rgba(59, 130, 246, 0.4)',
 
   // Status — purple
   purple: '#a569bd',
-  purpleLight: 'rgba(165, 105, 189, 0.15)',
+  purpleLight: 'rgba(165, 105, 189, 0.2)',
 
   // Status — error
   error: palette.red[500],
-  errorLight: 'rgba(239, 68, 68, 0.15)',
-  errorBorder: 'rgba(239, 68, 68, 0.3)',
+  errorLight: 'rgba(239, 68, 68, 0.2)',
+  errorBorder: 'rgba(239, 68, 68, 0.4)',
   errorDark: palette.red[600],
 
   // Status — success
-  success: palette.green[500],
-  successLight: 'rgba(34, 197, 94, 0.15)',
-  successBorder: 'rgba(34, 197, 94, 0.3)',
-  successDark: palette.green[600],
+  success: '#22c55e',
+  successLight: 'rgba(34, 197, 94, 0.2)',
+  successBorder: 'rgba(34, 197, 94, 0.4)',
+  successDark: palette.green[500],
 
   // Status — warning
-  warning: palette.amber[500],
-  warningLight: 'rgba(245, 158, 11, 0.15)',
-  warningBorder: 'rgba(245, 158, 11, 0.3)',
-  warningDark: palette.amber[600],
+  warning: '#f59e0b',
+  warningLight: 'rgba(245, 158, 11, 0.2)',
+  warningBorder: 'rgba(245, 158, 11, 0.4)',
+  warningDark: palette.amber[500],
 
   // Disabled states
   disabledBackground: palette.slate[800],
-  disabledText: palette.slate[600],
+  disabledText: palette.slate[500],
   disabledBorder: palette.slate[700],
 
   // Skeleton
@@ -209,3 +223,4 @@ export const darkColors: ThemeColors = {
   black: palette.black,
   transparent: palette.transparent,
 };
+

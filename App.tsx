@@ -1,8 +1,10 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, LogBox } from 'react-native';
 import { AppProviders } from './src/providers/AppProviders';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { useTheme } from './src/providers/ThemeProvider';
+
+LogBox.ignoreAllLogs(true);
 
 const AppContent: React.FC = () => {
   const { theme } = useTheme();

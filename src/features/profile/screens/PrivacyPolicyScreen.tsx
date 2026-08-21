@@ -14,14 +14,32 @@ export const PrivacyPolicyScreen = () => {
     <ScreenLayout>
       <PageHeader title="Privacy Policy" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
+        
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <AppText style={styles.icon}>📄</AppText>
-          <AppText size="lg" weight="bold" style={styles.title}>Organization Privacy Policy</AppText>
-          <AppText size="base" color="secondary" style={styles.description}>
-            The detailed Privacy Policy is maintained by your organization. 
-            When a formal policy is published to your environment, it will appear here.
+          <AppText size="lg" weight="bold" style={{ marginBottom: 12 }}>Priority One Guard Privacy Policy</AppText>
+          <AppText size="xs" color="secondary" style={{ marginBottom: 16 }}>Last Updated: August 2026</AppText>
+          
+          <AppText weight="bold" style={styles.sectionHeader}>1. Information We Collect</AppText>
+          <AppText color="secondary" style={styles.bodyText}>
+            Priority One Mobile App collects location telemetry, biometric check-in snapshots, and checkpoint scanning logs exclusively when you are actively clocked in to a security shift.
+          </AppText>
+
+          <AppText weight="bold" style={styles.sectionHeader}>2. Location Tracking & Geofencing</AppText>
+          <AppText color="secondary" style={styles.bodyText}>
+            GPS location data is tracked ONLY during active duty for lone worker safety monitoring, SOS emergency response, and verifying geofence compliance. Background tracking stops automatically upon clocking out.
+          </AppText>
+
+          <AppText weight="bold" style={styles.sectionHeader}>3. Media & Photo Security</AppText>
+          <AppText color="secondary" style={styles.bodyText}>
+            Selfie verification snapshots and incident photos are encrypted in local app storage and securely transmitted over HTTPS to your organization's compliance portal.
+          </AppText>
+
+          <AppText weight="bold" style={styles.sectionHeader}>4. Data Retention & Access</AppText>
+          <AppText color="secondary" style={styles.bodyText}>
+            Operational logs and attendance records are stored according to your security provider's compliance policy. You may request record inspection through your supervisor.
           </AppText>
         </View>
+
       </ScrollView>
     </ScreenLayout>
   );
@@ -32,21 +50,17 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    padding: 24,
+    padding: 20,
     borderWidth: 1,
-    alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
-  icon: {
-    fontSize: 48,
-    marginBottom: 16,
+  sectionHeader: {
+    marginTop: 14,
+    marginBottom: 6,
+    fontSize: 15,
   },
-  title: {
-    marginBottom: 12,
-    textAlign: 'center',
+  bodyText: {
+    fontSize: 14,
+    lineHeight: 22,
   },
-  description: {
-    textAlign: 'center',
-    lineHeight: 24,
-  }
 });

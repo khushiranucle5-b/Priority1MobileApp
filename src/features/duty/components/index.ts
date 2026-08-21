@@ -6,5 +6,4 @@ export * from './SupervisorCard';
 export * from './DutyInstructionsCard';
 export * from './EquipmentCard';
 export * from './EmergencyContactsCard';
-export * from './AdditionalNotesCard';
 export * from './EmptyDutyState';

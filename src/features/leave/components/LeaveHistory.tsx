@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
+import { StatusBadge } from '../../../components/StatusBadge';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LeaveRequest } from '../../../store/useGuardStore';
 
@@ -77,38 +78,37 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
         const canCancel = statusLower === 'pending' || (statusLower === 'approved' && leave.fromDate > todayStr);
 
         return (
-          <Card key={leave.id} variant="elevated" style={styles.card}>
+          <Card key={leave.id} variant="outlined" style={styles.card}>
             <View style={styles.headerRow}>
-              <AppText size="base" weight="bold" color="primary">{leave.type}</AppText>
-              <View style={[styles.badge, { backgroundColor: statusColors.bg, borderRadius: borderRadius.full }]}>
-                <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
-                  {leave.status.charAt(0).toUpperCase() + leave.status.slice(1)}
+              <AppText size="lg" weight="bold" color="primary">📅 {leave.type.toUpperCase()}</AppText>
+              <StatusBadge status={leave.status} size="md" />
+            </View>
+            
+            <View style={[styles.detailRow, { marginTop: spacing.sm }]}>
+              <View>
+                <AppText size="xs" color="secondary" weight="semibold">DATE RANGE</AppText>
+                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  {leave.fromDate} – {leave.toDate}
+                </AppText>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <AppText size="xs" color="secondary" weight="semibold">DURATION</AppText>
+                <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
+                  {leave.days} Day(s)
                 </AppText>
               </View>
             </View>
-            
-            <View style={[styles.detailRow, { marginTop: spacing.xs }]}>
-              <AppText size="sm" color="secondary">
-                Date: {leave.fromDate} to {leave.toDate}
-              </AppText>
-              <AppText size="sm" weight="bold" color="primary">
-                {leave.days} Day(s)
-              </AppText>
-            </View>
 
-            {leave.appliedDate && (
-              <View style={{ marginTop: 4 }}>
-                <AppText size="xs" color="secondary">Applied: {leave.appliedDate}</AppText>
-              </View>
-            )}
-
-            <View style={{ marginTop: 4 }}>
-              <AppText size="sm" color="text">Reason: {leave.reason}</AppText>
+            <View style={{ marginTop: 10 }}>
+              <AppText size="xs" color="secondary" weight="semibold">REASON</AppText>
+              <AppText size="base" color="text" weight="medium" style={{ marginTop: 2 }}>
+                {leave.reason}
+              </AppText>
             </View>
 
             {leave.attachment && (
-              <View style={[styles.attachmentBadge, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.sm, marginTop: 8 }]}>
-                <AppText size="xs" color="primary">📎 {leave.attachment.name}</AppText>
+              <View style={[styles.attachmentBadge, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.sm, marginTop: 10 }]}>
+                <AppText size="xs" color="primary" weight="bold">📎 {leave.attachment.name}</AppText>
                 <AppText size="xs" color="secondary">{(leave.attachment.size / 1024).toFixed(1)} KB</AppText>
               </View>
             )}
@@ -117,12 +117,12 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
               <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                 {canEdit && (
                   <TouchableOpacity
-                    style={[styles.actionBtn, { borderColor: colors.primary[600] || '#8b5cf6' }]}
+                    style={[styles.actionBtn, { borderColor: colors.primary[600] || '#2563eb' }]}
                     onPress={() => onEditLeave(leave)}
                     activeOpacity={0.7}
                   >
-                    <AppText size="xs" weight="bold" style={{ color: colors.primary[600] || '#8b5cf6' }}>
-                      Edit
+                    <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#2563eb' }}>
+                      ✏️ EDIT
                     </AppText>
                   </TouchableOpacity>
                 )}
@@ -133,8 +133,8 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
                     onPress={() => setLeaveToCancel(leave)}
                     activeOpacity={0.7}
                   >
-                    <AppText size="xs" weight="bold" style={{ color: colors.error || '#dc2626' }}>
-                      Cancel
+                    <AppText size="base" weight="bold" style={{ color: colors.error || '#dc2626' }}>
+                      ✕ CANCEL
                     </AppText>
                   </TouchableOpacity>
                 )}
@@ -154,10 +154,10 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
       <Modal visible={!!leaveToCancel} animationType="fade" transparent>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => !isCancelling && setLeaveToCancel(null)}>
           <View style={[styles.modalCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]} onStartShouldSetResponder={() => true}>
-            <AppText size="md" weight="bold" color="primary" style={{ marginBottom: 8 }}>
-              Cancel Leave Application?
+            <AppText size="lg" weight="bold" color="primary" style={{ marginBottom: 8 }}>
+              CONFIRM CANCEL LEAVE?
             </AppText>
-            <AppText size="sm" color="secondary" style={{ marginBottom: 20 }}>
+            <AppText size="base" color="secondary" style={{ marginBottom: 20 }}>
               Are you sure you want to cancel this leave application ({leaveToCancel?.type} from {leaveToCancel?.fromDate} to {leaveToCancel?.toDate})?
             </AppText>
 
@@ -167,7 +167,7 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
                 style={[styles.modalBtn, { borderColor: colors.border, borderRadius: borderRadius.md }, isCancelling && { opacity: 0.5 }]}
                 onPress={() => setLeaveToCancel(null)}
               >
-                <AppText size="sm" weight="bold" color="primary">Keep Leave</AppText>
+                <AppText size="base" weight="bold" color="primary">KEEP LEAVE</AppText>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -175,8 +175,8 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
                 style={[styles.modalBtn, { backgroundColor: colors.error || '#dc2626', borderRadius: borderRadius.md }, isCancelling && { opacity: 0.6 }]}
                 onPress={handleConfirmCancel}
               >
-                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>
-                  {isCancelling ? 'Cancelling...' : 'Cancel Leave'}
+                <AppText size="base" weight="bold" style={{ color: '#FFFFFF' }}>
+                  {isCancelling ? 'CANCELLING...' : 'CANCEL LEAVE'}
                 </AppText>
               </TouchableOpacity>
             </View>
@@ -186,8 +186,8 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
 
       {showToast && (
         <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
-          <AppText color="surface" weight="semibold" size="sm">
-            Leave application cancelled successfully.
+          <AppText color="surface" weight="semibold" size="base">
+            ✓ Leave application cancelled successfully.
           </AppText>
         </View>
       )}
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 12,
+    padding: 16,
   },
   headerRow: {
     flexDirection: 'row',
@@ -230,22 +231,24 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 8,
+    gap: 12,
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
   },
   actionBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    borderRadius: 6,
-    borderWidth: 1,
-    minWidth: 70,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 2,
+    minWidth: 100,
+    minHeight: 52,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -253,11 +256,11 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 400,
-    borderWidth: 1,
+    borderWidth: 1.5,
     padding: 20,
     elevation: 5,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 10,
   },
   modalActions: {
@@ -266,17 +269,21 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderWidth: 1,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    minHeight: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
     borderColor: 'transparent',
+    borderRadius: 8,
   },
   snackbar: {
     position: 'absolute',
     bottom: 20,
     left: 20,
     right: 20,
-    padding: 14,
+    padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     zIndex: 1000,

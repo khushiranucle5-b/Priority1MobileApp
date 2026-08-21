@@ -399,12 +399,12 @@ export const SitesListScreen: React.FC = () => {
                   <View style={styles.cardFooter}>
                     <View style={{ flex: 1, marginRight: 10 }}>
                       <AppText size="xs" color="secondary" numberOfLines={2}>
-                        📍 {site.addressLine1}{site.city ? `, ${site.city}` : ''}
+                        {site.addressLine1}{site.city ? `, ${site.city}` : ''}
                       </AppText>
                     </View>
 
                     <Button
-                      title="View Site →"
+                      title="VIEW SITE"
                       variant="outline"
                       size="small"
                       onPress={() => navigation.navigate('SiteDetails', { siteId: site.id })}

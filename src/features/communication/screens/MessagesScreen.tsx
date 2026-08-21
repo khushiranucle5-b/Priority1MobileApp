@@ -214,7 +214,7 @@ export const MessagesScreen: React.FC = () => {
         animationType="slide"
         onRequestClose={() => setSelectedChat(null)}
       >
-        <SafeAreaView style={[styles.modalSafeArea, { backgroundColor: colors.surface }]} edges={['top', 'bottom']}>
+        <View style={[styles.modalSafeArea, { backgroundColor: colors.surface }]}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.modalContainer}
@@ -314,7 +314,7 @@ export const MessagesScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </SafeAreaView>
+      </View>
     </Modal>
   </ScreenLayout>
 );

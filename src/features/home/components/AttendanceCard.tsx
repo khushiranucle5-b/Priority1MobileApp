@@ -1,43 +1,95 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
+import { Button } from '../../../components/Button';
+import { StatusBadge } from '../../../components/StatusBadge';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { LoggerService } from '../../../services';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
+import { useGuardStore } from '../../../store/useGuardStore';
+import { LoggerService } from '../../../services';
 
 export const AttendanceCard: React.FC = () => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
+  const navigation = useNavigation<any>();
   const { workingHours, clockInTimeStr, clockOutTimeStr, attendanceStatus } = useLiveAttendance();
-  
+  const { isClockedIn, isClockedOut } = useGuardStore();
+
   React.useEffect(() => {
     LoggerService.log(`[AttendanceCard] Current Attendance Info - Status: ${attendanceStatus}, ClockIn: ${clockInTimeStr}, ClockOut: ${clockOutTimeStr}`);
   }, [attendanceStatus, clockInTimeStr, clockOutTimeStr]);
-  
-  const isCheckedIn = attendanceStatus === 'Checked In';
+
+  const handleClockIn = () => {
+    LoggerService.log('[AttendanceCard] Clock In tapped');
+    navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock In' } });
+  };
+
+  const handleClockOut = () => {
+    LoggerService.log('[AttendanceCard] Clock Out tapped');
+    navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock Out' } });
+  };
+
+  const badgeStatus = isClockedIn ? 'Checked In' : isClockedOut ? 'Checked Out' : 'Not Checked In';
 
   return (
-    <Card variant="flat" style={styles.card}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.header}>
-        <Heading level="h4">Attendance Status</Heading>
-        <AppText size="sm" style={{ color: isCheckedIn ? '#059669' : '#DC2626' }} weight="bold">
-          ● {attendanceStatus}
+        <View>
+          <Heading level="h4" color="primary" style={styles.title}>ATTENDANCE</Heading>
+          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>Real-time Shift Status</AppText>
+        </View>
+        <StatusBadge status={badgeStatus} size="md" />
+      </View>
+
+      <View style={styles.divider} />
+
+      {/* 1. Working Hours at Upper Center */}
+      <View style={[styles.workingHoursBox, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border }]}>
+        <AppText size="xs" color="secondary" weight="bold" style={{ letterSpacing: 0.8 }}>WORKING HOURS</AppText>
+        <AppText size="xl" weight="bold" style={[styles.workingHoursText, { color: isClockedIn ? '#059669' : colors.text }]}>
+          {workingHours}
         </AppText>
       </View>
 
-      <View style={[styles.grid, { marginTop: spacing.md }]}>
-        <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Clock In</AppText>
-          <AppText size="base" weight="semibold">{clockInTimeStr}</AppText>
+      {/* 2. Button right below Working Hours (Always Enabled) */}
+      <View style={styles.actionContainer}>
+        {isClockedIn ? (
+          <Button
+            title="CLOCK OUT"
+            variant="danger"
+            size="large"
+            fullWidth
+            onPress={handleClockOut}
+            style={styles.actionBtn}
+          />
+        ) : (
+          <Button
+            title="CLOCK IN"
+            variant="primary"
+            size="large"
+            fullWidth
+            onPress={handleClockIn}
+            style={styles.actionBtn}
+          />
+        )}
+      </View>
+
+      {/* 3. Below button: Clock In & Clock Out times side-by-side in one line */}
+      <View style={styles.timeRow}>
+        <View style={[styles.timeBox, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border }]}>
+          <AppText size="xs" color="secondary" weight="bold">CLOCK IN</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.statValue}>
+            {isClockedIn || isClockedOut ? clockInTimeStr || '--:--' : '--:--'}
+          </AppText>
         </View>
-        <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Clock Out</AppText>
-          <AppText size="base" weight="semibold">{clockOutTimeStr}</AppText>
-        </View>
-        <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Working Hrs</AppText>
-          <AppText size="base" weight="semibold" style={{ fontVariant: ['tabular-nums'] }}>{workingHours}</AppText>
+
+        <View style={[styles.timeBox, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border }]}>
+          <AppText size="xs" color="secondary" weight="bold">CLOCK OUT</AppText>
+          <AppText size="base" weight="bold" color="primary" style={styles.statValue}>
+            {isClockedOut ? clockOutTimeStr || '--:--' : '--:--'}
+          </AppText>
         </View>
       </View>
     </Card>
@@ -47,21 +99,58 @@ export const AttendanceCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: 10,
+    padding: 18,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  grid: {
+  title: {
+    letterSpacing: 0.5,
+  },
+  divider: {
+    height: 1.5,
+    backgroundColor: '#cbd5e1',
+    marginVertical: 14,
+  },
+  workingHoursBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  workingHoursText: {
+    marginTop: 4,
+    fontSize: 26,
+    fontVariant: ['tabular-nums'],
+  },
+  actionContainer: {
+    marginBottom: 14,
+  },
+  actionBtn: {
+    height: 56,
+  },
+  timeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: 10,
   },
-  item: {
+  timeBox: {
     flex: 1,
-    padding: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     alignItems: 'center',
-  }
+    justifyContent: 'center',
+    minHeight: 58,
+  },
+  statValue: {
+    marginTop: 2,
+    fontVariant: ['tabular-nums'],
+  },
 });
+

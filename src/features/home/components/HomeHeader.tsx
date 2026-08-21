@@ -15,9 +15,10 @@ type NavigationProp = NativeStackNavigationProp<HomeStackParamList>;
 
 interface HomeHeaderProps {
   onMenuPress?: () => void;
+  isScrolled?: boolean;
 }
 
-export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress }) => {
+export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled = false }) => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const { notifications, guardName } = useGuardStore();
@@ -40,11 +41,27 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress }) => {
   };
 
   return (
-    <View style={[styles.container, { paddingHorizontal: spacing.base, paddingTop: spacing.md, paddingBottom: spacing.sm }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.background || '#F8FAFC',
+          paddingHorizontal: spacing.base,
+          paddingTop: spacing.md,
+          paddingBottom: spacing.sm,
+          zIndex: 100,
+        },
+      ]}
+    >
       <View style={styles.profileSection}>
         {onMenuPress && (
-          <TouchableOpacity onPress={onMenuPress} style={{ marginRight: 12 }}>
-            <AppText size="xl">☰</AppText>
+          <TouchableOpacity
+            onPress={onMenuPress}
+            style={styles.menuIconBtn}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <NavIcon name="menu" size={24} color="#334155" />
           </TouchableOpacity>
         )}
         <Image
@@ -56,18 +73,19 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress }) => {
           <Heading level="h4">{guardName || 'Security Officer'}</Heading>
         </View>
       </View>
-      
+
       <View style={styles.rightSection}>
         <AppText size="xs" color="secondary" style={styles.date}>{getFormattedDate()}</AppText>
 
         <View style={styles.headerActionsRow}>
           {/* Notification Bell */}
-          <TouchableOpacity 
-            style={[styles.iconBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}
+          <TouchableOpacity
+            style={[styles.iconBtn, { backgroundColor: '#F1F5F9', borderRadius: 24 }]}
             onPress={() => navigation.navigate('Notifications')}
             activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <NavIcon name="messages" size={18} color="#475569" />
+            <NavIcon name="messages" size={24} color="#334155" />
             {unreadCount > 0 && (
               <View style={[styles.badge, { backgroundColor: colors.error, borderRadius: borderRadius.full }]}>
                 <AppText size="xs" color="surface" weight="bold" style={styles.badgeText}>
@@ -92,6 +110,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  menuIconBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
   avatar: {
     width: 48,
     height: 48,
@@ -112,8 +139,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconBtn: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -128,10 +156,10 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -4,
-    right: -4,
-    minWidth: 18,
-    height: 18,
+    top: -2,
+    right: -2,
+    minWidth: 20,
+    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 4,
@@ -139,5 +167,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     lineHeight: 12,
+    fontWeight: 'bold',
   },
 });

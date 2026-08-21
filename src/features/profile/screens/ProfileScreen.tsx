@@ -41,7 +41,6 @@ export const ProfileScreen: React.FC = () => {
             <EmploymentInformationCard />
             <EmergencyContactCard />
             <DocumentsSummaryCard />
-            <ApplicationInformationCard />
             <LogoutSection />
           </>
         ) : (
@@ -57,9 +56,13 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   gearButton: {
-    padding: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gearIcon: {
-    fontSize: 20,
+    fontSize: 24,
   }
 });

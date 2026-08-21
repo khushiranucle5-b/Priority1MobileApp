@@ -7,9 +7,12 @@ import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { Button } from '../../../components/Button';
 
+import { useGuardStore } from '../../../store/useGuardStore';
+
 export const ContactSupportScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
+  const { supervisor, supervisorPhone } = useGuardStore();
 
   const handleEmailSupport = () => {
     Linking.openURL('mailto:support@priority-one.io?subject=Guard%20App%20Support%20Request');
@@ -17,6 +20,11 @@ export const ContactSupportScreen = () => {
 
   const handleCallSupport = () => {
     Linking.openURL('tel:1-800-555-0199');
+  };
+
+  const handleCallSupervisor = () => {
+    const phone = supervisorPhone || '+1 415 555 0187';
+    Linking.openURL(`tel:${phone}`);
   };
 
   return (
@@ -28,12 +36,13 @@ export const ContactSupportScreen = () => {
           <AppText style={styles.icon}>📞</AppText>
           <AppText size="lg" weight="bold" style={styles.title}>Priority One Support</AppText>
           <AppText size="base" color="secondary" style={styles.description}>
-            If you need immediate assistance while on duty, please contact your Site Supervisor. For technical issues with the application, use the options below.
+            If you need immediate operational assistance while on duty, contact your Site Supervisor directly. For technical issues, reach out to application support.
           </AppText>
           
           <View style={styles.buttonContainer}>
-            <Button title="Email Support" onPress={handleEmailSupport} style={{ marginBottom: 12 }} />
-            <Button title="Call Support" onPress={handleCallSupport} variant="outline" />
+            <Button title={`Call Supervisor (${supervisor || 'Jane Smith'})`} onPress={handleCallSupervisor} variant="primary" style={{ marginBottom: 12 }} />
+            <Button title="Email Support (support@priority-one.io)" onPress={handleEmailSupport} variant="outline" style={{ marginBottom: 12 }} />
+            <Button title="Call Technical Support Hotline" onPress={handleCallSupport} variant="secondary" />
           </View>
         </View>
 

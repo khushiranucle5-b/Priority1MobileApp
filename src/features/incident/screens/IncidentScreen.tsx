@@ -275,7 +275,7 @@ export const IncidentScreen: React.FC = () => {
         {/* Fixed Bottom Glove-Friendly Action Button */}
         <View style={styles.bottomBar}>
           <Button
-            title="+ File Incident"
+            title="FILE INCIDENT REPORT"
             variant="primary"
             size="large"
             fullWidth

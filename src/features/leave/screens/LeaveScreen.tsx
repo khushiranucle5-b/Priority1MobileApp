@@ -31,24 +31,26 @@ export const LeaveScreen: React.FC = () => {
       
       <LeaveBalanceCard />
 
-      <View style={[styles.tabContainer, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
+      <View style={[styles.tabContainer, { backgroundColor: colors.surfaceSecondary || '#f1f5f9', borderRadius: borderRadius.lg }]}>
         <TouchableOpacity 
-          style={[styles.tab, activeTab === 'Apply' && { backgroundColor: colors.primary[50], borderRadius: borderRadius.md }]} 
+          style={[styles.tab, activeTab === 'Apply' && { backgroundColor: colors.primary[600] || '#2563eb', borderRadius: borderRadius.md }]} 
           onPress={() => setActiveTab('Apply')}
+          activeOpacity={0.8}
         >
-          <AppText weight={activeTab === 'Apply' ? 'bold' : 'medium'} color={activeTab === 'Apply' ? 'primary' : 'secondary'}>
-            {editingLeave ? 'Edit Leave' : 'Apply Leave'}
+          <AppText size="base" weight="bold" style={{ color: activeTab === 'Apply' ? '#FFFFFF' : colors.textSecondary }}>
+            {editingLeave ? 'EDIT LEAVE' : 'APPLY LEAVE'}
           </AppText>
         </TouchableOpacity>
         <TouchableOpacity 
-          style={[styles.tab, activeTab === 'History' && { backgroundColor: colors.primary[50], borderRadius: borderRadius.md }]} 
+          style={[styles.tab, activeTab === 'History' && { backgroundColor: colors.primary[600] || '#2563eb', borderRadius: borderRadius.md }]} 
           onPress={() => {
             setEditingLeave(null);
             setActiveTab('History');
           }}
+          activeOpacity={0.8}
         >
-          <AppText weight={activeTab === 'History' ? 'bold' : 'medium'} color={activeTab === 'History' ? 'primary' : 'secondary'}>
-            My Leave History
+          <AppText size="base" weight="bold" style={{ color: activeTab === 'History' ? '#FFFFFF' : colors.textSecondary }}>
+            MY HISTORY
           </AppText>
         </TouchableOpacity>
       </View>
@@ -68,12 +70,16 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 4,
+    marginTop: 12,
+    marginBottom: 8,
+    padding: 6,
+    borderWidth: 1.5,
+    borderColor: '#cbd5e1',
   },
   tab: {
     flex: 1,
-    paddingVertical: 14,
+    height: 52,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   content: {

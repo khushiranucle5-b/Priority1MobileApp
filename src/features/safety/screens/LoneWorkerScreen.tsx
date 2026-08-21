@@ -6,6 +6,7 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
+import { StatusBadge } from '../../../components/StatusBadge';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LoneWorkerHistoryItem } from '../../../store/useGuardStore';
 import { useNavigation } from '@react-navigation/native';
@@ -162,12 +163,12 @@ export const LoneWorkerScreen: React.FC = () => {
             </AppText>
           </View>
 
-          {/* Action Buttons (54px Glove-Friendly) */}
+          {/* Action Buttons (60px Glove-Friendly) */}
           <View style={styles.actionsBox}>
             {verifyingGps ? (
               <View style={styles.loadingButton}>
                 <ActivityIndicator size="small" color="#FFFFFF" />
-                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF', marginLeft: 8 }}>
+                <AppText size="base" weight="bold" style={{ color: '#FFFFFF', marginLeft: 8 }}>
                   Verifying Device GPS...
                 </AppText>
               </View>
@@ -178,8 +179,8 @@ export const LoneWorkerScreen: React.FC = () => {
                     !isClockedIn
                       ? "Clock In Required"
                       : isCheckInDisabled
-                      ? "✓ SAFE CHECKED"
-                      : "SAFE CHECKED"
+                        ? "SAFE CHECKED"
+                        : "SAFETY CHECKED"
                   }
                   variant={isCheckInDisabled ? "secondary" : "primary"}
                   size="large"
@@ -188,13 +189,13 @@ export const LoneWorkerScreen: React.FC = () => {
                   onPress={handleSafeCheckIn}
                   style={{
                     backgroundColor: isCheckInDisabled ? undefined : '#059669',
-                    height: 54,
+                    height: 60,
                   }}
                 />
 
                 {isClockedIn && isCheckInDisabled && (
                   <AppText size="xs" color="secondary" style={{ textAlign: 'center', marginTop: 6 }}>
-                    ✓ Safety verified at {loneWorker.lastCheckIn}. Next check-in re-enables in {remainingMins} mins (at {loneWorker.nextCheckRequired}).
+                    Safety verified at {loneWorker.lastCheckIn}. Next check-in re-enables in {remainingMins} mins (at {loneWorker.nextCheckRequired}).
                   </AppText>
                 )}
               </View>
@@ -202,11 +203,11 @@ export const LoneWorkerScreen: React.FC = () => {
 
             <Button
               title="REPORT ISSUE / SOS"
-              variant="danger"
+              variant="emergency"
               size="large"
               fullWidth
               onPress={handleReportSOS}
-              style={{ backgroundColor: '#DC2626', height: 54 }}
+              style={{ height: 60 }}
             />
           </View>
         </Card>
@@ -229,13 +230,7 @@ export const LoneWorkerScreen: React.FC = () => {
           </Card>
         ) : (
           todayHistory.map((item) => {
-            const isGpsValid = item.gpsStatus === 'GPS Verified';
             const isSafe = item.status === 'Safe' || item.status === 'SAFE';
-            const isIssue = item.status === 'SOS / Issue Reported' || item.status?.includes('Issue');
-            
-            const gpsText = isGpsValid ? 'GPS Verified' : 'Location Not Verified';
-            const timingText = item.onTimeStatus || 'On Time';
-            const statusText = isSafe ? 'Safe' : item.status;
 
             return (
               <Card key={item.id} style={styles.todayCard}>
@@ -247,11 +242,10 @@ export const LoneWorkerScreen: React.FC = () => {
                     <AppText size="xs" color="secondary" weight="semibold" style={{ marginTop: 2 }}>
                       {item.siteName || 'Ahmedabad Plant'}
                     </AppText>
-                    
-                    {/* Compact Badges Summary */}
-                    <AppText size="xs" weight="bold" style={{ color: isIssue ? '#DC2626' : '#059669', marginTop: 6 }}>
-                      {gpsText} • {timingText} • {statusText}
-                    </AppText>
+
+                    <View style={{ marginTop: 6 }}>
+                      <StatusBadge status={isSafe ? 'Safe' : (item.status || 'Verified')} size="sm" />
+                    </View>
                   </View>
 
                   <TouchableOpacity
@@ -271,7 +265,7 @@ export const LoneWorkerScreen: React.FC = () => {
 
         {/* View Full History Button */}
         <Button
-          title="View Full History"
+          title="📋 View Full History"
           variant="secondary"
           size="large"
           fullWidth
@@ -321,17 +315,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#ECFDF5',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#A7F3D0',
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     marginBottom: 16,
   },
   actionsBox: {
     gap: 12,
   },
   loadingButton: {
-    height: 54,
+    height: 60,
     backgroundColor: '#059669',
     borderRadius: 8,
     flexDirection: 'row',
@@ -354,11 +348,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   eyeIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#EEF2FF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
@@ -370,9 +364,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   fullHistoryBtn: {
-    height: 54,
+    height: 56,
     marginTop: 12,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#CBD5E1',
   },
 });

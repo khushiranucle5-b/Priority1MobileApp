@@ -414,7 +414,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               <TouchableOpacity
                 style={[
                   styles.inputTrigger,
-                  { borderColor: errors.fromDate ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                  { borderColor: errors.fromDate ? colors.error : colors.borderStrong || '#cbd5e1', borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
                 ]}
                 onPress={() => {
                   setPickingTarget('from');
@@ -426,10 +426,10 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                 }}
                 activeOpacity={0.7}
               >
-                <AppText size="sm" style={{ color: fromDate ? colors.text : colors.textSecondary }}>
-                  {fromDate ? formatDateString(fromDate) : 'mm/dd/yyyy'}
+                <AppText size="base" weight="semibold" style={{ color: fromDate ? colors.text : colors.textSecondary }}>
+                  {fromDate ? formatDateString(fromDate) : 'Select start date'}
                 </AppText>
-                <AppText size="base">📅</AppText>
+                <AppText size="lg">📅</AppText>
               </TouchableOpacity>
               {errors.fromDate && <AppText size="xs" color="error" style={styles.errorText}>{errors.fromDate}</AppText>}
             </View>
@@ -442,7 +442,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               <TouchableOpacity
                 style={[
                   styles.inputTrigger,
-                  { borderColor: errors.toDate ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                  { borderColor: errors.toDate ? colors.error : colors.borderStrong || '#cbd5e1', borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
                 ]}
                 onPress={() => {
                   setPickingTarget('to');
@@ -457,10 +457,10 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                 }}
                 activeOpacity={0.7}
               >
-                <AppText size="sm" style={{ color: toDate ? colors.text : colors.textSecondary }}>
-                  {toDate ? formatDateString(toDate) : 'mm/dd/yyyy'}
+                <AppText size="base" weight="semibold" style={{ color: toDate ? colors.text : colors.textSecondary }}>
+                  {toDate ? formatDateString(toDate) : 'Select end date'}
                 </AppText>
-                <AppText size="base">📅</AppText>
+                <AppText size="lg">📅</AppText>
               </TouchableOpacity>
               {errors.toDate && <AppText size="xs" color="error" style={styles.errorText}>{errors.toDate}</AppText>}
             </View>
@@ -474,12 +474,12 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
           >
             <View style={[
               styles.checkboxBox,
-              { borderColor: isHalfDay ? (colors.primary[600] || '#8b5cf6') : colors.border },
+              { borderColor: isHalfDay ? (colors.primary[600] || '#8b5cf6') : colors.borderStrong || '#cbd5e1' },
               isHalfDay && { backgroundColor: colors.primary[600] || '#8b5cf6' }
             ]}>
-              {isHalfDay && <AppText size="xs" weight="bold" style={{ color: '#FFFFFF' }}>✓</AppText>}
+              {isHalfDay && <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>✓</AppText>}
             </View>
-            <AppText size="sm" weight="medium" color="primary" style={styles.checkboxLabel}>
+            <AppText size="base" weight="semibold" color="primary" style={styles.checkboxLabel}>
               Apply for half day only
             </AppText>
           </TouchableOpacity>
@@ -487,7 +487,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
           {/* Duration Badge if dates selected */}
           {durationDays > 0 && (
             <View style={[styles.durationContainer, { backgroundColor: colors.primary[50] || '#f3e8ff', borderRadius: borderRadius.md }]}>
-              <AppText size="xs" weight="bold" color="primary">
+              <AppText size="sm" weight="bold" color="primary">
                 Calculated Duration: {durationDays} Day(s) {isHalfDay ? '(Half-Day)' : ''}
               </AppText>
             </View>
@@ -501,21 +501,21 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                 <AppText size="sm" weight="bold" color="primary">
                   Leave Type <AppText size="sm" style={{ color: colors.error }}>*</AppText>
                 </AppText>
-                <AppText size="xs" weight="semibold" color="secondary">
-                  Available Paid Balance: {currentAvailableBal} {typeof currentAvailableBal === 'number' ? 'days' : ''}
+                <AppText size="xs" weight="bold" color="secondary">
+                  Available: {currentAvailableBal} {typeof currentAvailableBal === 'number' ? 'days' : ''}
                 </AppText>
               </View>
 
               <TouchableOpacity
                 style={[
                   styles.inputTrigger,
-                  { borderColor: errors.leaveType ? colors.error : colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                  { borderColor: errors.leaveType ? colors.error : colors.borderStrong || '#cbd5e1', borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
                 ]}
                 onPress={() => setIsTypeModalVisible(true)}
                 activeOpacity={0.7}
               >
-                <AppText size="sm" weight="medium" style={{ color: leaveType ? colors.text : colors.textSecondary }}>
-                  {leaveType || 'Select Leave Type'}
+                <AppText size="base" weight="semibold" style={{ color: leaveType ? colors.text : colors.textSecondary }}>
+                  📅 {leaveType || 'Select Leave Type'}
                 </AppText>
                 <AppText size="xs" color="secondary">▼</AppText>
               </TouchableOpacity>
@@ -525,18 +525,18 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
             {/* Attachments */}
             <View style={[styles.fieldCol, isDesktop && { marginLeft: 8 }]}>
               <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
-                📎 Attachments
+                📎 Attachment
               </AppText>
               <TouchableOpacity
                 style={[
                   styles.attachmentTrigger,
-                  { borderColor: colors.border, borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
+                  { borderColor: colors.borderStrong || '#cbd5e1', borderRadius: borderRadius.md, backgroundColor: colors.background || '#f8fafc' }
                 ]}
                 onPress={handlePickDocument}
                 activeOpacity={0.7}
               >
-                <View style={[styles.chooseFileBtn, { backgroundColor: colors.border || '#e2e8f0' }]}>
-                  <AppText size="xs" weight="bold" color="primary">Choose File</AppText>
+                <View style={[styles.chooseFileBtn, { backgroundColor: colors.primary[600] || '#2563eb' }]}>
+                  <AppText size="xs" weight="bold" style={{ color: '#FFFFFF' }}>+ Add Attachment</AppText>
                 </View>
                 <AppText size="xs" color="secondary" numberOfLines={1} style={styles.fileNameText}>
                   {attachment ? attachment.name : 'No file chosen'}
@@ -563,30 +563,30 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
 
           <View style={[styles.bottomDivider, { backgroundColor: colors.border }]} />
 
-          {/* Action Buttons (Bottom-Right Aligned) */}
+          {/* Action Buttons */}
           <View style={styles.actionRow}>
             <TouchableOpacity
-              style={[styles.cancelBtn, { borderColor: colors.border, borderRadius: borderRadius.md }]}
+              style={[styles.cancelBtn, { borderColor: colors.borderStrong || '#cbd5e1', borderRadius: borderRadius.md }]}
               onPress={() => {
                 handleResetForm();
                 if (editingLeave && onFinishedEdit) onFinishedEdit();
               }}
               activeOpacity={0.7}
             >
-              <AppText size="sm" weight="bold" color="secondary">Cancel</AppText>
+              <AppText size="base" weight="bold" color="secondary">Cancel</AppText>
             </TouchableOpacity>
 
             <Button
               title={
                 isSubmitting
                   ? (editingLeave ? "Updating..." : "Submitting...")
-                  : (editingLeave ? "Update Leave Application" : "Submit Leave Application")
+                  : (editingLeave ? "✓ UPDATE LEAVE" : "✓ SUBMIT LEAVE")
               }
               disabled={isSubmitting}
               variant="primary"
-              size="medium"
+              size="large"
               onPress={handleSubmit}
-              style={[styles.submitBtn, { backgroundColor: colors.primary[600] || '#8b5cf6' }, isSubmitting && { opacity: 0.6 }]}
+              style={[styles.submitBtn, isSubmitting && { opacity: 0.6 }]}
             />
           </View>
         </View>
@@ -601,9 +601,9 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
         >
           <View style={[styles.dropdownCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
             <View style={styles.dropdownHeader}>
-              <AppText size="sm" weight="bold" color="primary">Select Leave Type</AppText>
+              <AppText size="base" weight="bold" color="primary">Select Leave Type</AppText>
               <TouchableOpacity onPress={() => setIsTypeModalVisible(false)}>
-                <AppText size="xs" weight="bold" color="secondary">✕</AppText>
+                <AppText size="sm" weight="bold" color="secondary">✕</AppText>
               </TouchableOpacity>
             </View>
 
@@ -626,10 +626,10 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                   }}
                 >
                   <View style={styles.optionLabelRow}>
-                    <AppText size="sm" weight={isSelected ? 'bold' : 'medium'} color={opt.exhausted ? 'disabled' : 'primary'}>
+                    <AppText size="base" weight={isSelected ? 'bold' : 'medium'} color={opt.exhausted ? 'disabled' : 'primary'}>
                       {opt.type} ({opt.balance}) {opt.exhausted ? '— Exhausted' : ''}
                     </AppText>
-                    {isSelected && <AppText size="sm" weight="bold" style={{ color: colors.primary[600] || '#8b5cf6' }}>✓</AppText>}
+                    {isSelected && <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#8b5cf6' }}>✓</AppText>}
                   </View>
                 </TouchableOpacity>
               );
@@ -671,7 +671,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               style={[styles.cancelDateBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md }]}
               onPress={() => setIsDatePickerVisible(false)}
             >
-              <AppText size="sm" weight="bold">Cancel</AppText>
+              <AppText size="base" weight="bold">Cancel</AppText>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -679,8 +679,8 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
 
       {showSuccess && (
         <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
-          <AppText color="surface" weight="semibold" size="sm">
-            Leave Request Submitted Successfully!
+          <AppText color="surface" weight="semibold" size="base">
+            ✓ Leave Request Submitted Successfully!
           </AppText>
         </View>
       )}
@@ -696,8 +696,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   mainCard: {
-    borderWidth: 1,
-    paddingVertical: 16,
+    borderWidth: 1.5,
+    paddingVertical: 18,
     overflow: 'hidden',
   },
   cardHeader: {
@@ -708,15 +708,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   divider: {
-    height: 1,
+    height: 1.5,
     marginBottom: 16,
   },
   formBody: {
     paddingHorizontal: 20,
   },
   errorBanner: {
-    padding: 12,
-    borderWidth: 1,
+    padding: 14,
+    borderWidth: 1.5,
     borderRadius: 8,
     marginBottom: 16,
   },
@@ -734,33 +734,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fieldLabel: {
-    marginBottom: 6,
+    marginBottom: 8,
   },
   labelWithBalanceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   inputTrigger: {
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    height: 48,
+    borderWidth: 2,
+    paddingHorizontal: 16,
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   attachmentTrigger: {
-    borderWidth: 1,
-    paddingHorizontal: 6,
-    height: 48,
+    borderWidth: 2,
+    paddingHorizontal: 8,
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
   },
   chooseFileBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
     marginRight: 10,
   },
   fileNameText: {
@@ -769,36 +769,38 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
+    minHeight: 48,
   },
   checkboxBox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 1.5,
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,
+    marginRight: 10,
   },
   checkboxLabel: {
     letterSpacing: 0.2,
   },
   durationContainer: {
-    padding: 10,
+    padding: 12,
     alignItems: 'center',
     marginBottom: 16,
   },
   textArea: {
-    height: 110,
+    height: 120,
     textAlignVertical: 'top',
-    fontSize: 14,
-    paddingTop: 10,
+    fontSize: 16,
+    paddingTop: 12,
   },
   errorText: {
-    marginTop: 4,
+    marginTop: 6,
+    fontWeight: '600',
   },
   bottomDivider: {
-    height: 1,
+    height: 1.5,
     marginTop: 20,
     marginBottom: 16,
   },
@@ -806,20 +808,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
   cancelBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderWidth: 1,
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    borderWidth: 1.5,
+    minHeight: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   submitBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    minHeight: 60,
+    flex: 1,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -827,26 +834,28 @@ const styles = StyleSheet.create({
   dropdownCard: {
     width: '100%',
     maxWidth: 420,
-    borderWidth: 1,
-    padding: 16,
-    elevation: 5,
+    borderWidth: 1.5,
+    padding: 18,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
   },
   dropdownHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 12,
+    paddingBottom: 14,
     marginBottom: 8,
-    borderBottomWidth: 1,
+    borderBottomWidth: 1.5,
     borderBottomColor: '#E0E0E0',
   },
   dropdownOption: {
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 14,
     borderBottomWidth: 1,
+    minHeight: 52,
+    justifyContent: 'center',
   },
   optionLabelRow: {
     flexDirection: 'row',
@@ -854,13 +863,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   calendarSheet: {
-    padding: 16,
+    padding: 18,
     width: '100%',
     maxWidth: 380,
-    elevation: 5,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
   },
   calendarHeader: {
     flexDirection: 'row',
@@ -869,7 +878,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   navArrow: {
-    padding: 8,
+    padding: 10,
+    minWidth: 48,
+    minHeight: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   daysOfWeekRow: {
     flexDirection: 'row',
@@ -884,21 +897,23 @@ const styles = StyleSheet.create({
   },
   calendarCell: {
     width: '14.28%',
-    height: 40,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cancelDateBtn: {
-    paddingVertical: 10,
+    paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
+    minHeight: 52,
+    justifyContent: 'center',
   },
   snackbar: {
     position: 'absolute',
     bottom: 20,
     left: 20,
     right: 20,
-    padding: 14,
+    padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     zIndex: 1000,

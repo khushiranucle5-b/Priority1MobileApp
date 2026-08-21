@@ -31,6 +31,13 @@ export interface DBEmployee {
   siteId?: string;
   supervisor?: string;
   supervisorId?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  bloodGroup?: string;
+  address?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  emergencyContactRelation?: string;
 }
 
 export interface DBShift {
@@ -250,7 +257,10 @@ export interface DBPatrol {
   date: string;
   startTime: string;
   endTime?: string;
-  status: 'completed' | 'in_progress' | 'assigned' | 'pending' | 'missed' | 'overdue' | string;
+  scheduledStartTime?: string;
+  scheduledEndTime?: string;
+  startBufferMinutes?: number;
+  status: 'completed' | 'in_progress' | 'assigned' | 'pending' | 'missed' | 'overdue' | 'Scheduled' | 'Completed' | 'In Progress' | string;
   checkpoints: number;
   scanned: number;
   missed: number;
@@ -359,6 +369,13 @@ export const initializeDB = async (forceReset = false) => {
           siteId: 's-01',
           supervisor: 'Jane Smith',
           supervisorId: 'emp-102',
+          dateOfBirth: 'Oct 12, 1990',
+          gender: 'Male',
+          bloodGroup: 'O+',
+          address: '123 Main St, Springfield, IL',
+          emergencyContactName: 'Sarah Smith',
+          emergencyContactPhone: '+1 555 0199',
+          emergencyContactRelation: 'Spouse',
         },
         {
           id: 'emp-102',
@@ -420,24 +437,54 @@ export const initializeDB = async (forceReset = false) => {
       ];
       await AsyncStorage.setItem(`${DB_PREFIX}shifts`, JSON.stringify(shiftsList));
 
-      // Seed today's patrol for G-1001
+      // Seed today's 2 patrols for G-1001 / guard-1
       const patrolsList: DBPatrol[] = [
         {
-          id: 'patrol-today',
+          id: 'patrol-aug21-morning',
+          patrolCode: 'PT-2026-0821-01',
+          title: 'Morning Perimeter Patrol',
           companyId: 'c-1',
           site: 'Ahmedabad Plant',
           siteId: 's-01',
-          guard: 'John Smith',
-          guardId: 'G-1001',
-          date: todayStr,
+          route: 'Morning Perimeter Route',
+          guard: 'Khushi Rani',
+          guardId: 'guard-1',
+          date: '2026-08-21',
           startTime: '08:00 AM',
-          endTime: '04:00 PM',
-          status: 'pending',
+          endTime: '08:45 AM',
+          scheduledStartTime: '08:00 AM',
+          scheduledEndTime: '09:00 AM',
+          startBufferMinutes: 15,
+          status: 'Completed',
+          checkpoints: 5,
+          scanned: 5,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Emergency Exit B',
+        },
+        {
+          id: 'patrol-aug21-evening',
+          patrolCode: 'PT-2026-0821-02',
+          title: 'Evening Perimeter Patrol',
+          companyId: 'c-1',
+          site: 'Ahmedabad Plant',
+          siteId: 's-01',
+          route: 'Evening Perimeter Route',
+          guard: 'Khushi Rani',
+          guardId: 'guard-1',
+          date: '2026-08-21',
+          startTime: '08:00 PM',
+          endTime: undefined,
+          scheduledStartTime: '08:00 PM',
+          scheduledEndTime: '09:00 PM',
+          startBufferMinutes: 15,
+          status: 'Scheduled',
           checkpoints: 5,
           scanned: 0,
           missed: 0,
           incidents: 0,
-        }
+          lastCheckpoint: 'Pending Start',
+        },
       ];
       await AsyncStorage.setItem(`${DB_PREFIX}patrols`, JSON.stringify(patrolsList));
 

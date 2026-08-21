@@ -4,6 +4,7 @@ import { AppText } from './typography/Text';
 
 export type NavIconName =
   | 'dashboard'
+  | 'menu'
   | 'sites'
   | 'employees'
   | 'shifts'
@@ -19,7 +20,13 @@ export type NavIconName =
   | 'messages'
   | 'search'
   | 'eye'
-  | 'edit';
+  | 'edit'
+  | 'profile'
+  | 'settings'
+  | 'camera'
+  | 'delete'
+  | 'download'
+  | 'logout';
 
 interface NavIconProps {
   name: NavIconName;
@@ -30,137 +37,164 @@ interface NavIconProps {
 
 export const NavIcon: React.FC<NavIconProps> = ({
   name,
-  color = '#94A3B8',
-  size = 18,
+  color,
+  size = 28,
   active = false,
 }) => {
-  const iconColor = active ? '#FFFFFF' : color;
-  const strokeWidth = 1.5;
+  const iconColor = color || (active ? '#0F172A' : '#94A3B8');
+  const strokeWidth = Math.max(2, Math.round(size * 0.085));
 
   switch (name) {
     case 'dashboard':
-      // 2x2 Outline Grid Icon
+      const cellSize = Math.round(size * 0.38);
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={styles.grid2x2}>
-            <View style={[styles.gridCell, { borderColor: iconColor, borderWidth: strokeWidth }]} />
-            <View style={[styles.gridCell, { borderColor: iconColor, borderWidth: strokeWidth }]} />
-            <View style={[styles.gridCell, { borderColor: iconColor, borderWidth: strokeWidth }]} />
-            <View style={[styles.gridCell, { borderColor: iconColor, borderWidth: strokeWidth }]} />
+          <View style={{ flexDirection: 'row', gap: 3 }}>
+            <View style={{ width: cellSize, height: cellSize, borderRadius: 3, borderWidth: strokeWidth, borderColor: iconColor }} />
+            <View style={{ width: cellSize, height: cellSize, borderRadius: 3, borderWidth: strokeWidth, borderColor: iconColor }} />
           </View>
+          <View style={{ flexDirection: 'row', gap: 3, marginTop: 3 }}>
+            <View style={{ width: cellSize, height: cellSize, borderRadius: 3, borderWidth: strokeWidth, borderColor: iconColor }} />
+            <View style={{ width: cellSize, height: cellSize, borderRadius: 3, borderWidth: strokeWidth, borderColor: iconColor }} />
+          </View>
+        </View>
+      );
+
+    case 'menu':
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: size * 0.75, height: strokeWidth, backgroundColor: iconColor, borderRadius: 2 }} />
+          <View style={{ width: size * 0.75, height: strokeWidth, backgroundColor: iconColor, borderRadius: 2, marginVertical: 4 }} />
+          <View style={{ width: size * 0.75, height: strokeWidth, backgroundColor: iconColor, borderRadius: 2 }} />
         </View>
       );
 
     case 'sites':
-      // Outline Pin/Location Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.pinHead, { borderColor: iconColor, borderWidth: strokeWidth, borderRadius: size / 2 }]}>
-            <View style={[styles.pinDot, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.6, height: size * 0.75, borderWidth: strokeWidth, borderColor: iconColor, borderRadius: 3, justifyContent: 'space-around', paddingVertical: 4, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: 3 }}>
+              <View style={{ width: 4, height: 4, backgroundColor: iconColor }} />
+              <View style={{ width: 4, height: 4, backgroundColor: iconColor }} />
+            </View>
+            <View style={{ flexDirection: 'row', gap: 3 }}>
+              <View style={{ width: 4, height: 4, backgroundColor: iconColor }} />
+              <View style={{ width: 4, height: 4, backgroundColor: iconColor }} />
+            </View>
           </View>
-          <View style={[styles.pinPoint, { backgroundColor: iconColor }]} />
         </View>
       );
 
     case 'employees':
-      // Outline Users Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.userHead, { borderColor: iconColor, borderWidth: strokeWidth }]} />
-          <View style={[styles.userBody, { borderColor: iconColor, borderWidth: strokeWidth }]} />
+          <View style={{ width: size * 0.35, height: size * 0.35, borderRadius: (size * 0.35) / 2, borderWidth: strokeWidth, borderColor: iconColor, marginBottom: 2 }} />
+          <View style={{ width: size * 0.7, height: size * 0.3, borderTopLeftRadius: size * 0.2, borderTopRightRadius: size * 0.2, borderWidth: strokeWidth, borderColor: iconColor }} />
         </View>
       );
 
     case 'shifts':
-    case 'attendance':
-      // Outline Clock / Shift Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.clockCircle, { borderColor: iconColor, borderWidth: strokeWidth, borderRadius: size / 2 }]}>
-            <View style={[styles.clockHandH, { backgroundColor: iconColor }]} />
-            <View style={[styles.clockHandV, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.75, height: size * 0.75, borderRadius: size * 0.375, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: strokeWidth, height: size * 0.25, backgroundColor: iconColor, position: 'absolute', top: size * 0.12 }} />
+            <View style={{ width: size * 0.2, height: strokeWidth, backgroundColor: iconColor, position: 'absolute', right: size * 0.15 }} />
+          </View>
+        </View>
+      );
+
+    case 'attendance':
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: size * 0.7, height: size * 0.75, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, padding: 3, justifyContent: 'space-between' }}>
+            <View style={{ width: '60%', height: strokeWidth, backgroundColor: iconColor }} />
+            <View style={{ width: '80%', height: strokeWidth, backgroundColor: iconColor }} />
+            <View style={{ width: '40%', height: strokeWidth, backgroundColor: iconColor }} />
           </View>
         </View>
       );
 
     case 'leaves':
-    case 'holidays':
-      // Outline Calendar Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.calHeader, { backgroundColor: iconColor }]} />
-          <View style={[styles.calBody, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <View style={[styles.calGridLine, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.7, height: size * 0.7, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, alignItems: 'center' }}>
+            <View style={{ width: '100%', height: size * 0.2, borderBottomWidth: strokeWidth, borderColor: iconColor, backgroundColor: active ? iconColor : 'transparent' }} />
           </View>
         </View>
       );
 
     case 'patrol':
-      // Outline Radar Target Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.targetOuter, { borderColor: iconColor, borderWidth: strokeWidth, borderRadius: size / 2 }]}>
-            <View style={[styles.targetInner, { borderColor: iconColor, borderWidth: strokeWidth, borderRadius: size / 4 }]} />
+          <View style={{ width: size * 0.7, height: size * 0.75, borderWidth: strokeWidth, borderColor: iconColor, borderTopLeftRadius: size * 0.35, borderTopRightRadius: size * 0.35, borderBottomLeftRadius: 4, borderBottomRightRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.25, height: size * 0.25, borderRadius: size * 0.125, borderWidth: strokeWidth, borderColor: iconColor }} />
           </View>
         </View>
       );
 
     case 'incidents':
-      // Outline Shield-Alert / Warning Icon
       return (
-        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
-          <View style={[styles.triangleOutline, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <AppText size="xs" weight="bold" style={{ color: iconColor, fontSize: 10, lineHeight: 12 }}>!</AppText>
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: 0, height: 0, borderLeftWidth: size * 0.4, borderRightWidth: size * 0.4, borderBottomWidth: size * 0.7, borderLeftColor: 'transparent', borderRightColor: 'transparent', borderBottomColor: iconColor, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 2 }}>
+            <View style={{ width: 2, height: 6, backgroundColor: '#FFFFFF', marginBottom: 2 }} />
+            <View style={{ width: 2, height: 2, borderRadius: 1, backgroundColor: '#FFFFFF' }} />
           </View>
         </View>
       );
 
     case 'loneworker':
-      // Outline Shield Check Icon
       return (
-        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
-          <View style={[styles.shieldBox, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <AppText size="xs" weight="bold" style={{ color: iconColor, fontSize: 9, lineHeight: 11 }}>✓</AppText>
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: size * 0.75, height: size * 0.75, borderRadius: size * 0.375, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.4, height: size * 0.4, borderRadius: size * 0.2, borderWidth: strokeWidth, borderColor: iconColor }} />
           </View>
         </View>
       );
 
     case 'assets':
-      // Outline Box / Package Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.boxOutline, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <View style={[styles.boxTopLine, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.7, height: size * 0.55, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, marginTop: 4 }}>
+            <View style={{ width: size * 0.3, height: size * 0.2, borderTopLeftRadius: 2, borderTopRightRadius: 2, borderWidth: strokeWidth, borderColor: iconColor, position: 'absolute', top: -size * 0.2, left: size * 0.18 }} />
           </View>
         </View>
       );
 
     case 'payslips':
-      // Outline Document / Card Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.docOutline, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <View style={[styles.docLine, { backgroundColor: iconColor }]} />
-            <View style={[styles.docLineShort, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.75, height: size * 0.5, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.3, height: size * 0.2, borderRadius: size * 0.1, borderWidth: strokeWidth, borderColor: iconColor }} />
+          </View>
+        </View>
+      );
+
+    case 'holidays':
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: size * 0.75, height: size * 0.75, borderRadius: size * 0.375, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.3, height: size * 0.3, borderRadius: size * 0.15, backgroundColor: iconColor }} />
           </View>
         </View>
       );
 
     case 'policies':
-      // Outline Book Icon
       return (
-        <View style={[styles.container, { width: size, height: size, flexDirection: 'row' }]}>
-          <View style={[styles.bookSpine, { backgroundColor: iconColor }]} />
-          <View style={[styles.bookCover, { borderColor: iconColor, borderWidth: strokeWidth }]} />
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: size * 0.65, height: size * 0.75, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, padding: 4 }}>
+            <View style={{ width: '80%', height: strokeWidth, backgroundColor: iconColor, marginBottom: 4 }} />
+            <View style={{ width: '100%', height: strokeWidth, backgroundColor: iconColor, marginBottom: 4 }} />
+            <View style={{ width: '60%', height: strokeWidth, backgroundColor: iconColor }} />
+          </View>
         </View>
       );
 
     case 'search':
-      // Outline Search Glass Icon
+      const glassR = Math.round(size * 0.5);
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.searchGlassCircle, { borderColor: iconColor, borderWidth: strokeWidth, borderRadius: (size * 0.75) / 2 }]} />
-          <View style={[styles.searchGlassHandle, { backgroundColor: iconColor }]} />
+          <View style={{ width: glassR, height: glassR, borderColor: iconColor, borderWidth: strokeWidth, borderRadius: glassR / 2, position: 'absolute', top: 2, left: 2 }} />
+          <View style={{ width: strokeWidth * 1.2, height: size * 0.35, backgroundColor: iconColor, position: 'absolute', bottom: 2, right: 3, transform: [{ rotate: '-45deg' }] }} />
         </View>
       );
 
@@ -168,8 +202,8 @@ export const NavIcon: React.FC<NavIconProps> = ({
       // Outline Eye Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.eyeShape, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <View style={[styles.eyePupil, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.85, height: size * 0.55, borderRadius: size * 0.3, borderColor: iconColor, borderWidth: strokeWidth, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.25, height: size * 0.25, borderRadius: size * 0.125, backgroundColor: iconColor }} />
           </View>
         </View>
       );
@@ -178,18 +212,71 @@ export const NavIcon: React.FC<NavIconProps> = ({
       // Outline Pencil Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.pencilBody, { borderColor: iconColor, borderWidth: strokeWidth }]} />
-          <View style={[styles.pencilTip, { borderBottomColor: iconColor, borderBottomWidth: strokeWidth }]} />
+          <View style={{ width: size * 0.35, height: size * 0.7, borderColor: iconColor, borderWidth: strokeWidth, transform: [{ rotate: '45deg' }] }} />
+        </View>
+      );
+
+    case 'profile':
+      return (
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={{ width: size * 0.42, height: size * 0.42, borderRadius: (size * 0.42) / 2, borderColor: iconColor, borderWidth: strokeWidth, marginBottom: 2 }} />
+          <View style={{ width: size * 0.75, height: size * 0.32, borderTopLeftRadius: size * 0.2, borderTopRightRadius: size * 0.2, borderColor: iconColor, borderWidth: strokeWidth }} />
+        </View>
+      );
+
+    case 'settings':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.8, height: size * 0.8, borderRadius: size * 0.4, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.3, height: size * 0.3, borderRadius: size * 0.15, backgroundColor: iconColor }} />
+          </View>
+        </View>
+      );
+
+    case 'camera':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.8, height: size * 0.6, borderWidth: strokeWidth, borderColor: iconColor, borderRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: size * 0.3, height: size * 0.3, borderRadius: size * 0.15, borderWidth: strokeWidth, borderColor: iconColor }} />
+          </View>
+        </View>
+      );
+
+    case 'delete':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.6, height: Math.max(2, strokeWidth - 0.5), backgroundColor: iconColor, marginBottom: 2 }} />
+          <View style={{ width: size * 0.5, height: size * 0.55, borderWidth: strokeWidth, borderColor: iconColor, borderTopWidth: 0, borderRadius: 2, justifyContent: 'space-around', alignItems: 'center', flexDirection: 'row', paddingHorizontal: 2 }}>
+            <View style={{ width: strokeWidth, height: '60%', backgroundColor: iconColor }} />
+            <View style={{ width: strokeWidth, height: '60%', backgroundColor: iconColor }} />
+          </View>
+        </View>
+      );
+
+    case 'download':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: strokeWidth, height: size * 0.5, backgroundColor: iconColor }} />
+          <View style={{ width: size * 0.35, height: size * 0.35, borderBottomWidth: strokeWidth, borderRightWidth: strokeWidth, borderColor: iconColor, transform: [{ rotate: '45deg' }], marginTop: -size * 0.25 }} />
+          <View style={{ width: size * 0.65, height: strokeWidth, backgroundColor: iconColor, marginTop: 4 }} />
+        </View>
+      );
+
+    case 'logout':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.75, height: size * 0.8, borderWidth: strokeWidth, borderColor: iconColor, borderRightWidth: 0, borderRadius: 3 }}>
+            <View style={{ position: 'absolute', right: -6, top: size * 0.3, width: size * 0.45, height: strokeWidth, backgroundColor: iconColor }} />
+          </View>
         </View>
       );
 
     case 'messages':
     default:
-      // Outline Message Envelope / Chat Bubble Icon
       return (
         <View style={[styles.container, { width: size, height: size }]}>
-          <View style={[styles.chatBubble, { borderColor: iconColor, borderWidth: strokeWidth }]}>
-            <View style={[styles.chatDot, { backgroundColor: iconColor }]} />
+          <View style={{ width: size * 0.8, height: size * 0.65, borderRadius: 5, borderColor: iconColor, borderWidth: strokeWidth, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: '40%', height: strokeWidth, backgroundColor: iconColor }} />
           </View>
         </View>
       );
@@ -200,213 +287,5 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  // Grid
-  grid2x2: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  gridCell: {
-    width: 7,
-    height: 7,
-    borderRadius: 1.5,
-  },
-  // Pin
-  pinHead: {
-    width: 14,
-    height: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pinDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-  },
-  pinPoint: {
-    width: 2,
-    height: 4,
-    marginTop: -1,
-  },
-  // User
-  userHead: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 1,
-  },
-  userBody: {
-    width: 14,
-    height: 6,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-  },
-  // Clock
-  clockCircle: {
-    width: 16,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  clockHandH: {
-    position: 'absolute',
-    width: 5,
-    height: 1.5,
-    right: 2,
-    top: 7,
-  },
-  clockHandV: {
-    position: 'absolute',
-    width: 1.5,
-    height: 6,
-    top: 2,
-  },
-  // Calendar
-  calHeader: {
-    width: 14,
-    height: 3,
-    borderTopLeftRadius: 2,
-    borderTopRightRadius: 2,
-  },
-  calBody: {
-    width: 14,
-    height: 12,
-    borderBottomLeftRadius: 2,
-    borderBottomRightRadius: 2,
-    paddingTop: 2,
-  },
-  calGridLine: {
-    width: '100%',
-    height: 1,
-  },
-  // Target
-  targetOuter: {
-    width: 16,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  targetInner: {
-    width: 8,
-    height: 8,
-  },
-  // Triangle
-  triangleOutline: {
-    width: 15,
-    height: 15,
-    borderRadius: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // Shield
-  shieldBox: {
-    width: 15,
-    height: 16,
-    borderBottomLeftRadius: 6,
-    borderBottomRightRadius: 6,
-    borderTopLeftRadius: 2,
-    borderTopRightRadius: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  // Box
-  boxOutline: {
-    width: 15,
-    height: 14,
-    borderRadius: 2,
-  },
-  boxTopLine: {
-    width: '100%',
-    height: 2,
-    marginTop: 3,
-  },
-  // Document
-  docOutline: {
-    width: 14,
-    height: 16,
-    borderRadius: 2,
-    padding: 2,
-    gap: 3,
-  },
-  docLine: {
-    width: 8,
-    height: 1.5,
-  },
-  docLineShort: {
-    width: 5,
-    height: 1.5,
-  },
-  // Book
-  bookSpine: {
-    width: 2,
-    height: 15,
-    marginRight: 1,
-  },
-  bookCover: {
-    width: 12,
-    height: 15,
-    borderTopRightRadius: 3,
-    borderBottomRightRadius: 3,
-  },
-  // Chat Bubble
-  chatBubble: {
-    width: 15,
-    height: 13,
-    borderRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  chatDot: {
-    width: 4,
-    height: 1.5,
-  },
-  // Search Glass
-  searchGlassCircle: {
-    width: 11,
-    height: 11,
-    position: 'absolute',
-    top: 1,
-    left: 1,
-  },
-  searchGlassHandle: {
-    position: 'absolute',
-    width: 2,
-    height: 5,
-    bottom: 1,
-    right: 2,
-    transform: [{ rotate: '-45deg' }],
-  },
-  // Eye Icon
-  eyeShape: {
-    width: 15,
-    height: 10,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  eyePupil: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-  },
-  // Pencil Icon
-  pencilBody: {
-    width: 6,
-    height: 12,
-    transform: [{ rotate: '45deg' }],
-    marginTop: -2,
-    marginLeft: 2,
-  },
-  pencilTip: {
-    width: 6,
-    height: 4,
-    transform: [{ rotate: '45deg' }],
-    marginTop: 2,
-    marginLeft: -4,
   },
 });

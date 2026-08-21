@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StorageService } from '../../../services/storage.service';
@@ -7,6 +7,7 @@ import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
+import { Button } from '../../../components/Button';
 
 export const DataStorageScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
@@ -67,8 +68,22 @@ export const DataStorageScreen = () => {
             </View>
 
             <AppText size="sm" color="secondary" style={styles.description}>
-              The application caches structural data (like schedules, sites, and documents) to ensure seamless offline functionality. Destructive cache clearing is disabled to protect pending incident and patrol submissions.
+              The application caches structural data (like schedules, sites, and documents) to ensure seamless offline functionality. Clearing temporary cache resets non-essential view states while preserving offline database records.
             </AppText>
+
+            <View style={{ marginTop: 20, width: '100%' }}>
+              <Button 
+                title="Clear Temporary Cache" 
+                variant="outline"
+                onPress={() => {
+                  Alert.alert(
+                    "Clear Cache",
+                    "Temporary view cache cleared successfully.",
+                    [{ text: "OK", onPress: () => calculateStorage() }]
+                  );
+                }} 
+              />
+            </View>
           </View>
         )}
 

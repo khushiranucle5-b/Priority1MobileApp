@@ -17,25 +17,42 @@ export const AppPermissionsScreen = () => {
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
         
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <AppText size="lg" weight="bold" style={styles.title}>Required Permissions</AppText>
+          <AppText size="lg" weight="bold" style={styles.title}>Required Application Permissions</AppText>
           
           <View style={styles.detailRow}>
-            <AppText weight="medium">Location (GPS)</AppText>
-            <AppText color="secondary" style={styles.descText}>Used for attendance and patrol geofencing.</AppText>
+            <View style={styles.rowHeader}>
+              <AppText weight="bold">Location & GPS</AppText>
+              <AppText size="xs" style={[styles.badge, { backgroundColor: colors.successLight || '#DCFCE7', color: '#166534' }]}>GRANTED</AppText>
+            </View>
+            <AppText color="secondary" style={styles.descText}>Used for attendance verification, lone worker safety check-ins, and checkpoint geofencing.</AppText>
           </View>
 
           <View style={styles.detailRow}>
-            <AppText weight="medium">Camera</AppText>
-            <AppText color="secondary" style={styles.descText}>Used for incident reporting and selfie clock-ins.</AppText>
+            <View style={styles.rowHeader}>
+              <AppText weight="bold">Camera Access</AppText>
+              <AppText size="xs" style={[styles.badge, { backgroundColor: colors.successLight || '#DCFCE7', color: '#166534' }]}>GRANTED</AppText>
+            </View>
+            <AppText color="secondary" style={styles.descText}>Required for scanning checkpoint QR codes, selfie verification, and attaching photos to incident reports.</AppText>
+          </View>
+
+          <View style={styles.detailRow}>
+            <View style={styles.rowHeader}>
+              <AppText weight="bold">Push Notifications</AppText>
+              <AppText size="xs" style={[styles.badge, { backgroundColor: colors.successLight || '#DCFCE7', color: '#166534' }]}>ACTIVE</AppText>
+            </View>
+            <AppText color="secondary" style={styles.descText}>Used for shift reminders, lone worker safety alerts, and supervisor broadcast messages.</AppText>
           </View>
 
           <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
-            <AppText weight="medium">Notifications</AppText>
-            <AppText color="secondary" style={styles.descText}>Used for shift reminders and urgent broadcast messages.</AppText>
+            <View style={styles.rowHeader}>
+              <AppText weight="bold">Storage & Attachments</AppText>
+              <AppText size="xs" style={[styles.badge, { backgroundColor: colors.successLight || '#DCFCE7', color: '#166534' }]}>GRANTED</AppText>
+            </View>
+            <AppText color="secondary" style={styles.descText}>Used for caching site documents and offline incident attachments.</AppText>
           </View>
 
           <View style={{ marginTop: 24, width: '100%' }}>
-            <Button title="Manage in Device Settings" onPress={() => Linking.openSettings()} variant="primary" />
+            <Button title="Manage Device Permissions" onPress={() => Linking.openSettings()} variant="primary" />
           </View>
         </View>
 
@@ -61,8 +78,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ccc',
   },
+  rowHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    fontWeight: '700',
+    overflow: 'hidden',
+  },
   descText: {
-    marginTop: 4,
+    marginTop: 2,
     fontSize: 13,
   }
 });

@@ -10,7 +10,16 @@ import { useSettingsStore } from '../../../store/useSettingsStore';
 export const NotificationSettingsScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
-  const { notificationsEnabled, setNotificationsEnabled } = useSettingsStore();
+  const {
+    notificationsEnabled,
+    shiftRemindersEnabled,
+    incidentAlertsEnabled,
+    loneWorkerAlertsEnabled,
+    setNotificationsEnabled,
+    setShiftRemindersEnabled,
+    setIncidentAlertsEnabled,
+    setLoneWorkerAlertsEnabled,
+  } = useSettingsStore();
 
   return (
     <ScreenLayout>
@@ -19,14 +28,59 @@ export const NotificationSettingsScreen = () => {
         
         <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
           <View style={styles.textContainer}>
-            <AppText size="base" weight="medium">Enable Notifications</AppText>
+            <AppText size="base" weight="bold">Global Push Notifications</AppText>
             <AppText size="sm" color="secondary" style={styles.description}>
-              Receive alerts for shift updates and messages.
+              Receive all system notifications and emergency dispatch alerts.
             </AppText>
           </View>
           <Switch
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
+            trackColor={{ false: colors.border, true: colors.primary[500] }}
+          />
+        </View>
+
+        <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
+          <View style={styles.textContainer}>
+            <AppText size="base" weight="medium">Shift Reminders</AppText>
+            <AppText size="sm" color="secondary" style={styles.description}>
+              Get reminded 30 minutes before your scheduled shift starts.
+            </AppText>
+          </View>
+          <Switch
+            value={shiftRemindersEnabled}
+            onValueChange={setShiftRemindersEnabled}
+            disabled={!notificationsEnabled}
+            trackColor={{ false: colors.border, true: colors.primary[500] }}
+          />
+        </View>
+
+        <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
+          <View style={styles.textContainer}>
+            <AppText size="base" weight="medium">Incident & Security Broadcasts</AppText>
+            <AppText size="sm" color="secondary" style={styles.description}>
+              Notifications when high priority incidents are filed or updated on your site.
+            </AppText>
+          </View>
+          <Switch
+            value={incidentAlertsEnabled}
+            onValueChange={setIncidentAlertsEnabled}
+            disabled={!notificationsEnabled}
+            trackColor={{ false: colors.border, true: colors.primary[500] }}
+          />
+        </View>
+
+        <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
+          <View style={styles.textContainer}>
+            <AppText size="base" weight="medium">Lone Worker Safety Check Reminders</AppText>
+            <AppText size="sm" color="secondary" style={styles.description}>
+              Audible sound and push alert when a periodic safety check-in is due.
+            </AppText>
+          </View>
+          <Switch
+            value={loneWorkerAlertsEnabled}
+            onValueChange={setLoneWorkerAlertsEnabled}
+            disabled={!notificationsEnabled}
             trackColor={{ false: colors.border, true: colors.primary[500] }}
           />
         </View>

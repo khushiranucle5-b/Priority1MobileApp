@@ -3,9 +3,11 @@ export { Card } from './Card';
 export { Input } from './Input';
 export { CompanyLogo } from './CompanyLogo';
 export { BiometricsButton } from './BiometricsButton';
+export { StatusBadge } from './StatusBadge';
 export * from './feedback';
 export * from './typography';
 export { SidebarDrawer } from './SidebarDrawer';
 export { PersistentSidebar } from './PersistentSidebar';
 export { NavIcon } from './NavIcon';
+
 

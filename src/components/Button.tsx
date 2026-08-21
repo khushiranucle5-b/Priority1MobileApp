@@ -10,7 +10,7 @@ import {
 import { useTheme } from '../providers/ThemeProvider';
 import { a11yButton } from '../utils/accessibility';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'emergency';
 export type ButtonSize = 'small' | 'medium' | 'large';
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -44,6 +44,7 @@ export const Button: React.FC<ButtonProps> = ({
       case 'primary': return colors.primary[600];
       case 'secondary': return colors.surfaceSecondary;
       case 'danger': return colors.error;
+      case 'emergency': return colors.emergency;
       case 'outline':
       case 'ghost': return colors.transparent;
     }
@@ -54,7 +55,8 @@ export const Button: React.FC<ButtonProps> = ({
     switch (variant) {
       case 'primary': return colors.textInverse;
       case 'secondary': return colors.text;
-      case 'danger': return colors.textInverse;
+      case 'danger':
+      case 'emergency': return colors.textInverse;
       case 'outline': return colors.primary[600];
       case 'ghost': return colors.primary[600];
     }
@@ -63,7 +65,7 @@ export const Button: React.FC<ButtonProps> = ({
   const getBorder = () => {
     if (variant === 'outline') {
       return {
-        borderWidth: 1.5,
+        borderWidth: 2,
         borderColor: isDisabled ? colors.disabledBorder : colors.primary[600],
       };
     }
@@ -72,26 +74,22 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getPadding = () => {
     switch (size) {
-      case 'small': return { paddingVertical: spacing.xs, paddingHorizontal: spacing.md };
-      case 'large': return { paddingVertical: spacing.md, paddingHorizontal: spacing['2xl'] };
-      default: return { paddingVertical: spacing.sm, paddingHorizontal: spacing.xl };
+      case 'small': return { paddingVertical: spacing.sm, paddingHorizontal: spacing.base };
+      case 'large': return { paddingVertical: spacing.base, paddingHorizontal: spacing['2xl'] };
+      default: return { paddingVertical: spacing.md, paddingHorizontal: spacing.xl };
     }
   };
 
   const getMinHeight = () => {
     switch (size) {
-      case 'small': return 36;
-      case 'large': return 56;
-      default: return 48; // standard 48 dp minimum touch target
+      case 'small': return 48;  // Glove minimum 48dp
+      case 'large': return 60;  // Glove primary action 60dp
+      default: return 52;       // Glove standard 52dp
     }
   };
 
   const getHitSlop = () => {
-    if (size === 'small') {
-      // 36 dp visible height + 6 dp slop on top & bottom = 48 dp total touch target
-      return { top: 6, bottom: 6, left: 6, right: 6 };
-    }
-    return undefined;
+    return { top: 8, bottom: 8, left: 8, right: 8 };
   };
 
   const getFontSize = () => {
@@ -108,7 +106,7 @@ export const Button: React.FC<ButtonProps> = ({
         styles.base,
         {
           backgroundColor: getBg(),
-          borderRadius: borderRadius.md,
+          borderRadius: borderRadius.lg,
           minHeight: getMinHeight(),
           ...getBorder(),
           ...getPadding(),
@@ -126,20 +124,20 @@ export const Button: React.FC<ButtonProps> = ({
         <ActivityIndicator size="small" color={getTextColor()} />
       ) : (
         <>
-          {leftIcon && <View style={{ marginRight: spacing.xs }}>{leftIcon}</View>}
+          {leftIcon && <View style={{ marginRight: spacing.sm }}>{leftIcon}</View>}
           <Text
             style={[
               styles.label,
               {
                 color: getTextColor(),
                 fontSize: getFontSize(),
-                fontWeight: typography.fontWeight.semibold,
+                fontWeight: typography.fontWeight.bold,
               },
             ]}
           >
             {title}
           </Text>
-          {rightIcon && <View style={{ marginLeft: spacing.xs }}>{rightIcon}</View>}
+          {rightIcon && <View style={{ marginLeft: spacing.sm }}>{rightIcon}</View>}
         </>
       )}
     </TouchableOpacity>

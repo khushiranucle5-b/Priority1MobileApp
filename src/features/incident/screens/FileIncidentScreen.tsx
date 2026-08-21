@@ -94,8 +94,8 @@ export const FileIncidentScreen: React.FC = () => {
     const name = type === 'image'
       ? `Captured_Evidence_${attachments.length + 1}.jpg`
       : type === 'video'
-      ? `Recorded_Clip_${attachments.length + 1}.mp4`
-      : `Site_Document_${attachments.length + 1}.pdf`;
+        ? `Recorded_Clip_${attachments.length + 1}.mp4`
+        : `Site_Document_${attachments.length + 1}.pdf`;
 
     setAttachments([
       ...attachments,
@@ -122,7 +122,7 @@ export const FileIncidentScreen: React.FC = () => {
     setSubmitting(true);
     try {
       const isEditing = !!existingIncident;
-      
+
       if (isEditing && existingIncident) {
         // Edit mode
         const updates: Partial<DBIncident> = {
@@ -136,7 +136,7 @@ export const FileIncidentScreen: React.FC = () => {
           attachments,
         };
         await updateRow('incidents', existingIncident.id, updates);
-        
+
         Alert.alert('Incident Updated', `Incident report ${existingIncident.incidentCode || existingIncident.id} updated successfully!`, [
           {
             text: 'OK',
@@ -216,7 +216,7 @@ export const FileIncidentScreen: React.FC = () => {
       <PageHeader title={isEditing ? "Edit Incident Report" : "File Incident Report"} showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
+
         {/* Header Block */}
         <View style={styles.headerBlock}>
           <Heading level="h2" color="primary">{isEditing ? "Edit Incident" : "File New Incident"}</Heading>
@@ -434,13 +434,13 @@ export const FileIncidentScreen: React.FC = () => {
 
         {/* SUBMIT BUTTON */}
         <Button
-          title={submitting ? "Saving..." : (isEditing ? "Save Incident Updates" : "Submit Official Incident Report")}
+          title={submitting ? "Saving..." : (isEditing ? "SAVE INCIDENT UPDATES" : "SUBMIT REPORT")}
           variant="primary"
           size="large"
           fullWidth
           disabled={submitting}
           onPress={handleSubmit}
-          style={{ height: 54, backgroundColor: '#4F46E5', marginTop: 4 }}
+          style={{ height: 60, marginTop: 4 }}
         />
 
       </ScrollView>
@@ -488,27 +488,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   refreshGpsBtn: {
-    padding: 4,
+    padding: 6,
+    minHeight: 48,
+    justifyContent: 'center',
   },
   gpsDisplayBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ECFDF5',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#A7F3D0',
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     marginTop: 6,
   },
   selectorScroll: {
-    gap: 8,
-    paddingVertical: 2,
+    gap: 10,
+    paddingVertical: 4,
   },
   pill: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 48,
+    justifyContent: 'center',
     borderRadius: 8,
-    borderWidth: 1,
+    borderWidth: 1.5,
   },
   activePill: {
     backgroundColor: '#4F46E5',
@@ -516,7 +520,7 @@ const styles = StyleSheet.create({
   },
   inactivePill: {
     backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    borderColor: '#CBD5E1',
   },
   severityRow: {
     flexDirection: 'row',
@@ -524,44 +528,50 @@ const styles = StyleSheet.create({
   },
   severityBtn: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    minHeight: 48,
+    justifyContent: 'center',
     borderRadius: 8,
-    borderWidth: 1,
+    borderWidth: 1.5,
     alignItems: 'center',
   },
   input: {
     backgroundColor: '#F8FAFC',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
     color: '#0F172A',
     marginTop: 4,
+    minHeight: 52,
   },
   attachBtnRow: {
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 10,
     marginBottom: 8,
   },
   attachPillBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#EEF2FF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#C7D2FE',
     borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    minHeight: 48,
   },
   attachmentItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#F1F5F9',
-    padding: 10,
-    borderRadius: 6,
-    marginTop: 6,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
+    minHeight: 48,
   },
 });
