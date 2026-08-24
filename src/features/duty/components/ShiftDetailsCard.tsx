@@ -22,28 +22,28 @@ export const ShiftDetailsCard: React.FC = () => {
 
       <View style={styles.grid}>
         <View style={styles.row}>
-          <AppText size="sm" color="secondary" style={styles.label}>Shift Name</AppText>
-          <AppText size="base" weight="bold" color="primary" style={styles.value}>{title}</AppText>
+          <AppText style={styles.label}>Shift Name</AppText>
+          <AppText style={styles.value}>{title}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 10 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Reporting Time</AppText>
-          <AppText size="base" weight="bold" color="primary" style={styles.value}>{startTime}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
+          <AppText style={styles.label}>Reporting Time</AppText>
+          <AppText style={styles.value}>{startTime}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 10 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Shift Start</AppText>
-          <AppText size="base" weight="bold" color="primary" style={styles.value}>{startTime}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
+          <AppText style={styles.label}>Shift Start</AppText>
+          <AppText style={styles.value}>{startTime}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 10 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Shift End</AppText>
-          <AppText size="base" weight="bold" color="primary" style={styles.value}>{endTime}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
+          <AppText style={styles.label}>Shift End</AppText>
+          <AppText style={styles.value}>{endTime}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 10 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Working Hours</AppText>
-          <AppText size="base" weight="bold" style={[styles.value, { color: colors.primary[600] || '#2563EB' }]}>8 Hrs</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
+          <AppText style={styles.label}>Working Hours</AppText>
+          <AppText style={[styles.value, { color: colors.primary[600] || '#2563EB' }]}>8 Hrs</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 10 }]}>
-          <AppText size="sm" color="secondary" style={styles.label}>Break Duration</AppText>
-          <AppText size="base" weight="bold" color="primary" style={styles.value}>1 Hr</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
+          <AppText style={styles.label}>Break Duration</AppText>
+          <AppText style={styles.value}>1 Hr</AppText>
         </View>
       </View>
     </Card>
@@ -53,8 +53,8 @@ export const ShiftDetailsCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 18,
+    marginVertical: 10,
+    padding: 20,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     elevation: 1,
@@ -64,17 +64,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   divider: {
     height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12,
+    marginVertical: 14,
   },
   grid: {
-    gap: 10,
+    gap: 12,
   },
   row: {
     flexDirection: 'row',
@@ -83,12 +83,13 @@ const styles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    fontSize: 13.5,
+    fontSize: 15.5,
     fontWeight: '600',
-    color: '#64748B',
+    color: '#475569',
   },
   value: {
-    fontSize: 15.5,
+    fontSize: 17.5,
     fontWeight: '700',
+    color: '#0F172A',
   },
 });

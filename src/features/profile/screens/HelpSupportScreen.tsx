@@ -8,6 +8,8 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { Button } from '../../../components/Button';
 import { NavIcon } from '../../../components/NavIcon';
 
+import { typography } from '../../../theme/tokens/typography';
+
 export const HelpSupportScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
@@ -35,7 +37,7 @@ export const HelpSupportScreen = () => {
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
         
         <View style={[styles.searchContainer, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <NavIcon name="search" size={18} color={colors.secondary} />
+          <NavIcon name="search" size={22} color={colors.secondary} />
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search FAQs and help topics..."
@@ -45,10 +47,10 @@ export const HelpSupportScreen = () => {
           />
         </View>
 
-        <AppText size="lg" weight="bold" style={{ marginBottom: spacing.sm, marginTop: spacing.md }}>Frequently Asked Questions</AppText>
+        <AppText style={styles.sectionHeader}>Frequently Asked Questions</AppText>
         
         {filteredFaqs.length === 0 ? (
-          <AppText color="secondary" style={{ textAlign: 'center', marginVertical: 20 }}>No matching help topics found.</AppText>
+          <AppText color="secondary" style={styles.noResultsText}>No matching help topics found.</AppText>
         ) : (
           filteredFaqs.map((faq, index) => {
             const isExpanded = expandedIndex === index;
@@ -60,11 +62,11 @@ export const HelpSupportScreen = () => {
                 onPress={() => setExpandedIndex(isExpanded ? null : index)}
               >
                 <View style={styles.faqHeader}>
-                  <AppText weight="bold" style={{ flex: 1, paddingRight: 8 }}>{faq.q}</AppText>
-                  <AppText color="primary" weight="bold">{isExpanded ? '−' : '+'}</AppText>
+                  <AppText style={styles.questionText}>{faq.q}</AppText>
+                  <AppText style={styles.toggleIcon}>{isExpanded ? '−' : '+'}</AppText>
                 </View>
                 {isExpanded && (
-                  <AppText color="secondary" style={styles.faqAnswer}>{faq.a}</AppText>
+                  <AppText style={styles.faqAnswer}>{faq.a}</AppText>
                 )}
               </TouchableOpacity>
             );
@@ -72,11 +74,11 @@ export const HelpSupportScreen = () => {
         )}
 
         <View style={[styles.contactCard, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md, marginTop: spacing.lg }]}>
-          <AppText size="base" weight="bold" style={{ marginBottom: 4 }}>Still need help?</AppText>
-          <AppText size="sm" color="secondary" style={{ marginBottom: 14 }}>
+          <AppText style={styles.contactTitle}>Still need help?</AppText>
+          <AppText style={styles.contactSub}>
             Our 24/7 Priority One dispatch and technical support team is ready to assist you.
           </AppText>
-          <Button title="Contact Support Team" onPress={() => navigation.navigate('ContactSupport')} />
+          <Button title="Contact Support Team" size="large" fullWidth style={{ minHeight: 60 }} onPress={() => navigation.navigate('ContactSupport')} />
         </View>
 
       </ScrollView>
@@ -91,35 +93,74 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    height: 48,
-    borderWidth: 1,
-    marginBottom: 8,
+    paddingHorizontal: 16,
+    height: 56,
+    borderWidth: 1.5,
+    marginBottom: 14,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
-    fontSize: 15,
+    marginLeft: 10,
+    ...typography.presets.body,
+    includeFontPadding: false,
+  },
+  sectionHeader: {
+    ...typography.presets.sectionHeading,
+    color: '#0F172A',
+    marginBottom: 14,
+    marginTop: 14,
+  },
+  noResultsText: {
+    textAlign: 'center',
+    ...typography.presets.label,
+    marginVertical: 20,
   },
   card: {
-    padding: 16,
-    borderWidth: 1,
-    marginBottom: 10,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    marginBottom: 12,
   },
   faqHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  questionText: {
+    flex: 1,
+    paddingRight: 10,
+    ...typography.presets.body,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  toggleIcon: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
   faqAnswer: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#CBD5E1',
-    lineHeight: 20,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    ...typography.presets.body,
+    lineHeight: 26,
+    color: '#334155',
   },
   contactCard: {
-    padding: 18,
-    borderWidth: 1,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
   },
+  contactTitle: {
+    ...typography.presets.cardTitle,
+    color: '#0F172A',
+    marginBottom: 8,
+  },
+  contactSub: {
+    ...typography.presets.helper,
+    lineHeight: 22,
+    color: '#64748B',
+    marginBottom: 18,
+  }
 });

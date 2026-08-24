@@ -1,6 +1,8 @@
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CommonActions } from '@react-navigation/native';
 import { TabParamList } from '../types/navigation.types';
 import { HomeNavigator } from './HomeNavigator';
 import { AttendanceNavigator } from './AttendanceNavigator';
@@ -26,29 +28,29 @@ export const TabNavigator = () => {
           headerTintColor: colors.text,
           tabBarStyle: {
             backgroundColor: colors.surface,
-            borderTopColor: colors.border,
+            borderTopColor: '#CBD5E1',
             borderTopWidth: 1.5,
-            height: 60 + bottomInset,
-            paddingBottom: bottomInset,
+            height: 78 + bottomInset,
+            paddingBottom: bottomInset + 4,
             paddingTop: 6,
-            elevation: 12,
+            elevation: 16,
             shadowColor: colors.black,
-            shadowOffset: { width: 0, height: -3 },
-            shadowOpacity: 0.15,
-            shadowRadius: 6,
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.18,
+            shadowRadius: 8,
           },
           tabBarItemStyle: {
-            height: 54,
+            height: 70,
             paddingHorizontal: 0,
             paddingVertical: 2,
           },
-          tabBarActiveTintColor: '#0F172A',
-          tabBarInactiveTintColor: '#64748B',
+          tabBarActiveTintColor: '#2563EB',
+          tabBarInactiveTintColor: '#94A3B8',
           tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: '800',
-            letterSpacing: 0,
-            marginTop: 2,
+            fontSize: 14,
+            fontWeight: '600',
+            letterSpacing: 0.2,
+            marginTop: 6,
             includeFontPadding: false,
           },
           headerShown: false,
@@ -59,13 +61,20 @@ export const TabNavigator = () => {
           component={HomeNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
-              navigation.navigate('Home', { screen: 'HomeMain' });
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Home', state: { routes: [{ name: 'HomeMain' }] } }],
+                })
+              );
             },
           })}
           options={{
             tabBarLabel: 'HOME',
-            tabBarIcon: ({ color }) => (
-              <NavIcon name="dashboard" color={color} size={28} />
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
+                <NavIcon name="dashboard" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              </View>
             ),
           }} 
         />
@@ -74,13 +83,20 @@ export const TabNavigator = () => {
           component={AttendanceNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
-              navigation.navigate('Attendance', { screen: 'AttendanceMain' });
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Attendance', state: { routes: [{ name: 'AttendanceMain' }] } }],
+                })
+              );
             },
           })}
           options={{
             tabBarLabel: 'ATTENDANCE',
-            tabBarIcon: ({ color }) => (
-              <NavIcon name="attendance" color={color} size={28} />
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
+                <NavIcon name="attendance" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              </View>
             ),
           }} 
         />
@@ -89,8 +105,10 @@ export const TabNavigator = () => {
           component={DutyScreen}
           options={{
             tabBarLabel: 'DUTY',
-            tabBarIcon: ({ color }) => (
-              <NavIcon name="shifts" color={color} size={28} />
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
+                <NavIcon name="shifts" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              </View>
             ),
           }} 
         />
@@ -99,13 +117,20 @@ export const TabNavigator = () => {
           component={PatrolNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
-              navigation.navigate('Patrol', { screen: 'PatrolMain' });
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Patrol', state: { routes: [{ name: 'PatrolMain' }] } }],
+                })
+              );
             },
           })}
           options={{
             tabBarLabel: 'PATROL',
-            tabBarIcon: ({ color }) => (
-              <NavIcon name="patrol" color={color} size={28} />
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
+                <NavIcon name="patrol" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              </View>
             ),
           }} 
         />
@@ -114,13 +139,20 @@ export const TabNavigator = () => {
           component={ProfileNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
-              navigation.navigate('Profile', { screen: 'ProfileMain' });
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Profile', state: { routes: [{ name: 'ProfileMain' }] } }],
+                })
+              );
             },
           })}
           options={{
             tabBarLabel: 'PROFILE',
-            tabBarIcon: ({ color }) => (
-              <NavIcon name="employees" color={color} size={28} />
+            tabBarIcon: ({ focused }) => (
+              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
+                <NavIcon name="employees" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              </View>
             ),
           }} 
         />
@@ -129,3 +161,22 @@ export const TabNavigator = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  activeIconPill: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#BFDBFE',
+  },
+  inactiveIconBox: {
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

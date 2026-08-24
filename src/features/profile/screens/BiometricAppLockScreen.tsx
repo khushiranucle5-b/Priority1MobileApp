@@ -11,11 +11,13 @@ import { Button } from '../../../components/Button';
 import { Switch } from 'react-native';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 
+import { typography } from '../../../theme/tokens/typography';
+
 export const BiometricAppLockScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
   const { biometricLockEnabled, setBiometricLockEnabled } = useSettingsStore();
-  
+
   const [biometryType, setBiometryType] = useState<Keychain.BIOMETRY_TYPE | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +49,7 @@ export const BiometricAppLockScreen = () => {
     <ScreenLayout>
       <PageHeader title="Biometric / App Lock" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
-        
+
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary[500]} style={{ marginTop: 40 }} />
         ) : (
@@ -56,21 +58,24 @@ export const BiometricAppLockScreen = () => {
               <AppText style={styles.icon}>
                 {biometryType ? '🛡️' : '⚠️'}
               </AppText>
-              
-              <AppText size="lg" weight="bold" style={styles.title}>
+
+              <AppText style={styles.title}>
                 {biometryType ? `${getBiometricName()} Hardware Detected` : 'Biometrics Not Available'}
               </AppText>
-              
-              <AppText size="base" color="secondary" style={styles.description}>
-                {biometryType 
+
+              <AppText style={styles.description}>
+                {biometryType
                   ? `Your device supports ${getBiometricName()}. Enable app lock below to require biometric verification when returning to the app.`
                   : 'No biometric hardware was detected or permissions were not granted at the device level.'}
               </AppText>
 
               {biometryType && (
                 <View style={{ marginTop: 20, width: '100%' }}>
-                  <Button 
-                    title="Test Biometric Verification" 
+                  <Button
+                    title="Test Biometric Verification"
+                    size="large"
+                    fullWidth
+                    style={{ minHeight: 60 }}
                     onPress={async () => {
                       try {
                         await Keychain.setGenericPassword('temp', 'temp', {
@@ -83,7 +88,7 @@ export const BiometricAppLockScreen = () => {
                       } catch (e) {
                         // ignore cancelled test
                       }
-                    }} 
+                    }}
                   />
                 </View>
               )}
@@ -91,15 +96,17 @@ export const BiometricAppLockScreen = () => {
 
             <View style={[styles.toggleRow, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
               <View style={{ flex: 1, paddingRight: 16 }}>
-                <AppText size="base" weight="bold">Require Biometric Lock</AppText>
-                <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
+                <AppText style={styles.toggleTitle}>Require Biometric Lock</AppText>
+                <AppText style={styles.toggleSub}>
                   Prompt for biometric authentication when resuming active session.
                 </AppText>
               </View>
               <Switch
                 value={biometricLockEnabled}
                 onValueChange={setBiometricLockEnabled}
-                trackColor={{ false: colors.border, true: colors.primary[500] }}
+                trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
+                thumbColor="#FFFFFF"
+                style={{ transform: [{ scaleX: 1.25 }, { scaleY: 1.25 }] }}
               />
             </View>
           </>
@@ -114,29 +121,47 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    padding: 24,
-    borderWidth: 1,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 14,
   },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    borderWidth: 1,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
     marginTop: 16,
+    minHeight: 60,
+  },
+  toggleTitle: {
+    ...typography.presets.body,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  toggleSub: {
+    ...typography.presets.helper,
+    lineHeight: 22,
+    color: '#64748B',
+    marginTop: 4,
   },
   icon: {
-    fontSize: 48,
+    fontSize: 54,
     marginBottom: 16,
   },
   title: {
+    ...typography.presets.cardTitle,
+    color: '#0F172A',
     marginBottom: 12,
     textAlign: 'center',
   },
   description: {
-    textAlign: 'center',
+    ...typography.presets.label,
     lineHeight: 24,
+    color: '#475569',
+    textAlign: 'center',
   }
 });

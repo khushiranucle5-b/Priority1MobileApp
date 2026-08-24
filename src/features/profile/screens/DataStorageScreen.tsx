@@ -9,6 +9,8 @@ import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { Button } from '../../../components/Button';
 
+import { typography } from '../../../theme/tokens/typography';
+
 export const DataStorageScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
@@ -50,24 +52,24 @@ export const DataStorageScreen = () => {
           <ActivityIndicator size="large" color={colors.primary[500]} style={{ marginTop: 40 }} />
         ) : (
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-            <AppText size="lg" weight="bold" style={styles.title}>Local Database Status</AppText>
+            <AppText style={styles.title}>Local Database Status</AppText>
             
             <View style={styles.detailRow}>
-              <AppText color="secondary">Storage Keys Used:</AppText>
-              <AppText weight="bold">{dbKeys}</AppText>
+              <AppText style={styles.label}>Storage Keys Used:</AppText>
+              <AppText style={styles.value}>{dbKeys}</AppText>
             </View>
 
             <View style={styles.detailRow}>
-              <AppText color="secondary">Estimated Size:</AppText>
-              <AppText weight="bold">{totalSizeKB} KB</AppText>
+              <AppText style={styles.label}>Estimated Size:</AppText>
+              <AppText style={styles.value}>{totalSizeKB} KB</AppText>
             </View>
             
             <View style={styles.detailRow}>
-              <AppText color="secondary">Sync Status:</AppText>
-              <AppText weight="medium">Synchronized</AppText>
+              <AppText style={styles.label}>Sync Status:</AppText>
+              <AppText style={styles.value}>Synchronized</AppText>
             </View>
 
-            <AppText size="sm" color="secondary" style={styles.description}>
+            <AppText style={styles.description}>
               The application caches structural data (like schedules, sites, and documents) to ensure seamless offline functionality. Clearing temporary cache resets non-essential view states while preserving offline database records.
             </AppText>
 
@@ -75,6 +77,9 @@ export const DataStorageScreen = () => {
               <Button 
                 title="Clear Temporary Cache" 
                 variant="outline"
+                size="large"
+                fullWidth
+                style={{ minHeight: 60 }}
                 onPress={() => {
                   Alert.alert(
                     "Clear Cache",
@@ -97,22 +102,38 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    padding: 16,
-    borderWidth: 1,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
     marginBottom: 20,
   },
   title: {
+    ...typography.presets.cardTitle,
+    color: '#0F172A',
     marginBottom: 16,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
+    alignItems: 'center',
+    paddingVertical: 14,
+    minHeight: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  label: {
+    ...typography.presets.label,
+    color: '#475569',
+  },
+  value: {
+    ...typography.presets.body,
+    fontWeight: '600',
+    color: '#0F172A',
   },
   description: {
     marginTop: 20,
-    lineHeight: 20,
+    ...typography.presets.helper,
+    lineHeight: 22,
+    color: '#64748B',
   }
 });

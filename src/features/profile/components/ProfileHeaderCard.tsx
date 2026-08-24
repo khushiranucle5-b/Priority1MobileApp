@@ -9,7 +9,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 
 export const ProfileHeaderCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
-  const { guardName, guardId, companyName, attendanceStatus } = useGuardStore();
+  const { guardName, guardId, companyName, attendanceStatus, profilePic } = useGuardStore();
 
   const isOnline = attendanceStatus === 'Checked In';
 
@@ -17,29 +17,29 @@ export const ProfileHeaderCard: React.FC = () => {
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
         <Image 
-          source={{ uri: 'https://i.pravatar.cc/150?img=11' }} 
+          source={{ uri: profilePic || 'https://i.pravatar.cc/150?img=11' }} 
           style={[styles.avatar, { borderRadius: borderRadius.full, backgroundColor: colors.surfaceSecondary }]} 
         />
         <View style={styles.info}>
-          <Heading level="h3">{guardName || 'Security Officer'}</Heading>
-          <AppText size="sm" color="secondary">ID: {guardId || 'N/A'}</AppText>
-          <AppText size="sm" color="secondary">Security Guard</AppText>
+          <Heading level="h2" style={styles.guardNameTitle}>{guardName || 'Security Officer'}</Heading>
+          <AppText size="base" color="secondary" style={styles.subText}>ID: {guardId || 'N/A'}</AppText>
+          <AppText size="base" color="secondary" style={styles.subText}>Security Guard</AppText>
         </View>
       </View>
 
-      <View style={[styles.statusContainer, { borderTopColor: colors.border, marginTop: spacing.sm }]}>
+      <View style={[styles.statusContainer, { borderTopColor: colors.border, marginTop: spacing.md }]}>
         <View style={styles.statusRow}>
-          <AppText size="sm" color="secondary">Current Status</AppText>
+          <AppText size="sm" weight="medium" color="secondary">Current Status</AppText>
           <View style={[styles.badge, { backgroundColor: isOnline ? colors.successLight : colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
             <View style={[styles.dot, { backgroundColor: isOnline ? colors.success : colors.secondary, borderRadius: borderRadius.full }]} />
-            <AppText size="sm" color={isOnline ? 'success' : 'secondary'} weight="bold">
+            <AppText size="sm" color={isOnline ? 'success' : 'secondary'} weight="semibold">
               {isOnline ? 'On Duty' : 'Off Duty'}
             </AppText>
           </View>
         </View>
         <View style={styles.statusRow}>
-          <AppText size="sm" color="secondary">Assigned Company</AppText>
-          <AppText size="sm" weight="medium">{companyName}</AppText>
+          <AppText size="sm" weight="medium" color="secondary">Assigned Company</AppText>
+          <AppText size="base" weight="semibold" color="primary">{companyName}</AppText>
         </View>
       </View>
     </Card>
@@ -50,21 +50,25 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatar: {
-    width: 80,
-    height: 80,
+    width: 72,
+    height: 72,
     marginRight: 16,
   },
   info: {
     flex: 1,
   },
-  joined: {
-    marginTop: 4,
+  guardNameTitle: {
+    marginBottom: 2,
+  },
+  subText: {
+    marginTop: 2,
   },
   statusContainer: {
     borderTopWidth: 1,
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     paddingVertical: 4,
   },
   dot: {

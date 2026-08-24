@@ -109,8 +109,8 @@ export const AttendanceCalendar = ({
               >
                 <AppText
                   size="base"
-                  weight={isSelected || isToday ? 'bold' : 'bold'}
-                  style={{ color: isSelected ? '#FFFFFF' : colors.text, fontSize: 16, lineHeight: 20 }}
+                  weight={isSelected || isToday ? 'bold' : 'semibold'}
+                  style={{ color: isSelected ? '#FFFFFF' : colors.text, fontSize: 18, lineHeight: 22 }}
                 >
                   {dayNum}
                 </AppText>
@@ -141,15 +141,15 @@ export const AttendanceCalendar = ({
   return (
     <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: '#cbd5e1' }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <AppText size="lg" weight="bold" color="primary" style={styles.navArrow}>‹</AppText>
         </TouchableOpacity>
         
-        <AppText size="md" weight="bold" color="primary" style={styles.monthTitle}>
+        <AppText size="lg" weight="semibold" color="primary" style={styles.monthTitle}>
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </AppText>
         
-        <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <AppText size="lg" weight="bold" color="primary" style={styles.navArrow}>›</AppText>
         </TouchableOpacity>
       </View>
@@ -157,7 +157,7 @@ export const AttendanceCalendar = ({
       <View style={styles.headerWeekRow}>
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
           <View key={day} style={styles.dayCell}>
-            <AppText size="xs" color="secondary" weight="bold" style={styles.weekLabel}>{day}</AppText>
+            <AppText size="xs" color="secondary" weight="medium" style={styles.weekLabel}>{day}</AppText>
           </View>
         ))}
       </View>
@@ -196,27 +196,22 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     marginHorizontal: 16,
-    borderWidth: 1.5,
+    borderWidth: 1,
     marginBottom: 16,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   navBtn: {
     padding: 4,
-    minWidth: 42,
-    minHeight: 42,
+    minWidth: 48,
+    minHeight: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 21,
+    borderRadius: 24,
     backgroundColor: '#F1F5F9',
   },
   navArrow: {
@@ -224,16 +219,16 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   monthTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '600',
   },
   headerWeekRow: {
     flexDirection: 'row',
     marginBottom: 8,
   },
   weekLabel: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '500',
     color: '#475569',
   },
   calendarGrid: {
@@ -241,47 +236,47 @@ const styles = StyleSheet.create({
   },
   weekRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: 6,
     alignItems: 'center',
   },
   dayCell: {
     flex: 1,
-    height: 48,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   dateCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
   todayIndicator: {
     position: 'absolute',
     bottom: 2,
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   legendContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: 12,
-    marginTop: 16,
+    marginTop: 14,
     paddingTop: 14,
     borderTopWidth: 1,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
   },
   legendText: {
-    fontSize: 12.5,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '400',
     color: '#334155',
   },
   legendCircle: {

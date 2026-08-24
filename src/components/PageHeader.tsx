@@ -37,7 +37,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, showBack = false,
           <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
         </TouchableOpacity>
       )}
-      <Heading level="h3" style={styles.title}>{title}</Heading>
+      <Heading level="h2" style={styles.title}>{title}</Heading>
       {rightComponent && (
         <View style={styles.rightComponentContainer}>
           {rightComponent}
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    minHeight: 60,
+    minHeight: 64,
   },
   backButton: {
     position: 'absolute',
@@ -61,18 +61,17 @@ const styles = StyleSheet.create({
     zIndex: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   backArrowText: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '700',
     lineHeight: 32,
   },
   title: {
     textAlign: 'center',
-    fontSize: 20,
   },
   rightComponentContainer: {
     position: 'absolute',
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
-    minWidth: 48,
-    minHeight: 48,
+    minWidth: 56,
+    minHeight: 56,
   }
 });

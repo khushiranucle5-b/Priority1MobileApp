@@ -66,7 +66,7 @@ export const EquipmentCard: React.FC = () => {
               onPress={() => navigation.navigate('Home', { screen: 'Assets' })}
               style={[styles.item, { backgroundColor: '#F1F5F9', borderRadius: borderRadius.md }]}
             >
-              <AppText size="sm" weight="bold" style={styles.itemText}>{item}</AppText>
+              <AppText style={styles.itemText}>{item}</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -78,8 +78,8 @@ export const EquipmentCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 18,
+    marginVertical: 10,
+    padding: 20,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     elevation: 1,
@@ -94,35 +94,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   viewAssetsLink: {
     color: '#2563EB',
-    fontSize: 14.5,
+    fontSize: 15.5,
     fontWeight: '700',
   },
   divider: {
     height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12,
+    marginVertical: 14,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
   item: {
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#CBD5E1',
   },
   itemText: {
-    fontSize: 14.5,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#334155',
+    color: '#1E293B',
   },
   loadingBox: {
     padding: 12,

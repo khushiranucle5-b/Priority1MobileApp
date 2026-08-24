@@ -43,7 +43,7 @@ export const IncidentForm: React.FC = () => {
       {/* Mock Type Dropdown */}
       <View style={styles.field}>
         <AppText
-          size="base"
+          size="sm"
           weight="medium"
           style={[styles.label, { color: colors.text, marginBottom: spacing.xs }]}
         >
@@ -61,8 +61,8 @@ export const IncidentForm: React.FC = () => {
           ]}
           onPress={() => setShowTypeDropdown(!showTypeDropdown)}
         >
-          <AppText color="text" size="md">{type}</AppText>
-          <AppText color="secondary" size="sm">▼</AppText>
+          <AppText color="text" size="base">{type}</AppText>
+          <AppText color="secondary" size="xs">▼</AppText>
         </TouchableOpacity>
         {showTypeDropdown && (
           <View style={[styles.dropdown, { borderColor: colors.border, backgroundColor: colors.surface }]}>
@@ -72,7 +72,7 @@ export const IncidentForm: React.FC = () => {
                 style={[styles.dropdownItem, { borderBottomColor: colors.border }]} 
                 onPress={() => { setType(t); setShowTypeDropdown(false); }}
               >
-                <AppText color="text">{t}</AppText>
+                <AppText color="text" size="base">{t}</AppText>
               </TouchableOpacity>
             ))}
           </View>
@@ -105,7 +105,7 @@ export const IncidentForm: React.FC = () => {
 
       <View style={styles.field}>
         <AppText
-          size="base"
+          size="sm"
           weight="medium"
           style={[styles.label, { color: colors.text, marginBottom: spacing.xs }]}
         >
@@ -130,7 +130,7 @@ export const IncidentForm: React.FC = () => {
 
       <View style={styles.field}>
         <AppText
-          size="base"
+          size="sm"
           weight="medium"
           style={[styles.label, { color: colors.text, marginBottom: spacing.xs }]}
         >
@@ -148,12 +148,12 @@ export const IncidentForm: React.FC = () => {
           ]}
           activeOpacity={0.7}
         >
-          <AppText style={{fontSize: 24, marginBottom: 8}}>📸</AppText>
+          <AppText style={{fontSize: 20, marginBottom: 4}}>📸</AppText>
           <AppText size="sm" color="primary" weight="medium">Tap to capture photo</AppText>
         </TouchableOpacity>
       </View>
 
-      <Button title="Submit Report" variant="primary" size="large" fullWidth onPress={handleSubmit} style={styles.btn} />
+      <Button title="Submit Report" variant="primary" size="medium" fullWidth onPress={handleSubmit} style={styles.btn} />
 
       {showSuccess && (
         <View style={[styles.snackbar, { backgroundColor: colors.success }]}>

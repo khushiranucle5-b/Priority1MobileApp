@@ -3,6 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Alert, Modal, ScrollView, useWindow
 import { pick, keepLocalCopy, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import { Button } from '../../../components/Button';
 import { AppText } from '../../../components/typography/Text';
+import { NavIcon } from '../../../components/NavIcon';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LeaveAttachment, LeaveRequest } from '../../../store/useGuardStore';
 import { Input } from '../../../components/Input';
@@ -395,16 +396,16 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
         <View style={styles.formBody}>
-          {/* General Error Banner */}
+          {/* Error Banner if any */}
           {errors.general && (
-            <View style={[styles.errorBanner, { backgroundColor: colors.errorLight || '#fee2e2', borderColor: colors.error }]}>
-              <AppText size="xs" weight="bold" style={{ color: colors.errorDark || '#b91c1c' }}>
-                ⚠️ {errors.general}
+            <View style={[styles.errorBanner, { backgroundColor: colors.errorLight || '#fee2e2', borderRadius: borderRadius.md }]}>
+              <AppText size="sm" color="error" weight="bold">
+                {errors.general}
               </AppText>
             </View>
           )}
 
-          {/* Start Date & End Date Row */}
+          {/* Date Picker Row */}
           <View style={[styles.fieldRow, isDesktop ? styles.rowHorizontal : styles.rowVertical]}>
             {/* Start Date */}
             <View style={[styles.fieldCol, isDesktop && { marginRight: 8 }]}>
@@ -429,7 +430,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                 <AppText size="base" weight="semibold" style={{ color: fromDate ? colors.text : colors.textSecondary }}>
                   {fromDate ? formatDateString(fromDate) : 'Select start date'}
                 </AppText>
-                <AppText size="lg">📅</AppText>
+                <NavIcon name="calendar" size={22} color={colors.textSecondary || '#64748b'} />
               </TouchableOpacity>
               {errors.fromDate && <AppText size="xs" color="error" style={styles.errorText}>{errors.fromDate}</AppText>}
             </View>
@@ -460,7 +461,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                 <AppText size="base" weight="semibold" style={{ color: toDate ? colors.text : colors.textSecondary }}>
                   {toDate ? formatDateString(toDate) : 'Select end date'}
                 </AppText>
-                <AppText size="lg">📅</AppText>
+                <NavIcon name="calendar" size={22} color={colors.textSecondary || '#64748b'} />
               </TouchableOpacity>
               {errors.toDate && <AppText size="xs" color="error" style={styles.errorText}>{errors.toDate}</AppText>}
             </View>
@@ -515,7 +516,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                 activeOpacity={0.7}
               >
                 <AppText size="base" weight="semibold" style={{ color: leaveType ? colors.text : colors.textSecondary }}>
-                  📅 {leaveType || 'Select Leave Type'}
+                  {leaveType || 'Select Leave Type'}
                 </AppText>
                 <AppText size="xs" color="secondary">▼</AppText>
               </TouchableOpacity>
@@ -525,7 +526,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
             {/* Attachments */}
             <View style={[styles.fieldCol, isDesktop && { marginLeft: 8 }]}>
               <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
-                📎 Attachment
+                Attachment
               </AppText>
               <TouchableOpacity
                 style={[
@@ -580,7 +581,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               title={
                 isSubmitting
                   ? (editingLeave ? "Updating..." : "Submitting...")
-                  : (editingLeave ? "✓ UPDATE LEAVE" : "✓ SUBMIT LEAVE")
+                  : (editingLeave ? "UPDATE LEAVE" : "SUBMIT LEAVE")
               }
               disabled={isSubmitting}
               variant="primary"
@@ -602,8 +603,8 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
           <View style={[styles.dropdownCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
             <View style={styles.dropdownHeader}>
               <AppText size="base" weight="bold" color="primary">Select Leave Type</AppText>
-              <TouchableOpacity onPress={() => setIsTypeModalVisible(false)}>
-                <AppText size="sm" weight="bold" color="secondary">✕</AppText>
+              <TouchableOpacity onPress={() => setIsTypeModalVisible(false)} accessibilityLabel="Close modal" accessibilityRole="button">
+                <NavIcon name="close" size={20} color={colors.textSecondary || '#64748b'} />
               </TouchableOpacity>
             </View>
 
@@ -680,7 +681,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
       {showSuccess && (
         <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
           <AppText color="surface" weight="semibold" size="base">
-            ✓ Leave Request Submitted Successfully!
+            Leave Request Submitted Successfully!
           </AppText>
         </View>
       )}

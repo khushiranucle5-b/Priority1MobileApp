@@ -51,7 +51,7 @@ export const Input: React.FC<InputProps> = ({
             styles.label,
             {
               color: disabled ? colors.disabledText : colors.text,
-              fontSize: typography.fontSize.base,
+              fontSize: typography.fontSize.sm, // 12px label
               fontWeight: typography.fontWeight.medium,
               marginBottom: spacing.xs,
             },
@@ -79,7 +79,7 @@ export const Input: React.FC<InputProps> = ({
             styles.input,
             {
               color: disabled ? colors.disabledText : colors.text,
-              fontSize: typography.fontSize.md,
+              fontSize: typography.fontSize.base, // 14px input text
             },
           ]}
           placeholderTextColor={colors.textTertiary}
@@ -93,12 +93,12 @@ export const Input: React.FC<InputProps> = ({
       </View>
 
       {error && (
-        <Text style={[styles.helper, { color: colors.error, fontSize: typography.fontSize.sm }]}>
+        <Text style={[styles.helper, { color: colors.error, fontSize: typography.fontSize.xs }]}>
           {error}
         </Text>
       )}
       {!error && hint && (
-        <Text style={[styles.helper, { color: colors.textSecondary, fontSize: typography.fontSize.sm }]}>
+        <Text style={[styles.helper, { color: colors.textSecondary, fontSize: typography.fontSize.xs }]}>
           {hint}
         </Text>
       )}
@@ -114,16 +114,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    minHeight: 54,
+    minHeight: 56,
   },
   input: {
     flex: 1,
     paddingVertical: 14,
-    fontSize: 16,
     includeFontPadding: false,
   },
   helper: {
-    marginTop: 6,
+    marginTop: 4,
     includeFontPadding: false,
   },
 });

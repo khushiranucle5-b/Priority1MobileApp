@@ -38,6 +38,7 @@ export interface DBEmployee {
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   emergencyContactRelation?: string;
+  profilePic?: string;
 }
 
 export interface DBShift {
@@ -84,6 +85,14 @@ export interface DBSiteCheckpoint {
   location: string;
   status: string;
   sequence: number;
+  type?: 'QR Tag' | 'NFC Tag' | 'BLE Beacon' | string;
+  tagId?: string;
+  patrolOrder?: number;
+  scanWindowMins?: number;
+  graceTimeMins?: number;
+  requiredImage?: boolean;
+  requiredComment?: boolean;
+  autoIncidentMissed?: boolean;
 }
 
 export interface DBSiteSafetyRule {
@@ -163,6 +172,13 @@ export interface DBSiteSafetyConfig {
     intervalMins: number;
     graceMins: number;
   };
+  gpsAccuracyThresholdMeters?: number;
+  batteryThresholdPercent?: number;
+  sosRequired?: boolean;
+  autoIncidentEscalation?: boolean;
+  missedPatrolEscalation?: boolean;
+  offlineModeAllowed?: boolean;
+  autoLogoutHours?: number;
   customRules?: DBSiteSafetyRule[];
 }
 
@@ -491,20 +507,54 @@ export const initializeDB = async (forceReset = false) => {
       // Seed initial notifications
       const notificationsList = [
         {
-          id: 'notif-g1',
+          id: 'notif-admin-01',
           userId: 'G-1001',
-          title: 'Welcome to PriorityOne',
-          message: 'Welcome to your guard portal. Stay safe on duty.',
+          type: 'Leave',
+          title: 'Leave Application Approved',
+          message: 'Your Leave Application (Annual Leave) has been approved by HR Manager.',
           read: false,
-          createdAt: new Date().toISOString()
+          priority: 'High',
+          createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
         },
         {
-          id: 'notif-g2',
+          id: 'notif-admin-02',
           userId: 'G-1001',
-          title: 'Shift Scheduled',
-          message: 'You have been assigned to the Morning Shift at Ahmedabad Plant today.',
+          type: 'Company',
+          title: 'Global HR Announcement',
+          message: 'New company safety guidelines and equipment protocols issued by Admin.',
           read: false,
-          createdAt: new Date().toISOString()
+          priority: 'High',
+          createdAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString()
+        },
+        {
+          id: 'notif-admin-03',
+          userId: 'G-1001',
+          type: 'Attendance',
+          title: 'Supervisor Shift Roster Update',
+          message: 'Supervisor Jane Smith assigned you to Morning Shift at Ahmedabad Plant.',
+          read: true,
+          priority: 'Medium',
+          createdAt: new Date(Date.now() - 5 * 3600 * 1000).toISOString()
+        },
+        {
+          id: 'notif-admin-04',
+          userId: 'G-1001',
+          type: 'Holiday',
+          title: 'Official Holiday Roster Declaration',
+          message: 'HR Announcement: Operations will run on holiday roster for Independence Day.',
+          read: true,
+          priority: 'Low',
+          createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString()
+        },
+        {
+          id: 'notif-admin-05',
+          userId: 'G-1001',
+          type: 'System',
+          title: 'Supervisor Security Directive',
+          message: 'Supervisor Jane Smith: Ensure all perimeter gates are double-checked during evening rounds.',
+          read: true,
+          priority: 'High',
+          createdAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString()
         }
       ];
       await AsyncStorage.setItem(`${DB_PREFIX}notifications`, JSON.stringify(notificationsList));
@@ -544,7 +594,26 @@ export const initializeDB = async (forceReset = false) => {
           read: false,
         }
       ];
-      await AsyncStorage.setItem(`${DB_PREFIX}messages`, JSON.stringify(messagesList));
+      // Seed initial users list with default password
+      const usersList: DBUser[] = [
+        {
+          id: 'G-1001',
+          name: 'John Smith',
+          email: 'john@priority-one.io',
+          role: 'guard',
+          companyId: 'c-1',
+          password: 'demo',
+        },
+        {
+          id: 'emp-102',
+          name: 'Jane Smith',
+          email: 'jane@priority-one.io',
+          role: 'supervisor',
+          companyId: 'c-1',
+          password: 'demo',
+        }
+      ];
+      await AsyncStorage.setItem(`${DB_PREFIX}users`, JSON.stringify(usersList));
 
       await AsyncStorage.setItem(`${DB_PREFIX}initialized`, 'true');
     }

@@ -22,15 +22,15 @@ export const ProfileScreen: React.FC = () => {
 
   return (
     <ScreenLayout>
-      <PageHeader 
-        title="My Profile" 
+      <PageHeader
+        title="My Profile"
         rightComponent={
           <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.gearButton}>
             <AppText style={styles.gearIcon}>⚙️</AppText>
           </TouchableOpacity>
         }
       />
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   gearButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
   },
   gearIcon: {
-    fontSize: 24,
+    fontSize: 28,
   }
 });

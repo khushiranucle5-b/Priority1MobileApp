@@ -15,7 +15,16 @@ import { getPatrolAvailability } from '../utils/patrolUtils';
 export const PatrolDateLogsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { patrols, startPatrol } = useGuardStore();
+  const { patrols, startPatrol, ensurePatrolsForDate } = useGuardStore();
+
+  const selectedDateStr = route.params?.dateStr || new Date().toISOString();
+  const displayTitleDate = formatDisplayDate(selectedDateStr);
+
+  useEffect(() => {
+    if (ensurePatrolsForDate && selectedDateStr) {
+      ensurePatrolsForDate(selectedDateStr);
+    }
+  }, [selectedDateStr, ensurePatrolsForDate]);
 
   // Live timer tick every 10 seconds to dynamically update button availability
   const [now, setNow] = useState(new Date());
@@ -25,9 +34,6 @@ export const PatrolDateLogsScreen: React.FC = () => {
     }, 10000);
     return () => clearInterval(timer);
   }, []);
-
-  const selectedDateStr = route.params?.dateStr || 'Aug 21, 2026';
-  const displayTitleDate = formatDisplayDate(selectedDateStr);
 
   // Filter records for selected date only
   const recordsForDate = useMemo(() => {

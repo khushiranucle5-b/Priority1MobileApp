@@ -48,30 +48,20 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
     return getMergedStatusForDate(targetDateStr, attendanceHistory, leaves);
   }, [targetDateStr, attendanceHistory, leaves]);
 
-  // Resolve and sort sessions with latest/live session first (SESSION 1 at top)
+  // Resolve and sort sessions with latest/live session first
   const sortedSessions: AttendanceRecord[] = useMemo(() => {
-    const todayStr = formatDateKey(new Date());
     const dayRecords = attendanceHistory.filter(r => r.date === targetDateStr);
 
-    let list = [...dayRecords];
-    if (targetDateStr === todayStr && isClockedIn) {
-      const hasActive = list.some(s => s.clockIn && !s.clockOut);
-      if (!hasActive) {
-        const liveSession: AttendanceRecord = {
-          id: `live-clock-in-${clockInTimestamp || Date.now()}`,
-          date: todayStr,
-          day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
-          siteName: assignedSite || 'Ahmedabad Plant',
-          shiftName: todayShift?.title || 'Morning Shift 08:00 AM - 04:00 PM',
-          clockIn: clockInTimestamp ? new Date(clockInTimestamp).toISOString() : new Date().toISOString(),
-          clockOut: null,
-          workingHours: 0,
-          status: 'Present',
-          notes: 'Live Clocked In',
-        };
-        list.push(liveSession);
+    // Deduplicate by ID or identical clockIn timestamp
+    const uniqueMap = new Map<string, AttendanceRecord>();
+    dayRecords.forEach(rec => {
+      const key = rec.id || `${rec.clockIn}-${rec.clockOut}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, rec);
       }
-    }
+    });
+
+    let list = Array.from(uniqueMap.values());
 
     if (list.length === 0 && mergedRecord.attendance) {
       list = [mergedRecord.attendance];
@@ -83,7 +73,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
       const timeB = b.clockIn ? new Date(b.clockIn).getTime() : 0;
       return timeB - timeA;
     });
-  }, [targetDateStr, attendanceHistory, isClockedIn, clockInTimestamp, assignedSite, todayShift, mergedRecord]);
+  }, [targetDateStr, attendanceHistory, mergedRecord]);
 
   const formatTimeStr = (timeString?: string | null) => {
     if (!timeString || timeString === '—') return null;

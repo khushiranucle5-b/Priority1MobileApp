@@ -74,12 +74,12 @@ export const QuickActionsGrid: React.FC = () => {
               activeOpacity={0.75}
             >
               <View style={[styles.iconContainer, { backgroundColor: isEm ? '#FEE2E2' : colors.surfaceSecondary || '#f1f5f9' }]}>
-                <NavIcon name={action.icon} size={26} color={iconColor} />
+                <NavIcon name={action.icon} size={30} color={iconColor} />
               </View>
               <AppText
                 size="base"
                 weight="bold"
-                style={[styles.cardTitle, { color: isEm ? '#DC2626' : colors.text }]}
+                style={[styles.cardTitle, { color: isEm ? '#DC2626' : colors.text, fontSize: 18 }]}
               >
                 {action.title}
               </AppText>
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: '48%',
-    height: 100,
+    height: 110,
     paddingVertical: 14,
     paddingHorizontal: 12,
     alignItems: 'center',
@@ -121,9 +121,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 6,

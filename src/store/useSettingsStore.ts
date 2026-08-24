@@ -11,6 +11,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   shiftRemindersEnabled: true,
   incidentAlertsEnabled: true,
   loneWorkerAlertsEnabled: true,
+  patrolAlertsEnabled: true,
+  leaveStatusAlertsEnabled: true,
+  companyNoticesEnabled: true,
+  emergencyAlarmSoundEnabled: true,
   selfieCheckInRequired: true,
   autoClockOutTimeout: 12,
   setThemeMode: async (mode) => {
@@ -41,6 +45,22 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     await AsyncStorage.setItem('loneWorkerAlertsEnabled', JSON.stringify(enabled));
     set({ loneWorkerAlertsEnabled: enabled });
   },
+  setPatrolAlertsEnabled: async (enabled) => {
+    await AsyncStorage.setItem('patrolAlertsEnabled', JSON.stringify(enabled));
+    set({ patrolAlertsEnabled: enabled });
+  },
+  setLeaveStatusAlertsEnabled: async (enabled) => {
+    await AsyncStorage.setItem('leaveStatusAlertsEnabled', JSON.stringify(enabled));
+    set({ leaveStatusAlertsEnabled: enabled });
+  },
+  setCompanyNoticesEnabled: async (enabled) => {
+    await AsyncStorage.setItem('companyNoticesEnabled', JSON.stringify(enabled));
+    set({ companyNoticesEnabled: enabled });
+  },
+  setEmergencyAlarmSoundEnabled: async (enabled) => {
+    await AsyncStorage.setItem('emergencyAlarmSoundEnabled', JSON.stringify(enabled));
+    set({ emergencyAlarmSoundEnabled: enabled });
+  },
   setSelfieCheckInRequired: async (required) => {
     await AsyncStorage.setItem('selfieCheckInRequired', JSON.stringify(required));
     set({ selfieCheckInRequired: required });
@@ -57,6 +77,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     const shiftR = await AsyncStorage.getItem('shiftRemindersEnabled');
     const incA = await AsyncStorage.getItem('incidentAlertsEnabled');
     const lwA = await AsyncStorage.getItem('loneWorkerAlertsEnabled');
+    const patrolA = await AsyncStorage.getItem('patrolAlertsEnabled');
+    const leaveA = await AsyncStorage.getItem('leaveStatusAlertsEnabled');
+    const compA = await AsyncStorage.getItem('companyNoticesEnabled');
+    const alarmS = await AsyncStorage.getItem('emergencyAlarmSoundEnabled');
     const selfie = await AsyncStorage.getItem('selfieCheckInRequired');
     const timeout = await AsyncStorage.getItem('autoClockOutTimeout');
 
@@ -67,6 +91,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     if (shiftR !== null) set({ shiftRemindersEnabled: JSON.parse(shiftR) });
     if (incA !== null) set({ incidentAlertsEnabled: JSON.parse(incA) });
     if (lwA !== null) set({ loneWorkerAlertsEnabled: JSON.parse(lwA) });
+    if (patrolA !== null) set({ patrolAlertsEnabled: JSON.parse(patrolA) });
+    if (leaveA !== null) set({ leaveStatusAlertsEnabled: JSON.parse(leaveA) });
+    if (compA !== null) set({ companyNoticesEnabled: JSON.parse(compA) });
+    if (alarmS !== null) set({ emergencyAlarmSoundEnabled: JSON.parse(alarmS) });
     if (selfie !== null) set({ selfieCheckInRequired: JSON.parse(selfie) });
     if (timeout !== null) set({ autoClockOutTimeout: JSON.parse(timeout) });
   },

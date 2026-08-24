@@ -15,36 +15,36 @@ export const EmergencyContactsCard: React.FC = () => {
 
   return (
     <Card variant="elevated" style={styles.card}>
-      <Heading level="h4" style={styles.title}>Emergency Contacts</Heading>
+      <Heading level="h3" style={styles.title}>Emergency Contacts</Heading>
       
-      <View style={[styles.list, { marginTop: spacing.sm }]}>
+      <View style={[styles.list, { marginTop: spacing.md }]}>
         <View style={styles.row}>
           <View style={styles.info}>
-            <AppText size="sm" color="secondary">Client Emergency Number</AppText>
-            <AppText size="base" weight="medium">100</AppText>
+            <AppText style={styles.label}>Client Emergency Number</AppText>
+            <AppText style={styles.value}>100</AppText>
           </View>
           <TouchableOpacity style={[styles.btn, { backgroundColor: colors.errorLight || '#FEE2E2', borderRadius: borderRadius.full }]} onPress={handleCall}>
-            <NavIcon name="loneworker" size={20} color="#DC2626" />
+            <NavIcon name="loneworker" size={22} color="#DC2626" />
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 14 }]}>
           <View style={styles.info}>
-            <AppText size="sm" color="secondary">Supervisor Number</AppText>
-            <AppText size="base" weight="medium">+1 987-654-3210</AppText>
+            <AppText style={styles.label}>Supervisor Number</AppText>
+            <AppText style={styles.value}>+1 987-654-3210</AppText>
           </View>
           <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary[50] || '#EFF6FF', borderRadius: borderRadius.full }]} onPress={handleCall}>
-            <NavIcon name="messages" size={20} color="#2563EB" />
+            <NavIcon name="messages" size={22} color="#2563EB" />
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 14 }]}>
           <View style={styles.info}>
-            <AppText size="sm" color="secondary">Company Helpdesk Number</AppText>
-            <AppText size="base" weight="medium">+1 800-123-4567</AppText>
+            <AppText style={styles.label}>Company Helpdesk Number</AppText>
+            <AppText style={styles.value}>+1 800-123-4567</AppText>
           </View>
           <TouchableOpacity style={[styles.btn, { backgroundColor: colors.primary[50] || '#EFF6FF', borderRadius: borderRadius.full }]} onPress={handleCall}>
-            <NavIcon name="messages" size={20} color="#2563EB" />
+            <NavIcon name="messages" size={22} color="#2563EB" />
           </TouchableOpacity>
         </View>
       </View>
@@ -55,13 +55,16 @@ export const EmergencyContactsCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: 10,
+    padding: 20,
   },
   title: {
+    fontSize: 19,
+    fontWeight: '800',
     marginBottom: 4,
   },
   list: {
-    gap: 12,
+    gap: 14,
   },
   row: {
     flexDirection: 'row',
@@ -71,9 +74,20 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
   },
+  label: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  value: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginTop: 2,
+  },
   btn: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
   }

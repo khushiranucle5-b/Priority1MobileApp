@@ -21,6 +21,7 @@ import {
 export type { DBPatrol, DBEmployeeDocument };
 import { LoggerService } from '../services/logger.service';
 import { soundAlertService } from '../services/soundAlert.service';
+import { formatDisplayDate } from '../utils/dateUtils';
 
 export type AttendanceStatus = 'Not Checked In' | 'Checked In' | 'Checked Out';
 
@@ -127,6 +128,7 @@ interface GuardState {
   gender: string;
   bloodGroup: string;
   address: string;
+  profilePic: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
   emergencyContactRelation: string;
@@ -168,6 +170,7 @@ interface GuardState {
   reportIncident: (incident: Omit<IncidentReport, 'id' | 'status' | 'reportedDate'>) => Promise<void>;
   uploadDocument: (docInfo: { name: string, type: string, uri: string, fileName: string, mimeType: string }) => Promise<void>;
   startPatrol: (patrolId?: string) => Promise<any>;
+  ensurePatrolsForDate: (targetDate?: string | Date) => Promise<void>;
   scanCheckpointCode: (code: string) => Promise<{ success: boolean; message: string }>;
   checkInLoneWorker: (customParams?: {
     latitude?: number;
@@ -195,6 +198,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   gender: '',
   bloodGroup: '',
   address: '',
+  profilePic: '',
   emergencyContactName: '',
   emergencyContactPhone: '',
   emergencyContactRelation: '',
@@ -538,15 +542,84 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         }
       }
 
-      // Invalidate/cleanup old stale active patrol status from past dates (Aug 18, Aug 17)
+      // Invalidate/cleanup old stale active patrol status from past dates
+      const nowDate = new Date();
+      const nYyyy = nowDate.getFullYear();
+      const nMm = String(nowDate.getMonth() + 1).padStart(2, '0');
+      const nDd = String(nowDate.getDate()).padStart(2, '0');
+      const todayKey = `${nYyyy}-${nMm}-${nDd}`;
+      const todayDisplay = formatDisplayDate(todayKey);
+
       allPatrols = allPatrols.map(p => {
-        const isToday = p.date === '2026-08-21' || p.date === 'Aug 21, 2026';
+        const pDisp = formatDisplayDate(p.date);
+        const isToday = pDisp.toLowerCase() === todayDisplay.toLowerCase() || p.date === todayKey;
         if (!isToday && (p.status === 'in_progress' || p.status === 'In Progress')) {
           needsPatrolSave = true;
           return { ...p, status: 'Completed', endTime: p.endTime || '09:00 PM' };
         }
         return p;
       });
+
+      // Auto-ensure patrol entries for current date if missing
+      const hasTodayPatrols = allPatrols.some(p => {
+        const pDisp = formatDisplayDate(p.date);
+        return pDisp.toLowerCase() === todayDisplay.toLowerCase() || p.date === todayKey;
+      });
+
+      if (!hasTodayPatrols) {
+        const dateCode = `${nYyyy}${nMm}${nDd}`;
+        const empName = emp?.name || 'Khushi Rani';
+        const siteName = emp?.site || 'Ahmedabad Plant';
+
+        const todayDefaultPatrols: DBPatrol[] = [
+          {
+            id: `patrol-${todayKey}-morning`,
+            patrolCode: `PT-${dateCode}-01`,
+            title: 'Morning Perimeter Patrol',
+            companyId: 'c-1',
+            site: siteName,
+            siteId: emp?.siteId || 's-01',
+            route: 'Morning Perimeter Route',
+            guard: empName,
+            guardId: guardId,
+            date: todayKey,
+            startTime: '08:00 AM',
+            scheduledStartTime: '08:00 AM',
+            scheduledEndTime: '09:00 AM',
+            startBufferMinutes: 15,
+            status: 'Scheduled',
+            checkpoints: 5,
+            scanned: 0,
+            missed: 0,
+            incidents: 0,
+            lastCheckpoint: 'Pending Start',
+          },
+          {
+            id: `patrol-${todayKey}-evening`,
+            patrolCode: `PT-${dateCode}-02`,
+            title: 'Evening Perimeter Patrol',
+            companyId: 'c-1',
+            site: siteName,
+            siteId: emp?.siteId || 's-01',
+            route: 'Evening Perimeter Route',
+            guard: empName,
+            guardId: guardId,
+            date: todayKey,
+            startTime: '08:00 PM',
+            scheduledStartTime: '08:00 PM',
+            scheduledEndTime: '09:00 PM',
+            startBufferMinutes: 15,
+            status: 'Scheduled',
+            checkpoints: 5,
+            scanned: 0,
+            missed: 0,
+            incidents: 0,
+            lastCheckpoint: 'Pending Start',
+          },
+        ];
+        allPatrols.push(...todayDefaultPatrols);
+        needsPatrolSave = true;
+      }
 
       if (needsPatrolSave) {
         await saveTable('patrols', allPatrols);
@@ -680,12 +753,24 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         priority: n.priority || 'Medium',
       }));
 
-      // Check current attendance state from today's attendance records
-      const todayStr = new Date().toISOString().split('T')[0];
-      const todayRecords = guardAtt.filter(a => a.date === todayStr);
+      // Check current attendance state
+      // 1. Any active open record (clockIn present, clockOut null) takes absolute precedence!
+      const openRecord = guardAtt.slice().reverse().find(a => a.clockIn && (!a.clockOut || a.clockOut === '' || a.clockOut === '—'));
 
-      const openRecord = todayRecords.slice().reverse().find(a => a.clockIn && !a.clockOut);
-      const latestCompletedRecord = todayRecords.slice().reverse().find(a => a.clockIn && a.clockOut);
+      // 2. Otherwise check latest completed record for today
+      const todayYear = new Date().getFullYear();
+      const todayMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+      const todayDay = String(new Date().getDate()).padStart(2, '0');
+      const todayLocalStr = `${todayYear}-${todayMonth}-${todayDay}`;
+      const todayIsoStr = new Date().toISOString().split('T')[0];
+
+      const latestCompletedRecord = guardAtt.slice().reverse().find(a => 
+        (a.date === todayLocalStr || a.date === todayIsoStr) && 
+        a.clockIn && 
+        a.clockOut && 
+        a.clockOut !== '' && 
+        a.clockOut !== '—'
+      );
 
       let attStatus: AttendanceStatus = 'Not Checked In';
       let clockInTime: number | null = null;
@@ -797,7 +882,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       };
 
       // Find today's shift
-      const todayShift = guardShifts.find(s => s.date === todayStr) || guardShifts[0] || null;
+      const todayShift = guardShifts.find(s => s.date === todayLocalStr || s.date === todayIsoStr) || guardShifts[0] || null;
 
       // Map lists to internal UI interfaces
       const mappedLeaves: LeaveRequest[] = guardLeaves.map(l => ({
@@ -843,128 +928,6 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         };
       });
 
-      // INJECT MOCK DATA FOR AUGUST 2026 (UP TO TODAY, AUG 20)
-      const presentDates = [3, 4, 5, 7, 10, 11, 13, 17];
-      presentDates.forEach(d => {
-        const dateStr = `2026-08-${String(d).padStart(2, '0')}`;
-        if (!mappedHistory.some(a => a.date === dateStr)) {
-          mappedHistory.push({
-            id: `mock-att-${d}`,
-            date: dateStr,
-            day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' }),
-            siteName: 'Ahmedabad Plant',
-            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-            clockIn: `${dateStr}T08:00:00.000Z`,
-            clockOut: `${dateStr}T17:00:00.000Z`,
-            workingHours: 9,
-            status: 'Present',
-            notes: 'Standard shift',
-          });
-        }
-      });
-
-      // Inject Half Day records (Aug 6, Aug 18)
-      if (!mappedHistory.some(a => a.date === '2026-08-06')) {
-        mappedHistory.push({
-          id: 'mock-att-06',
-          date: '2026-08-06',
-          day: 'Thursday',
-          siteName: 'Ahmedabad Plant',
-          shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-          clockIn: '2026-08-06T08:00:00.000Z',
-          clockOut: '2026-08-06T12:00:00.000Z',
-          workingHours: 4,
-          status: 'Half Day',
-          notes: 'Half day duty',
-        });
-      }
-      if (!mappedHistory.some(a => a.date === '2026-08-18')) {
-        mappedHistory.push({
-          id: 'mock-att-18',
-          date: '2026-08-18',
-          day: 'Tuesday',
-          siteName: 'Ahmedabad Plant',
-          shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-          clockIn: '2026-08-18T08:04:00.000Z',
-          clockOut: '2026-08-18T12:05:00.000Z',
-          workingHours: 4.016,
-          status: 'Half Day',
-          notes: 'Half day duty',
-        });
-      }
-
-      // Inject 3-session Present record on Aug 20 (Today: Total Hours 8h 00m)
-      if (!mappedHistory.some(a => a.id === 'mock-att-20-1')) {
-        mappedHistory.push(
-          {
-            id: 'mock-att-20-1',
-            date: '2026-08-20',
-            day: 'Thursday',
-            siteName: 'Ahmedabad Plant',
-            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-            clockIn: '2026-08-20T08:00:00.000Z',
-            clockOut: '2026-08-20T12:00:00.000Z',
-            workingHours: 4,
-            status: 'Present',
-            notes: 'Session 1',
-          },
-          {
-            id: 'mock-att-20-2',
-            date: '2026-08-20',
-            day: 'Thursday',
-            siteName: 'Ahmedabad Plant',
-            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-            clockIn: '2026-08-20T12:45:00.000Z',
-            clockOut: '2026-08-20T15:00:00.000Z',
-            workingHours: 2.25,
-            status: 'Present',
-            notes: 'Session 2',
-          },
-          {
-            id: 'mock-att-20-3',
-            date: '2026-08-20',
-            day: 'Thursday',
-            siteName: 'Ahmedabad Plant',
-            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-            clockIn: '2026-08-20T15:30:00.000Z',
-            clockOut: '2026-08-20T17:15:00.000Z',
-            workingHours: 1.75,
-            status: 'Present',
-            notes: 'Session 3',
-          }
-        );
-      }
-
-      // Inject 2-session record with Active open session on Aug 14
-      if (!mappedHistory.some(a => a.id === 'mock-att-14-1')) {
-        mappedHistory.push(
-          {
-            id: 'mock-att-14-1',
-            date: '2026-08-14',
-            day: 'Friday',
-            siteName: 'Ahmedabad Plant',
-            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-            clockIn: '2026-08-14T08:05:00.000Z',
-            clockOut: '2026-08-14T12:00:00.000Z',
-            workingHours: 3.916,
-            status: 'Present',
-            notes: 'Completed session 1',
-          },
-          {
-            id: 'mock-att-14-2',
-            date: '2026-08-14',
-            day: 'Friday',
-            siteName: 'Ahmedabad Plant',
-            shiftName: 'Morning Shift 08:00 AM - 04:00 PM',
-            clockIn: '2026-08-14T13:00:00.000Z',
-            clockOut: null,
-            workingHours: 0,
-            status: 'Present',
-            notes: 'Active open session',
-          }
-        );
-      }
-
       if (!mappedLeaves.some(l => l.fromDate === '2026-08-12')) {
         mappedLeaves.push({
           id: 'mock-leave-12',
@@ -1002,6 +965,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         gender: emp?.gender || 'Male',
         bloodGroup: emp?.bloodGroup || 'O+',
         address: emp?.address || '123 Main St, Springfield, IL',
+        profilePic: emp?.profilePic || 'https://i.pravatar.cc/150?img=11',
         emergencyContactName: emp?.emergencyContactName || 'Sarah Smith',
         emergencyContactPhone: emp?.emergencyContactPhone || '+1 555 0199',
         emergencyContactRelation: emp?.emergencyContactRelation || 'Spouse',
@@ -1046,10 +1010,36 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         throw new Error('Cannot clock in: current guard identity has not been initialized.');
       }
 
-      const now = Date.now();
-      const todayStr = new Date(now).toISOString().split('T')[0];
+      const nowMs = Date.now();
+      const nowIso = new Date(nowMs).toISOString();
+      const todayYear = new Date(nowMs).getFullYear();
+      const todayMonth = String(new Date(nowMs).getMonth() + 1).padStart(2, '0');
+      const todayDay = String(new Date(nowMs).getDate()).padStart(2, '0');
+      const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+
+      const currentAtt = await getTable<DBAttendance>('attendance');
+      const openRecord = currentAtt.slice().reverse().find(a => 
+        a.employeeId === guardId && 
+        a.clockIn && 
+        (!a.clockOut || a.clockOut === '' || a.clockOut === '—')
+      );
+
+      if (openRecord) {
+        LoggerService.log(`[useGuardStore] Active clock-in session already exists (${openRecord.id}). Restoring session without duplicate creation.`);
+        const parsedIn = (openRecord.clockIn ? new Date(openRecord.clockIn).getTime() : 0) || nowMs;
+        set({
+          attendanceStatus: 'Checked In',
+          clockInTimestamp: parsedIn,
+          clockOutTimestamp: null,
+          isClockedIn: true,
+          isClockedOut: false,
+        });
+        await get().loadGuardData(guardId, guardEmail || '');
+        return;
+      }
+
       const newRecord: DBAttendance = {
-        id: `att-${Date.now()}`,
+        id: `att-${nowMs}`,
         employeeId: guardId,
         employeeName: guardName,
         employeeEmail: guardEmail || '',
@@ -1057,7 +1047,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         role: 'guard',
         date: todayStr,
         shift: 'Morning Shift 08:00 AM - 04:00 PM',
-        clockIn: new Date(now).toISOString(),
+        clockIn: nowIso,
         clockOut: null,
         status: 'present',
         siteId: assignedSiteId,
@@ -1069,16 +1059,15 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       // Create Notification
       const newNotif = {
-        id: `notif-${Date.now()}`,
+        id: `notif-${nowMs}`,
         userId: guardId,
         title: 'Clocked In Successfully',
-        message: `You clocked in at ${new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} at ${assignedSite}.`,
+        message: `You clocked in at ${new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} at ${assignedSite}.`,
         read: false,
-        createdAt: new Date().toISOString()
+        createdAt: nowIso
       };
       await insertRow('notifications', newNotif);
 
-      const nowMs = Date.now();
       const formatTime12h = (ts: number) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const nextMs = nowMs + 30 * 60 * 1000;
       const lwState: LoneWorkerState = {
@@ -1119,62 +1108,37 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       const nowMs = Date.now();
       const nowStr = new Date(nowMs).toISOString();
-      const todayStr = new Date(nowMs).toISOString().split('T')[0];
       const currentAtt = await getTable<DBAttendance>('attendance');
-      const todayRecord = currentAtt.slice().reverse().find(a => a.employeeId === guardId && a.date === todayStr && !a.clockOut)
-        || currentAtt.slice().reverse().find(a => a.employeeId === guardId && a.date === todayStr);
 
-      if (todayRecord) {
-        const inT = (todayRecord.clockIn ? new Date(todayRecord.clockIn).getTime() : 0) || clockInTimestamp || nowMs;
+      const openRecord = currentAtt.slice().reverse().find(a => 
+        a.employeeId === guardId && 
+        a.clockIn && 
+        (!a.clockOut || a.clockOut === '' || a.clockOut === '—')
+      );
+
+      if (openRecord) {
+        const inT = (openRecord.clockIn ? new Date(openRecord.clockIn).getTime() : 0) || clockInTimestamp || nowMs;
         const outT = nowMs;
-        const diffHrs = Math.max(0.01, (outT - inT) / (1000 * 3600)).toFixed(2) + ' hrs';
+        const diffMs = Math.max(0, outT - inT);
+        const hrs = (diffMs / (3600 * 1000)).toFixed(2);
+        const diffHrs = `${hrs} hrs`;
 
-        await updateRow<DBAttendance>('attendance', todayRecord.id, {
+        await updateRow<DBAttendance>('attendance', openRecord.id, {
           clockOut: nowStr,
           workingHours: diffHrs,
         });
 
         // Create Notification
         const newNotif = {
-          id: `notif-${Date.now()}`,
+          id: `notif-${nowMs}`,
           userId: guardId,
           title: 'Clocked Out Successfully',
           message: `You clocked out at ${new Date(nowStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}. Total: ${diffHrs}.`,
           read: false,
-          createdAt: new Date().toISOString()
+          createdAt: nowStr
         };
         await insertRow('notifications', newNotif);
-        LoggerService.log(`[useGuardStore] clockOut update complete for record ${todayRecord.id}`);
-      } else {
-        const fallbackRecord: DBAttendance = {
-          id: `att-${nowMs}`,
-          employeeId: guardId,
-          employeeName: get().guardName || 'Security Officer',
-          employeeEmail: guardEmail || '',
-          badge: `GRD-${guardId.slice(-3).toUpperCase()}`,
-          role: 'guard',
-          date: todayStr,
-          shift: 'Morning Shift 08:00 AM - 04:00 PM',
-          clockIn: clockInTimestamp ? new Date(clockInTimestamp).toISOString() : new Date(nowMs - 8 * 3600 * 1000).toISOString(),
-          clockOut: nowStr,
-          workingHours: '8.00 hrs',
-          status: 'present',
-          siteId: get().assignedSiteId || 's-01',
-          siteName: assignedSite || 'Assigned Site',
-          companyId: 'c-1',
-        };
-        await insertRow('attendance', fallbackRecord);
-
-        const newNotif = {
-          id: `notif-${Date.now()}`,
-          userId: guardId,
-          title: 'Clocked Out Successfully',
-          message: `You clocked out at ${new Date(nowStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`,
-          read: false,
-          createdAt: new Date().toISOString()
-        };
-        await insertRow('notifications', newNotif);
-        LoggerService.log(`[useGuardStore] clockOut fallback record created for ${guardId}`);
+        LoggerService.log(`[useGuardStore] clockOut update complete for record ${openRecord.id}`);
       }
 
       soundAlertService.stopSafetyAlert();
@@ -1440,6 +1404,96 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
+  ensurePatrolsForDate: async (targetDateInput?: string | Date) => {
+    const d = targetDateInput
+      ? (typeof targetDateInput === 'string' ? new Date(targetDateInput) : targetDateInput)
+      : new Date();
+
+    const validDate = isNaN(d.getTime()) ? new Date() : d;
+    const yyyy = validDate.getFullYear();
+    const mm = String(validDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(validDate.getDate()).padStart(2, '0');
+    const dateKey = `${yyyy}-${mm}-${dd}`;
+    const displayDateStr = formatDisplayDate(dateKey);
+
+    const { patrols, guardId, guardName, assignedSite } = get();
+    const currentPatrols = patrols || [];
+
+    const existing = currentPatrols.filter(p => {
+      const pDisplay = formatDisplayDate(p.date);
+      return pDisplay.toLowerCase() === displayDateStr.toLowerCase() || p.date === dateKey;
+    });
+
+    if (existing.length > 0) {
+      return;
+    }
+
+    const dateCode = `${yyyy}${mm}${dd}`;
+    const empName = guardName || 'Khushi Rani';
+    const siteName = assignedSite || 'Ahmedabad Plant';
+
+    const newPatrols: DBPatrol[] = [
+      {
+        id: `patrol-${dateKey}-morning`,
+        patrolCode: `PT-${dateCode}-01`,
+        title: 'Morning Perimeter Patrol',
+        companyId: 'c-1',
+        site: siteName,
+        siteId: 's-01',
+        route: 'Morning Perimeter Route',
+        guard: empName,
+        guardId: guardId || 'guard-1',
+        date: dateKey,
+        startTime: '08:00 AM',
+        scheduledStartTime: '08:00 AM',
+        scheduledEndTime: '09:00 AM',
+        startBufferMinutes: 15,
+        status: 'Scheduled',
+        checkpoints: 5,
+        scanned: 0,
+        missed: 0,
+        incidents: 0,
+        lastCheckpoint: 'Pending Start',
+      },
+      {
+        id: `patrol-${dateKey}-evening`,
+        patrolCode: `PT-${dateCode}-02`,
+        title: 'Evening Perimeter Patrol',
+        companyId: 'c-1',
+        site: siteName,
+        siteId: 's-01',
+        route: 'Evening Perimeter Route',
+        guard: empName,
+        guardId: guardId || 'guard-1',
+        date: dateKey,
+        startTime: '08:00 PM',
+        scheduledStartTime: '08:00 PM',
+        scheduledEndTime: '09:00 PM',
+        startBufferMinutes: 15,
+        status: 'Scheduled',
+        checkpoints: 5,
+        scanned: 0,
+        missed: 0,
+        incidents: 0,
+        lastCheckpoint: 'Pending Start',
+      },
+    ];
+
+    let allDbPatrols = await getTable<DBPatrol>('patrols');
+    for (const np of newPatrols) {
+      if (!allDbPatrols.some(p => p.id === np.id)) {
+        allDbPatrols.unshift(np);
+      }
+    }
+    await saveTable('patrols', allDbPatrols);
+
+    const guardPatrols = allDbPatrols.filter(p =>
+      p.guardId === guardId || p.guard === empName || p.guardId === 'G-1001' || p.guardId === 'guard-1'
+    );
+
+    set({ patrols: guardPatrols });
+  },
+
   scanCheckpointCode: async (code: string) => {
     let { activePatrol, guardId, guardEmail, patrolCheckpoints, patrols } = get();
     if (!guardId) return { success: false, message: 'User not logged in' };
@@ -1459,9 +1513,9 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const cleanCode = (code || '').trim().toUpperCase();
     const cpIndex = patrolCheckpoints.findIndex(
       c => (c.qrCode || '').trim().toUpperCase() === cleanCode ||
-           (c.number || '').trim().toUpperCase() === cleanCode ||
-           (c.id || '').trim().toUpperCase() === cleanCode ||
-           cleanCode.includes((c.number || '').trim().toUpperCase())
+        (c.number || '').trim().toUpperCase() === cleanCode ||
+        (c.id || '').trim().toUpperCase() === cleanCode ||
+        cleanCode.includes((c.number || '').trim().toUpperCase())
     );
 
     if (cpIndex === -1) {

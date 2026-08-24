@@ -280,7 +280,7 @@ export const IncidentScreen: React.FC = () => {
             size="large"
             fullWidth
             onPress={() => navigation.navigate('FileIncident')}
-            style={{ height: 54, backgroundColor: '#4F46E5' }}
+            style={{ height: 54, backgroundColor: '#5B46E5' }}
           />
         </View>
       </View>

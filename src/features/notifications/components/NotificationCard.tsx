@@ -12,18 +12,6 @@ interface NotificationCardProps {
 export const NotificationCard: React.FC<NotificationCardProps> = ({ notification, onPress }) => {
   const { colors, borderRadius } = useTheme();
 
-  const getIcon = () => {
-    switch (notification.type) {
-      case 'Attendance': return '🕒';
-      case 'Leave': return '📅';
-      case 'Incident': return '⚠️';
-      case 'Company': return '📢';
-      case 'Holiday': return '🎉';
-      case 'System': return '⚙️';
-      default: return '🔔';
-    }
-  };
-
   const getPriorityColor = () => {
     switch (notification.priority) {
       case 'High': return colors.error;
@@ -33,15 +21,34 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({ notification
     }
   };
 
-  const formattedTime = new Date(notification.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const formattedDate = new Date(notification.date).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const getFormattedDateTime = () => {
+    let t = notification.time || '';
+    let d = notification.date || '';
+
+    if (d && d.match(/^\d{4}-\d{2}-\d{2}/)) {
+      const parsedDate = new Date(d);
+      if (!isNaN(parsedDate.getTime())) {
+        d = parsedDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      }
+    }
+
+    if (t && t.includes('T')) {
+      const parsedTime = new Date(t);
+      if (!isNaN(parsedTime.getTime())) {
+        t = parsedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    if (d && t) return `${d} • ${t}`;
+    return d || t || 'Today';
+  };
 
   return (
     <TouchableOpacity 
       style={[
         styles.card, 
         { 
-          backgroundColor: notification.isRead ? colors.surface : colors.primary[50], 
+          backgroundColor: notification.isRead ? colors.surface : '#F0F9FF', 
           borderColor: colors.border,
           borderRadius: borderRadius.md,
         }
@@ -53,25 +60,21 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({ notification
         <View style={[styles.unreadDot, { backgroundColor: colors.primary[500], borderRadius: borderRadius.full }]} />
       )}
       
-      <View style={styles.iconContainer}>
-        <AppText style={{ fontSize: 24 }}>{getIcon()}</AppText>
-      </View>
-      
       <View style={styles.contentContainer}>
         <View style={styles.headerRow}>
-          <AppText weight="bold" style={styles.title} numberOfLines={1}>{notification.title}</AppText>
+          <AppText style={styles.title} numberOfLines={1}>{notification.title}</AppText>
           <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(), borderRadius: borderRadius.full }]}>
-            <AppText size="xs" color="surface" weight="bold">{notification.priority}</AppText>
+            <AppText style={styles.priorityText}>{notification.priority}</AppText>
           </View>
         </View>
         
-        <AppText size="sm" color="secondary" style={styles.description} numberOfLines={2}>
+        <AppText style={styles.description} numberOfLines={2}>
           {notification.description}
         </AppText>
         
         <View style={styles.footerRow}>
-          <AppText size="xs" color="secondary">{notification.type}</AppText>
-          <AppText size="xs" color="secondary">{formattedDate} • {formattedTime}</AppText>
+          <AppText style={styles.footerText}>{notification.type}</AppText>
+          <AppText style={styles.footerText}>{getFormattedDateTime()}</AppText>
         </View>
       </View>
     </TouchableOpacity>
@@ -81,25 +84,20 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({ notification
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
+    padding: 18,
+    paddingLeft: 22,
+    marginBottom: 14,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
     position: 'relative',
     overflow: 'hidden',
   },
   unreadDot: {
     position: 'absolute',
-    top: 16,
+    top: 22,
     left: 8,
     width: 8,
     height: 8,
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
   },
   contentContainer: {
     flex: 1,
@@ -108,23 +106,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   title: {
     flex: 1,
     marginRight: 8,
+    fontSize: 18.5,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  priorityText: {
+    color: '#FFFFFF',
+    fontSize: 13.5,
+    fontWeight: '800',
   },
   description: {
-    marginBottom: 8,
-    lineHeight: 20,
+    marginBottom: 10,
+    lineHeight: 22,
+    fontSize: 15.5,
+    color: '#475569',
   },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748B',
   }
 });

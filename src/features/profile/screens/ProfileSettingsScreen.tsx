@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, TextInput, Alert, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -11,28 +12,77 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { updateRow, DBEmployee } from '../../../services/db';
 import { Button } from '../../../components/Button';
 
+import { typography } from '../../../theme/tokens/typography';
+
 export const ProfileSettingsScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
   const { user, checkSession } = useAuthStore();
   const guardStore = useGuardStore();
 
+  const [profilePic, setProfilePic] = useState(guardStore.profilePic || 'https://i.pravatar.cc/150?img=11');
   const [name, setName] = useState(guardStore.guardName || user?.name || '');
   const [phone, setPhone] = useState(guardStore.phone || '');
+  const [dateOfBirth, setDateOfBirth] = useState(guardStore.dateOfBirth || '');
+  const [gender, setGender] = useState(guardStore.gender || '');
+  const [bloodGroup, setBloodGroup] = useState(guardStore.bloodGroup || '');
   const [address, setAddress] = useState(guardStore.address || '');
-  const [emergencyContactName, setEmergencyContactName] = useState(guardStore.emergencyContactName || '');
-  const [emergencyContactPhone, setEmergencyContactPhone] = useState(guardStore.emergencyContactPhone || '');
-  const [emergencyContactRelation, setEmergencyContactRelation] = useState(guardStore.emergencyContactRelation || '');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setProfilePic(guardStore.profilePic || 'https://i.pravatar.cc/150?img=11');
     setName(guardStore.guardName || user?.name || '');
     setPhone(guardStore.phone || '');
+    setDateOfBirth(guardStore.dateOfBirth || 'Oct 12, 1990');
+    setGender(guardStore.gender || 'Male');
+    setBloodGroup(guardStore.bloodGroup || 'O+');
     setAddress(guardStore.address || '');
-    setEmergencyContactName(guardStore.emergencyContactName || '');
-    setEmergencyContactPhone(guardStore.emergencyContactPhone || '');
-    setEmergencyContactRelation(guardStore.emergencyContactRelation || '');
-  }, [guardStore.guardName, guardStore.phone, guardStore.address, guardStore.emergencyContactName, guardStore.emergencyContactPhone, guardStore.emergencyContactRelation, user]);
+  }, [
+    guardStore.profilePic,
+    guardStore.guardName,
+    guardStore.phone,
+    guardStore.dateOfBirth,
+    guardStore.gender,
+    guardStore.bloodGroup,
+    guardStore.address,
+    user
+  ]);
+
+  const handleSelectPhoto = () => {
+    Alert.alert(
+      'Update Profile Picture',
+      'Choose an option to update your profile photo',
+      [
+        {
+          text: 'Take Photo',
+          onPress: async () => {
+            try {
+              const res = await launchCamera({ mediaType: 'photo', quality: 0.8 });
+              if (res.assets && res.assets[0]?.uri) {
+                setProfilePic(res.assets[0].uri);
+              }
+            } catch (e) {
+              Alert.alert('Error', 'Failed to access camera.');
+            }
+          },
+        },
+        {
+          text: 'Choose from Gallery',
+          onPress: async () => {
+            try {
+              const res = await launchImageLibrary({ mediaType: 'photo', quality: 0.8 });
+              if (res.assets && res.assets[0]?.uri) {
+                setProfilePic(res.assets[0].uri);
+              }
+            } catch (e) {
+              Alert.alert('Error', 'Failed to access photo gallery.');
+            }
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
 
   const handleSave = async () => {
     const empId = user?.id || guardStore.guardId;
@@ -46,10 +96,11 @@ export const ProfileSettingsScreen = () => {
       const updates: Partial<DBEmployee> = {
         name,
         phone,
+        dateOfBirth,
+        gender,
+        bloodGroup,
         address,
-        emergencyContactName,
-        emergencyContactPhone,
-        emergencyContactRelation,
+        profilePic,
       };
 
       const result = await updateRow<DBEmployee>('employees', empId, updates);
@@ -59,7 +110,7 @@ export const ProfileSettingsScreen = () => {
         if (guardStore.loadGuardData && user?.email) {
           await guardStore.loadGuardData(empId, user.email);
         }
-        Alert.alert('Success', 'Profile information updated successfully', [
+        Alert.alert('Success', 'Personal information updated successfully', [
           { text: 'OK', onPress: () => navigation.goBack() }
         ]);
       } else {
@@ -77,10 +128,21 @@ export const ProfileSettingsScreen = () => {
       <PageHeader title="Profile Settings" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
         
-        <Heading level="h4" color="secondary" style={styles.sectionHeader}>PERSONAL DETAILS</Heading>
+        {/* Profile Picture Edit Section */}
+        <View style={styles.photoContainer}>
+          <Image
+            source={{ uri: profilePic || 'https://i.pravatar.cc/150?img=11' }}
+            style={styles.avatarPreview}
+          />
+          <TouchableOpacity style={styles.changePhotoBtn} onPress={handleSelectPhoto} activeOpacity={0.8}>
+            <AppText size="base" weight="bold" style={styles.changePhotoText}>Change Photo</AppText>
+          </TouchableOpacity>
+        </View>
+
+        <AppText style={styles.sectionHeader}>PERSONAL INFORMATION</AppText>
 
         <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Full Name</AppText>
+          <AppText style={styles.label}>Full Name</AppText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
             value={name}
@@ -91,16 +153,7 @@ export const ProfileSettingsScreen = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Email Address (Read-only)</AppText>
-          <TextInput
-            style={[styles.input, styles.readOnly, { backgroundColor: colors.background, color: colors.secondary, borderColor: colors.border, borderRadius: borderRadius.md }]}
-            value={user?.email || guardStore.guardEmail || ''}
-            editable={false}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Mobile Number</AppText>
+          <AppText style={styles.label}>Mobile Number</AppText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
             value={phone}
@@ -112,54 +165,61 @@ export const ProfileSettingsScreen = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Address</AppText>
+          <AppText style={styles.label}>Email Address (Read-only)</AppText>
+          <TextInput
+            style={[styles.input, styles.readOnly, { backgroundColor: colors.background, color: colors.secondary, borderColor: colors.border, borderRadius: borderRadius.md }]}
+            value={user?.email || guardStore.guardEmail || ''}
+            editable={false}
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Date of Birth</AppText>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
+            value={dateOfBirth}
+            onChangeText={setDateOfBirth}
+            placeholder="e.g. Oct 12, 1990"
+            placeholderTextColor={colors.secondary}
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Gender</AppText>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
+            value={gender}
+            onChangeText={setGender}
+            placeholder="e.g. Male, Female, Other"
+            placeholderTextColor={colors.secondary}
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Blood Group</AppText>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
+            value={bloodGroup}
+            onChangeText={setBloodGroup}
+            placeholder="e.g. O+, A+, B+, AB+"
+            placeholderTextColor={colors.secondary}
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Address</AppText>
           <TextInput
             style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
             value={address}
             onChangeText={setAddress}
             placeholder="Enter residential address"
             placeholderTextColor={colors.secondary}
+            multiline
           />
         </View>
 
-        <Heading level="h4" color="secondary" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>EMERGENCY CONTACT</Heading>
-
-        <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Contact Name</AppText>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
-            value={emergencyContactName}
-            onChangeText={setEmergencyContactName}
-            placeholder="Enter emergency contact name"
-            placeholderTextColor={colors.secondary}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Contact Phone</AppText>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
-            value={emergencyContactPhone}
-            onChangeText={setEmergencyContactPhone}
-            placeholder="Enter emergency contact phone"
-            placeholderTextColor={colors.secondary}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <AppText style={styles.label} color="secondary">Relationship</AppText>
-          <TextInput
-            style={[styles.input, { backgroundColor: colors.surface, color: colors.text, borderColor: colors.border, borderRadius: borderRadius.md }]}
-            value={emergencyContactRelation}
-            onChangeText={setEmergencyContactRelation}
-            placeholder="e.g. Spouse, Parent, Brother"
-            placeholderTextColor={colors.secondary}
-          />
-        </View>
-
-        <View style={{ marginTop: spacing.xl, marginBottom: 20 }}>
-          <Button title={isLoading ? "Saving..." : "Save Changes"} onPress={handleSave} disabled={isLoading} />
+        <View style={{ marginTop: spacing.xl, marginBottom: 30 }}>
+          <Button title={isLoading ? "Saving..." : "Save Changes"} onPress={handleSave} disabled={isLoading} size="large" fullWidth style={{ minHeight: 60 }} />
         </View>
 
       </ScrollView>
@@ -171,26 +231,51 @@ const styles = StyleSheet.create({
   container: {
     paddingBottom: 40,
   },
-  sectionHeader: {
+  photoContainer: {
+    alignItems: 'center',
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  avatarPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: '#2563EB',
     marginBottom: 12,
-    fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
+  },
+  changePhotoBtn: {
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  changePhotoText: {
+    color: '#FFFFFF',
+    ...typography.presets.label,
+    fontWeight: '600',
+  },
+  sectionHeader: {
+    marginBottom: 14,
+    ...typography.presets.sectionHeading,
+    color: '#475569',
   },
   inputGroup: {
     marginBottom: 16,
   },
   label: {
     marginBottom: 6,
-    fontWeight: '600',
-    fontSize: 14,
+    ...typography.presets.label,
+    color: '#334155',
   },
   input: {
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 56,
+    ...typography.presets.body,
+    includeFontPadding: false,
   },
   readOnly: {
     opacity: 0.7,

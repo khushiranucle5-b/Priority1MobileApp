@@ -7,6 +7,8 @@ import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 
+import { typography } from '../../../theme/tokens/typography';
+
 export const AppearanceScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
@@ -35,17 +37,18 @@ export const AppearanceScreen = () => {
                   index === options.length - 1 && { borderBottomWidth: 0 }
                 ]}
                 onPress={() => setThemeMode(option.value)}
+                activeOpacity={0.7}
               >
-                <AppText size="base" weight={isSelected ? 'bold' : undefined} color={isSelected ? 'primary' : 'text'}>
+                <AppText style={[styles.optionLabel, isSelected && styles.optionLabelSelected]}>
                   {option.label}
                 </AppText>
-                {isSelected && <AppText style={{ color: colors.primary[500] }}>✓</AppText>}
+                {isSelected && <AppText style={{ color: colors.primary[600] || '#2563EB', fontSize: 24, fontWeight: '700' }}>✓</AppText>}
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <AppText size="sm" color="secondary" style={styles.description}>
+        <AppText style={styles.description}>
           System Default will automatically match your device's global appearance settings.
         </AppText>
       </ScrollView>
@@ -58,18 +61,34 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    borderWidth: 1,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
     overflow: 'hidden',
+    marginTop: 12,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    minHeight: 60,
+    borderBottomWidth: 1,
+  },
+  optionLabel: {
+    ...typography.presets.body,
+    color: '#0F172A',
+  },
+  optionLabelSelected: {
+    fontWeight: '700',
+    color: '#2563EB',
   },
   description: {
     marginTop: 16,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    ...typography.presets.helper,
+    lineHeight: 22,
+    color: '#64748B',
     textAlign: 'center',
   }
 });

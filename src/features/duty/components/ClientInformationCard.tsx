@@ -17,19 +17,19 @@ export const ClientInformationCard: React.FC = () => {
 
       <View style={styles.row}>
         <View style={[styles.avatarBox, { borderRadius: borderRadius.md, backgroundColor: colors.primary[50] || '#EFF6FF' }]}>
-          <AppText size="lg" weight="bold" style={{ color: colors.primary[600] || '#2563EB', fontSize: 20 }}>
+          <AppText size="lg" weight="bold" style={{ color: colors.primary[600] || '#2563EB', fontSize: 22 }}>
             ABC
           </AppText>
         </View>
 
         <View style={styles.info}>
-          <AppText size="lg" weight="bold" color="primary" style={styles.clientName}>
+          <AppText style={styles.clientName}>
             ABC Industries Ltd.
           </AppText>
-          <AppText size="sm" weight="semibold" color="secondary" style={styles.detailText}>
+          <AppText style={styles.detailText}>
             123 Business Park, Sector 45
           </AppText>
-          <AppText size="sm" weight="bold" style={[styles.phoneText, { color: colors.primary[600] || '#2563EB' }]}>
+          <AppText style={[styles.phoneText, { color: colors.primary[600] || '#2563EB' }]}>
             +1 234-567-8900
           </AppText>
         </View>
@@ -41,8 +41,8 @@ export const ClientInformationCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 18,
+    marginVertical: 10,
+    padding: 20,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     elevation: 1,
@@ -52,23 +52,23 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   divider: {
     height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12,
+    marginVertical: 14,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatarBox: {
-    width: 56,
-    height: 56,
-    marginRight: 16,
+    width: 64,
+    height: 64,
+    marginRight: 18,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
@@ -78,17 +78,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   clientName: {
-    fontSize: 17,
+    fontSize: 19,
     fontWeight: '700',
+    color: '#0F172A',
   },
   detailText: {
-    fontSize: 13.5,
+    fontSize: 15.5,
     color: '#64748B',
-    marginTop: 2,
+    fontWeight: '500',
+    marginTop: 3,
   },
   phoneText: {
-    fontSize: 14.5,
+    fontSize: 16.5,
     fontWeight: '700',
-    marginTop: 4,
+    marginTop: 5,
   },
 });

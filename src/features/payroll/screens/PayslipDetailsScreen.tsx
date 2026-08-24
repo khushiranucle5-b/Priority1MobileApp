@@ -157,13 +157,13 @@ export const PayslipDetailsScreen: React.FC = () => {
           </View>
         </Card>
 
-        {/* Glove-friendly 54px Download PDF Payslip Button */}
+        {/* Download PDF Payslip Button */}
         <Button
           title="Download PDF Payslip"
           variant="primary"
-          size="large"
+          size="medium"
           fullWidth
-          style={{ height: 54, backgroundColor: '#4F46E5', marginTop: 4 }}
+          style={{ backgroundColor: '#4F46E5', marginTop: 4 }}
           onPress={handleDownloadPdf}
         />
 

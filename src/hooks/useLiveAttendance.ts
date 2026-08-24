@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import { useGuardStore } from '../store/useGuardStore';
 
 const formatTime = (timestamp: number | null): string => {
@@ -14,59 +15,62 @@ const formatDuration = (ms: number): string => {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  
+
   const pad = (num: number) => num.toString().padStart(2, '0');
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
 export const useLiveAttendance = () => {
-  const { clockInTimestamp, clockOutTimestamp, attendanceStatus, isClockedIn, isClockedOut, attendanceHistory } = useGuardStore();
+  const {
+    clockInTimestamp,
+    clockOutTimestamp,
+    attendanceStatus,
+    isClockedIn,
+    isClockedOut,
+  } = useGuardStore();
+
   const [workingHours, setWorkingHours] = useState('00:00:00');
 
+  const updateDuration = useCallback(() => {
+    if (isClockedIn && clockInTimestamp) {
+      // Currently checked in: exact duration = current time - clockIn timestamp
+      const currentMs = Math.max(0, Date.now() - clockInTimestamp);
+      setWorkingHours(formatDuration(currentMs));
+    } else if (isClockedOut && clockInTimestamp && clockOutTimestamp) {
+      // Checked out: fixed final duration = clockOut timestamp - clockIn timestamp
+      const sessionMs = Math.max(0, clockOutTimestamp - clockInTimestamp);
+      setWorkingHours(formatDuration(sessionMs));
+    } else {
+      // Not checked in: 00:00:00
+      setWorkingHours('00:00:00');
+    }
+  }, [isClockedIn, isClockedOut, clockInTimestamp, clockOutTimestamp]);
+
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    const todayStr = new Date().toISOString().split('T')[0];
+    let interval: ReturnType<typeof setInterval> | null = null;
 
-    // Calculate sum of completed session durations for TODAY (excluding current active session)
-    const completedMsToday = (attendanceHistory || [])
-      .filter(a => a.date === todayStr && a.clockIn && a.clockOut)
-      .reduce((sum, a) => {
-        const inT = new Date(a.clockIn!).getTime();
-        const outT = new Date(a.clockOut!).getTime();
-        return sum + (outT > inT ? outT - inT : 0);
-      }, 0);
+    updateDuration();
 
-    const updateDuration = () => {
-      if (isClockedIn && clockInTimestamp) {
-        // Currently clocked in: completed duration today + active session duration live
-        const currentSessionMs = Math.max(0, Date.now() - clockInTimestamp);
-        setWorkingHours(formatDuration(completedMsToday + currentSessionMs));
-      } else if (isClockedOut && clockInTimestamp && clockOutTimestamp) {
-        // Clocked out: fixed duration between clockOutTimestamp and clockInTimestamp
-        const sessionMs = Math.max(0, clockOutTimestamp - clockInTimestamp);
-        setWorkingHours(formatDuration(sessionMs > 0 ? sessionMs : completedMsToday));
-      } else {
-        // Not checked in: show total completed duration today
-        setWorkingHours(formatDuration(completedMsToday));
-      }
-    };
-
-    updateDuration(); // Initial call
-
-    if (isClockedIn) {
+    if (isClockedIn && clockInTimestamp) {
       interval = setInterval(updateDuration, 1000);
     }
 
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        updateDuration();
+      }
+    });
+
     return () => {
       if (interval) clearInterval(interval);
+      subscription.remove();
     };
-  }, [clockInTimestamp, clockOutTimestamp, isClockedIn, isClockedOut, attendanceHistory]);
+  }, [isClockedIn, clockInTimestamp, updateDuration]);
 
   return {
     workingHours,
-    clockInTimeStr: formatTime(clockInTimestamp),
-    clockOutTimeStr: isClockedOut || clockOutTimestamp ? formatTime(clockOutTimestamp) : '--:--',
+    clockInTimeStr: isClockedIn || isClockedOut ? formatTime(clockInTimestamp) : '--:--',
+    clockOutTimeStr: isClockedOut && clockOutTimestamp ? formatTime(clockOutTimestamp) : '--:--',
     attendanceStatus,
   };
 };
-

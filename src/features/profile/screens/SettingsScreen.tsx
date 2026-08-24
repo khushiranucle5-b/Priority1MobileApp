@@ -11,6 +11,8 @@ import { useSettingsStore } from '../../../store/useSettingsStore';
 import { NavIcon, NavIconName } from '../../../components/NavIcon';
 import { Button } from '../../../components/Button';
 
+import { typography } from '../../../theme/tokens/typography';
+
 interface SettingItem {
   id: string;
   icon: NavIconName;
@@ -23,7 +25,7 @@ export const SettingsScreen: React.FC = () => {
   const { spacing, colors, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const logout = useAuthStore(state => state.logout);
   const setThemeMode = useSettingsStore(state => state.setThemeMode);
 
@@ -33,9 +35,11 @@ export const SettingsScreen: React.FC = () => {
       "Are you sure you want to log out?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Log Out", style: "destructive", onPress: async () => {
-          await logout();
-        }}
+        {
+          text: "Log Out", style: "destructive", onPress: async () => {
+            await logout();
+          }
+        }
       ]
     );
   };
@@ -44,22 +48,12 @@ export const SettingsScreen: React.FC = () => {
     { id: 'profile', icon: 'profile', title: 'Profile Settings', section: 'Account', onPress: () => navigation.navigate('ProfileSettings') },
     { id: 'password', icon: 'settings', title: 'Change Password', section: 'Account', onPress: () => navigation.navigate('ChangePassword') },
     { id: 'notification', icon: 'messages', title: 'Notification Settings', section: 'Account', onPress: () => navigation.navigate('NotificationSettings') },
-    
-    { id: 'privacy', icon: 'loneworker', title: 'Privacy & Security', section: 'Privacy & Security', onPress: () => navigation.navigate('PrivacySecurity') },
-    { id: 'biometric', icon: 'profile', title: 'Biometric / App Lock', section: 'Privacy & Security', onPress: () => navigation.navigate('BiometricAppLock') },
-    { id: 'policy', icon: 'policies', title: 'Privacy Policy', section: 'Privacy & Security', onPress: () => navigation.navigate('PrivacyPolicy') },
-    { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Privacy & Security', onPress: () => navigation.navigate('TermsConditions') },
-    
-    { id: 'location', icon: 'sites', title: 'Location & GPS', section: 'Attendance & Location', onPress: () => navigation.navigate('LocationGPS') },
-    { id: 'attendance_settings', icon: 'attendance', title: 'Attendance Settings', section: 'Attendance & Location', onPress: () => navigation.navigate('AttendanceSettings') },
-    
-    { id: 'appearance', icon: 'settings', title: 'Appearance', section: 'App Preferences', onPress: () => navigation.navigate('Appearance') },
-    
+
     { id: 'support', icon: 'messages', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
     { id: 'contact', icon: 'messages', title: 'Contact Support', section: 'Support', onPress: () => navigation.navigate('ContactSupport') },
-    
-    { id: 'permissions', icon: 'settings', title: 'App Permissions', section: 'Application', onPress: () => navigation.navigate('AppPermissions') },
-    { id: 'storage', icon: 'assets', title: 'Data & Storage', section: 'Application', onPress: () => navigation.navigate('DataStorage') },
+    { id: 'policy', icon: 'policies', title: 'Privacy Policy', section: 'Support', onPress: () => navigation.navigate('PrivacyPolicy') },
+    { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Support', onPress: () => navigation.navigate('TermsConditions') },
+
     { id: 'about', icon: 'dashboard', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
   ];
 
@@ -85,10 +79,10 @@ export const SettingsScreen: React.FC = () => {
   return (
     <ScreenLayout>
       <PageHeader title="Settings" showBack onBack={() => navigation.goBack()} />
-      
+
       <View style={[styles.searchContainer, { backgroundColor: colors.card, marginHorizontal: spacing.base, borderRadius: borderRadius.md, marginTop: spacing.md }]}>
         <View style={styles.searchIcon}>
-          <NavIcon name="search" size={18} color="#64748B" />
+          <NavIcon name="search" size={24} color="#64748B" />
         </View>
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
@@ -102,30 +96,32 @@ export const SettingsScreen: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingHorizontal: spacing.base }]}>
         {filteredSettings.length === 0 ? (
           <View style={styles.emptyState}>
-            <AppText color="secondary" size="lg">No settings found</AppText>
+            <AppText color="secondary" size="xl">No settings found</AppText>
           </View>
         ) : (
           Object.keys(groupedSettings).map(sectionTitle => (
             <View key={sectionTitle} style={{ marginTop: spacing.lg }}>
-              <Heading level="h4" color="secondary" style={styles.sectionTitle}>{sectionTitle}</Heading>
+              <AppText style={styles.sectionTitle}>{sectionTitle}</AppText>
               <View style={[styles.sectionCard, { backgroundColor: colors.card, borderRadius: borderRadius.lg }]}>
                 {groupedSettings[sectionTitle].map((setting, index) => {
                   const isLast = index === groupedSettings[sectionTitle].length - 1;
                   return (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       key={setting.id}
                       style={[
-                        styles.row, 
+                        styles.row,
                         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border }
-                      ]} 
+                      ]}
                       onPress={setting.onPress}
+                      activeOpacity={0.7}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
                       <View style={styles.left}>
-                        <NavIcon name={setting.icon} size={22} color={colors.primary[600] || '#2563eb'} />
-                        <AppText size="base" weight="medium">{setting.title}</AppText>
+                        <NavIcon name={setting.icon} size={28} color={colors.primary[600] || '#2563eb'} />
+                        <AppText style={styles.settingItemTitle}>{setting.title}</AppText>
                       </View>
-                      
-                      <AppText size="base" color="secondary">→</AppText>
+
+                      <AppText style={styles.arrowText}>→</AppText>
                     </TouchableOpacity>
                   );
                 })}
@@ -141,6 +137,7 @@ export const SettingsScreen: React.FC = () => {
             variant="danger"
             size="large"
             fullWidth
+            style={{ minHeight: 64 }}
             onPress={handleLogout}
           />
         </View>
@@ -154,18 +151,19 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    height: 52,
+    paddingHorizontal: 16,
+    height: 56,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: 12,
   },
   searchInput: {
     flex: 1,
     height: '100%',
-    fontSize: 16,
+    ...typography.presets.body,
+    includeFontPadding: false,
   },
   scrollContent: {
     paddingBottom: 40,
@@ -175,27 +173,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    marginBottom: 8,
+    marginBottom: 10,
     marginLeft: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    ...typography.presets.sectionHeading,
+    color: '#475569',
   },
   sectionCard: {
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 16,
-    paddingHorizontal: 16,
-    minHeight: 56,
+    paddingHorizontal: 18,
+    minHeight: 60,
   },
   left: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
   },
+  settingItemTitle: {
+    ...typography.presets.body,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  arrowText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#94A3B8',
+  }
 });

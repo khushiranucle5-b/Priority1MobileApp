@@ -10,6 +10,8 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { Switch, TouchableOpacity } from 'react-native';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 
+import { typography } from '../../../theme/tokens/typography';
+
 export const AttendanceSettingsScreen = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation();
@@ -24,48 +26,50 @@ export const AttendanceSettingsScreen = () => {
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
         
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <AppText size="lg" weight="bold" style={styles.title}>Site Shift Rules</AppText>
+          <AppText style={styles.title}>Site Shift Rules</AppText>
           
           <View style={styles.detailRow}>
-            <AppText color="secondary">Primary Assigned Site:</AppText>
-            <AppText weight="bold">{(user as any)?.assignedSite || (user as any)?.site || 'Ahmedabad Plant'}</AppText>
+            <AppText style={styles.label}>Primary Assigned Site:</AppText>
+            <AppText style={styles.value}>{(user as any)?.assignedSite || (user as any)?.site || 'Ahmedabad Plant'}</AppText>
           </View>
 
           <View style={styles.detailRow}>
-            <AppText color="secondary">Geofence Boundary:</AppText>
-            <AppText weight="bold">Enforced (200m Radius)</AppText>
+            <AppText style={styles.label}>Geofence Boundary:</AppText>
+            <AppText style={styles.value}>Enforced (200m Radius)</AppText>
           </View>
 
           <View style={styles.detailRow}>
-            <AppText color="secondary">Overtime Tracking:</AppText>
-            <AppText weight="bold">Automatic Calculation</AppText>
+            <AppText style={styles.label}>Overtime Tracking:</AppText>
+            <AppText style={styles.value}>Automatic Calculation</AppText>
           </View>
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <AppText size="lg" weight="bold" style={styles.title}>Attendance Preferences</AppText>
+          <AppText style={styles.title}>Attendance Preferences</AppText>
 
           <View style={styles.toggleRow}>
             <View style={{ flex: 1, paddingRight: 12 }}>
-              <AppText size="base" weight="medium">Require Selfie Verification</AppText>
-              <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
+              <AppText style={styles.toggleTitle}>Require Selfie Verification</AppText>
+              <AppText style={styles.toggleSub}>
                 Prompt camera selfie snapshot during clock-in and clock-out.
               </AppText>
             </View>
             <Switch
               value={selfieCheckInRequired}
               onValueChange={setSelfieCheckInRequired}
-              trackColor={{ false: colors.border, true: colors.primary[500] }}
+              trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
+              thumbColor="#FFFFFF"
+              style={{ transform: [{ scaleX: 1.25 }, { scaleY: 1.25 }] }}
             />
           </View>
 
-          <View style={[styles.detailRow, { flexDirection: 'column', alignItems: 'flex-start', borderBottomWidth: 0, marginTop: 12 }]}>
-            <AppText size="base" weight="medium" style={{ marginBottom: 8 }}>Auto Clock-out Safety Limit</AppText>
-            <AppText size="sm" color="secondary" style={{ marginBottom: 12 }}>
+          <View style={[styles.detailRow, { flexDirection: 'column', alignItems: 'flex-start', borderBottomWidth: 0, marginTop: 14 }]}>
+            <AppText style={styles.toggleTitle}>Auto Clock-out Safety Limit</AppText>
+            <AppText style={styles.toggleSub}>
               Automatically flag shift as completed if open session exceeds limit.
             </AppText>
             
-            <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+            <View style={{ flexDirection: 'row', gap: 12, width: '100%', marginTop: 14 }}>
               {timeoutOptions.map(hours => {
                 const isSelected = autoClockOutTimeout === hours;
                 return (
@@ -74,17 +78,16 @@ export const AttendanceSettingsScreen = () => {
                     style={[
                       styles.chip,
                       {
-                        backgroundColor: isSelected ? colors.primary[600] : colors.background,
-                        borderColor: isSelected ? colors.primary[600] : colors.border,
+                        backgroundColor: isSelected ? '#2563EB' : colors.background,
+                        borderColor: isSelected ? '#2563EB' : '#CBD5E1',
                         borderRadius: borderRadius.md,
                       }
                     ]}
                     onPress={() => setAutoClockOutTimeout(hours)}
+                    activeOpacity={0.8}
                   >
                     <AppText
-                      size="sm"
-                      weight="bold"
-                      style={{ color: isSelected ? '#FFFFFF' : colors.text }}
+                      style={[styles.chipText, { color: isSelected ? '#FFFFFF' : '#334155' }]}
                     >
                       {hours} Hours
                     </AppText>
@@ -106,39 +109,65 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    padding: 16,
-    borderWidth: 1,
-    marginBottom: 16,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    marginBottom: 18,
   },
   title: {
+    ...typography.presets.cardTitle,
+    color: '#0F172A',
     marginBottom: 16,
   },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
+    paddingVertical: 14,
+    minHeight: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  toggleTitle: {
+    ...typography.presets.body,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  toggleSub: {
+    ...typography.presets.helper,
+    lineHeight: 22,
+    color: '#64748B',
+    marginTop: 4,
   },
   chip: {
     flex: 1,
-    paddingVertical: 10,
+    minHeight: 56,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
+  },
+  chipText: {
+    ...typography.presets.body,
+    fontWeight: '700',
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ccc',
+    paddingVertical: 14,
+    minHeight: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
-  description: {
-    marginTop: 20,
-    textAlign: 'center',
-    lineHeight: 20,
+  label: {
+    ...typography.presets.label,
+    color: '#475569',
+  },
+  value: {
+    ...typography.presets.body,
+    fontWeight: '600',
+    color: '#0F172A',
   }
 });

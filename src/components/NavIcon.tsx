@@ -21,6 +21,8 @@ export type NavIconName =
   | 'search'
   | 'eye'
   | 'edit'
+  | 'close'
+  | 'calendar'
   | 'profile'
   | 'settings'
   | 'camera'
@@ -213,6 +215,28 @@ export const NavIcon: React.FC<NavIconProps> = ({
       return (
         <View style={[styles.container, { width: size, height: size }]}>
           <View style={{ width: size * 0.35, height: size * 0.7, borderColor: iconColor, borderWidth: strokeWidth, transform: [{ rotate: '45deg' }] }} />
+        </View>
+      );
+
+    case 'close':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.7, height: strokeWidth, backgroundColor: iconColor, position: 'absolute', transform: [{ rotate: '45deg' }] }} />
+          <View style={{ width: size * 0.7, height: strokeWidth, backgroundColor: iconColor, position: 'absolute', transform: [{ rotate: '-45deg' }] }} />
+        </View>
+      );
+
+    case 'calendar':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.75, height: size * 0.75, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, alignItems: 'center' }}>
+            <View style={{ width: '100%', height: size * 0.22, backgroundColor: iconColor }} />
+            <View style={{ flexDirection: 'row', gap: 3, marginTop: 4 }}>
+              <View style={{ width: 3, height: 3, backgroundColor: iconColor, borderRadius: 1 }} />
+              <View style={{ width: 3, height: 3, backgroundColor: iconColor, borderRadius: 1 }} />
+              <View style={{ width: 3, height: 3, backgroundColor: iconColor, borderRadius: 1 }} />
+            </View>
+          </View>
         </View>
       );
 

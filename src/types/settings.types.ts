@@ -9,6 +9,10 @@ export interface SettingsState {
   shiftRemindersEnabled: boolean;
   incidentAlertsEnabled: boolean;
   loneWorkerAlertsEnabled: boolean;
+  patrolAlertsEnabled: boolean;
+  leaveStatusAlertsEnabled: boolean;
+  companyNoticesEnabled: boolean;
+  emergencyAlarmSoundEnabled: boolean;
   selfieCheckInRequired: boolean;
   autoClockOutTimeout: number;
   setThemeMode: (mode: ThemeMode) => Promise<void>;
@@ -18,6 +22,10 @@ export interface SettingsState {
   setShiftRemindersEnabled: (enabled: boolean) => Promise<void>;
   setIncidentAlertsEnabled: (enabled: boolean) => Promise<void>;
   setLoneWorkerAlertsEnabled: (enabled: boolean) => Promise<void>;
+  setPatrolAlertsEnabled: (enabled: boolean) => Promise<void>;
+  setLeaveStatusAlertsEnabled: (enabled: boolean) => Promise<void>;
+  setCompanyNoticesEnabled: (enabled: boolean) => Promise<void>;
+  setEmergencyAlarmSoundEnabled: (enabled: boolean) => Promise<void>;
   setSelfieCheckInRequired: (required: boolean) => Promise<void>;
   setAutoClockOutTimeout: (hours: number) => Promise<void>;
   loadSettings: () => Promise<void>;

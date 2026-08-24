@@ -48,16 +48,16 @@ export const LoneWorkerCard: React.FC = () => {
         </View>
       </View>
 
-      {/* Glove-friendly Safety Actions */}
+      {/* Safety Actions */}
       <View style={styles.buttonGroup}>
         <Button
-          title={isCheckInDisabled ? "✓ SAFE CHECKED" : "✓  I'M SAFE"}
+          title={isCheckInDisabled ? "✓ SAFE CHECKED" : "✓ I'M SAFE"}
           variant={isCheckInDisabled ? "secondary" : "primary"}
           size="large"
           fullWidth
           disabled={isCheckInDisabled}
           onPress={() => checkInLoneWorker()}
-          style={{ flex: 1, height: 54, backgroundColor: isCheckInDisabled ? undefined : '#059669' }}
+          style={{ flex: 1, backgroundColor: isCheckInDisabled ? undefined : '#059669' }}
         />
         <Button
           title="⚠️ REPORT ISSUE"
@@ -65,7 +65,7 @@ export const LoneWorkerCard: React.FC = () => {
           size="large"
           fullWidth
           onPress={() => navigation.navigate('Incident')}
-          style={{ flex: 1, height: 54, borderColor: '#DC2626' }}
+          style={{ flex: 1, borderColor: '#DC2626' }}
         />
       </View>
 

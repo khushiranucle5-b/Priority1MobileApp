@@ -75,12 +75,12 @@ export const NotificationDetailsScreen: React.FC<Props> = ({ route, navigation }
           
           <View style={styles.header}>
             <View style={styles.iconContainer}>
-              <AppText style={{ fontSize: 32 }}>{getIcon()}</AppText>
+              <AppText style={{ fontSize: 36 }}>{getIcon()}</AppText>
             </View>
             <View style={styles.titleContainer}>
-              <Heading level="h3">{notification.title}</Heading>
+              <AppText style={styles.titleText}>{notification.title}</AppText>
               <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(), borderRadius: borderRadius.full }]}>
-                <AppText size="xs" color="surface" weight="bold">{notification.priority} Priority</AppText>
+                <AppText style={styles.priorityText}>{notification.priority} Priority</AppText>
               </View>
             </View>
           </View>
@@ -88,29 +88,29 @@ export const NotificationDetailsScreen: React.FC<Props> = ({ route, navigation }
           <View style={styles.divider} />
 
           <View style={styles.detailRow}>
-            <AppText color="secondary" weight="bold" style={styles.label}>Category</AppText>
-            <AppText>{notification.type}</AppText>
+            <AppText style={styles.label}>Category</AppText>
+            <AppText style={styles.valueText}>{notification.type}</AppText>
           </View>
 
           <View style={styles.detailRow}>
-            <AppText color="secondary" weight="bold" style={styles.label}>Date</AppText>
-            <AppText>{formattedDate}</AppText>
+            <AppText style={styles.label}>Date</AppText>
+            <AppText style={styles.valueText}>{formattedDate}</AppText>
           </View>
 
           <View style={styles.detailRow}>
-            <AppText color="secondary" weight="bold" style={styles.label}>Time</AppText>
-            <AppText>{formattedTime}</AppText>
+            <AppText style={styles.label}>Time</AppText>
+            <AppText style={styles.valueText}>{formattedTime}</AppText>
           </View>
 
           <View style={styles.detailRow}>
-            <AppText color="secondary" weight="bold" style={styles.label}>Status</AppText>
-            <AppText color="primary">{notification.isRead ? 'Read' : 'Unread'}</AppText>
+            <AppText style={styles.label}>Status</AppText>
+            <AppText style={[styles.valueText, { color: '#2563EB' }]}>{notification.isRead ? 'Read' : 'Unread'}</AppText>
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.messageContainer}>
-            <AppText color="secondary" weight="bold" style={styles.label}>Description</AppText>
+            <AppText style={styles.label}>Description</AppText>
             <AppText style={styles.descriptionText}>{notification.description}</AppText>
           </View>
 
@@ -119,6 +119,7 @@ export const NotificationDetailsScreen: React.FC<Props> = ({ route, navigation }
         <Button 
           title="Delete Notification" 
           variant="outline"
+          size="large"
           onPress={handleDelete}
           style={styles.deleteButton}
         />
@@ -140,6 +141,8 @@ const styles = StyleSheet.create({
   card: {
     padding: 20,
     marginBottom: 24,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
   },
   header: {
     flexDirection: 'row',
@@ -147,8 +150,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconContainer: {
-    width: 56,
-    height: 56,
+    width: 60,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -157,32 +160,53 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  titleText: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0F172A',
+    lineHeight: 28,
+  },
   priorityBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 4,
     marginTop: 8,
   },
+  priorityText: {
+    color: '#FFFFFF',
+    fontSize: 13.5,
+    fontWeight: '800',
+  },
   divider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
+    height: 1.5,
+    backgroundColor: '#E2E8F0',
     marginVertical: 16,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   label: {
-    width: 100,
+    width: 120,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  valueText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#0F172A',
   },
   messageContainer: {
     marginTop: 8,
   },
   descriptionText: {
     marginTop: 8,
-    lineHeight: 24,
+    fontSize: 17.5,
+    lineHeight: 26,
+    color: '#334155',
   },
   deleteButton: {
     borderColor: '#DC2626',

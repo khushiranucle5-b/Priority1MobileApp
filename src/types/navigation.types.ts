@@ -52,6 +52,7 @@ export type HomeStackParamList = {
   PayslipDetails: { payslipId: string };
   SitesList: undefined;
   SiteDetails: { siteId: string };
+  ChecklistExecution: { siteId: string; checklistId: string; checklist?: any };
 };
 
 export type ProfileStackParamList = {

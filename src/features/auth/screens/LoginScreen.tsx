@@ -23,7 +23,7 @@ import { normalize } from '../../../utils/responsive';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { AuthStackParamList } from '../../../types/navigation.types';
 
-import { getTable, DBEmployee } from '../../../services/db';
+import { getTable, DBEmployee, DBUser } from '../../../services/db';
 
 export const LoginScreen: React.FC = () => {
   const { colors, spacing } = useTheme();
@@ -55,7 +55,9 @@ export const LoginScreen: React.FC = () => {
     setIsLoading(true);
     try {
       const employees = await getTable<DBEmployee>('employees');
+      const usersList = await getTable<DBUser>('users');
       const cleanEmail = email.trim().toLowerCase();
+
       const emp = employees.find(
         (e) =>
           e.email?.trim().toLowerCase() === cleanEmail ||
@@ -68,7 +70,18 @@ export const LoginScreen: React.FC = () => {
         return;
       }
 
-      // Password matches "demo" or actual if set (mock matches "demo" or anything)
+      // Verify password against stored password in users table
+      const userRecord = (usersList || []).find(
+        (u) => u.id === emp.id || u.email?.trim().toLowerCase() === cleanEmail
+      );
+      const validPassword = userRecord?.password || 'demo';
+
+      if (password.trim() !== validPassword) {
+        setIsLoading(false);
+        Alert.alert('Login Failed', 'Invalid password. Please enter your correct updated password.');
+        return;
+      }
+
       const mappedUser = {
         id: emp.id,
         name: emp.name,

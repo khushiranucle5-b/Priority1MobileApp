@@ -63,14 +63,9 @@ const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
-    padding: 18,
-    borderWidth: 1.5,
+    padding: 16,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
   },
   header: {
     flexDirection: 'row',
@@ -78,25 +73,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '600',
     letterSpacing: 0.5,
   },
   divider: {
-    height: 1.5,
+    height: 1,
     backgroundColor: '#E2E8F0',
     marginVertical: 12,
   },
   details: {
-    gap: 14,
+    gap: 12,
   },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   valueText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

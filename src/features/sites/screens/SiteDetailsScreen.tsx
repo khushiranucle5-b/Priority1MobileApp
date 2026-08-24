@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Linking } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
@@ -26,9 +26,13 @@ export const SiteDetailsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
 
-  const siteId = route.params?.siteId || 's-12lnsg7-1786085509818';
+  const siteId = route.params?.siteId || 's-04';
   const [site, setSite] = useState<DBSite | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('Overview & Settings');
+  
+  // Document Viewer Modal State
+  const [selectedDocModal, setSelectedDocModal] = useState<any | null>(null);
+  const [downloadFeedback, setDownloadFeedback] = useState<string | null>(null);
 
   const tabScrollViewRef = useRef<ScrollView>(null);
   const [scrollXOffset, setScrollXOffset] = useState(0);
@@ -39,8 +43,46 @@ export const SiteDetailsScreen: React.FC = () => {
 
   const loadSiteDetails = async () => {
     const allSites = await getTable<DBSite>('sites');
-    const selected = allSites.find((s) => s.id === siteId) || allSites[0] || null;
+    const selected = allSites.find((s) => s.id === siteId || s.code === siteId) || allSites[0] || null;
     setSite(selected);
+  };
+
+  const handleViewDocument = async (docItem: any, type: string) => {
+    setSelectedDocModal({
+      title: docItem.title || docItem.name,
+      category: docItem.category || 'Operations',
+      fileName: docItem.fileName || `${(docItem.title || 'Document').replace(/\s+/g, '_')}.pdf`,
+      fileSize: docItem.fileSize || '1.8 MB',
+      uploadDate: docItem.uploadDate || docItem.effectiveDate || '2026-01-01',
+      version: docItem.version,
+      type: type,
+      content: docItem.content || `Mandatory Operational Directive: All security personnel assigned to ${site?.name || 'this site'} must strictly comply with the procedures specified in ${docItem.title || docItem.name}.`
+    });
+
+    if (docItem.fileUrl || docItem.url) {
+      try {
+        await Linking.openURL(docItem.fileUrl || docItem.url);
+      } catch (err) {
+        console.warn('Could not open external URL:', err);
+      }
+    }
+  };
+
+  const handleDownloadDocument = async (docItem: any) => {
+    const docName = docItem.title || docItem.name || 'document';
+    const fileName = docItem.fileName || `${docName.replace(/\s+/g, '_')}.pdf`;
+
+    if (docItem.fileUrl || docItem.url) {
+      try {
+        await Linking.openURL(docItem.fileUrl || docItem.url);
+        setDownloadFeedback(`Downloading ${fileName}...`);
+        return;
+      } catch (err) {
+        console.warn('Could not launch download URL:', err);
+      }
+    }
+
+    setDownloadFeedback(`Downloaded ${fileName} to device storage.`);
   };
 
   const handleBack = () => {
@@ -62,16 +104,16 @@ export const SiteDetailsScreen: React.FC = () => {
     { label: 'Site Documents', icon: 'policies' },
   ];
 
-  const handleScrollLeft = () => {
-    const newX = Math.max(0, scrollXOffset - 160);
-    tabScrollViewRef.current?.scrollTo({ x: newX, animated: true });
-    setScrollXOffset(newX);
+  const activeTabIndex = Math.max(0, tabs.findIndex((t) => t.label === activeTab));
+
+  const handlePrevTab = () => {
+    const prevIdx = activeTabIndex > 0 ? activeTabIndex - 1 : tabs.length - 1;
+    setActiveTab(tabs[prevIdx].label);
   };
 
-  const handleScrollRight = () => {
-    const newX = scrollXOffset + 160;
-    tabScrollViewRef.current?.scrollTo({ x: newX, animated: true });
-    setScrollXOffset(newX);
+  const handleNextTab = () => {
+    const nextIdx = activeTabIndex < tabs.length - 1 ? activeTabIndex + 1 : 0;
+    setActiveTab(tabs[nextIdx].label);
   };
 
   if (!site) {
@@ -86,37 +128,23 @@ export const SiteDetailsScreen: React.FC = () => {
   }
 
   // Extract site overview data defaults matching Web Site specs
-  const addressStr = site.addressLine1 || 'S.P.Ring Road (Zundal), Ahmedabad, Gujarat 382424, India';
-  const cityStr = site.city || 'Ahmedabad';
+  const addressStr = site.addressLine1 || 'Zundal Circle, Gandhinagar, Gujarat 382424, India';
+  const cityStr = site.city || 'Gandhinagar';
   const stateStr = site.state || 'Gujarat';
   const postalCodeStr = site.postalCode || '382424';
   const countryStr = site.country || 'India';
   const facilityTypeStr = site.facilityType || 'Commercial Port / Terminal';
-  const clientStr = site.clientName || 'Ranucle';
+  const clientStr = site.clientName || 'Ranucle Group';
   const codeStr = site.code || site.id;
 
-  const contact = site.contact || {
-    primaryContactName: site.supervisorName || 'Daniel Brooks',
-    contactEmail: 'daniel.b@ranucle.com',
-    primaryPhone: '+91 98765 43210',
-    alternatePhone: '+91 98765 43211',
-  };
-
-  const operational = site.operationalSettings || {
-    requireGpsEnabled: true,
-    enableLocationTracking: true,
-    enableShiftScheduling: true,
-    allowGuardMobileAccess: true,
-  };
-
-  const internalNotes = site.internalNotes || 'High priority commercial port & container terminal site. Strict geofence validation and PPE safety compliance required at all perimeter gates.';
+  const internalNotes = site.internalNotes || 'High priority commercial port & container terminal site. Mandatory badge inspection and truck license logging for all heavy vehicles after 20:00.';
 
   const geofence = site.geofence || {
     boundaryType: 'Circle',
-    latitude: site.coordinates?.latitude || 23.129695,
-    longitude: site.coordinates?.longitude || 72.58482,
+    latitude: site.coordinates?.latitude || 23.1437,
+    longitude: site.coordinates?.longitude || 72.5902,
     radiusMeters: site.coordinates?.radiusMeters || 150,
-    status: 'ACTIVE GEOFENCE',
+    status: 'Active Boundary',
     enableGeofenceValidation: true,
     requireGeofenceClockIn: true,
     requireGeofenceClockOut: true,
@@ -125,66 +153,16 @@ export const SiteDetailsScreen: React.FC = () => {
     accuracyThresholdMeters: 50,
   };
 
-  const postOrders = site.postOrders || [
-    { id: 'po-1', priority: 'High', title: 'aaaa', category: 'Access Control', version: 'v1.0', effectiveDate: '2026-08-11', expiryDate: 'Indefinite', status: 'Active' },
-    { id: 'po-2', priority: 'Medium', title: 'Perimeter Access Control Protocol', category: 'Security Protocol', version: 'v2.4', effectiveDate: '2026-08-01', expiryDate: '2027-12-31', status: 'Active' },
-  ];
-
-  const checklists = site.checklists || [
-    {
-      id: 'cl-1',
-      priority: 'High',
-      title: 'Medical Emergency Checklist',
-      category: 'Emergency Response',
-      description: 'Standard response procedure for on-site medical emergencies',
-      steps: [
-        '1. Call 911 immediately',
-        '2. Render First Aid / CPR if certified',
-        '3. Guide paramedic unit to gate',
-        '4. Notify site supervisor',
-      ],
-      itemsCount: 4,
-      status: 'Active',
-    },
-    {
-      id: 'cl-2',
-      priority: 'Medium',
-      title: 'Morning Shift Opening Inspection',
-      category: 'Safety & Operational',
-      description: 'Daily verification of perimeter gates and guard room logs.',
-      steps: [
-        '1. Verify main entry gate locks',
-        '2. Inspect CCTV monitor feeds',
-        '3. Check radio battery charge levels',
-        '4. Log shift handover report',
-      ],
-      itemsCount: 12,
-      status: 'Active',
-    },
-  ];
-
+  const postOrders = site.postOrders || [];
+  const checklists = site.checklists || [];
   const safetyConfig = site.safetyConfig || {
-    shiftRules: { minMinsBeforeShift: 15, maxMinsAfterShift: 30, minMinsBeforeEnd: 10, maxMinsAfterEnd: 15 },
+    shiftRules: { minMinsBeforeShift: 15, maxMinsAfterShift: 10, minMinsBeforeEnd: 0, maxMinsAfterEnd: 30 },
     officerShiftChecks: { enabled: true, intervalMins: 60, graceMins: 10 },
     loneWorkerChecks: { enabled: true, intervalMins: 30, graceMins: 5 },
   };
-
-  const checkpoints = site.tourCheckpoints || [
-    { id: 'cp-1', name: 'Main Entry Gate A', code: 'CP-RN-01', location: 'North Entrance', status: 'Active', sequence: 1 },
-    { id: 'cp-2', name: 'Chemical Storage Bay', code: 'CP-RN-02', location: 'East Sector', status: 'Active', sequence: 2 },
-    { id: 'cp-3', name: 'Loading Dock 4', code: 'CP-RN-03', location: 'South Dock', status: 'Active', sequence: 3 },
-  ];
-
-  const assignedUsers = site.assignedUsers || [
-    { id: 'u-1', name: 'Michael Carter', username: 'michael.carter', email: 'michael.carter@acme.io', role: 'Command Supervisor', shiftTiming: '08:00 AM - 08:00 PM', shiftPeriod: '2026-08-01 to 2026-12-31' },
-    { id: 'u-2', name: 'richerl Rohde', username: 'richerl_rohde', email: 'richerl@acme.io', role: 'Security Guard', shiftTiming: '06:00 - 13:00', shiftPeriod: 'August 13, 2026' },
-    { id: 'u-3', name: 'abc xyz', username: 'abc_xyz', email: 'abc@acme.io', role: 'Security Guard', shiftTiming: '08:00 AM - 04:00 PM', shiftPeriod: '2026-08-01 to 2026-12-31' },
-  ];
-
-  const documents = site.documents || [
-    { id: 'doc-1', title: 'Ranucle Zundal Site Security Directive', category: 'Operations', fileName: 'Ranucle_Zundal_Security_Plan.pdf', fileSize: '2.4 MB', uploadedBy: 'Daniel Brooks', uploadDate: '2026-07-10' },
-    { id: 'doc-2', title: 'Emergency Evacuation & Fire Map', category: 'Compliance', fileName: 'Zundal_Evac_Map_2026.pdf', fileSize: '1.1 MB', uploadedBy: 'Daniel Brooks', uploadDate: '2026-07-12' },
-  ];
+  const checkpoints = site.tourCheckpoints || [];
+  const assignedUsers = site.assignedUsers || [];
+  const documents = site.documents || [];
 
   return (
     <ScreenLayout activeRoute="SitesList">
@@ -198,6 +176,16 @@ export const SiteDetailsScreen: React.FC = () => {
           activeOpacity={0.7}
         >
         </TouchableOpacity>
+
+        {/* Action Feedback Banner */}
+        {downloadFeedback ? (
+          <View style={styles.feedbackBanner}>
+            <AppText size="xs" weight="bold" style={{ color: '#065F46' }}>✓ {downloadFeedback}</AppText>
+            <TouchableOpacity onPress={() => setDownloadFeedback(null)}>
+              <AppText size="xs" weight="bold" style={{ color: '#065F46', marginLeft: 8 }}>✕</AppText>
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         {/* Site Header Card */}
         <Card style={styles.headerCard}>
@@ -216,57 +204,34 @@ export const SiteDetailsScreen: React.FC = () => {
                 Site ID: <AppText size="xs" weight="bold" color="primary">{codeStr}</AppText> • Client: <AppText size="xs" weight="bold" color="primary">{clientStr}</AppText>
               </AppText>
             </View>
-
-            {/* Read-Only Badge */}
-           
           </View>
         </Card>
 
-        {/* Horizontal Navigation Tab Bar with Slider Arrows */}
+        {/* Centered Single Tab Slider Navigation Bar */}
         <View style={styles.tabBarWrapper}>
           <TouchableOpacity
             style={styles.sliderArrowBtn}
-            onPress={handleScrollLeft}
+            onPress={handlePrevTab}
             activeOpacity={0.7}
           >
-            <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>‹</AppText>
+            <AppText size="lg" weight="bold" style={{ color: '#4F46E5', fontSize: 22, lineHeight: 24 }}>‹</AppText>
           </TouchableOpacity>
 
-          <ScrollView
-            ref={tabScrollViewRef}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            onScroll={(e) => setScrollXOffset(e.nativeEvent.contentOffset.x)}
-            scrollEventThrottle={16}
-            contentContainerStyle={styles.tabContainer}
-          >
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.label;
-              return (
-                <TouchableOpacity
-                  key={tab.label}
-                  onPress={() => setActiveTab(tab.label)}
-                  style={[styles.tabItem, isActive && styles.activeTabItem]}
-                  activeOpacity={0.7}
-                >
-                  <AppText
-                    size="xs"
-                    weight={isActive ? 'bold' : 'medium'}
-                    style={{ color: isActive ? '#4F46E5' : '#475569' }}
-                  >
-                    {tab.label}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+          <View style={styles.centeredTabBox}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <NavIcon name={tabs[activeTabIndex]?.icon || 'dashboard'} size={18} color="#4F46E5" />
+              <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>
+                {activeTab}
+              </AppText>
+            </View>
+          </View>
 
           <TouchableOpacity
             style={styles.sliderArrowBtn}
-            onPress={handleScrollRight}
+            onPress={handleNextTab}
             activeOpacity={0.7}
           >
-            <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>›</AppText>
+            <AppText size="lg" weight="bold" style={{ color: '#4F46E5', fontSize: 22, lineHeight: 24 }}>›</AppText>
           </TouchableOpacity>
         </View>
 
@@ -334,12 +299,12 @@ export const SiteDetailsScreen: React.FC = () => {
           </Card>
         )}
 
-        {/* 2. GEOFENCING */}
+        {/* 2. GEOFENCING (READ-ONLY GUARD VIEW) */}
         {activeTab === 'Geofencing' && (
           <Card style={styles.contentCard}>
-            <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Site Geofence Boundary & Location Configuration</Heading>
+            <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Site Geofence Boundary & Location Rules</Heading>
             <AppText size="xs" color="secondary" style={{ marginBottom: 14 }}>
-              Geofence boundary verification and GPS enforcement options.
+              Operational site boundary coordinates and active attendance rules.
             </AppText>
             
             <View style={styles.infoGrid}>
@@ -367,7 +332,7 @@ export const SiteDetailsScreen: React.FC = () => {
                 <AppText size="xs" color="secondary">Verification Status</AppText>
                 <View style={[styles.statusChipGreen, { marginTop: 4 }]}>
                   <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
-                    ✓ {geofence.status || 'ACTIVE GEOFENCE'}
+                    ✓ {geofence.status || 'Active Boundary'}
                   </AppText>
                 </View>
               </View>
@@ -375,26 +340,26 @@ export const SiteDetailsScreen: React.FC = () => {
 
             <View style={styles.dividerLine} />
 
-            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Geofence Validation Rules</Heading>
+            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Geofence Validation Policies (Read-Only)</Heading>
             <View style={{ gap: 8 }}>
               <View style={styles.toggleRow}>
                 <AppText size="sm" color="primary">Enable Geofence Validation</AppText>
-                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Enabled</AppText></View>
+                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Active Policy</AppText></View>
               </View>
 
               <View style={styles.toggleRow}>
                 <AppText size="sm" color="primary">Require Geofence for Clock-In</AppText>
-                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Enabled</AppText></View>
+                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Enforced</AppText></View>
               </View>
 
               <View style={styles.toggleRow}>
                 <AppText size="sm" color="primary">Require Geofence for Clock-Out</AppText>
-                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Enabled</AppText></View>
+                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Enforced</AppText></View>
               </View>
 
               <View style={styles.toggleRow}>
                 <AppText size="sm" color="primary">Require Location Permission</AppText>
-                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Enabled</AppText></View>
+                <View style={styles.statusChipGreen}><AppText size="xs" weight="bold" style={{ color: '#059669' }}>✓ Mandatory</AppText></View>
               </View>
             </View>
 
@@ -448,25 +413,32 @@ export const SiteDetailsScreen: React.FC = () => {
 
                   <View style={styles.itemDetailsRow}>
                     <AppText size="xs" color="secondary">Version: <AppText size="xs" weight="bold" color="primary">{po.version}</AppText></AppText>
-                    <AppText size="xs" color="secondary">Effective: <AppText size="xs" weight="bold" color="primary">{po.effectiveDate || '2026-08-11'}</AppText></AppText>
+                    <AppText size="xs" color="secondary">Effective: <AppText size="xs" weight="bold" color="primary">{po.effectiveDate || '2026-01-01'}</AppText></AppText>
                     <AppText size="xs" color="secondary">Expiry: <AppText size="xs" weight="bold" color="primary">{po.expiryDate || 'Indefinite'}</AppText></AppText>
                   </View>
 
-                  <View style={styles.itemActionsRow}>
-                    <Button
-                      title="View SOP"
-                      variant="outline"
-                      size="small"
-                      onPress={() => Alert.alert('View SOP', `Opening Post Order Directive: ${po.title}`)}
-                      style={{ paddingHorizontal: 12, minHeight: 36 }}
-                    />
-                    <Button
-                      title="Download"
-                      variant="primary"
-                      size="small"
-                      onPress={() => Alert.alert('Download SOP', `Downloading Post Order: ${po.title}`)}
-                      style={{ paddingHorizontal: 12, minHeight: 36 }}
-                    />
+                  <View style={styles.cardActionRowBottom}>
+                    <TouchableOpacity
+                      style={styles.iconOnlyBtnView}
+                      onPress={() => handleViewDocument(po, 'Post Order SOP')}
+                      activeOpacity={0.7}
+                      accessibilityLabel="View document"
+                      accessibilityRole="button"
+                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                    >
+                      <NavIcon name="eye" size={24} color="#4F46E5" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.iconOnlyBtnDownload}
+                      onPress={() => handleDownloadDocument(po)}
+                      activeOpacity={0.7}
+                      accessibilityLabel="Download document"
+                      accessibilityRole="button"
+                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                    >
+                      <NavIcon name="download" size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -479,55 +451,66 @@ export const SiteDetailsScreen: React.FC = () => {
           <Card style={styles.contentCard}>
             <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Site Incident & Action Checklists</Heading>
             <AppText size="xs" color="secondary" style={{ marginBottom: 14 }}>
-              Operational checklists and emergency execution protocols.
+              Assigned master checklists for {site.name}. Supervisors execute steps, attach photos & remarks.
             </AppText>
 
             {checklists.length === 0 ? (
-              <AppText size="sm" color="secondary">No checklists configured for this site.</AppText>
+              <AppText size="sm" color="secondary">No checklists assigned to this site.</AppText>
             ) : (
               checklists.map((cl) => (
                 <View key={cl.id} style={styles.cardItemBox}>
+                  {/* Web ERP Aligned Card Header */}
                   <View style={styles.itemHeaderRow}>
-                    <View style={{ flex: 1 }}>
-                      <Heading level="h4" color="primary">{cl.title}</Heading>
-                      <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                        Category: <AppText size="xs" weight="bold" color="primary">{cl.category}</AppText>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, flexWrap: 'wrap' }}>
+                      <View style={[styles.priorityBadge, { backgroundColor: (cl.priority || 'High').toLowerCase() === 'high' ? '#FEE2E2' : '#FEF3C7', paddingHorizontal: 10, paddingVertical: 4 }]}>
+                        <AppText size="sm" weight="bold" style={{ color: (cl.priority || 'High').toLowerCase() === 'high' ? '#DC2626' : '#D97706', fontSize: 15 }}>
+                          {cl.priority || 'High'}
+                        </AppText>
+                      </View>
+                      <AppText size="lg" weight="bold" style={{ color: '#0F172A', fontSize: 19 }}>
+                        {cl.title}
                       </AppText>
                     </View>
 
-                    <View style={[styles.priorityBadge, { backgroundColor: (cl.priority || 'High').toLowerCase() === 'high' ? '#FEE2E2' : '#FEF3C7' }]}>
-                      <AppText size="xs" weight="bold" style={{ color: (cl.priority || 'High').toLowerCase() === 'high' ? '#DC2626' : '#D97706' }}>
-                        {cl.priority || 'High'}
+                    <View style={styles.categoryPillWeb}>
+                      <AppText size="sm" weight="semibold" style={{ color: '#475569', fontSize: 15 }}>
+                        {cl.category}
                       </AppText>
                     </View>
                   </View>
 
-                  {cl.description ? (
-                    <AppText size="xs" color="secondary" style={{ marginTop: 6 }}>
-                      {cl.description}
-                    </AppText>
-                  ) : null}
-
-                  {/* Execution Steps */}
+                  {/* Web ERP Aligned Ordered Steps Box */}
                   {cl.steps && cl.steps.length > 0 ? (
-                    <View style={styles.stepsBox}>
-                      <AppText size="xs" weight="bold" color="primary" style={{ marginBottom: 4 }}>Steps:</AppText>
-                      {cl.steps.map((step, idx) => (
-                        <AppText key={idx} size="xs" color="secondary" style={{ marginTop: 2 }}>
-                          {step}
-                        </AppText>
-                      ))}
+                    <View style={styles.webChecklistStepsBox}>
+                      {cl.steps.map((step, idx) => {
+                        const stepText = step.match(/^\d+\./) ? step : `${idx + 1}. ${step}`;
+                        return (
+                          <AppText key={idx} style={styles.checklistStepText}>
+                            {stepText}
+                          </AppText>
+                        );
+                      })}
                     </View>
                   ) : null}
 
-                  <View style={styles.itemActionsRow}>
-                    <Button
-                      title="Start Execution"
-                      variant="primary"
-                      size="small"
-                      onPress={() => Alert.alert('Checklist Execution', `Starting execution for ${cl.title}`)}
-                      style={{ paddingHorizontal: 16, minHeight: 38 }}
-                    />
+                  {/* Glove-Friendly Start Execution Action Button (Navigates to dedicated ChecklistExecutionScreen) */}
+                  <View style={styles.checklistActionRow}>
+                    <TouchableOpacity
+                      style={styles.startExecutionBtnGlove}
+                      onPress={() => navigation.navigate('ChecklistExecution', {
+                        siteId: site?.id || siteId,
+                        checklistId: cl.id,
+                        checklist: cl,
+                      })}
+                      activeOpacity={0.7}
+                      accessibilityLabel="Start Execution"
+                      accessibilityRole="button"
+                    >
+                      <NavIcon name="attendance" size={22} color="#FFFFFF" />
+                      <AppText size="base" weight="bold" style={{ color: '#FFFFFF', fontSize: 17, marginLeft: 10 }}>
+                        Start Execution
+                      </AppText>
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -540,7 +523,7 @@ export const SiteDetailsScreen: React.FC = () => {
           <Card style={styles.contentCard}>
             <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Site Attendance & Guard Safety Rules</Heading>
             <AppText size="xs" color="secondary" style={{ marginBottom: 14 }}>
-              Shift rules, officer safety checks, and lone worker configuration.
+              Web ERP aligned shift thresholds, safety checks, and compliance rules.
             </AppText>
 
             {/* Shift Rules Card */}
@@ -554,62 +537,35 @@ export const SiteDetailsScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Max Mins After Shift</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.shiftRules?.maxMinsAfterShift || 30} mins</AppText>
+                  <AppText size="xs" color="secondary">Max Mins After Shift (Grace)</AppText>
+                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.shiftRules?.maxMinsAfterShift || 10} mins</AppText>
                 </View>
 
                 <View style={styles.infoBox}>
                   <AppText size="xs" color="secondary">Min Mins Before End</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.shiftRules?.minMinsBeforeEnd || 10} mins</AppText>
+                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.shiftRules?.minMinsBeforeEnd || 0} mins</AppText>
                 </View>
 
                 <View style={styles.infoBox}>
                   <AppText size="xs" color="secondary">Max Mins After End</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.shiftRules?.maxMinsAfterEnd || 15} mins</AppText>
+                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.shiftRules?.maxMinsAfterEnd || 30} mins</AppText>
                 </View>
               </View>
             </View>
 
-            {/* Officer Shift Checks Card */}
+            {/* Shift Checks & Lone Worker Card */}
             <View style={styles.sectionCardBox}>
-              <Heading level="h4" color="primary" style={{ marginBottom: 10 }}>Officer Shift Checks</Heading>
+              <Heading level="h4" color="primary" style={{ marginBottom: 10 }}>Officer Safety & Lone Worker Checks</Heading>
               
               <View style={styles.infoGrid}>
                 <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Enable Shift Checks</AppText>
-                  <AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Enabled</AppText>
+                  <AppText size="xs" color="secondary">Officer Shift Checks</AppText>
+                  <AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Enabled ({safetyConfig.officerShiftChecks?.intervalMins || 60}m interval)</AppText>
                 </View>
 
                 <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Check Interval</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.officerShiftChecks?.intervalMins || 60} mins</AppText>
-                </View>
-
-                <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Grace Period</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.officerShiftChecks?.graceMins || 10} mins</AppText>
-                </View>
-              </View>
-            </View>
-
-            {/* Lone Worker Checks Card */}
-            <View style={styles.sectionCardBox}>
-              <Heading level="h4" color="primary" style={{ marginBottom: 10 }}>Lone Worker Safety Checks</Heading>
-              
-              <View style={styles.infoGrid}>
-                <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Enable Lone Worker Checks</AppText>
-                  <AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Enabled</AppText>
-                </View>
-
-                <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Check Interval</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.loneWorkerChecks?.intervalMins || 30} mins</AppText>
-                </View>
-
-                <View style={styles.infoBox}>
-                  <AppText size="xs" color="secondary">Grace Period</AppText>
-                  <AppText size="sm" weight="bold" color="primary">{safetyConfig.loneWorkerChecks?.graceMins || 5} mins</AppText>
+                  <AppText size="xs" color="secondary">Lone Worker Safety</AppText>
+                  <AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Enabled ({safetyConfig.loneWorkerChecks?.intervalMins || 30}m interval)</AppText>
                 </View>
               </View>
             </View>
@@ -621,7 +577,7 @@ export const SiteDetailsScreen: React.FC = () => {
           <Card style={styles.contentCard}>
             <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Site Tour Checkpoints</Heading>
             <AppText size="xs" color="secondary" style={{ marginBottom: 14 }}>
-              Configured patrol route checkpoints and tags.
+              Configured patrol route checkpoints matching Web ERP tour stops.
             </AppText>
 
             {checkpoints.length === 0 ? (
@@ -630,13 +586,23 @@ export const SiteDetailsScreen: React.FC = () => {
               checkpoints.map((cp) => (
                 <View key={cp.id} style={styles.checkpointCard}>
                   <View style={styles.cpNumberBadge}>
-                    <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>{cp.sequence}</AppText>
+                    <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>{cp.sequence || cp.patrolOrder || 1}</AppText>
                   </View>
 
                   <View style={{ flex: 1 }}>
-                    <Heading level="h4" color="primary">{cp.sequence}. {cp.name} ({cp.code})</Heading>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Heading level="h4" color="primary">{cp.name}</Heading>
+                      <View style={[styles.priorityBadge, { backgroundColor: '#EEF2FF' }]}>
+                        <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>{cp.type || 'QR Tag'}</AppText>
+                      </View>
+                    </View>
+
                     <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                      Location: <AppText size="xs" weight="bold" color="primary">{cp.location}</AppText>
+                      Tag ID: <AppText size="xs" weight="semibold" color="primary">{cp.tagId || 'TAG-101'}</AppText> • Location: <AppText size="xs" weight="bold" color="primary">{cp.location}</AppText>
+                    </AppText>
+
+                    <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                      Scan Window: <AppText size="xs" weight="semibold" color="primary">{cp.scanWindowMins || 15}m</AppText> • Grace: <AppText size="xs" weight="semibold" color="primary">{cp.graceTimeMins || 5}m</AppText>
                     </AppText>
                   </View>
 
@@ -652,20 +618,22 @@ export const SiteDetailsScreen: React.FC = () => {
         {/* 7. SITE USERS */}
         {activeTab === 'Site Users' && (
           <Card style={styles.contentCard}>
-            <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Site Users & Assigned Officers</Heading>
+            <Heading level="h4" color="primary" style={{ marginBottom: 4 }}>Assigned Operational Officers & Roster</Heading>
             <AppText size="xs" color="secondary" style={{ marginBottom: 14 }}>
-              Supervisors and guards assigned to active rosters at this site.
+              Personnel assigned to active operational shifts at this site.
             </AppText>
 
             {assignedUsers.length === 0 ? (
-              <AppText size="sm" color="secondary">No personnel assigned to this site.</AppText>
+              <AppText size="sm" color="secondary">No personnel assigned to this site roster.</AppText>
             ) : (
               assignedUsers.map((user) => (
                 <View key={user.id} style={styles.userCardBox}>
                   <View style={styles.userHeaderRow}>
                     <View style={{ flex: 1 }}>
                       <Heading level="h4" color="primary">{user.name}</Heading>
-                      <AppText size="xs" color="secondary">@{user.username || user.email.split('@')[0]}</AppText>
+                      <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                        {user.role}
+                      </AppText>
                     </View>
 
                     <View style={[styles.roleBadge, { backgroundColor: user.role.includes('Supervisor') ? '#EEF2FF' : '#F1F5F9' }]}>
@@ -678,11 +646,6 @@ export const SiteDetailsScreen: React.FC = () => {
                   <View style={styles.dividerLineLight} />
 
                   <View style={styles.infoGrid}>
-                    <View style={styles.infoBoxFull}>
-                      <AppText size="xs" color="secondary">Email:</AppText>
-                      <AppText size="xs" weight="bold" color="primary">{user.email}</AppText>
-                    </View>
-
                     <View style={styles.infoBox}>
                       <AppText size="xs" color="secondary">Shift Timing:</AppText>
                       <AppText size="xs" weight="bold" color="primary">{user.shiftTiming || '08:00 AM - 04:00 PM'}</AppText>
@@ -690,7 +653,7 @@ export const SiteDetailsScreen: React.FC = () => {
 
                     <View style={styles.infoBox}>
                       <AppText size="xs" color="secondary">Shift Period:</AppText>
-                      <AppText size="xs" weight="bold" color="primary">{user.shiftPeriod || '2026-08-01 to 2026-12-31'}</AppText>
+                      <AppText size="xs" weight="bold" color="primary">{user.shiftPeriod || 'Active Shift'}</AppText>
                     </View>
                   </View>
                 </View>
@@ -711,35 +674,40 @@ export const SiteDetailsScreen: React.FC = () => {
               <AppText size="sm" color="secondary">No documents uploaded for this site.</AppText>
             ) : (
               documents.map((doc) => (
-                <View key={doc.id} style={styles.docCardBox}>
-                  <View style={{ flex: 1 }}>
-                    <Heading level="h4" color="primary">{doc.title}</Heading>
-                    <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                      Category: <AppText size="xs" weight="bold" color="primary">{doc.category}</AppText>
-                    </AppText>
-                    <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                      File: <AppText size="xs" weight="semibold" color="primary">{doc.fileName}</AppText> ({doc.fileSize})
-                    </AppText>
-                    <AppText size="xs" color="secondary" style={{ marginTop: 4 }}>
-                      Uploaded by {doc.uploadedBy} on {doc.uploadDate}
-                    </AppText>
-                  </View>
+                <View key={doc.id} style={styles.cardItemBox}>
+                  <Heading level="h4" color="primary">{doc.title}</Heading>
+                  <AppText size="xs" color="secondary" style={{ marginTop: 4 }}>
+                    Category: <AppText size="xs" weight="bold" color="primary">{doc.category}</AppText>
+                  </AppText>
+                  <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                    File: <AppText size="xs" weight="semibold" color="primary">{doc.fileName}</AppText> ({doc.fileSize})
+                  </AppText>
+                  <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                    Uploaded: {doc.uploadDate}
+                  </AppText>
 
-                  <View style={styles.docActionsColumn}>
-                    <Button
-                      title="View"
-                      variant="outline"
-                      size="small"
-                      onPress={() => Alert.alert('Viewing Document', `Opening ${doc.fileName}...`)}
-                      style={{ paddingHorizontal: 12, minHeight: 36 }}
-                    />
-                    <Button
-                      title="Download"
-                      variant="primary"
-                      size="small"
-                      onPress={() => Alert.alert('Downloading Document', `Downloading ${doc.fileName}...`)}
-                      style={{ paddingHorizontal: 12, minHeight: 36 }}
-                    />
+                  <View style={styles.cardActionRowBottom}>
+                    <TouchableOpacity
+                      style={styles.iconOnlyBtnView}
+                      onPress={() => handleViewDocument(doc, 'Site Document')}
+                      activeOpacity={0.7}
+                      accessibilityLabel="View document"
+                      accessibilityRole="button"
+                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                    >
+                      <NavIcon name="eye" size={24} color="#4F46E5" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.iconOnlyBtnDownload}
+                      onPress={() => handleDownloadDocument(doc)}
+                      activeOpacity={0.7}
+                      accessibilityLabel="Download document"
+                      accessibilityRole="button"
+                      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                    >
+                      <NavIcon name="download" size={24} color="#FFFFFF" />
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))
@@ -748,6 +716,70 @@ export const SiteDetailsScreen: React.FC = () => {
         )}
 
       </ScrollView>
+
+      {/* REAL IN-APP DOCUMENT VIEWER MODAL */}
+      <Modal
+        visible={!!selectedDocModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedDocModal(null)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Card style={styles.docModalCard}>
+            <View style={styles.modalHeaderRow}>
+              <View style={{ flex: 1 }}>
+                <Heading level="h3" color="primary">{selectedDocModal?.title}</Heading>
+                <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                  {selectedDocModal?.type} • Category: <AppText size="xs" weight="bold" color="primary">{selectedDocModal?.category}</AppText>
+                </AppText>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setSelectedDocModal(null)}
+                style={styles.closeModalBtn}
+              >
+                <AppText size="base" weight="bold" color="secondary">✕</AppText>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.dividerLine} />
+
+            <ScrollView style={{ maxHeight: 220, marginBottom: 16 }}>
+              <AppText size="sm" color="primary" style={{ lineHeight: 22 }}>
+                {selectedDocModal?.content}
+              </AppText>
+
+              {selectedDocModal?.steps ? (
+                <View style={{ marginTop: 12, gap: 6 }}>
+                  {selectedDocModal.steps.map((st: string, i: number) => (
+                    <View key={i} style={styles.modalStepRow}>
+                      <AppText size="xs" weight="bold" color="primary">{st}</AppText>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </ScrollView>
+
+            <View style={styles.modalFooterRow}>
+              <Button
+                title="Download Copy"
+                variant="outline"
+                size="small"
+                onPress={() => {
+                  setDownloadFeedback(`Downloaded ${selectedDocModal?.fileName || selectedDocModal?.title} to storage.`);
+                  setSelectedDocModal(null);
+                }}
+              />
+              <Button
+                title="Close"
+                variant="primary"
+                size="small"
+                onPress={() => setSelectedDocModal(null)}
+              />
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </ScreenLayout>
   );
 };
@@ -756,6 +788,126 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 40,
+  },
+  iconOnlyBtnView: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconOnlyBtnDownload: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    backgroundColor: '#4F46E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cardActionRowBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  iconActionBtnPrimary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    backgroundColor: '#4F46E5',
+    minHeight: 36,
+  },
+  categoryPillWeb: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  webChecklistStepsBox: {
+    marginTop: 14,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+  },
+  checklistStepText: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+    color: '#1E293B',
+    marginBottom: 6,
+  },
+  checklistActionRow: {
+    marginTop: 16,
+  },
+  startExecutionBtnGlove: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 58,
+    minHeight: 58,
+    borderRadius: 10,
+    backgroundColor: '#5B46E5',
+    width: '100%',
+  },
+  feedbackBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#D1FAE5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  docModalCard: {
+    width: '100%',
+    maxWidth: 440,
+    padding: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  closeModalBtn: {
+    padding: 6,
+    marginLeft: 8,
+  },
+  modalStepRow: {
+    padding: 8,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  modalFooterRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 8,
   },
   backBtn: {
     marginBottom: 12,
@@ -802,14 +954,25 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   sliderArrowBtn: {
-    width: 34,
-    height: 44,
+    width: 42,
+    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#EEF2FF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#C7D2FE',
-    borderRadius: 8,
+    borderRadius: 10,
+  },
+  centeredTabBox: {
+    flex: 1,
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1.5,
+    borderColor: '#4F46E5',
+    borderRadius: 10,
+    marginHorizontal: 4,
   },
   tabContainer: {
     gap: 8,
@@ -979,6 +1142,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   docActionsColumn: {
-    gap: 6,
+    gap: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
 });

@@ -8,9 +8,9 @@ export const DutyStatusCard: React.FC = () => {
   return (
     <Card variant="flat" style={styles.card}>
       <View style={styles.content}>
-        <AppText size="base" color="secondary" weight="semibold">Duty Status</AppText>
+        <AppText size="base" color="secondary" weight="semibold" style={styles.statusTitle}>DUTY STATUS</AppText>
         <View style={{ marginTop: 6 }}>
-          <StatusBadge status="ONGOING" size="lg" />
+          <StatusBadge status="ONGOING" size="md" />
         </View>
       </View>
     </Card>
@@ -25,5 +25,9 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
+  },
+  statusTitle: {
+    fontSize: 15,
+    letterSpacing: 0.5,
   },
 });

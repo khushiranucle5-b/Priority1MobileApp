@@ -27,6 +27,7 @@ import { PayslipsScreen } from '../features/payroll/screens/PayslipsScreen';
 import { PayslipDetailsScreen } from '../features/payroll/screens/PayslipDetailsScreen';
 import { SitesListScreen } from '../features/sites/screens/SitesListScreen';
 import { SiteDetailsScreen } from '../features/sites/screens/SiteDetailsScreen';
+import { ChecklistExecutionScreen } from '../features/sites/screens/ChecklistExecutionScreen';
 
 import { PatrolDateLogsScreen } from '../features/patrol/screens/PatrolDateLogsScreen';
 import { PatrolDetailsScreen } from '../features/patrol/screens/PatrolDetailsScreen';
@@ -64,6 +65,7 @@ export const HomeNavigator = () => {
       <Stack.Screen name="PayslipDetails" component={PayslipDetailsScreen} />
       <Stack.Screen name="SitesList" component={SitesListScreen} />
       <Stack.Screen name="SiteDetails" component={SiteDetailsScreen} />
+      <Stack.Screen name="ChecklistExecution" component={ChecklistExecutionScreen} />
     </Stack.Navigator>
   );
 };

@@ -253,10 +253,10 @@ export const DocumentsScreen: React.FC = () => {
           <Button
             title="+ UPLOAD NEW DOCUMENT"
             variant="primary"
-            size="large"
+            size="medium"
             fullWidth
             onPress={() => navigation.navigate('UploadDocument')}
-            style={{ height: 54, backgroundColor: '#4F46E5', borderRadius: 10 }}
+            style={{ backgroundColor: '#4F46E5', borderRadius: 8 }}
           />
         </View>
       </View>
@@ -270,28 +270,28 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 16,
-    paddingBottom: 94,
+    paddingBottom: 84,
   },
   headerBlock: {
-    marginBottom: 14,
+    marginBottom: 12,
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '600',
     color: '#0F172A',
   },
   searchFilterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   searchInputWrapper: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 12,
@@ -302,12 +302,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0F172A',
     paddingVertical: 0,
+    includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 48,
@@ -315,26 +316,26 @@ const styles = StyleSheet.create({
   },
   dropdownMenuContainer: {
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
     padding: 4,
-    marginBottom: 14,
+    marginBottom: 12,
     elevation: 3,
   },
   dropdownMenuItem: {
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     borderRadius: 6,
   },
   dropdownMenuItemActive: {
     backgroundColor: '#EEF2FF',
   },
   docCard: {
-    padding: 18,
-    marginBottom: 14,
+    padding: 16,
+    marginBottom: 12,
     borderRadius: 12,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   cardHeaderRow: {
@@ -342,23 +343,23 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     backgroundColor: '#EEF2FF',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
   },
   docTitle: {
-    fontSize: 16.5,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '600',
     color: '#0F172A',
   },
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 6,
     marginLeft: 6,
   },
@@ -366,15 +367,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 14,
-    paddingTop: 12,
+    marginTop: 12,
+    paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
   },
   iconActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 18,
+    gap: 16,
   },
   actionIconBtn: {
     padding: 4,
@@ -386,8 +387,8 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1.5,
+    paddingVertical: 10,
+    borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     elevation: 8,
   },

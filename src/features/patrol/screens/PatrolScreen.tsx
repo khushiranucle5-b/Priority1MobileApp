@@ -34,6 +34,41 @@ interface DatePatrolSummary {
   items: DBPatrol[];
 }
 
+const parseDateToTimestamp = (dateVal: string | number | null | undefined): number => {
+  if (!dateVal) return 0;
+  if (typeof dateVal === 'number') return dateVal;
+  
+  const str = String(dateVal).trim();
+  
+  const ymdMatch = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (ymdMatch) {
+    const year = parseInt(ymdMatch[1], 10);
+    const month = parseInt(ymdMatch[2], 10) - 1;
+    const day = parseInt(ymdMatch[3], 10);
+    return new Date(year, month, day).getTime();
+  }
+
+  const months: { [key: string]: number } = {
+    jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+    jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11
+  };
+
+  const parts = str.replace(/,/g, '').split(/\s+/);
+  if (parts.length >= 3) {
+    const mIdx = months[parts[0].toLowerCase().slice(0, 3)];
+    if (mIdx !== undefined) {
+      const day = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+      if (!isNaN(day) && !isNaN(year)) {
+        return new Date(year, mIdx, day).getTime();
+      }
+    }
+  }
+
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+};
+
 const filterOptions = [
   { label: 'All', value: 'All' },
   { label: 'Assigned / Scheduled', value: 'Assigned' },
@@ -48,6 +83,7 @@ export const PatrolScreen: React.FC = () => {
     patrols,
     assignedSite,
     startPatrol,
+    ensurePatrolsForDate,
   } = useGuardStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,8 +93,15 @@ export const PatrolScreen: React.FC = () => {
   // Live timer tick every 10 seconds for dynamic button updates
   const [now, setNow] = useState(new Date());
   useEffect(() => {
+    if (ensurePatrolsForDate) {
+      ensurePatrolsForDate(now);
+    }
     const timer = setInterval(() => {
-      setNow(new Date());
+      const freshNow = new Date();
+      setNow(freshNow);
+      if (ensurePatrolsForDate) {
+        ensurePatrolsForDate(freshNow);
+      }
     }, 10000);
     return () => clearInterval(timer);
   }, []);
@@ -120,7 +163,7 @@ export const PatrolScreen: React.FC = () => {
     });
   }, [allPatrolList, searchQuery, statusFilter]);
 
-  // Aggregate into Date-wise Summary Cards (ONE CARD PER DATE)
+  // Aggregate into Date-wise Summary Cards (ONE CARD PER DATE - NEWEST ON TOP)
   const dateSummaries: DatePatrolSummary[] = useMemo(() => {
     const map: { [dateKey: string]: DBPatrol[] } = {};
 
@@ -143,6 +186,9 @@ export const PatrolScreen: React.FC = () => {
       const hasInProgress = inProgressCount > 0;
       const overallStatus = hasInProgress ? 'In Progress' : (completedCount === totalPatrols ? 'Completed' : 'Scheduled');
 
+      const rawDate = items[0]?.date || dateStr;
+      const ts = parseDateToTimestamp(rawDate) || parseDateToTimestamp(dateStr);
+
       return {
         dateStr,
         displayHeader: formatDateGroupHeader(dateStr),
@@ -150,7 +196,7 @@ export const PatrolScreen: React.FC = () => {
         inProgressCount,
         completedCount,
         overallStatus,
-        latestTimestamp: new Date(dateStr).getTime() || Date.now(),
+        latestTimestamp: ts,
         items,
       };
     });
@@ -328,7 +374,7 @@ export const PatrolScreen: React.FC = () => {
             disabled={activeAvailability ? (!activeAvailability.canStart && !activeAvailability.isInProgress && !activeAvailability.isCompleted) : false}
             onPress={handleStartPatrolAction}
             style={[
-              { height: 56, backgroundColor: '#2563EB', borderRadius: 10 },
+              { backgroundColor: '#5B46E5', borderRadius: 8, minHeight: 64 },
               activeAvailability?.isInProgress && { backgroundColor: '#0284C7' },
               activeAvailability?.isCompleted && { backgroundColor: '#059669' },
             ]}
@@ -343,10 +389,10 @@ const styles = StyleSheet.create({
   headerSubtitleContainer: {
     paddingHorizontal: 16,
     marginTop: 4,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   headerSubtitleText: {
-    fontSize: 14.5,
+    fontSize: 15,
     color: '#64748B',
   },
   searchFilterRow: {
@@ -361,43 +407,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 50,
+    paddingHorizontal: 14,
+    height: 56,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 18,
     color: '#0F172A',
     paddingVertical: 0,
+    includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    height: 50,
+    height: 56,
     paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    padding: 6,
+    padding: 4,
     marginHorizontal: 16,
-    marginBottom: 14,
+    marginBottom: 12,
     elevation: 4,
   },
   dropdownMenuItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 6,
-    minHeight: 46,
+    minHeight: 48,
     justifyContent: 'center',
   },
   dropdownMenuItemActive: {
@@ -406,11 +453,11 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 16,
     paddingTop: 4,
-    paddingBottom: 94,
+    paddingBottom: 96,
   },
   dateSummaryCard: {
     padding: 18,
-    marginBottom: 14,
+    marginBottom: 12,
     borderRadius: 12,
   },
   cardRow: {
@@ -420,34 +467,34 @@ const styles = StyleSheet.create({
   },
   dateHeaderTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#0F172A',
   },
   patrolCountText: {
-    fontSize: 15.5,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '500',
     color: '#475569',
     marginTop: 4,
   },
   patrolSubStatsText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#64748B',
-    marginTop: 3,
+    marginTop: 2,
   },
   eyeIconButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 52,
+    height: 52,
+    borderRadius: 10,
     backgroundColor: '#EEF2FF',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyCard: {
-    padding: 32,
+    padding: 24,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
   },
   fixedBottomButtonContainer: {
     position: 'absolute',
@@ -455,10 +502,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: '#FFFFFF',
-    borderTopWidth: 1.5,
+    borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     elevation: 8,
   },
 });

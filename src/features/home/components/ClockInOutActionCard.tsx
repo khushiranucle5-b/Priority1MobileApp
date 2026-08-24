@@ -15,17 +15,19 @@ export const ClockInOutActionCard: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const { attendanceStatus, workingHours, clockInTimeStr } = useLiveAttendance();
-  const { isClockedIn } = useGuardStore();
+  const { isClockedIn, isClockedOut } = useGuardStore();
 
   const handleClockIn = () => {
     LoggerService.log('[ClockInOutActionCard] Clock In tapped');
-    navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock In' } });
+    navigation.navigate('SelfieVerification', { actionType: 'Clock In' });
   };
 
   const handleClockOut = () => {
     LoggerService.log('[ClockInOutActionCard] Clock Out tapped');
-    navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock Out' } });
+    navigation.navigate('SelfieVerification', { actionType: 'Clock Out' });
   };
+
+  const badgeStatus = isClockedIn ? 'Checked In' : isClockedOut ? 'Checked Out' : 'Not Checked In';
 
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -34,7 +36,7 @@ export const ClockInOutActionCard: React.FC = () => {
           <Heading level="h4" color="primary">ATTENDANCE</Heading>
           <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>Real-time Shift Status</AppText>
         </View>
-        <StatusBadge status={isClockedIn ? 'Checked In' : 'Clocked Out'} size="md" />
+        <StatusBadge status={badgeStatus} size="md" />
       </View>
 
       <View style={styles.divider} />
@@ -43,14 +45,14 @@ export const ClockInOutActionCard: React.FC = () => {
         <View style={styles.statBox}>
           <AppText size="xs" color="secondary" weight="semibold">CLOCK IN TIME</AppText>
           <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
-            {isClockedIn ? clockInTimeStr || '03:10 PM' : '--:--'}
+            {isClockedIn || isClockedOut ? clockInTimeStr || '--:--' : '--:--'}
           </AppText>
         </View>
 
         <View style={styles.statBox}>
           <AppText size="xs" color="secondary" weight="semibold">WORKING HOURS</AppText>
-          <AppText size="base" weight="bold" style={{ color: isClockedIn ? '#059669' : '#64748b', marginTop: 2 }}>
-            {isClockedIn ? workingHours || '04:32:15' : '00:00:00'}
+          <AppText size="base" weight="bold" style={{ color: isClockedIn ? '#059669' : colors.text, marginTop: 2 }}>
+            {workingHours}
           </AppText>
         </View>
       </View>

@@ -1,22 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { StatusBadge } from '../../../components/StatusBadge';
+import { NavIcon } from '../../../components/NavIcon';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LeaveRequest } from '../../../store/useGuardStore';
 
 interface LeaveHistoryProps {
   onEditLeave: (leave: LeaveRequest) => void;
+  searchQuery?: string;
+  statusFilter?: string;
 }
 
-export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
+export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQuery = '', statusFilter = 'All' }) => {
   const { colors, spacing, borderRadius } = useTheme();
   const leaves = useGuardStore((state) => state.leaves);
   const cancelLeave = useGuardStore((state) => state.cancelLeave);
 
   const [leaveToCancel, setLeaveToCancel] = useState<LeaveRequest | null>(null);
   const [showToast, setShowToast] = useState(false);
+
+  const filteredLeaves = useMemo(() => {
+    return leaves.filter((leave) => {
+      if (searchQuery && searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesType = (leave.type || '').toLowerCase().includes(q);
+        const matchesReason = (leave.reason || '').toLowerCase().includes(q);
+        const matchesFrom = (leave.fromDate || '').toLowerCase().includes(q);
+        const matchesTo = (leave.toDate || '').toLowerCase().includes(q);
+        const matchesStatus = (leave.status || '').toLowerCase().includes(q);
+        if (!matchesType && !matchesReason && !matchesFrom && !matchesTo && !matchesStatus) {
+          return false;
+        }
+      }
+
+      if (statusFilter && statusFilter !== 'All') {
+        if (leave.status.toLowerCase() !== statusFilter.toLowerCase()) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [leaves, searchQuery, statusFilter]);
 
   const getStatusColors = (status: string) => {
     const s = status.toLowerCase();
@@ -65,8 +92,8 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {leaves.map((leave) => {
+    <View style={styles.container}>
+      {filteredLeaves.map((leave) => {
         const statusColors = getStatusColors(leave.status);
         const statusLower = leave.status.toLowerCase();
 
@@ -80,7 +107,7 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
         return (
           <Card key={leave.id} variant="outlined" style={styles.card}>
             <View style={styles.headerRow}>
-              <AppText size="lg" weight="bold" color="primary">📅 {leave.type.toUpperCase()}</AppText>
+              <AppText size="lg" weight="bold" color="primary">{leave.type.toUpperCase()}</AppText>
               <StatusBadge status={leave.status} size="md" />
             </View>
             
@@ -108,7 +135,7 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
 
             {leave.attachment && (
               <View style={[styles.attachmentBadge, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.sm, marginTop: 10 }]}>
-                <AppText size="xs" color="primary" weight="bold">📎 {leave.attachment.name}</AppText>
+                <AppText size="xs" color="primary" weight="bold">{leave.attachment.name}</AppText>
                 <AppText size="xs" color="secondary">{(leave.attachment.size / 1024).toFixed(1)} KB</AppText>
               </View>
             )}
@@ -117,25 +144,25 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
               <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                 {canEdit && (
                   <TouchableOpacity
-                    style={[styles.actionBtn, { borderColor: colors.primary[600] || '#2563eb' }]}
+                    style={styles.iconActionBtnEdit}
                     onPress={() => onEditLeave(leave)}
                     activeOpacity={0.7}
+                    accessibilityLabel="Edit leave"
+                    accessibilityRole="button"
                   >
-                    <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#2563eb' }}>
-                      ✏️ EDIT
-                    </AppText>
+                    <NavIcon name="edit" size={24} color="#4F46E5" />
                   </TouchableOpacity>
                 )}
 
                 {canCancel && (
                   <TouchableOpacity
-                    style={[styles.actionBtn, { borderColor: colors.error || '#dc2626' }]}
+                    style={styles.iconActionBtnCancel}
                     onPress={() => setLeaveToCancel(leave)}
                     activeOpacity={0.7}
+                    accessibilityLabel="Cancel leave"
+                    accessibilityRole="button"
                   >
-                    <AppText size="base" weight="bold" style={{ color: colors.error || '#dc2626' }}>
-                      ✕ CANCEL
-                    </AppText>
+                    <NavIcon name="close" size={24} color="#DC2626" />
                   </TouchableOpacity>
                 )}
               </View>
@@ -187,11 +214,11 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave }) => {
       {showToast && (
         <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
           <AppText color="surface" weight="semibold" size="base">
-            ✓ Leave application cancelled successfully.
+            Leave application cancelled successfully.
           </AppText>
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
@@ -236,13 +263,23 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 1,
   },
-  actionBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 2,
-    minWidth: 100,
-    minHeight: 52,
+  iconActionBtnEdit: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconActionBtnCancel: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FEE2E2',
     justifyContent: 'center',
     alignItems: 'center',
   },

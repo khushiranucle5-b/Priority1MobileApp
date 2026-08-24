@@ -26,7 +26,7 @@ export const DutyInstructionsCard: React.FC = () => {
         {instructions.map((instruction, index) => (
           <View key={index} style={styles.listItem}>
             <AppText style={[styles.bullet, { color: colors.primary[600] || '#2563EB' }]}>•</AppText>
-            <AppText size="base" style={styles.text}>{instruction}</AppText>
+            <AppText style={styles.text}>{instruction}</AppText>
           </View>
         ))}
       </View>
@@ -37,8 +37,8 @@ export const DutyInstructionsCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 18,
+    marginVertical: 10,
+    padding: 20,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     elevation: 1,
@@ -48,17 +48,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   divider: {
     height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12,
+    marginVertical: 14,
   },
   list: {
-    gap: 10,
+    gap: 12,
   },
   listItem: {
     flexDirection: 'row',
@@ -66,14 +66,14 @@ const styles = StyleSheet.create({
   },
   bullet: {
     marginRight: 10,
-    fontSize: 20,
-    lineHeight: 22,
+    fontSize: 22,
+    lineHeight: 24,
   },
   text: {
     flex: 1,
-    fontSize: 15.5,
+    fontSize: 16.5,
     fontWeight: '500',
-    color: '#334155',
-    lineHeight: 22,
+    color: '#1E293B',
+    lineHeight: 24,
   }
 });

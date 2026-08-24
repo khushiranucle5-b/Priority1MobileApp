@@ -28,9 +28,9 @@ export const SupervisorCard: React.FC = () => {
           style={[styles.photo, { borderRadius: borderRadius.full, backgroundColor: colors.surfaceSecondary }]} 
         />
         <View style={styles.info}>
-          <AppText size="lg" weight="bold" color="primary" style={styles.nameText}>Jane Smith</AppText>
-          <AppText size="sm" weight="semibold" color="secondary" style={styles.roleText}>Field Operations Officer</AppText>
-          <AppText size="md" weight="bold" style={[styles.phoneText, { color: colors.primary[600] || '#2563EB' }]}>
+          <AppText style={styles.nameText}>Jane Smith</AppText>
+          <AppText style={styles.roleText}>Field Operations Officer</AppText>
+          <AppText style={[styles.phoneText, { color: colors.primary[600] || '#2563EB' }]}>
             +1 987-654-3210
           </AppText>
         </View>
@@ -51,8 +51,8 @@ export const SupervisorCard: React.FC = () => {
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 8,
-    padding: 18,
+    marginVertical: 10,
+    padding: 20,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     elevation: 1,
@@ -62,14 +62,14 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: 0.6,
   },
   divider: {
     height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12,
+    marginVertical: 14,
   },
   row: {
     flexDirection: 'row',
@@ -77,9 +77,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   photo: {
-    width: 60,
-    height: 60,
-    marginRight: 16,
+    width: 66,
+    height: 66,
+    marginRight: 18,
     borderWidth: 2,
     borderColor: '#2563EB',
   },
@@ -87,20 +87,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   nameText: {
-    fontSize: 17,
+    fontSize: 19,
     fontWeight: '700',
+    color: '#0F172A',
   },
   roleText: {
-    fontSize: 13.5,
+    fontSize: 15.5,
     color: '#64748B',
+    fontWeight: '500',
     marginTop: 2,
   },
   phoneText: {
-    fontSize: 15.5,
+    fontSize: 16.5,
     fontWeight: '700',
     marginTop: 4,
   },
   callBtn: {
-    height: 48,
+    height: 52,
   },
 });

@@ -23,12 +23,12 @@ export const AttendanceCard: React.FC = () => {
 
   const handleClockIn = () => {
     LoggerService.log('[AttendanceCard] Clock In tapped');
-    navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock In' } });
+    navigation.navigate('SelfieVerification', { actionType: 'Clock In' });
   };
 
   const handleClockOut = () => {
     LoggerService.log('[AttendanceCard] Clock Out tapped');
-    navigation.navigate('Attendance', { screen: 'SelfieVerification', params: { actionType: 'Clock Out' } });
+    navigation.navigate('SelfieVerification', { actionType: 'Clock Out' });
   };
 
   const badgeStatus = isClockedIn ? 'Checked In' : isClockedOut ? 'Checked Out' : 'Not Checked In';
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 10,
     padding: 18,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#cbd5e1',
   },
   header: {
@@ -111,45 +111,49 @@ const styles = StyleSheet.create({
   },
   title: {
     letterSpacing: 0.5,
+    fontSize: 20,
+    fontWeight: '600',
   },
   divider: {
-    height: 1.5,
+    height: 1,
     backgroundColor: '#cbd5e1',
     marginVertical: 14,
   },
   workingHoursBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   workingHoursText: {
     marginTop: 4,
-    fontSize: 26,
+    fontSize: 28,
+    fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
   actionContainer: {
-    marginBottom: 14,
+    marginBottom: 16,
   },
   actionBtn: {
-    height: 56,
+    minHeight: 64,
   },
   timeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 12,
   },
   timeBox: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 58,
+    minHeight: 56,
   },
   statValue: {
     marginTop: 2,
+    fontSize: 18,
     fontVariant: ['tabular-nums'],
   },
 });

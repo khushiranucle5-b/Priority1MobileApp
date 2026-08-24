@@ -48,6 +48,7 @@ export const LogoutSection: React.FC = () => {
         variant="danger" 
         size="large" 
         fullWidth 
+        style={{ minHeight: 64 }}
         isLoading={isLoading}
         onPress={handleLogout}
       />

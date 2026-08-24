@@ -74,30 +74,26 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getPadding = () => {
     switch (size) {
-      case 'small': return { paddingVertical: spacing.sm, paddingHorizontal: spacing.base };
-      case 'large': return { paddingVertical: spacing.base, paddingHorizontal: spacing['2xl'] };
-      default: return { paddingVertical: spacing.md, paddingHorizontal: spacing.xl };
+      case 'small': return { paddingVertical: 12, paddingHorizontal: 20 };
+      case 'large': return { paddingVertical: 16, paddingHorizontal: 28 };
+      default: return { paddingVertical: 14, paddingHorizontal: 24 };
     }
   };
 
   const getMinHeight = () => {
     switch (size) {
-      case 'small': return 48;  // Glove minimum 48dp
-      case 'large': return 60;  // Glove primary action 60dp
-      default: return 52;       // Glove standard 52dp
+      case 'small': return 52;
+      case 'large': return 64;
+      default: return 56;
     }
   };
 
   const getHitSlop = () => {
-    return { top: 8, bottom: 8, left: 8, right: 8 };
+    return { top: 12, bottom: 12, left: 12, right: 12 };
   };
 
   const getFontSize = () => {
-    switch (size) {
-      case 'small': return typography.fontSize.sm;
-      case 'large': return typography.fontSize.lg;
-      default: return typography.fontSize.md;
-    }
+    return typography.fontSize.base; // 18px bold/semibold button text for gloves
   };
 
   return (
@@ -106,7 +102,7 @@ export const Button: React.FC<ButtonProps> = ({
         styles.base,
         {
           backgroundColor: getBg(),
-          borderRadius: borderRadius.lg,
+          borderRadius: borderRadius.md,
           minHeight: getMinHeight(),
           ...getBorder(),
           ...getPadding(),
@@ -131,7 +127,7 @@ export const Button: React.FC<ButtonProps> = ({
               {
                 color: getTextColor(),
                 fontSize: getFontSize(),
-                fontWeight: typography.fontWeight.bold,
+                fontWeight: typography.fontWeight.semibold,
               },
             ]}
           >

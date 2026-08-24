@@ -529,34 +529,34 @@ export const SEED_DATA = {
   ],
   "sites": [
     {
-      "id": "s-12lnsg7-1786085509818",
+      "id": "s-04",
       "companyId": "c-1",
       "name": "Ranucle zundal",
-      "code": "s-12lnsg7-1786085509818",
-      "clientName": "Ranucle",
+      "code": "s-04",
+      "clientName": "Ranucle Group",
       "branch": "West Zone Branch",
       "facilityType": "Commercial Port / Terminal",
       "supervisorName": "Daniel Brooks",
-      "guardsCount": 6,
-      "riskLevel": "High",
+      "guardsCount": 15,
+      "riskLevel": "Medium",
       "contractEnd": "2027-12-31",
       "status": "active",
-      "addressLine1": "S.P.Ring Road (Zundal), Ahmedabad, Gujarat 382424, India",
+      "addressLine1": "Zundal Circle, Gandhinagar, Gujarat 382424, India",
       "addressLine2": "Plot 42, Zundal Industrial Estate",
-      "city": "Ahmedabad",
+      "city": "Gandhinagar",
       "state": "Gujarat",
       "postalCode": "382424",
       "country": "India",
       "coordinates": {
-        "latitude": 23.129695,
-        "longitude": 72.58482,
+        "latitude": 23.1437,
+        "longitude": 72.5902,
         "radiusMeters": 150
       },
       "contact": {
-        "primaryContactName": "Daniel Brooks",
-        "contactEmail": "daniel.b@ranucle.com",
-        "primaryPhone": "+91 98765 43210",
-        "alternatePhone": "+91 98765 43211"
+        "primaryContactName": "Alex Mendes (Facilities Director)",
+        "contactEmail": "alex.mendes@ranucle.com",
+        "primaryPhone": "+351 912 345 678",
+        "alternatePhone": "+351 265 550 120"
       },
       "operationalSettings": {
         "requireGpsEnabled": true,
@@ -564,13 +564,13 @@ export const SEED_DATA = {
         "enableShiftScheduling": true,
         "allowGuardMobileAccess": true
       },
-      "internalNotes": "High priority commercial port & container terminal site. Strict geofence validation and PPE safety compliance required at all perimeter gates.",
+      "internalNotes": "High priority commercial port & container terminal site. Mandatory badge inspection and truck license logging for all heavy vehicles after 20:00.",
       "geofence": {
         "boundaryType": "Circle",
-        "latitude": 23.129695,
-        "longitude": 72.58482,
+        "latitude": 23.1437,
+        "longitude": 72.5902,
         "radiusMeters": 150,
-        "status": "ACTIVE GEOFENCE",
+        "status": "Active Boundary",
         "enableGeofenceValidation": true,
         "requireGeofenceClockIn": true,
         "requireGeofenceClockOut": true,
@@ -582,23 +582,23 @@ export const SEED_DATA = {
         {
           "id": "po-1",
           "priority": "High",
-          "title": "aaaa",
-          "category": "Access Control",
-          "version": "v1.0",
-          "effectiveDate": "2026-08-11",
+          "title": "Perimeter Access Control Protocol",
+          "category": "Security Protocol",
+          "version": "v2.4",
+          "effectiveDate": "2026-01-01",
           "expiryDate": "Indefinite",
-          "lastUpdated": "2026-08-11",
+          "lastUpdated": "2026-01-01",
           "status": "Active"
         },
         {
           "id": "po-2",
           "priority": "Medium",
-          "title": "Perimeter Access Control Protocol",
-          "category": "Security Protocol",
-          "version": "v2.4",
-          "effectiveDate": "2026-08-01",
+          "title": "Heavy Vehicle & Truck Entry Directives",
+          "category": "Access Control",
+          "version": "v1.8",
+          "effectiveDate": "2026-02-01",
           "expiryDate": "2027-12-31",
-          "lastUpdated": "2026-08-01",
+          "lastUpdated": "2026-02-01",
           "status": "Active"
         }
       ],
@@ -606,8 +606,24 @@ export const SEED_DATA = {
         {
           "id": "cl-1",
           "priority": "High",
+          "title": "Intrusion Alarm Response Checklist",
+          "category": "Trespassing",
+          "description": "Standard procedure for perimeter breach alarms",
+          "steps": [
+            "1. Assess perimeter breach zone",
+            "2. Contact local law enforcement",
+            "3. Secure secondary gates",
+            "4. File Incident Report with photo attachment"
+          ],
+          "itemsCount": 4,
+          "frequency": "Incident",
+          "status": "Active"
+        },
+        {
+          "id": "cl-2",
+          "priority": "High",
           "title": "Medical Emergency Checklist",
-          "category": "Emergency Response",
+          "category": "Medical Emergency",
           "description": "Standard response procedure for on-site medical emergencies",
           "steps": [
             "1. Call 911 immediately",
@@ -620,18 +636,18 @@ export const SEED_DATA = {
           "status": "Active"
         },
         {
-          "id": "cl-2",
+          "id": "cl-3",
           "priority": "Medium",
-          "title": "Morning Shift Opening Inspection",
-          "category": "Safety & Operational",
-          "description": "Daily verification of perimeter gates, barrier locks, and guard room logbooks.",
+          "title": "Shift Changeover Inspection Checklist",
+          "category": "Routine Inspection",
+          "description": "Daily verification of guard logbook and equipment at shift handover",
           "steps": [
-            "1. Verify main entry gate locks",
-            "2. Inspect CCTV monitor feeds",
-            "3. Check radio battery charge levels",
-            "4. Log shift handover report"
+            "1. Verify guard logbook entries",
+            "2. Inspect key ring set",
+            "3. Check bodycam charge status",
+            "4. Confirm active radio channel"
           ],
-          "itemsCount": 12,
+          "itemsCount": 4,
           "frequency": "Daily",
           "status": "Active"
         }
@@ -639,9 +655,9 @@ export const SEED_DATA = {
       "safetyConfig": {
         "shiftRules": {
           "minMinsBeforeShift": 15,
-          "maxMinsAfterShift": 30,
-          "minMinsBeforeEnd": 10,
-          "maxMinsAfterEnd": 15
+          "maxMinsAfterShift": 10,
+          "minMinsBeforeEnd": 0,
+          "maxMinsAfterEnd": 30
         },
         "officerShiftChecks": {
           "enabled": true,
@@ -653,6 +669,13 @@ export const SEED_DATA = {
           "intervalMins": 30,
           "graceMins": 5
         },
+        "gpsAccuracyThresholdMeters": 50,
+        "batteryThresholdPercent": 20,
+        "sosRequired": true,
+        "autoIncidentEscalation": true,
+        "missedPatrolEscalation": true,
+        "offlineModeAllowed": true,
+        "autoLogoutHours": 12,
         "customRules": [
           {
             "id": "sr-1",
@@ -665,26 +688,50 @@ export const SEED_DATA = {
       },
       "tourCheckpoints": [
         {
-          "id": "cp-1",
-          "name": "Main Entry Gate A",
+          "id": "ts-1",
+          "name": "Main Entrance Front Gate",
           "code": "CP-RN-01",
-          "location": "North Entrance",
+          "type": "QR Tag",
+          "location": "North Gate Entrance",
+          "tagId": "TAG-101",
+          "patrolOrder": 1,
+          "scanWindowMins": 15,
+          "graceTimeMins": 5,
+          "requiredImage": true,
+          "requiredComment": false,
+          "autoIncidentMissed": true,
           "status": "Active",
           "sequence": 1
         },
         {
-          "id": "cp-2",
-          "name": "Chemical Storage Bay",
+          "id": "ts-2",
+          "name": "South Warehouse Loading Dock",
           "code": "CP-RN-02",
-          "location": "East Sector",
+          "type": "NFC Tag",
+          "location": "Dock Bay 4",
+          "tagId": "TAG-102",
+          "patrolOrder": 2,
+          "scanWindowMins": 30,
+          "graceTimeMins": 10,
+          "requiredImage": true,
+          "requiredComment": true,
+          "autoIncidentMissed": true,
           "status": "Active",
           "sequence": 2
         },
         {
-          "id": "cp-3",
-          "name": "Loading Dock 4",
+          "id": "ts-3",
+          "name": "Perimeter Security Beacon",
           "code": "CP-RN-03",
-          "location": "South Dock",
+          "type": "BLE Beacon",
+          "location": "East Fence Line",
+          "tagId": "BLE-901",
+          "patrolOrder": 3,
+          "scanWindowMins": 45,
+          "graceTimeMins": 5,
+          "requiredImage": false,
+          "requiredComment": false,
+          "autoIncidentMissed": false,
           "status": "Active",
           "sequence": 3
         }
@@ -692,50 +739,62 @@ export const SEED_DATA = {
       "assignedUsers": [
         {
           "id": "u-user-1",
-          "name": "Michael Carter",
-          "username": "michael.carter",
-          "email": "michael.carter@acme.io",
-          "role": "Command Supervisor",
+          "name": "Daniel Brooks",
+          "username": "daniel_brooks",
+          "email": "daniel.brooks@priority-one.io",
+          "role": "Site Supervisor",
           "shiftTiming": "08:00 AM - 08:00 PM",
-          "shiftPeriod": "2026-08-01 to 2026-12-31"
+          "shiftPeriod": "Active Duty"
         },
         {
           "id": "u-user-2",
-          "name": "richerl Rohde",
-          "username": "richerl_rohde",
-          "email": "richerl@acme.io",
+          "name": "John Smith",
+          "username": "john_smith",
+          "email": "john@priority-one.io",
           "role": "Security Guard",
-          "shiftTiming": "06:00 - 13:00",
-          "shiftPeriod": "August 13, 2026"
+          "shiftTiming": "08:00 AM - 04:00 PM",
+          "shiftPeriod": "Active Shift"
         },
         {
           "id": "u-user-3",
-          "name": "abc xyz",
-          "username": "abc_xyz",
-          "email": "abc@acme.io",
+          "name": "David Chen",
+          "username": "david_chen",
+          "email": "david.c@priority-one.io",
           "role": "Security Guard",
-          "shiftTiming": "08:00 AM - 04:00 PM",
-          "shiftPeriod": "2026-08-01 to 2026-12-31"
+          "shiftTiming": "04:00 PM - 12:00 AM",
+          "shiftPeriod": "Active Shift"
         }
       ],
       "documents": [
         {
           "id": "doc-1",
-          "title": "Ranucle Zundal Site Security Directive",
-          "category": "Operations",
-          "fileName": "Ranucle_Zundal_Security_Plan.pdf",
+          "title": "Site Standard Operating Procedures (SOP)",
+          "category": "SOP Document",
+          "fileName": "Site_SOP_v2.4.pdf",
           "fileSize": "2.4 MB",
-          "uploadedBy": "Daniel Brooks",
-          "uploadDate": "2026-07-10"
+          "uploadedBy": "Company Admin",
+          "uploadDate": "2026-01-10",
+          "status": "Active"
         },
         {
           "id": "doc-2",
-          "title": "Emergency Evacuation & Fire Map",
-          "category": "Compliance",
-          "fileName": "Zundal_Evac_Map_2026.pdf",
-          "fileSize": "1.1 MB",
-          "uploadedBy": "Daniel Brooks",
-          "uploadDate": "2026-07-12"
+          "title": "Emergency Evacuation & Fire Exit Map",
+          "category": "Emergency Plan",
+          "fileName": "Fire_Evac_Map_2026.pdf",
+          "fileSize": "4.1 MB",
+          "uploadedBy": "Safety Director",
+          "uploadDate": "2026-01-15",
+          "status": "Active"
+        },
+        {
+          "id": "doc-3",
+          "title": "Client Property Security Directives",
+          "category": "Client Agreement",
+          "fileName": "Client_Directives_Signoff.pdf",
+          "fileSize": "1.8 MB",
+          "uploadedBy": "HR Manager",
+          "uploadDate": "2026-02-01",
+          "status": "Active"
         }
       ]
     },

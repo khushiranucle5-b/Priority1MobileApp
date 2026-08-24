@@ -7,6 +7,7 @@ import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { Button } from '../../../components/Button';
 
+import { typography } from '../../../theme/tokens/typography';
 import { useGuardStore } from '../../../store/useGuardStore';
 
 export const ContactSupportScreen = () => {
@@ -31,18 +32,18 @@ export const ContactSupportScreen = () => {
     <ScreenLayout>
       <PageHeader title="Contact Support" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
-        
+
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
           <AppText style={styles.icon}>📞</AppText>
-          <AppText size="lg" weight="bold" style={styles.title}>Priority One Support</AppText>
-          <AppText size="base" color="secondary" style={styles.description}>
+          <AppText style={styles.title}>Priority One Support</AppText>
+          <AppText style={styles.description}>
             If you need immediate operational assistance while on duty, contact your Site Supervisor directly. For technical issues, reach out to application support.
           </AppText>
-          
+
           <View style={styles.buttonContainer}>
-            <Button title={`Call Supervisor (${supervisor || 'Jane Smith'})`} onPress={handleCallSupervisor} variant="primary" style={{ marginBottom: 12 }} />
-            <Button title="Email Support (support@priority-one.io)" onPress={handleEmailSupport} variant="outline" style={{ marginBottom: 12 }} />
-            <Button title="Call Technical Support Hotline" onPress={handleCallSupport} variant="secondary" />
+            <Button title={`Call Supervisor (${supervisor || 'Jane Smith'})`} onPress={handleCallSupervisor} variant="primary" size="large" fullWidth style={{ minHeight: 60, marginBottom: 14 }} />
+            <Button title="Email Support (support@priority-one.io)" onPress={handleEmailSupport} variant="outline" size="large" fullWidth style={{ minHeight: 60, marginBottom: 14 }} />
+            <Button title="Call Technical Support Hotline" onPress={handleCallSupport} variant="secondary" size="large" fullWidth style={{ minHeight: 60 }} />
           </View>
         </View>
 
@@ -56,22 +57,27 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    padding: 24,
-    borderWidth: 1,
+    padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 14,
   },
   icon: {
-    fontSize: 48,
+    fontSize: 56,
     marginBottom: 16,
   },
   title: {
+    ...typography.presets.cardTitle,
+    color: '#0F172A',
     marginBottom: 12,
     textAlign: 'center',
   },
   description: {
     textAlign: 'center',
-    lineHeight: 24,
+    ...typography.presets.helper,
+    lineHeight: 22,
+    color: '#475569',
     marginBottom: 24,
   },
   buttonContainer: {
