@@ -19,10 +19,16 @@ export const PermissionsService = {
       return 'granted';
     }
     try {
-      const isGranted = await PermissionsAndroid.check(
+      const fineGranted = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
-      if (isGranted) return 'granted';
+      const coarseGranted = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+      );
+      if (fineGranted || coarseGranted) {
+        delete blockedPermissions['location'];
+        return 'granted';
+      }
       if (blockedPermissions['location']) return 'blocked';
       return 'denied';
     } catch (e) {
@@ -31,7 +37,7 @@ export const PermissionsService = {
   },
 
   /**
-   * Request Fine Location permission
+   * Request Fine & Coarse Location permission
    */
   requestLocation: async (): Promise<PermissionResult> => {
     if (Platform.OS !== 'android') {
@@ -39,13 +45,7 @@ export const PermissionsService = {
     }
     try {
       const result = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Permission Required',
-          message: 'Priority One Guard App requires location access for attendance geofence verification and lone worker safety check-ins.',
-          buttonPositive: 'Allow',
-          buttonNegative: 'Deny',
-        }
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
 
       if (result === PermissionsAndroid.RESULTS.GRANTED) {
@@ -55,6 +55,16 @@ export const PermissionsService = {
         blockedPermissions['location'] = true;
         return { status: 'blocked', canAskAgain: false };
       } else {
+        const coarseResult = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION
+        );
+        if (coarseResult === PermissionsAndroid.RESULTS.GRANTED) {
+          delete blockedPermissions['location'];
+          return { status: 'granted', canAskAgain: true };
+        } else if (coarseResult === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+          blockedPermissions['location'] = true;
+          return { status: 'blocked', canAskAgain: false };
+        }
         return { status: 'denied', canAskAgain: true };
       }
     } catch (e) {
@@ -73,7 +83,10 @@ export const PermissionsService = {
       const isGranted = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.CAMERA
       );
-      if (isGranted) return 'granted';
+      if (isGranted) {
+        delete blockedPermissions['camera'];
+        return 'granted';
+      }
       if (blockedPermissions['camera']) return 'blocked';
       return 'denied';
     } catch (e) {
@@ -90,13 +103,7 @@ export const PermissionsService = {
     }
     try {
       const result = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'Camera Permission Required',
-          message: 'Priority One Guard App requires camera access to scan checkpoint QR codes, capture selfie check-ins, and attach photos to incident reports.',
-          buttonPositive: 'Allow',
-          buttonNegative: 'Deny',
-        }
+        PermissionsAndroid.PERMISSIONS.CAMERA
       );
 
       if (result === PermissionsAndroid.RESULTS.GRANTED) {

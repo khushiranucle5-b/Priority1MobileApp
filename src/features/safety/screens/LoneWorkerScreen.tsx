@@ -41,15 +41,26 @@ export const LoneWorkerScreen: React.FC = () => {
   const isCheckInDisabled = !isClockedIn || (lastTs !== null && lastTs !== undefined && elapsedMs < cooldownMs);
   const remainingMins = isCheckInDisabled && isClockedIn ? Math.max(1, Math.ceil((cooldownMs - elapsedMs) / (60 * 1000))) : 0;
 
-  // Filter history records for TODAY only
-  const todayHistory = (loneWorkerHistory || []).filter((item) => {
-    if (!item) return false;
-    const matchesId = guardId && item.guardId && item.guardId === guardId;
-    const matchesName = guardName && item.guardName && item.guardName.toLowerCase() === guardName.toLowerCase();
-    const isDefaultGuard = !item.guardId || item.guardId === 'guard-1' || item.guardName === 'Khushi Rani';
-    const belongsToUser = matchesId || matchesName || isDefaultGuard;
-    return belongsToUser && isToday(item.timestamp || item.dateStr);
-  });
+  const todayKey = React.useMemo(() => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }, []);
+
+  // Filter history records strictly for current user and TODAY only
+  const todayHistory = React.useMemo(() => {
+    return (loneWorkerHistory || []).filter((item) => {
+      if (!item) return false;
+      const belongsToUser = (guardId && item.guardId === guardId) || 
+        (guardName && item.guardName && item.guardName.toLowerCase() === guardName.toLowerCase());
+      if (!belongsToUser) return false;
+
+      const itemDate = item.dateStr || (item.timestamp ? new Date(item.timestamp).toISOString().split('T')[0] : '');
+      return itemDate === todayKey || isToday(item.timestamp);
+    });
+  }, [loneWorkerHistory, guardId, guardName, todayKey]);
 
   const handleSafeCheckIn = () => {
     setVerifyingGps(true);
@@ -118,9 +129,9 @@ export const LoneWorkerScreen: React.FC = () => {
         <Card style={styles.mainSafetyCard}>
           <View style={styles.headerRow}>
             <View style={{ flex: 1 }}>
-              <Heading level="h3" color="primary">{guardName || 'Khushi Rani'}</Heading>
+              <Heading level="h3" color="primary">{guardName || 'Security Officer'}</Heading>
               <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                {guardId || 'GRD-1024'} • {assignedSite || 'Ahmedabad Plant (Ranucle Zundal)'}
+                {guardId || 'GRD-1001'} • {assignedSite || 'Assigned Site'}
               </AppText>
               <AppText size="xs" weight="semibold" style={{ color: '#475569', marginTop: 2 }}>
                 Active Shift: Morning Shift (08:00 AM - 04:00 PM)

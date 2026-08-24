@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert, Modal, ScrollView, useWindowDimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { pick, keepLocalCopy, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 import { Button } from '../../../components/Button';
 import { AppText } from '../../../components/typography/Text';
@@ -31,6 +32,7 @@ interface LeaveFormProps {
 }
 
 export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEdit }) => {
+  const navigation = useNavigation<any>();
   const { colors, spacing, borderRadius } = useTheme();
   const { width } = useWindowDimensions();
   const isDesktop = width >= 600;
@@ -263,7 +265,12 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
         setTimeout(() => {
           setShowSuccess(false);
           setIsSubmitting(false);
-        }, 2500);
+          if (onFinishedEdit) {
+            onFinishedEdit();
+          } else {
+            navigation.navigate('Leave');
+          }
+        }, 1200);
       }
     } catch (err: any) {
       setIsSubmitting(false);

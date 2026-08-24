@@ -12,16 +12,16 @@ export const MonthlySummary = ({ monthRecords }: MonthlySummaryProps) => {
   const { colors, borderRadius } = useTheme();
 
   const safeMonthRecords = Array.isArray(monthRecords) ? monthRecords : [];
-  const presentCount = safeMonthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'present').length;
-  const absentCount = safeMonthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'absent').length;
-  const halfDayCount = safeMonthRecords.filter(r => r.type === 'attendance' && r.status.toLowerCase() === 'half day').length;
-  const leaveCount = safeMonthRecords.filter(r => r.type === 'leave').length;
+  const presentCount = safeMonthRecords.filter(r => r.normalizedStatus === 'PRESENT').length;
+  const absentCount = safeMonthRecords.filter(r => r.normalizedStatus === 'ABSENT').length;
+  const halfDayCount = safeMonthRecords.filter(r => r.normalizedStatus === 'HALF_DAY').length;
+  const leaveCount = safeMonthRecords.filter(r => r.normalizedStatus === 'LEAVE').length;
 
   const stats = [
-    { label: 'Present', count: presentCount || 13, color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
-    { label: 'Absent', count: absentCount || 0, color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
-    { label: 'Half Day', count: halfDayCount || 1, color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-    { label: 'Leave', count: leaveCount || 1, color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
+    { label: 'Present', count: presentCount, color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
+    { label: 'Absent', count: absentCount, color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
+    { label: 'Half Day', count: halfDayCount, color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+    { label: 'Leave', count: leaveCount, color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
   ];
 
   return (

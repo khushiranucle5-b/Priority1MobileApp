@@ -183,11 +183,23 @@ export const PatrolScreen: React.FC = () => {
         (i) => i.status === 'Completed' || i.status === 'completed'
       ).length;
 
-      const hasInProgress = inProgressCount > 0;
-      const overallStatus = hasInProgress ? 'In Progress' : (completedCount === totalPatrols ? 'Completed' : 'Scheduled');
-
       const rawDate = items[0]?.date || dateStr;
       const ts = parseDateToTimestamp(rawDate) || parseDateToTimestamp(dateStr);
+
+      const todayStartMs = new Date().setHours(0, 0, 0, 0);
+      const isPastDate = ts < todayStartMs;
+
+      const hasInProgress = inProgressCount > 0;
+      let overallStatus = 'Scheduled';
+      if (hasInProgress) {
+        overallStatus = 'In Progress';
+      } else if (completedCount === totalPatrols && totalPatrols > 0) {
+        overallStatus = 'Completed';
+      } else if (isPastDate) {
+        overallStatus = completedCount > 0 ? 'Completed' : 'Missed';
+      } else {
+        overallStatus = 'Scheduled';
+      }
 
       return {
         dateStr,
@@ -364,22 +376,22 @@ export const PatrolScreen: React.FC = () => {
           )}
         </ScrollView>
 
-        {/* Fixed Bottom Action Button */}
-        <View style={styles.fixedBottomButtonContainer}>
-          <Button
-            title={activeAvailability ? activeAvailability.buttonText : "START PATROLLING"}
-            variant="primary"
-            size="large"
-            fullWidth
-            disabled={activeAvailability ? (!activeAvailability.canStart && !activeAvailability.isInProgress && !activeAvailability.isCompleted) : false}
-            onPress={handleStartPatrolAction}
-            style={[
-              { backgroundColor: '#5B46E5', borderRadius: 8, minHeight: 64 },
-              activeAvailability?.isInProgress && { backgroundColor: '#0284C7' },
-              activeAvailability?.isCompleted && { backgroundColor: '#059669' },
-            ]}
-          />
-        </View>
+        {/* Floating Action Button (Matching LeaveScreen FAB) */}
+        <TouchableOpacity
+          style={[
+            styles.floatingButton,
+            activeAvailability?.isInProgress && { backgroundColor: '#0284C7' },
+            activeAvailability?.isCompleted && { backgroundColor: '#059669' },
+          ]}
+          activeOpacity={0.85}
+          disabled={activeAvailability ? (!activeAvailability.canStart && !activeAvailability.isInProgress && !activeAvailability.isCompleted) : false}
+          onPress={handleStartPatrolAction}
+        >
+          <NavIcon name="patrol" size={24} color="#FFFFFF" />
+          <AppText size="base" weight="bold" style={styles.floatingButtonText}>
+            {activeAvailability ? activeAvailability.buttonText : "START PATROLLING"}
+          </AppText>
+        </TouchableOpacity>
       </View>
     </ScreenLayout>
   );
@@ -496,16 +508,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
   },
-  fixedBottomButtonContainer: {
+  floatingButton: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    bottom: 20,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#5B46E5',
+    paddingHorizontal: 20,
+    height: 56,
+    borderRadius: 28,
     elevation: 8,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    zIndex: 999,
+    gap: 8,
+  },
+  floatingButtonText: {
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
 });

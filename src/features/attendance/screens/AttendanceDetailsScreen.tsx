@@ -91,26 +91,34 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
   };
 
   const getSessionDuration = (session: AttendanceRecord): { minutes: number; text: string; isLive: boolean } => {
-    if (!session.clockOut || session.clockOut === '—' || session.clockOut === 'Ongoing' || session.clockOut === 'Not recorded') {
+    const isClockedOutValid = session.clockOut && 
+      session.clockOut !== '—' && 
+      session.clockOut !== 'Ongoing' && 
+      session.clockOut !== 'Not recorded' &&
+      session.clockOut !== 'null' &&
+      session.clockOut !== 'undefined';
+
+    if (!isClockedOutValid) {
       return { minutes: 0, text: 'Live', isLive: true };
     }
+
     if (session.clockIn && session.clockOut) {
       const inDate = new Date(session.clockIn);
       const outDate = new Date(session.clockOut);
-      if (!isNaN(inDate.getTime()) && !isNaN(outDate.getTime()) && outDate.getTime() > inDate.getTime()) {
-        const diffMs = outDate.getTime() - inDate.getTime();
-        const totalMins = Math.round(diffMs / (1000 * 60));
-        const hrs = Math.floor(totalMins / 60);
-        const mins = totalMins % 60;
-        return { minutes: totalMins, text: `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`, isLive: false };
+      if (!isNaN(inDate.getTime()) && !isNaN(outDate.getTime()) && outDate.getTime() >= inDate.getTime()) {
+        const diffMs = Math.max(0, outDate.getTime() - inDate.getTime());
+        const totalSecs = Math.floor(diffMs / 1000);
+        const hrs = Math.floor(totalSecs / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = totalSecs % 60;
+        return { 
+          minutes: Math.round(diffMs / 60000), 
+          text: `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`, 
+          isLive: false 
+        };
       }
     }
-    if (typeof session.workingHours === 'number' && session.workingHours > 0) {
-      const totalMins = Math.round(session.workingHours * 60);
-      const hrs = Math.floor(totalMins / 60);
-      const mins = totalMins % 60;
-      return { minutes: totalMins, text: `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`, isLive: false };
-    }
+
     return { minutes: 0, text: '00:00:00', isLive: false };
   };
 
@@ -121,7 +129,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
 
   const totalHrs = Math.floor(totalMinsCompleted / 60);
   const totalMins = totalMinsCompleted % 60;
-  const totalHoursSummaryStr = totalMinsCompleted > 0 ? `${String(totalHrs).padStart(2, '0')}:${String(totalMins).padStart(2, '0')}:00` : '03:14:00';
+  const totalHoursSummaryStr = `${String(totalHrs).padStart(2, '0')}:${String(totalMins).padStart(2, '0')}:00`;
 
   const shiftName = sortedSessions[0]?.shiftName || (targetDateStr === formatDateKey(new Date()) ? todayShift?.title : 'Morning Shift 08:00 AM - 04:00 PM');
   const siteName = sortedSessions[0]?.siteName || assignedSite || 'Ahmedabad Plant';

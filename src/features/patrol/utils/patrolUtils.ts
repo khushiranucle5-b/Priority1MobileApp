@@ -98,15 +98,16 @@ export const getPatrolAvailability = (
 
   // Past Date Check (strictly before today)
   if (targetDate.getTime() < todayDate.getTime()) {
+    const isCompletedPatrol = isCompleted || (patrol.scanned && patrol.checkpoints && patrol.scanned >= patrol.checkpoints);
     return {
       canStart: false,
-      buttonText: 'PAST DATE',
-      statusLabel: patrol.status || 'Expired',
+      buttonText: isCompletedPatrol ? 'PATROL COMPLETED' : 'PATROL MISSED',
+      statusLabel: isCompletedPatrol ? 'Completed' : 'Missed',
       isPastDate: true,
       isFutureDate: false,
       isBeforeBuffer: false,
-      isExpired: true,
-      isCompleted: false,
+      isExpired: !isCompletedPatrol,
+      isCompleted: !!isCompletedPatrol,
       isInProgress: false,
       startWindowStartStr: '',
     };

@@ -73,18 +73,30 @@ export const AttendanceCalendar = ({
 
           let borderColor = undefined;
           let borderWidth = 0;
+          let dotColor = undefined;
 
-          if (record && record.type !== 'none') {
-            borderWidth = 1.5;
-            const statusLower = record.status.toLowerCase();
-            if (statusLower === 'present') {
-              borderColor = colors.success ? colors.success[600] || '#16a34a' : '#16a34a';
-            } else if (statusLower === 'absent') {
-              borderColor = colors.error ? colors.error[600] || '#dc2626' : '#dc2626';
-            } else if (statusLower === 'leave') {
-              borderColor = colors.warning ? colors.warning[600] || '#ea580c' : '#ea580c';
-            } else if (statusLower === 'half day') {
-              borderColor = '#8b5cf6';
+          if (record) {
+            const st = record.normalizedStatus;
+            if (st === 'PRESENT') {
+              borderColor = '#059669';
+              dotColor = '#059669';
+              borderWidth = 1.5;
+            } else if (st === 'ABSENT') {
+              borderColor = '#DC2626';
+              dotColor = '#DC2626';
+              borderWidth = 1.5;
+            } else if (st === 'HALF_DAY') {
+              borderColor = '#7C3AED';
+              dotColor = '#7C3AED';
+              borderWidth = 1.5;
+            } else if (st === 'LEAVE') {
+              borderColor = '#D97706';
+              dotColor = '#D97706';
+              borderWidth = 1.5;
+            } else if (st === 'HOLIDAY' || st === 'WEEK_OFF') {
+              borderColor = '#64748B';
+              dotColor = '#64748B';
+              borderWidth = 1.5;
             }
           }
 

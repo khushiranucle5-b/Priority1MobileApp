@@ -270,11 +270,13 @@ export interface DBPatrol {
   route?: string;
   guard: string;
   guardId?: string;
+  guardEmail?: string;
   date: string;
   startTime: string;
   endTime?: string;
   scheduledStartTime?: string;
   scheduledEndTime?: string;
+  scheduledStartTimeIso?: string;
   startBufferMinutes?: number;
   status: 'completed' | 'in_progress' | 'assigned' | 'pending' | 'missed' | 'overdue' | 'Scheduled' | 'Completed' | 'In Progress' | string;
   checkpoints: number;
@@ -456,16 +458,17 @@ export const initializeDB = async (forceReset = false) => {
       // Seed today's 2 patrols for G-1001 / guard-1
       const patrolsList: DBPatrol[] = [
         {
-          id: 'patrol-aug21-morning',
-          patrolCode: 'PT-2026-0821-01',
+          id: 'patrol-today-morning',
+          patrolCode: `PT-${todayStr.replace(/-/g, '')}-01`,
           title: 'Morning Perimeter Patrol',
           companyId: 'c-1',
           site: 'Ahmedabad Plant',
           siteId: 's-01',
           route: 'Morning Perimeter Route',
-          guard: 'Khushi Rani',
-          guardId: 'guard-1',
-          date: '2026-08-21',
+          guard: 'John Smith',
+          guardId: 'G-1001',
+          guardEmail: 'john@priority-one.io',
+          date: todayStr,
           startTime: '08:00 AM',
           endTime: '08:45 AM',
           scheduledStartTime: '08:00 AM',
@@ -479,16 +482,17 @@ export const initializeDB = async (forceReset = false) => {
           lastCheckpoint: 'Emergency Exit B',
         },
         {
-          id: 'patrol-aug21-evening',
-          patrolCode: 'PT-2026-0821-02',
+          id: 'patrol-today-evening',
+          patrolCode: `PT-${todayStr.replace(/-/g, '')}-02`,
           title: 'Evening Perimeter Patrol',
           companyId: 'c-1',
           site: 'Ahmedabad Plant',
           siteId: 's-01',
           route: 'Evening Perimeter Route',
-          guard: 'Khushi Rani',
-          guardId: 'guard-1',
-          date: '2026-08-21',
+          guard: 'John Smith',
+          guardId: 'G-1001',
+          guardEmail: 'john@priority-one.io',
+          date: todayStr,
           startTime: '08:00 PM',
           endTime: undefined,
           scheduledStartTime: '08:00 PM',

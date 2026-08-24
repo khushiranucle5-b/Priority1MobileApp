@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Alert, Platform, PermissionsAndroid, Modal } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Alert, Platform, PermissionsAndroid, Modal, AppState, AppStateStatus } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { launchCamera, CameraOptions } from 'react-native-image-picker';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
@@ -10,7 +10,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { CameraPlaceholder, CapturedImagePreview, InstructionCard } from '../components/selfie';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
-import { LoggerService } from '../../../services';
+import { LoggerService, PermissionsService } from '../../../services';
 
 type ParamList = {
   SelfieVerification: {
@@ -30,32 +30,96 @@ export const SelfieVerificationScreen: React.FC = () => {
 
   const { clockIn, clockOut } = useGuardStore();
 
-  const handleCaptureSelfie = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: 'Camera Permission',
-            message: 'This app needs camera access to record attendance selfies.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
-        );
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert(
-            'Permission Denied', 
-            'Camera access is required for attendance verification. Please grant permission in your device settings.',
-            [{ text: 'Retry', onPress: () => handleCaptureSelfie() }, { text: 'Cancel', style: 'cancel' }]
-          );
-          return;
-        }
-      } catch (err) {
-        Alert.alert('Error', 'Failed to request camera permission');
-        return;
+  // Re-check permissions automatically when returning from Phone App Settings
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', async (nextState: AppStateStatus) => {
+      if (nextState === 'active') {
+        const loc = await PermissionsService.checkLocation();
+        const cam = await PermissionsService.checkCamera();
+        LoggerService.log(`[SelfieVerificationScreen] App resumed from settings. Location: ${loc}, Camera: ${cam}`);
       }
+    });
+    return () => subscription.remove();
+  }, []);
+
+  const requestLocationFlow = async (): Promise<boolean> => {
+    const status = await PermissionsService.checkLocation();
+    if (status === 'granted') return true;
+
+    const res = await PermissionsService.requestLocation();
+    if (res.status === 'granted') return true;
+
+    if (res.status === 'blocked' || !res.canAskAgain) {
+      Alert.alert(
+        'Location Permission Required',
+        'Location access is required for attendance verification. Please enable Location permission in your phone Settings.',
+        [
+          { text: 'CANCEL', style: 'cancel' },
+          {
+            text: 'OPEN SETTINGS',
+            onPress: () => PermissionsService.openAppSettings(),
+          },
+        ]
+      );
+      return false;
     }
+
+    Alert.alert(
+      'Location Permission Required',
+      'Location access is required for attendance verification. Please allow location access to proceed.',
+      [
+        { text: 'CANCEL', style: 'cancel' },
+        {
+          text: 'ALLOW LOCATION',
+          onPress: () => handleCaptureSelfie(),
+        },
+      ]
+    );
+    return false;
+  };
+
+  const requestCameraFlow = async (): Promise<boolean> => {
+    const status = await PermissionsService.checkCamera();
+    if (status === 'granted') return true;
+
+    const res = await PermissionsService.requestCamera();
+    if (res.status === 'granted') return true;
+
+    if (res.status === 'blocked' || !res.canAskAgain) {
+      Alert.alert(
+        'Camera Permission Required',
+        'Camera access is required for selfie verification. Please enable Camera permission in your phone Settings.',
+        [
+          { text: 'CANCEL', style: 'cancel' },
+          {
+            text: 'OPEN SETTINGS',
+            onPress: () => PermissionsService.openAppSettings(),
+          },
+        ]
+      );
+      return false;
+    }
+
+    Alert.alert(
+      'Camera Permission Required',
+      'Camera access is required for selfie verification. Please allow camera access to proceed.',
+      [
+        { text: 'CANCEL', style: 'cancel' },
+        {
+          text: 'ALLOW CAMERA',
+          onPress: () => handleCaptureSelfie(),
+        },
+      ]
+    );
+    return false;
+  };
+
+  const handleCaptureSelfie = async () => {
+    const hasLoc = await requestLocationFlow();
+    if (!hasLoc) return;
+
+    const hasCam = await requestCameraFlow();
+    if (!hasCam) return;
 
     const options: CameraOptions = {
       mediaType: 'photo',

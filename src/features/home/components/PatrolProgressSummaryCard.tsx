@@ -1,18 +1,63 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, View, Alert } from 'react-native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { useGuardStore } from '../../../store/useGuardStore';
+import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
 import { getPatrolAvailability } from '../../patrol/utils/patrolUtils';
+
+const formatDisplayDate = (dStr?: string): string => {
+  if (!dStr) return '';
+  try {
+    const parts = dStr.split('-');
+    if (parts.length === 3) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const mIdx = parseInt(parts[1], 10) - 1;
+      return `${months[mIdx]} ${parseInt(parts[2], 10)}, ${parts[0]}`;
+    }
+    const d = new Date(dStr);
+    if (isNaN(d.getTime())) return dStr;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  } catch {
+    return dStr;
+  }
+};
+
+const parseScheduleTs = (p: DBPatrol): number => {
+  try {
+    const dStr = p.date || new Date().toISOString().split('T')[0];
+    const timeStr = p.scheduledStartTime || p.startTime || '08:00 AM';
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+    if (!match) return new Date(dStr).getTime();
+    let hrs = parseInt(match[1], 10);
+    const mins = parseInt(match[2], 10);
+    const ampm = match[3] ? match[3].toUpperCase() : null;
+    if (ampm === 'PM' && hrs < 12) hrs += 12;
+    if (ampm === 'AM' && hrs === 12) hrs = 0;
+    const base = new Date(dStr);
+    base.setHours(hrs, mins, 0, 0);
+    return base.getTime();
+  } catch {
+    return 0;
+  }
+};
 
 export const PatrolProgressSummaryCard: React.FC = () => {
   const { colors, borderRadius } = useTheme();
-  const { activePatrol, patrolCheckpoints, patrols } = useGuardStore();
+  const { activePatrol, patrolCheckpoints, patrols, guardId, guardEmail, guardName, loadGuardData } = useGuardStore();
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
+
+  // Re-evaluate patrol data whenever Home screen gains focus
+  useEffect(() => {
+    if (isFocused && guardId) {
+      loadGuardData(guardId, guardEmail || '');
+    }
+  }, [isFocused, guardId, guardEmail, loadGuardData]);
 
   // Live ticker for time updates
   const [now, setNow] = useState(new Date());
@@ -23,7 +68,72 @@ export const PatrolProgressSummaryCard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const targetPatrol = activePatrol || (patrols && patrols.length > 0 ? patrols[0] : null);
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }, []);
+
+  // Filter assigned patrols strictly for current logged-in user
+  const userPatrols = useMemo(() => {
+    return (patrols || []).filter(
+      p => p.guardId === guardId || p.guardEmail === guardEmail || p.guard === guardName
+    );
+  }, [patrols, guardId, guardEmail, guardName]);
+
+  // Dynamically resolve target patrol according to user & date rules
+  const targetPatrol = useMemo(() => {
+    const isPatrolDone = (p: DBPatrol) => {
+      const s = String(p.status).toLowerCase();
+      if (s === 'completed' || s === 'missed') return true;
+      if (p.scanned && p.checkpoints && p.scanned >= p.checkpoints) return true;
+      return false;
+    };
+
+    // 1. Active patrol in store if valid and not completed/missed
+    if (activePatrol && !isPatrolDone(activePatrol)) {
+      return activePatrol;
+    }
+
+    // Filter today's patrols
+    const todayPatrols = userPatrols.filter(p => {
+      if (!p.date) return false;
+      const pDisp = formatDisplayDate(p.date);
+      const todayDisp = formatDisplayDate(todayStr);
+      return p.date === todayStr || pDisp.toLowerCase() === todayDisp.toLowerCase();
+    });
+
+    // 2. Today's in-progress patrol
+    const inProgressToday = todayPatrols.find(
+      p => String(p.status).toLowerCase() === 'in_progress' || String(p.status).toLowerCase() === 'in progress'
+    );
+    if (inProgressToday) return inProgressToday;
+
+    // 3. Today's upcoming scheduled patrol (not completed, not missed)
+    const upcomingToday = todayPatrols.filter(p => !isPatrolDone(p));
+    if (upcomingToday.length > 0) {
+      upcomingToday.sort((a, b) => parseScheduleTs(a) - parseScheduleTs(b));
+      return upcomingToday[0];
+    }
+
+    // 4. Future date scheduled patrols (date > todayStr and not completed/missed)
+    const todayStartMs = new Date(todayStr).setHours(0, 0, 0, 0);
+    const futurePatrols = userPatrols.filter(p => {
+      if (!p.date) return false;
+      const pTs = new Date(p.date).getTime();
+      return pTs > todayStartMs && !isPatrolDone(p);
+    });
+
+    if (futurePatrols.length > 0) {
+      futurePatrols.sort((a, b) => parseScheduleTs(a) - parseScheduleTs(b));
+      return futurePatrols[0];
+    }
+
+    // 5. No remaining active or upcoming patrol today or in future -> empty state
+    return null;
+  }, [activePatrol, userPatrols, todayStr]);
 
   const availability = useMemo(() => {
     if (!targetPatrol) return null;
@@ -43,20 +153,61 @@ export const PatrolProgressSummaryCard: React.FC = () => {
   const remaining = Math.max(0, total - completed);
   const isFinished = total > 0 && completed >= total;
 
-  const handleScanPress = () => {
-    if (targetPatrol?.id) {
-      navigation.navigate('Home', {
-        screen: 'PatrolDetails',
-        params: { patrolId: targetPatrol.id, autoScan: true },
-      });
-    } else {
+  const handleActionPress = () => {
+    if (!targetPatrol) {
       navigation.navigate('Patrol');
+      return;
     }
+
+    if (availability) {
+      if (availability.canStart || availability.isInProgress || availability.isCompleted) {
+        navigation.navigate('Home', {
+          screen: 'PatrolDetails',
+          params: { patrolId: targetPatrol.id },
+        });
+        return;
+      }
+
+      if (availability.isBeforeBuffer) {
+        Alert.alert(
+          'Patrol Not Available Yet',
+          `This patrol is scheduled for ${targetPatrol.scheduledStartTime || targetPatrol.startTime}. You can start it from ${availability.startWindowStartStr} (15-min buffer window).`,
+          [
+            { text: 'OK' },
+            { text: 'View Patrols', onPress: () => navigation.navigate('Patrol') }
+          ]
+        );
+        return;
+      }
+    }
+
+    navigation.navigate('Home', {
+      screen: 'PatrolDetails',
+      params: { patrolId: targetPatrol.id },
+    });
   };
 
-  if (!targetPatrol) return null;
+  if (!targetPatrol) {
+    return (
+      <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
+        <View style={styles.header}>
+          <Heading level="h4" color="primary">NEXT PATROL</Heading>
+          <AppText size="sm" weight="bold" color="secondary">No Upcoming Patrol</AppText>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.nextPatrolInfoBox}>
+          <AppText size="sm" weight="bold" color="primary">No Scheduled Patrols</AppText>
+          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+            You have no upcoming patrol assignments scheduled.
+          </AppText>
+        </View>
+      </Card>
+    );
+  }
 
   const isAvailableOrInProgress = availability ? (availability.canStart || availability.isInProgress) : true;
+  const buttonTitle = availability ? availability.buttonText : (isAvailableOrInProgress ? "SCAN CHECKPOINT" : "START PATROL");
+  const isButtonDisabled = availability ? (!availability.canStart && !availability.isInProgress && !availability.isCompleted && !availability.isBeforeBuffer) : false;
 
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -64,7 +215,7 @@ export const PatrolProgressSummaryCard: React.FC = () => {
         <Heading level="h4" color="primary">
           {isAvailableOrInProgress ? 'PATROL PROGRESS' : 'NEXT PATROL'}
         </Heading>
-        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#2563EB' }}>
+        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5' }}>
           {isAvailableOrInProgress ? `${completed}/${total} Checkpoints` : `Starts at ${targetPatrol.scheduledStartTime || targetPatrol.startTime}`}
         </AppText>
       </View>
@@ -74,7 +225,7 @@ export const PatrolProgressSummaryCard: React.FC = () => {
       {isAvailableOrInProgress ? (
         <>
           <View style={[styles.progressBarContainer, { backgroundColor: colors.surfaceSecondary || '#e2e8f0', borderRadius: borderRadius.full }]}>
-            <View style={[styles.progressBarFill, { backgroundColor: isFinished ? '#059669' : '#2563EB', borderRadius: borderRadius.full, width: `${percent}%` }]} />
+            <View style={[styles.progressBarFill, { backgroundColor: isFinished ? '#059669' : '#5B46E5', borderRadius: borderRadius.full, width: `${percent}%` }]} />
           </View>
 
           <View style={styles.progressTextRow}>
@@ -92,25 +243,25 @@ export const PatrolProgressSummaryCard: React.FC = () => {
             {targetPatrol.title}
           </AppText>
           <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            Scheduled Date: {targetPatrol.date} • {targetPatrol.scheduledStartTime || targetPatrol.startTime} - {targetPatrol.scheduledEndTime || '07:00 PM'}
+            Scheduled Date: {formatDisplayDate(targetPatrol.date)} • {targetPatrol.scheduledStartTime || targetPatrol.startTime} - {targetPatrol.scheduledEndTime || '09:00 PM'}
           </AppText>
         </View>
       )}
 
       {!isFinished ? (
         <Button
-          title={isAvailableOrInProgress ? "SCAN CHECKPOINT" : (availability?.buttonText || "START PATROLLING")}
-          variant={isAvailableOrInProgress ? "primary" : "secondary"}
+          title={buttonTitle}
+          variant="primary"
           size="large"
           fullWidth
-          disabled={!isAvailableOrInProgress}
-          onPress={handleScanPress}
-          style={[styles.actionBtn, isAvailableOrInProgress && { backgroundColor: '#2563EB' }]}
+          disabled={isButtonDisabled}
+          onPress={handleActionPress}
+          style={[styles.actionBtn, { backgroundColor: isButtonDisabled ? '#94A3B8' : '#5B46E5' }]}
         />
       ) : (
         <View style={[styles.completedBanner, { backgroundColor: '#D1FAE5', borderRadius: borderRadius.md }]}>
-          <AppText size="sm" weight="bold" style={{ color: '#059669', textAlign: 'center' }}>
-            ✓ Patrol Completed (100%)
+          <AppText size="sm" weight="bold" style={{ color: '#065F46' }}>
+            ✓ Patrol Completed Successfully
           </AppText>
         </View>
       )}
@@ -123,7 +274,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 10,
     padding: 18,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#cbd5e1',
   },
   header: {
@@ -132,15 +283,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   divider: {
-    height: 1.5,
-    backgroundColor: '#cbd5e1',
-    marginVertical: 12,
+    height: 1,
+    backgroundColor: '#e2e8f0',
+    marginVertical: 14,
   },
   progressBarContainer: {
-    height: 16,
+    height: 10,
     width: '100%',
-    marginVertical: 8,
     overflow: 'hidden',
+    marginBottom: 8,
   },
   progressBarFill: {
     height: '100%',
@@ -148,21 +299,19 @@ const styles = StyleSheet.create({
   progressTextRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    marginBottom: 16,
   },
   nextPatrolInfoBox: {
-    marginBottom: 14,
-    padding: 12,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 8,
+    paddingVertical: 4,
+    marginBottom: 16,
   },
   actionBtn: {
-    height: 56,
+    height: 52,
   },
   completedBanner: {
-    height: 48,
-    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    paddingHorizontal: 12,
+    justifyContent: 'center',
   },
 });
