@@ -1,12 +1,16 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import { Button } from '../../../components/Button';
 import { useGuardStore } from '../../../store/useGuardStore';
 
 export const StartPatrolCard: React.FC = () => {
-  const { startPatrol, activePatrol } = useGuardStore();
+  const { startPatrol, activePatrol, isClockedIn } = useGuardStore();
 
   const handleStartPatrol = async () => {
+    if (!isClockedIn) {
+      Alert.alert('Clock In Required', 'You must be clocked in before starting a patrol.');
+      return;
+    }
     await startPatrol();
   };
 

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getTable,
@@ -81,6 +82,126 @@ export interface AppNotification {
   referenceId?: string;
 }
 
+export interface ActivityItem {
+  id: string;
+  type: 'Attendance' | 'Leave' | 'Patrol' | 'Incident' | 'Safety' | 'System' | string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  timestamp: number;
+}
+
+const defaultInitialActivities: ActivityItem[] = [
+  {
+    id: 'act-1',
+    type: 'Attendance',
+    title: 'Clocked In Successfully',
+    description: 'You clocked in at 06:58 PM at Ahmedabad Plant.',
+    date: '25 Aug 2026',
+    time: '06:58 PM',
+    timestamp: Date.now() - 1000 * 60 * 10,
+  },
+  {
+    id: 'act-2',
+    type: 'Attendance',
+    title: 'Clocked Out Successfully',
+    description: 'You clocked out at 06:55 PM. Total: 0.09 hrs.',
+    date: '25 Aug 2026',
+    time: '06:55 PM',
+    timestamp: Date.now() - 1000 * 60 * 13,
+  },
+  {
+    id: 'act-3',
+    type: 'Attendance',
+    title: 'Clocked In Successfully',
+    description: 'You clocked in at 06:50 PM at Ahmedabad Plant.',
+    date: '25 Aug 2026',
+    time: '06:50 PM',
+    timestamp: Date.now() - 1000 * 60 * 18,
+  },
+  {
+    id: 'act-4',
+    type: 'Leave',
+    title: 'Leave Request Submitted',
+    description: 'Your Sick Leave request for 0.5 day(s) is pending approval.',
+    date: '25 Aug 2026',
+    time: '06:27 PM',
+    timestamp: Date.now() - 1000 * 60 * 41,
+  },
+  {
+    id: 'act-5',
+    type: 'Patrol',
+    title: 'Morning Patrol Started',
+    description: 'Morning Perimeter Patrol started at 09:15 AM.',
+    date: '25 Aug 2026',
+    time: '09:15 AM',
+    timestamp: Date.now() - 1000 * 60 * 60 * 10,
+  },
+  {
+    id: 'act-6',
+    type: 'Safety',
+    title: 'Lone Worker Safety Check-In',
+    description: 'Routine safety check-in verified at 11:00 AM.',
+    date: '25 Aug 2026',
+    time: '11:00 AM',
+    timestamp: Date.now() - 1000 * 60 * 60 * 8,
+  },
+];
+
+const defaultSupervisorApprovals: AppNotification[] = [
+  {
+    id: 'notif-appr-1',
+    type: 'Leave Approval',
+    title: 'Sick Leave Approved',
+    description: 'Your Sick Leave request for 0.5 day(s) was approved by Supervisor Jane Smith.',
+    date: '25 Aug 2026',
+    time: '04:15 PM',
+    isRead: false,
+    priority: 'High',
+  },
+  {
+    id: 'notif-appr-2',
+    type: 'Attendance Approval',
+    title: 'Attendance Regularization Approved',
+    description: 'Your missed clock-out request for 24 Aug 2026 was approved by Supervisor.',
+    date: '25 Aug 2026',
+    time: '02:30 PM',
+    isRead: true,
+    priority: 'Medium',
+  },
+  {
+    id: 'notif-appr-3',
+    type: 'Shift Approval',
+    title: 'Shift Change Request Approved',
+    description: 'Your request to swap shift with Officer Bob was approved by Level 1 Approver.',
+    date: '24 Aug 2026',
+    time: '06:00 PM',
+    isRead: true,
+    priority: 'Medium',
+  },
+  {
+    id: 'notif-appr-4',
+    type: 'Overtime Approval',
+    title: 'Overtime Claim Approved',
+    description: 'Overtime claim of 2.0 hrs for Night Shift approved by Supervisor Jane Smith.',
+    date: '23 Aug 2026',
+    time: '11:20 AM',
+    isRead: true,
+    priority: 'Low',
+  },
+  {
+    id: 'notif-appr-5',
+    type: 'Document Approval',
+    title: 'Document Verification Approved',
+    description: 'Your Guard License document (#LIC-2026) was verified and approved by Supervisor.',
+    date: '22 Aug 2026',
+    time: '09:45 AM',
+    isRead: true,
+    priority: 'Medium',
+  },
+];
+
 export interface LoneWorkerHistoryItem {
   id: string;
   guardId: string;
@@ -139,6 +260,7 @@ interface GuardState {
   supervisorPhone: string;
   attendanceStatus: AttendanceStatus;
   clockInTimestamp: number | null;
+  activeClockInTimestamp: number | null;
   clockOutTimestamp: number | null;
   todayCompletedMs: number;
   isClockedIn: boolean;
@@ -152,6 +274,7 @@ interface GuardState {
   attendanceHistory: AttendanceRecord[];
   documents: DBEmployeeDocument[];
   notifications: AppNotification[];
+  activities: ActivityItem[];
   loneWorker: LoneWorkerState;
   loneWorkerHistory: LoneWorkerHistoryItem[];
   shifts: DBShift[];
@@ -163,6 +286,8 @@ interface GuardState {
 
   // Actions
   loadGuardData: (guardId: string, email: string) => Promise<void>;
+  addActivity: (activity: { type?: string; title: string; description: string; date?: string; time?: string }) => Promise<void>;
+  clearActivities: () => Promise<void>;
   clockIn: () => Promise<void>;
   clockOut: () => Promise<void>;
   applyLeave: (leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
@@ -172,7 +297,8 @@ interface GuardState {
   uploadDocument: (docInfo: { name: string, type: string, uri: string, fileName: string, mimeType: string }) => Promise<void>;
   startPatrol: (patrolId?: string) => Promise<any>;
   ensurePatrolsForDate: (targetDate?: string | Date) => Promise<void>;
-  scanCheckpointCode: (code: string) => Promise<{ success: boolean; message: string }>;
+  loadPatrolCheckpoints: (patrolId: string) => Promise<void>;
+  scanCheckpointCode: (code: string, targetPatrolId?: string) => Promise<{ success: boolean; message: string }>;
   checkInLoneWorker: (customParams?: {
     latitude?: number;
     longitude?: number;
@@ -210,6 +336,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   supervisorPhone: '',
   attendanceStatus: 'Not Checked In',
   clockInTimestamp: null,
+  activeClockInTimestamp: null,
   clockOutTimestamp: null,
   todayCompletedMs: 0,
   isClockedIn: false,
@@ -255,121 +382,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       mimeType: 'application/pdf',
     },
   ],
-  notifications: [],
+  notifications: defaultSupervisorApprovals,
+  activities: defaultInitialActivities,
   shifts: [],
   todayShift: null,
-  patrols: [
-    {
-      id: 'PT-2026-0821-01',
-      patrolCode: 'PT-2026-0821-01',
-      title: 'Morning Perimeter Patrol',
-      companyId: 'c-1',
-      site: 'Ahmedabad Plant',
-      route: 'Morning Perimeter Route',
-      guard: 'Khushi Rani',
-      guardId: 'guard-1',
-      date: 'Aug 21, 2026',
-      startTime: '08:00 AM',
-      endTime: '08:45 AM',
-      scheduledStartTime: '08:00 AM',
-      scheduledEndTime: '09:00 AM',
-      startBufferMinutes: 15,
-      status: 'Completed',
-      checkpoints: 5,
-      scanned: 5,
-      missed: 0,
-      incidents: 0,
-      lastCheckpoint: 'Emergency Exit B',
-    },
-    {
-      id: 'PT-2026-0821-02',
-      patrolCode: 'PT-2026-0821-02',
-      title: 'Evening Plant Security Patrol',
-      companyId: 'c-1',
-      site: 'Ahmedabad Plant',
-      route: 'Plant Floor & Storage Bay',
-      guard: 'Khushi Rani',
-      guardId: 'guard-1',
-      date: 'Aug 21, 2026',
-      startTime: '06:00 PM',
-      endTime: undefined,
-      scheduledStartTime: '06:00 PM',
-      scheduledEndTime: '07:30 PM',
-      startBufferMinutes: 15,
-      status: 'In Progress',
-      checkpoints: 5,
-      scanned: 2,
-      missed: 0,
-      incidents: 0,
-      lastCheckpoint: 'Reception & Lobby Hall',
-    },
-    {
-      id: 'PT-2026-0820-01',
-      patrolCode: 'PT-2026-0820-01',
-      title: 'Chemical Storage Area Inspection',
-      companyId: 'c-1',
-      site: 'Ahmedabad Plant',
-      route: 'Chemical Bay Route',
-      guard: 'Khushi Rani',
-      guardId: 'guard-1',
-      date: 'Aug 20, 2026',
-      startTime: '02:00 PM',
-      endTime: '02:35 PM',
-      scheduledStartTime: '02:00 PM',
-      scheduledEndTime: '03:00 PM',
-      startBufferMinutes: 15,
-      status: 'Completed',
-      checkpoints: 4,
-      scanned: 4,
-      missed: 0,
-      incidents: 1,
-      lastCheckpoint: 'Chemical Storage Tank 2',
-    },
-    {
-      id: 'PT-2026-0819-01',
-      patrolCode: 'PT-2026-0819-01',
-      title: 'South Dock Security Sweep',
-      companyId: 'c-1',
-      site: 'Ahmedabad Plant',
-      route: 'South Loading Dock Route',
-      guard: 'Khushi Rani',
-      guardId: 'guard-1',
-      date: 'Aug 19, 2026',
-      startTime: '11:00 AM',
-      endTime: '11:40 AM',
-      scheduledStartTime: '11:00 AM',
-      scheduledEndTime: '12:00 PM',
-      startBufferMinutes: 15,
-      status: 'Completed',
-      checkpoints: 5,
-      scanned: 5,
-      missed: 0,
-      incidents: 0,
-      lastCheckpoint: 'Gate 4 Security Post',
-    },
-  ],
-  activePatrol: {
-    id: 'PT-2026-0821-02',
-    patrolCode: 'PT-2026-0821-02',
-    title: 'Evening Plant Security Patrol',
-    companyId: 'c-1',
-    site: 'Ahmedabad Plant',
-    route: 'Plant Floor & Storage Bay',
-    guard: 'Khushi Rani',
-    guardId: 'guard-1',
-    date: 'Aug 21, 2026',
-    startTime: '06:00 PM',
-    endTime: undefined,
-    scheduledStartTime: '06:00 PM',
-    scheduledEndTime: '07:30 PM',
-    startBufferMinutes: 15,
-    status: 'In Progress',
-    checkpoints: 5,
-    scanned: 2,
-    missed: 0,
-    incidents: 0,
-    lastCheckpoint: 'Reception & Lobby Hall',
-  },
+  patrols: [],
+  activePatrol: null,
   patrolCheckpoints: [
     { id: 'cp-101', number: 'CP-01', name: 'Main Entrance Gate A', location: 'Main Gate Security Office', scheduledTime: '02:05 PM', status: 'Completed', scanTime: '02:06 PM', qrCode: 'CP-01' },
     { id: 'cp-102', number: 'CP-02', name: 'Reception & Lobby Hall', location: 'Administration Block Ground Floor', scheduledTime: '02:15 PM', status: 'Completed', scanTime: '02:18 PM', qrCode: 'CP-02' },
@@ -655,28 +673,42 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         return s !== '' && s !== '—' && s !== 'null' && s !== 'undefined' && s !== 'ongoing';
       };
 
-      const safeParseMs = (str: string | null | undefined): number | null => {
+      const safeParseMs = (str: string | null | undefined, dateContextStr?: string): number | null => {
         if (!str) return null;
+        
+        // Check if full date-time string with valid year (> 2000)
         const d = new Date(str);
-        if (!isNaN(d.getTime())) return d.getTime();
+        if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
+          return d.getTime();
+        }
+
+        // If time-only string like "06:55 AM" or "2:24 PM", combine with dateContextStr
+        if (dateContextStr) {
+          const combined = new Date(`${dateContextStr} ${str}`);
+          if (!isNaN(combined.getTime()) && combined.getFullYear() > 2000) {
+            return combined.getTime();
+          }
+        }
+
         const n = Number(str);
-        if (!isNaN(n) && n > 0) return n;
+        if (!isNaN(n) && n > 1500000000000) return n;
+
         return null;
       };
 
       // 1. Filter guard's attendance records STRICTLY FOR TODAY ONLY
-      const todayGuardRecords = guardAtt.filter(a => 
+      const todayGuardRecords = guardAtt.filter(a =>
         isSameDate(a.date, todayLocalStr) || isSameDate(a.clockIn, todayLocalStr)
       );
 
       todayGuardRecords.sort((a, b) => {
-        const aTime = safeParseMs(a.clockIn) || 0;
-        const bTime = safeParseMs(b.clockIn) || 0;
+        const aTime = safeParseMs(a.clockIn, a.date) || 0;
+        const bTime = safeParseMs(b.clockIn, a.date) || 0;
         return aTime - bTime;
       });
 
       // 2. Find open clock-in record STRICTLY FOR TODAY ONLY
-      const openRecord = todayGuardRecords.slice().reverse().find(a => 
+      const openRecord = todayGuardRecords.slice().reverse().find(a =>
         a.clockIn && !isCompletedClockOut(a.clockOut)
       );
 
@@ -684,16 +716,16 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       const todayCompletedMs = todayGuardRecords
         .filter(a => a.clockIn && isCompletedClockOut(a.clockOut))
         .reduce((sum, a) => {
-          const inMs = safeParseMs(a.clockIn) || 0;
-          const outMs = safeParseMs(a.clockOut) || 0;
+          const inMs = safeParseMs(a.clockIn, a.date) || 0;
+          const outMs = safeParseMs(a.clockOut, a.date) || 0;
           const dur = Math.max(0, outMs - inMs);
           return sum + dur;
         }, 0);
 
       const firstRecordToday = todayGuardRecords[0] || null;
-      const firstClockInTime = firstRecordToday ? safeParseMs(firstRecordToday.clockIn) : null;
+      const firstClockInTime = firstRecordToday ? safeParseMs(firstRecordToday.clockIn, firstRecordToday.date) : null;
 
-      const completedTodayRecords = todayGuardRecords.filter(a => 
+      const completedTodayRecords = todayGuardRecords.filter(a =>
         a.clockIn && isCompletedClockOut(a.clockOut)
       );
       const latestCompletedRecord = completedTodayRecords.length > 0
@@ -702,6 +734,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       let attStatus: AttendanceStatus = 'Not Checked In';
       let clockInTime: number | null = null;
+      let activeClockInTime: number | null = null;
       let clockOutTime: number | null = null;
 
       const formatTime12h = (timestamp: number | null): string => {
@@ -713,15 +746,18 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       if (openRecord && openRecord.clockIn) {
         attStatus = 'Checked In';
-        clockInTime = firstClockInTime || safeParseMs(openRecord.clockIn);
+        clockInTime = firstClockInTime || safeParseMs(openRecord.clockIn, openRecord.date);
+        activeClockInTime = safeParseMs(openRecord.clockIn, openRecord.date) || firstClockInTime;
         clockOutTime = null;
       } else if (latestCompletedRecord && latestCompletedRecord.clockIn && latestCompletedRecord.clockOut) {
         attStatus = 'Checked Out';
-        clockInTime = firstClockInTime || safeParseMs(latestCompletedRecord.clockIn);
-        clockOutTime = safeParseMs(latestCompletedRecord.clockOut);
+        clockInTime = firstClockInTime || safeParseMs(latestCompletedRecord.clockIn, latestCompletedRecord.date);
+        activeClockInTime = null;
+        clockOutTime = safeParseMs(latestCompletedRecord.clockOut, latestCompletedRecord.date);
       } else {
         attStatus = 'Not Checked In';
         clockInTime = null;
+        activeClockInTime = null;
         clockOutTime = null;
       }
 
@@ -762,8 +798,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           supervisorName = supervisorMatch.name;
           supervisorPhone = supervisorMatch.phone;
         }
-      }      // Dynamically resolve active patrol or nearest upcoming scheduled patrol for the guard
-      const parsePatrolScheduleMs = (p: DBPatrol): number => {
+      } const parsePatrolScheduleMs = (p: DBPatrol): number => {
         try {
           if (p.scheduledStartTimeIso) return new Date(p.scheduledStartTimeIso).getTime();
           const dStr = p.date || new Date().toISOString().split('T')[0];
@@ -776,13 +811,25 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         }
       };
 
+      // Filter today's patrols first for active patrol resolution
+      const todayPatrols = guardPatrols.filter(p => {
+        const pDisp = formatDisplayDate(p.date);
+        return pDisp.toLowerCase() === todayDisplay.toLowerCase() || p.date === todayKey;
+      });
+
+      const todayInProgress = todayPatrols.find(p => p.status === 'in_progress' || p.status === 'In Progress');
+      const todayScheduled = todayPatrols.find(p => p.status !== 'Completed' && p.status !== 'completed' && p.status !== 'Missed' && p.status !== 'missed');
+      const todayLatest = todayPatrols[0];
+
       const upcomingGuardPatrols = guardPatrols
-        .filter(p => p.status !== 'Completed' && p.status !== 'completed')
+        .filter(p => p.status !== 'Completed' && p.status !== 'completed' && p.status !== 'Missed' && p.status !== 'missed')
         .sort((a, b) => parsePatrolScheduleMs(a) - parsePatrolScheduleMs(b));
 
-      let activePat = guardPatrols.find(p => p.status === 'in_progress' || p.status === 'In Progress')
+      let activePat = todayInProgress
+        || todayScheduled
+        || todayLatest
         || upcomingGuardPatrols[0]
-        || guardPatrols[guardPatrols.length - 1]
+        || guardPatrols[0]
         || null;
 
       // Load active checkpoints for this exact patrol
@@ -902,8 +949,29 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           if (rawLwHistory) {
             guardLoneWorkerHistory = JSON.parse(rawLwHistory);
           }
+        } catch { }
+      }
+
+      let loadedActivities: ActivityItem[] = defaultInitialActivities;
+      if (guardId) {
+        try {
+          const rawActivities = await AsyncStorage.getItem(`@guard_activities_${guardId}`);
+          if (rawActivities) {
+            const parsed = JSON.parse(rawActivities);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              loadedActivities = parsed;
+            }
+          }
         } catch {}
       }
+
+      // Merge supervisor approvals into notifications
+      const combinedNotifs = [...mappedNotifs];
+      defaultSupervisorApprovals.forEach(supNotif => {
+        if (!combinedNotifs.some(n => n.id === supNotif.id || n.title === supNotif.title)) {
+          combinedNotifs.push(supNotif);
+        }
+      });
 
       set({
         guardId,
@@ -925,6 +993,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         supervisorPhone,
         attendanceStatus: attStatus,
         clockInTimestamp: clockInTime,
+        activeClockInTimestamp: activeClockInTime,
         clockOutTimestamp: clockOutTime,
         todayCompletedMs,
         isClockedIn: attStatus === 'Checked In',
@@ -939,7 +1008,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         patrols: guardPatrols,
         activePatrol: activePat,
         patrolCheckpoints: activeCPs,
-        notifications: mappedNotifs,
+        notifications: combinedNotifs,
+        activities: loadedActivities,
         messages: guardMessages,
         loneWorker: currentLoneWorker,
         loneWorkerHistory: guardLoneWorkerHistory,
@@ -950,6 +1020,43 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       LoggerService.log(`[GuardStore] Hydration failed: ${error?.message || error}`, 'error');
       console.error('Error loading guard data in store:', error);
       set({ isInitialized: true });
+    }
+  },
+
+  addActivity: async (act) => {
+    const { guardId, activities } = get();
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dateStr = act.date || `${day} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    const timeStr = act.time || now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const newActivity: ActivityItem = {
+      id: `act-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      type: act.type || 'System',
+      title: act.title,
+      description: act.description,
+      date: dateStr,
+      time: timeStr,
+      timestamp: Date.now(),
+    };
+
+    const updated = [newActivity, ...activities];
+    set({ activities: updated });
+    if (guardId) {
+      try {
+        await AsyncStorage.setItem(`@guard_activities_${guardId}`, JSON.stringify(updated));
+      } catch (e) {}
+    }
+  },
+
+  clearActivities: async () => {
+    const { guardId } = get();
+    set({ activities: [] });
+    if (guardId) {
+      try {
+        await AsyncStorage.removeItem(`@guard_activities_${guardId}`);
+      } catch (e) {}
     }
   },
 
@@ -969,9 +1076,9 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
 
       const currentAtt = await getTable<DBAttendance>('attendance');
-      const openRecord = currentAtt.slice().reverse().find(a => 
-        a.employeeId === guardId && 
-        a.clockIn && 
+      const openRecord = currentAtt.slice().reverse().find(a =>
+        a.employeeId === guardId &&
+        a.clockIn &&
         (!a.clockOut || a.clockOut === '' || a.clockOut === '—')
       );
 
@@ -1008,16 +1115,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       await insertRow('attendance', newRecord);
 
-      // Create Notification
-      const newNotif = {
-        id: `notif-${nowMs}`,
-        userId: guardId,
+      const clockInTimeStr = new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      await get().addActivity({
+        type: 'Attendance',
         title: 'Clocked In Successfully',
-        message: `You clocked in at ${new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} at ${assignedSite}.`,
-        read: false,
-        createdAt: nowIso
-      };
-      await insertRow('notifications', newNotif);
+        description: `You clocked in at ${clockInTimeStr} at ${assignedSite}.`,
+      });
 
       const formatTime12h = (ts: number) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const nextMs = nowMs + 30 * 60 * 1000;
@@ -1032,9 +1135,11 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       await AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState));
 
+      const firstIn = get().clockInTimestamp || nowMs;
       set({
         attendanceStatus: 'Checked In',
-        clockInTimestamp: nowMs,
+        clockInTimestamp: firstIn,
+        activeClockInTimestamp: nowMs,
         clockOutTimestamp: null,
         isClockedIn: true,
         isClockedOut: false,
@@ -1061,9 +1166,9 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       const nowStr = new Date(nowMs).toISOString();
       const currentAtt = await getTable<DBAttendance>('attendance');
 
-      const openRecord = currentAtt.slice().reverse().find(a => 
-        a.employeeId === guardId && 
-        a.clockIn && 
+      const openRecord = currentAtt.slice().reverse().find(a =>
+        a.employeeId === guardId &&
+        a.clockIn &&
         (!a.clockOut || a.clockOut === '' || a.clockOut === '—')
       );
 
@@ -1079,16 +1184,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           workingHours: diffHrs,
         });
 
-        // Create Notification
-        const newNotif = {
-          id: `notif-${nowMs}`,
-          userId: guardId,
+        const clockOutTimeStr = new Date(nowStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        await get().addActivity({
+          type: 'Attendance',
           title: 'Clocked Out Successfully',
-          message: `You clocked out at ${new Date(nowStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}. Total: ${diffHrs}.`,
-          read: false,
-          createdAt: nowStr
-        };
-        await insertRow('notifications', newNotif);
+          description: `You clocked out at ${clockOutTimeStr}. Total: ${diffHrs}.`,
+        });
         LoggerService.log(`[useGuardStore] clockOut update complete for record ${openRecord.id}`);
       }
 
@@ -1290,8 +1391,16 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   },
 
   startPatrol: async (patrolId?: string) => {
-    const { guardId, guardEmail, patrols } = get();
+    const { guardId, guardEmail, patrols, isClockedIn } = get();
     if (!guardId) return;
+
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'You must be clocked in before starting a patrol. Please clock in first.'
+      );
+      return;
+    }
 
     // Find target patrol by ID or pending/in_progress
     const activePat = (patrolId ? patrols.find(p => p.id === patrolId) : null) ||
@@ -1336,9 +1445,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
     // We need to resolve which patrol id is running
     const reloadedPatrols = await getTable<DBPatrol>('patrols');
-    const runningPatrol = reloadedPatrols.find(p => p.guardId === guardId && p.status === 'in_progress');
+    const runningPatrol = (patrolId ? reloadedPatrols.find(p => p.id === patrolId) : null) ||
+      reloadedPatrols.find(p => p.guardId === guardId && (p.status === 'in_progress' || p.status === 'In Progress'));
     if (runningPatrol) {
-      await AsyncStorage.setItem(`p1_db_patrol_checkpoints_${runningPatrol.id}`, JSON.stringify(defaultCPs));
+      const existingCPsRaw = await AsyncStorage.getItem(`p1_db_patrol_checkpoints_${runningPatrol.id}`);
+      if (!existingCPsRaw) {
+        await AsyncStorage.setItem(`p1_db_patrol_checkpoints_${runningPatrol.id}`, JSON.stringify(defaultCPs));
+      }
     }
 
     // Create Notification
@@ -1445,9 +1558,83 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     set({ patrols: guardPatrols });
   },
 
-  scanCheckpointCode: async (code: string) => {
-    let { activePatrol, guardId, guardEmail, patrolCheckpoints, patrols } = get();
+  loadPatrolCheckpoints: async (patrolId: string) => {
+    const { patrols, guardId } = get();
+    if (!patrolId) return;
+
+    let targetPat = (patrols || []).find(p => p.id === patrolId) || null;
+    let activeCPs: CheckpointData[] = [];
+
+    const cpsRaw = await AsyncStorage.getItem(`p1_db_patrol_checkpoints_${patrolId}`);
+    if (cpsRaw) {
+      try {
+        activeCPs = JSON.parse(cpsRaw);
+      } catch (e) {
+        activeCPs = [];
+      }
+    }
+
+    if (!activeCPs || activeCPs.length === 0) {
+      activeCPs = [
+        { id: '1', name: 'Main Gate', number: 'CP-01', location: 'Entrance', scheduledTime: '09:15 AM', status: 'Pending', qrCode: 'CP-01' },
+        { id: '2', name: 'Reception Lobby', number: 'CP-02', location: 'Tower A', scheduledTime: '09:30 AM', status: 'Pending', qrCode: 'CP-02' },
+        { id: '3', name: 'Parking Level 1', number: 'CP-03', location: 'Basement', scheduledTime: '09:45 AM', status: 'Pending', qrCode: 'CP-03' },
+        { id: '4', name: 'Server Room', number: 'CP-04', location: 'Tower B', scheduledTime: '10:00 AM', status: 'Pending', qrCode: 'CP-04' },
+        { id: '5', name: 'Emergency Exit', number: 'CP-05', location: 'Rear Gate', scheduledTime: '10:15 AM', status: 'Pending', qrCode: 'CP-05' },
+      ];
+      await AsyncStorage.setItem(`p1_db_patrol_checkpoints_${patrolId}`, JSON.stringify(activeCPs));
+    }
+
+    const actualCompleted = activeCPs.filter(c => c.status === 'Completed').length;
+    const actualTotal = activeCPs.length;
+
+    if (targetPat) {
+      const updatedPat: DBPatrol = {
+        ...targetPat,
+        scanned: actualCompleted,
+        checkpoints: actualTotal,
+        status: (actualCompleted >= actualTotal && actualTotal > 0) ? 'Completed' : targetPat.status,
+      };
+
+      // Update patrols list in store
+      const updatedPatrols = (patrols || []).map(p => p.id === patrolId ? updatedPat : p);
+      await updateRow<DBPatrol>('patrols', patrolId, {
+        scanned: actualCompleted,
+        checkpoints: actualTotal,
+        status: updatedPat.status,
+      });
+
+      set({
+        activePatrol: updatedPat,
+        patrolCheckpoints: activeCPs,
+        patrols: updatedPatrols,
+      });
+    } else {
+      set({
+        patrolCheckpoints: activeCPs,
+      });
+    }
+  },
+
+  scanCheckpointCode: async (code: string, targetPatrolId?: string) => {
+    let { activePatrol, guardId, guardEmail, patrolCheckpoints, patrols, isClockedIn } = get();
     if (!guardId) return { success: false, message: 'User not logged in' };
+
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'You must be clocked in before starting a patrol or scanning checkpoints.'
+      );
+      return { success: false, message: 'Clock In Required. You must clock in before patrolling.' };
+    }
+
+    // If targetPatrolId specified and different from activePatrol, load it first
+    if (targetPatrolId && activePatrol?.id !== targetPatrolId) {
+      await get().loadPatrolCheckpoints(targetPatrolId);
+      const updated = get();
+      activePatrol = updated.activePatrol;
+      patrolCheckpoints = updated.patrolCheckpoints;
+    }
 
     // If no active patrol exists, start default patrol
     if (!activePatrol) {
@@ -1498,6 +1685,22 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       checkpoints: totalCount,
       status: nextStatus,
       endTime: isFinished ? nowTime : '',
+    });
+
+    const updatedPatrol: DBPatrol = {
+      ...activePatrol,
+      scanned: totalScanned,
+      checkpoints: totalCount,
+      status: nextStatus,
+      endTime: isFinished ? nowTime : activePatrol.endTime,
+    };
+
+    const updatedPatrolsList = (patrols || []).map(p => p.id === activePatrol!.id ? updatedPatrol : p);
+
+    set({
+      activePatrol: updatedPatrol,
+      patrolCheckpoints: updatedCPs,
+      patrols: updatedPatrolsList,
     });
 
     // Create Notification for Scan
@@ -1589,8 +1792,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const updatedHistory = [newHistoryItem, ...(get().loneWorkerHistory || [])];
 
     if (guardId) {
-      AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState)).catch(() => {});
-      AsyncStorage.setItem(`@lone_worker_history_${guardId}`, JSON.stringify(updatedHistory)).catch(() => {});
+      AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState)).catch(() => { });
+      AsyncStorage.setItem(`@lone_worker_history_${guardId}`, JSON.stringify(updatedHistory)).catch(() => { });
     }
 
     set({

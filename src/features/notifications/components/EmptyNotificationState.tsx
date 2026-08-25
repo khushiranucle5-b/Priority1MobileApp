@@ -10,9 +10,9 @@ export const EmptyNotificationState: React.FC = () => {
   return (
     <View style={styles.container}>
       <AppText style={[styles.icon, { fontSize: 40 }]}>📭</AppText>
-      <Heading level="h3" style={styles.title}>No Notifications</Heading>
+      <Heading level="h3" style={styles.title}>No Supervisor Approvals</Heading>
       <AppText color="secondary" style={styles.description}>
-        You're all caught up! Check back later for updates.
+        Approved notifications from supervisors and level authorities will appear here.
       </AppText>
     </View>
   );

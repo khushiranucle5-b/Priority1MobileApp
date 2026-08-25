@@ -7,7 +7,8 @@ import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { useRoute } from '@react-navigation/native';
-import { mockPayslips } from './PayslipsScreen';
+import { getPayslipById } from '../services/payslipService';
+import { downloadPayslipPdf } from '../services/payslipPdfGenerator';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { NavIcon } from '../../../components/NavIcon';
@@ -16,30 +17,11 @@ export const PayslipDetailsScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const route = useRoute<any>();
   const payslipId = route.params?.payslipId || 'pay-2026-08';
-  const slip = mockPayslips.find(s => s.id === payslipId) || mockPayslips[0];
   const { guardName, guardId } = useGuardStore();
-
-  const pdfUrl = slip.pdfUrl || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+  const slip = getPayslipById(payslipId, { guardName, guardId });
 
   const handleDownloadPdf = async () => {
-    if (Platform.OS === 'web') {
-      const globalObj = typeof globalThis !== 'undefined' ? (globalThis as any) : {};
-      if (globalObj.window && globalObj.window.open) {
-        globalObj.window.open(pdfUrl, '_blank');
-        return;
-      }
-    }
-
-    try {
-      const supported = await Linking.canOpenURL(pdfUrl);
-      if (supported) {
-        await Linking.openURL(pdfUrl);
-      } else {
-        Alert.alert('Download Payslip', `Payslip PDF for ${slip.monthYear} (${slip.payslipId}) downloaded.`);
-      }
-    } catch (error) {
-      Alert.alert('Download Payslip', `Payslip PDF for ${slip.monthYear} (${slip.payslipId}) downloaded.`);
-    }
+    await downloadPayslipPdf(slip);
   };
 
   return (
@@ -163,6 +145,7 @@ export const PayslipDetailsScreen: React.FC = () => {
           variant="primary"
           size="medium"
           fullWidth
+          leftIcon={<NavIcon name="download" size={20} color="#FFFFFF" />}
           style={{ backgroundColor: '#4F46E5', marginTop: 4 }}
           onPress={handleDownloadPdf}
         />

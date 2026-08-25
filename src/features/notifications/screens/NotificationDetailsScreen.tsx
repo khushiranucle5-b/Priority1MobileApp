@@ -58,8 +58,8 @@ export const NotificationDetailsScreen: React.FC<Props> = ({ route, navigation }
     }
   };
 
-  const formattedTime = new Date(notification.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const formattedDate = new Date(notification.date).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+  const formattedTime = notification.time || '';
+  const formattedDate = notification.date || '';
 
   const handleDelete = () => {
     deleteNotification(notification.id);

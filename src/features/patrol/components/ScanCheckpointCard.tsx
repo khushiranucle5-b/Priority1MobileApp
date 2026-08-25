@@ -10,7 +10,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 
 export const ScanCheckpointCard: React.FC = () => {
   const { spacing, colors, borderRadius } = useTheme();
-  const { scanCheckpointCode, activePatrol, patrolCheckpoints } = useGuardStore();
+  const { scanCheckpointCode, activePatrol, patrolCheckpoints, isClockedIn } = useGuardStore();
 
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [manualCode, setManualCode] = useState('');
@@ -94,6 +94,11 @@ export const ScanCheckpointCard: React.FC = () => {
   };
 
   const handleQRScan = async () => {
+    if (!isClockedIn) {
+      Alert.alert('Clock In Required', 'You must be clocked in before scanning checkpoints or patrolling.');
+      return;
+    }
+
     if (!activePatrol) {
       Alert.alert('Patrol Not Started', 'Please tap "Start Patrol" before scanning checkpoints.');
       return;

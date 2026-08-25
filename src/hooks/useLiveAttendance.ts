@@ -23,6 +23,7 @@ const formatDuration = (ms: number): string => {
 export const useLiveAttendance = () => {
   const {
     clockInTimestamp,
+    activeClockInTimestamp,
     clockOutTimestamp,
     todayCompletedMs,
     attendanceStatus,
@@ -34,24 +35,25 @@ export const useLiveAttendance = () => {
 
   const updateDuration = useCallback(() => {
     const baseMs = todayCompletedMs || 0;
+    const sessionStartMs = activeClockInTimestamp || clockInTimestamp;
 
-    if (isClockedIn && clockInTimestamp) {
+    if (isClockedIn && sessionStartMs) {
       // Currently checked in: total = today's completed session duration + current active session duration
-      const activeSessionMs = Math.max(0, Date.now() - clockInTimestamp);
+      const activeSessionMs = Math.max(0, Date.now() - sessionStartMs);
       const totalMs = baseMs + activeSessionMs;
       setWorkingHours(formatDuration(totalMs));
     } else {
       // Checked out or not checked in: total = today's completed session duration
       setWorkingHours(formatDuration(baseMs));
     }
-  }, [isClockedIn, clockInTimestamp, todayCompletedMs]);
+  }, [isClockedIn, activeClockInTimestamp, clockInTimestamp, todayCompletedMs]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
 
     updateDuration();
 
-    if (isClockedIn && clockInTimestamp) {
+    if (isClockedIn && (activeClockInTimestamp || clockInTimestamp)) {
       interval = setInterval(updateDuration, 1000);
     }
 
@@ -65,7 +67,7 @@ export const useLiveAttendance = () => {
       if (interval) clearInterval(interval);
       subscription.remove();
     };
-  }, [isClockedIn, clockInTimestamp, todayCompletedMs, updateDuration]);
+  }, [isClockedIn, activeClockInTimestamp, clockInTimestamp, todayCompletedMs, updateDuration]);
 
   return {
     workingHours,

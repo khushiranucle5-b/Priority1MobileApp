@@ -36,6 +36,7 @@ export type HomeStackParamList = {
   HolidayDetails: { holidayId: string };
   Notifications: undefined;
   NotificationDetails: { notificationId: string };
+  RecentActivity: undefined;
   LoneWorker: undefined;
   LoneWorkerDetails: { recordId: string };
   SafetyHistory: undefined;

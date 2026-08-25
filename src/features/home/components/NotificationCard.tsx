@@ -6,60 +6,71 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
-
 import { NavIcon, NavIconName } from '../../../components/NavIcon';
 
 export const NotificationCard: React.FC = () => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
-  const notifications = useGuardStore((state) => state.notifications);
+  const activities = useGuardStore((state) => state.activities);
 
-  // Take the 3 most recent notifications
-  const recentNotifications = notifications.slice(0, 3);
+  // Take the 3 most recent activities
+  const recentActivities = activities.slice(0, 3);
 
-  const getIconName = (title: string): NavIconName => {
-    const text = title.toLowerCase();
+  const getIconName = (type: string, title: string): NavIconName => {
+    const text = (type || title || '').toLowerCase();
     if (text.includes('clock') || text.includes('attendance') || text.includes('shift')) return 'attendance';
     if (text.includes('leave')) return 'leaves';
     if (text.includes('patrol') || text.includes('checkpoint')) return 'patrol';
+    if (text.includes('incident')) return 'incidents';
+    if (text.includes('safety')) return 'loneworker';
     return 'messages';
   };
 
-  const handleViewAll = () => {
-    navigation.navigate('Notifications');
+  const handleOpenRecentActivity = () => {
+    navigation.navigate('RecentActivity');
   };
 
   return (
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
-        <Heading level="h4">Recent Notifications</Heading>
-        {notifications.length > 0 && (
-          <TouchableOpacity onPress={handleViewAll}>
-            <AppText size="base" color="primary" weight="bold">View All</AppText>
-          </TouchableOpacity>
-        )}
+        <Heading level="h4">Recent Activity</Heading>
+        <TouchableOpacity onPress={handleOpenRecentActivity} activeOpacity={0.7}>
+          <AppText size="base" color="primary" weight="bold">View All</AppText>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.list}>
-        {recentNotifications.map((notif, index) => (
-          <View key={notif.id} style={[styles.item, index !== recentNotifications.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
+        {recentActivities.map((act, index) => (
+          <TouchableOpacity
+            key={act.id}
+            onPress={handleOpenRecentActivity}
+            activeOpacity={0.7}
+            style={[
+              styles.item,
+              index !== recentActivities.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border },
+            ]}
+          >
             <View style={[styles.iconContainer, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
-              <NavIcon name={getIconName(notif.title)} size={18} color="#4F46E5" />
+              <NavIcon name={getIconName(act.type, act.title)} size={18} color="#4F46E5" />
             </View>
             <View style={styles.content}>
               <View style={styles.itemHeader}>
-                <AppText size="base" weight="semibold">{notif.title}</AppText>
-                <AppText size="xs" color="secondary">{notif.time}</AppText>
+                <AppText size="base" weight="semibold" numberOfLines={1} style={{ flex: 1, marginRight: 8 }}>
+                  {act.title}
+                </AppText>
+                <AppText size="xs" color="secondary">{act.time}</AppText>
               </View>
-              <AppText size="sm" color="secondary" style={styles.desc}>{notif.description}</AppText>
+              <AppText size="sm" color="secondary" style={styles.desc} numberOfLines={2}>
+                {act.description}
+              </AppText>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
 
-        {notifications.length === 0 && (
+        {activities.length === 0 && (
           <View style={styles.emptyContainer}>
             <AppText size="sm" color="secondary" style={styles.emptyText}>
-              You're All Caught Up{"\n"}No new notifications.
+              No Recent Activity{"\n"}Your activity logs will appear here.
             </AppText>
           </View>
         )}
@@ -94,9 +105,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  iconStyle: {
-    fontSize: 20,
-  },
   content: {
     flex: 1,
   },
@@ -116,5 +124,5 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     lineHeight: 18,
-  }
+  },
 });

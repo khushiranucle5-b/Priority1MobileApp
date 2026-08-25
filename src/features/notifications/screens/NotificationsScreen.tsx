@@ -32,48 +32,68 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
   const isLoading = false;
 
   const filterOptions = [
-    { label: 'All Notifications', value: 'All' },
-    { label: 'Attendance', value: 'Attendance' },
-    { label: 'Leave', value: 'Leave' },
-    { label: 'Incident', value: 'Incident' },
-    { label: 'Company', value: 'Company' },
-    { label: 'Holiday', value: 'Holiday' },
-    { label: 'System', value: 'System' },
+    { label: 'All Approvals', value: 'All' },
+    { label: 'Leave Approvals', value: 'Leave' },
+    { label: 'Attendance Approvals', value: 'Attendance' },
+    { label: 'Shift & Overtime', value: 'Shift' },
+    { label: 'Document Approvals', value: 'Document' },
   ];
 
   useEffect(() => {
     loadSettings();
   }, []);
 
-  // Filter notifications dynamically based on both user settings and screen dropdown filter
+  // Filter notifications dynamically to strictly show ONLY Supervisor & Level Approvals
   const filteredNotifications = useMemo(() => {
     if (!notificationsEnabled) {
       return [];
     }
 
-    let result = notifications;
+    // Strictly filter out raw user activity logs; only keep supervisor / level approval notifications
+    let result = notifications.filter(n => {
+      const title = (n.title || '').toLowerCase();
+      const desc = (n.description || '').toLowerCase();
+      const type = (n.type || '').toLowerCase();
 
-    // Filter out categories if disabled in Notification Settings
-    if (!shiftRemindersEnabled) {
-      result = result.filter(n => (n.type || '').toLowerCase() !== 'attendance');
-    }
-    if (!incidentAlertsEnabled) {
-      result = result.filter(n => (n.type || '').toLowerCase() !== 'incident');
-    }
-    if (!loneWorkerAlertsEnabled) {
-      result = result.filter(n => (n.type || '').toLowerCase() !== 'system');
-    }
-    if (!leaveStatusAlertsEnabled) {
-      result = result.filter(n => (n.type || '').toLowerCase() !== 'leave');
-    }
-    if (!companyNoticesEnabled) {
-      result = result.filter(n => {
-        const t = (n.type || '').toLowerCase();
-        return t !== 'company' && t !== 'holiday';
-      });
-    }
+      // Explicit exclusions for self activity events
+      const rawActivityExclusions = [
+        'clocked in successfully',
+        'clocked out successfully',
+        'leave request submitted',
+        'leave application cancelled',
+        'patrol started',
+        'safety check-in completed',
+        'checkpoint scanned',
+        'incident reported',
+      ];
 
-    // Robust category filter matching
+      if (rawActivityExclusions.some(ex => title.includes(ex))) {
+        return false;
+      }
+
+      // Explicit type or keyword match for supervisor / authority approvals
+      if (type.includes('approval') || type.includes('supervisor') || type.includes('level')) {
+        return true;
+      }
+
+      const approvalKeywords = [
+        'approved',
+        'approval',
+        'supervisor',
+        'level 1',
+        'level 2',
+        'koilevel',
+        'rejected',
+        'denied',
+        'verified',
+        'regularization',
+        'overtime',
+      ];
+
+      return approvalKeywords.some(kw => title.includes(kw) || desc.includes(kw));
+    });
+
+    // Dropdown category filtering
     if (activeCategory !== 'All') {
       const cat = activeCategory.toLowerCase();
       result = result.filter(n => {
@@ -81,31 +101,18 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
         const titleLower = (n.title || '').toLowerCase();
 
         if (cat === 'attendance') {
-          return typeLower === 'attendance' || titleLower.includes('clock') || titleLower.includes('shift');
+          return typeLower.includes('attendance') || titleLower.includes('attendance') || titleLower.includes('regularization');
         }
         if (cat === 'leave') {
-          return typeLower === 'leave' || titleLower.includes('leave');
+          return typeLower.includes('leave') || titleLower.includes('leave');
         }
-        if (cat === 'incident') {
-          return typeLower === 'incident' || titleLower.includes('incident') || titleLower.includes('emergency');
+        if (cat === 'shift') {
+          return typeLower.includes('shift') || titleLower.includes('shift') || titleLower.includes('overtime');
         }
-        if (cat === 'company') {
-          return typeLower === 'company' || titleLower.includes('notice') || titleLower.includes('broadcast');
+        if (cat === 'document') {
+          return typeLower.includes('document') || titleLower.includes('document') || titleLower.includes('verification');
         }
-        if (cat === 'holiday') {
-          return typeLower === 'holiday' || titleLower.includes('holiday');
-        }
-        if (cat === 'system') {
-          return (
-            typeLower === 'system' ||
-            typeLower === 'patrol' ||
-            titleLower.includes('patrol') ||
-            titleLower.includes('checkpoint') ||
-            titleLower.includes('safety') ||
-            titleLower.includes('system')
-          );
-        }
-        return typeLower === cat;
+        return typeLower.includes(cat) || titleLower.includes(cat);
       });
     }
 

@@ -8,22 +8,33 @@ import {
   Modal,
   Animated,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
+import { StatusBadge } from '../../../components/StatusBadge';
+import { NavIcon } from '../../../components/NavIcon';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
-import { getPatrolAvailability } from '../utils/patrolUtils';
+import { getPatrolAvailability, findCurrentPatrol, useLiveNow } from '../utils/patrolUtils';
 
 export const PatrolDetailsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { borderRadius } = useTheme();
-  const { patrols, activePatrol, patrolCheckpoints, scanCheckpointCode, guardName, guardId, assignedSite } = useGuardStore();
+  const isFocused = useIsFocused();
+  const { colors, spacing, borderRadius } = useTheme();
+  const { patrols, activePatrol, patrolCheckpoints, scanCheckpointCode, loadPatrolCheckpoints, startPatrol, guardName, guardId, assignedSite, isClockedIn, loadGuardData, guardEmail } = useGuardStore();
+
+  const now = useLiveNow(5000);
+
+  useEffect(() => {
+    if (isFocused && guardId) {
+      loadGuardData(guardId, guardEmail || '');
+    }
+  }, [isFocused, guardId, guardEmail, loadGuardData]);
 
   const patrolIdParam = route.params?.patrolId;
   const targetPatrol: DBPatrol = useMemo(() => {
@@ -31,6 +42,9 @@ export const PatrolDetailsScreen: React.FC = () => {
       const found = (patrols || []).find((p) => p.id === patrolIdParam);
       if (found) return found;
     }
+    const current = findCurrentPatrol(patrols || [], now);
+    if (current) return current;
+
     return activePatrol || (patrols && patrols.length > 0 ? patrols[0] : {
       id: 'patrol-aug21-evening',
       patrolCode: 'PT-2026-0821-02',
@@ -50,7 +64,14 @@ export const PatrolDetailsScreen: React.FC = () => {
       missed: 0,
       incidents: 0,
     });
-  }, [patrolIdParam, patrols, activePatrol, assignedSite, guardName, guardId]);
+  }, [patrolIdParam, patrols, activePatrol, assignedSite, guardName, guardId, now]);
+
+  // Load checkpoints for the active target patrol on load
+  useEffect(() => {
+    if (targetPatrol && targetPatrol.id) {
+      loadPatrolCheckpoints(targetPatrol.id);
+    }
+  }, [targetPatrol?.id]);
 
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scanSuccessText, setScanSuccessText] = useState<string | null>(null);
@@ -93,7 +114,7 @@ export const PatrolDetailsScreen: React.FC = () => {
   const lastScannedCP = completedCount > 0 ? ((patrolCheckpoints || []).filter((c) => c.status === 'Completed').pop() || null) : null;
 
   const isPatrolCompleted = completedCount >= totalCount || targetPatrol.status === 'Completed' || targetPatrol.status === 'completed';
-  const avail = getPatrolAvailability(targetPatrol);
+  const avail = getPatrolAvailability(targetPatrol, 0, now);
 
   const handleProcessQRScan = async (scannedCode: string) => {
     setScanSuccessText(null);
@@ -107,7 +128,7 @@ export const PatrolDetailsScreen: React.FC = () => {
       return;
     }
 
-    const result = await scanCheckpointCode(scannedCode);
+    const result = await scanCheckpointCode(scannedCode, targetPatrol.id);
     if (result.success) {
       setScanSuccessText(result.message);
       setTimeout(() => {
@@ -123,14 +144,30 @@ export const PatrolDetailsScreen: React.FC = () => {
   };
 
   const handleLaunchQRScanner = async () => {
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'You must be clocked in before starting a patrol or scanning checkpoints. Please clock in first.'
+      );
+      return;
+    }
     if (isPatrolCompleted) {
       Alert.alert('Patrol Completed', 'All checkpoints for this patrol have already been completed.');
       return;
     }
+
+    if (!avail.isInProgress && avail.canStart && startPatrol) {
+      await startPatrol(targetPatrol.id);
+    }
+
     setIsScannerOpen(true);
   };
 
   const handleDirectCapture = async (specificCode?: string) => {
+    if (!isClockedIn) {
+      Alert.alert('Clock In Required', 'You must be clocked in before scanning checkpoints.');
+      return;
+    }
     const nextPending = patrolCheckpoints.find(c => c.status !== 'Completed');
     if (!nextPending && !specificCode) {
       setScanErrorText('All checkpoints for this patrol are already completed.');
@@ -151,55 +188,88 @@ export const PatrolDetailsScreen: React.FC = () => {
   const mainBadge = getStatusBadgeStyle(avail.statusLabel);
   const scheduledTimeDisplay = `${targetPatrol.scheduledStartTime || targetPatrol.startTime || '08:00 PM'} - ${targetPatrol.scheduledEndTime || '09:00 PM'}`;
 
+  const isButtonDisabled = !isClockedIn || !avail.canStart;
+  const buttonTitleText = !isClockedIn
+    ? "Clock In Required to Patrol"
+    : avail.isInProgress
+    ? "CONTINUE PATROLLING"
+    : avail.buttonText;
+
   return (
     <ScreenLayout activeRoute="Patrol">
       <PageHeader title="Patrol Details" showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Main Patrol Banner Card */}
-        <Card variant="outlined" style={[styles.bannerCard, { borderRadius: borderRadius.lg }]}>
-          <View style={styles.bannerTopRow}>
-            <View style={{ flex: 1 }}>
-              <Heading level="h2" color="primary" style={styles.bannerTitleText}>
-                {targetPatrol.title}
-              </Heading>
+        <Card variant="outlined" style={styles.card}>
+          <View style={styles.headerRow}>
+            <View style={{ flex: 1, marginRight: 10 }}>
+              <AppText size="lg" weight="bold" color="primary" style={styles.cardHeaderTitle}>
+                {targetPatrol.title || 'Patrol Details'}
+              </AppText>
             </View>
+            <StatusBadge status={avail.statusLabel} size="md" />
+          </View>
 
-            <View style={[styles.statusBadge, { backgroundColor: mainBadge.bg }]}>
-              <AppText style={[styles.badgeText, { color: mainBadge.text }]}>
-                ● {avail.statusLabel}
+          <View style={[styles.detailRow, { marginTop: spacing.sm || 10 }]}>
+            <View style={{ flex: 1 }}>
+              <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                SCHEDULED SHIFT
+              </AppText>
+              <AppText size="base" weight="bold" color="primary" style={styles.metaValueText}>
+                {scheduledTimeDisplay}
+              </AppText>
+            </View>
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                CHECKPOINTS
+              </AppText>
+              <AppText size="base" weight="bold" style={[styles.metaValueText, { color: colors.primary[600] || '#2563EB' }]}>
+                {completedCount} / {totalCount} Completed
               </AppText>
             </View>
           </View>
 
-          {/* Action to Launch QR Scanner */}
-          {!isPatrolCompleted && !avail.isPastDate ? (
-            <Button
-              title="SCAN CHECKPOINT QR CODE"
-              variant="primary"
-              size="large"
-              fullWidth
+          <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
+            {!isPatrolCompleted && !avail.isPastDate ? (
+              <Button
+                title={buttonTitleText}
+                variant="primary"
+                disabled={isButtonDisabled}
+                onPress={handleLaunchQRScanner}
+                style={[
+                  styles.inlineActionBtn,
+                  { backgroundColor: !isClockedIn ? '#DC2626' : isButtonDisabled ? '#94A3B8' : avail.isInProgress ? '#0284C7' : '#2563EB' },
+                ]}
+              />
+            ) : isPatrolCompleted ? (
+              <View style={[styles.completedBox, { flex: 1, marginTop: 0, paddingVertical: 12 }]}>
+                <AppText style={styles.completedText}>
+                  ✓ Patrol Completed (100% Verified)
+                </AppText>
+              </View>
+            ) : (
+              <View style={[styles.pastDateBox, { flex: 1, marginTop: 0, paddingVertical: 12 }]}>
+                <AppText style={styles.pastDateText}>
+                  Past Date Record (View Only)
+                </AppText>
+              </View>
+            )}
+
+            <TouchableOpacity
+              style={styles.iconActionBtnView}
               onPress={handleLaunchQRScanner}
-              disabled={!avail.canStart && !avail.isInProgress}
-              style={{ marginTop: 16, backgroundColor: '#2563EB', height: 56, borderRadius: 10 }}
-            />
-          ) : isPatrolCompleted ? (
-            <View style={styles.completedBox}>
-              <AppText style={{ fontSize: 16, fontWeight: '700', color: '#059669' }}>
-                ✓ Patrol Completed (100% Verified)
-              </AppText>
-            </View>
-          ) : (
-            <View style={styles.pastDateBox}>
-              <AppText style={{ fontSize: 16, fontWeight: '700', color: '#64748B' }}>
-                Past Date Record (View Only)
-              </AppText>
-            </View>
-          )}
+              activeOpacity={0.7}
+              accessibilityLabel="Scan QR"
+              accessibilityRole="button"
+            >
+              <NavIcon name="eye" size={24} color="#4F46E5" />
+            </TouchableOpacity>
+          </View>
         </Card>
 
         {/* Clean Guard-Facing Patrol Information Card */}
-        <Card variant="outlined" style={[styles.detailsCard, { borderRadius: borderRadius.lg }]}>
+        <Card variant="outlined" style={styles.card}>
           <AppText style={styles.sectionTitle}>
             PATROL INFORMATION
           </AppText>
@@ -209,43 +279,28 @@ export const PatrolDetailsScreen: React.FC = () => {
             {/* Patrol Name */}
             <View style={styles.gridRow}>
               <View style={styles.gridColFull}>
-                <AppText style={styles.fieldLabel}>Patrol</AppText>
+                <AppText style={styles.fieldLabel}>Patrol Route</AppText>
                 <AppText style={styles.fieldValuePrimary}>
                   {targetPatrol.title}
                 </AppText>
               </View>
             </View>
 
-            {/* Time & Progress */}
+            {/* Time & Checkpoint Breakdown */}
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText style={styles.fieldLabel}>Time</AppText>
+                <AppText style={styles.fieldLabel}>Scheduled Shift</AppText>
                 <AppText style={styles.fieldValuePrimary}>
                   {scheduledTimeDisplay}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText style={styles.fieldLabel}>Progress</AppText>
-                <AppText style={[styles.fieldValuePrimary, { color: '#0284C7' }]}>
-                  {completedCount}/{totalCount} Checkpoints ({percentCompleted}%)
-                </AppText>
-              </View>
-            </View>
-
-            {/* Completed & Remaining Checkpoints */}
-            <View style={styles.gridRow}>
-              <View style={styles.gridCol}>
-                <AppText style={styles.fieldLabel}>Completed Checkpoints</AppText>
-                <AppText style={[styles.fieldValuePrimary, { color: '#059669' }]}>
-                  {completedCount}
-                </AppText>
-              </View>
-
-              <View style={styles.gridCol}>
-                <AppText style={styles.fieldLabel}>Remaining Checkpoints</AppText>
-                <AppText style={[styles.fieldValuePrimary, { color: '#D97706' }]}>
-                  {remainingCount}
+                <AppText style={styles.fieldLabel}>Completed / Remaining</AppText>
+                <AppText style={styles.fieldValuePrimary}>
+                  <AppText style={{ color: '#059669', fontWeight: '700' }}>{completedCount}</AppText>
+                  {' / '}
+                  <AppText style={{ color: '#D97706', fontWeight: '700' }}>{remainingCount}</AppText>
                 </AppText>
               </View>
             </View>
@@ -274,39 +329,58 @@ export const PatrolDetailsScreen: React.FC = () => {
         {/* Assigned Checkpoints List */}
         {patrolCheckpoints.map((cp) => {
           const isDone = cp.status === 'Completed';
-          const isPending = cp.status === 'Pending';
-          const badgeBg = isDone ? '#D1FAE5' : isPending ? '#FEF3C7' : '#FEE2E2';
-          const badgeText = isDone ? '#059669' : isPending ? '#D97706' : '#DC2626';
 
           return (
-            <Card key={cp.id} variant="outlined" style={[styles.checkpointCard, { borderRadius: borderRadius.lg }]}>
-              <View style={styles.cpHeaderRow}>
-                <View style={{ flex: 1, paddingRight: 6 }}>
-                  <Heading level="h3" color="primary" style={styles.cpTitle}>
-                    {cp.number} — {cp.name}
-                  </Heading>
-                  <AppText style={styles.cpLocationText}>
-                    Location: {cp.location}
+            <Card key={cp.id} variant="outlined" style={styles.card}>
+              <View style={styles.headerRow}>
+                <View style={{ flex: 1, marginRight: 10 }}>
+                  <AppText size="lg" weight="bold" color="primary" style={styles.cardHeaderTitle}>
+                    {`${cp.number} — ${cp.name}`}
                   </AppText>
                 </View>
+                <StatusBadge status={cp.status} size="md" />
+              </View>
 
-                <View style={[styles.cpBadge, { backgroundColor: badgeBg }]}>
-                  <AppText style={[styles.cpBadgeText, { color: badgeText }]}>
-                    {cp.status}
+              <View style={[styles.detailRow, { marginTop: spacing.sm || 10 }]}>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                  <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                    LOCATION
+                  </AppText>
+                  <AppText size="base" weight="bold" color="primary" style={styles.metaValueText}>
+                    {cp.location}
+                  </AppText>
+                </View>
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                  <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                    VERIFICATION
+                  </AppText>
+                  <AppText size="base" weight="bold" style={[styles.metaValueText, { color: isDone ? '#059669' : '#64748B' }]}>
+                    {isDone ? 'GPS & QR Matched' : 'Pending Scan'}
                   </AppText>
                 </View>
               </View>
 
-              <View style={styles.cpDetailsRow}>
-                {isDone && cp.scanTime ? (
-                  <AppText style={styles.cpScanTimeText}>
-                    Scanned: {cp.scanTime}
+              {isDone && cp.scanTime ? (
+                <View style={{ marginTop: 10 }}>
+                  <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                    SCANNED AT
                   </AppText>
-                ) : null}
+                  <AppText size="base" color="text" weight="medium" style={styles.metaValueText}>
+                    {cp.scanTime}
+                  </AppText>
+                </View>
+              ) : null}
 
-                <AppText style={[styles.cpStatusSubtext, { color: isDone ? '#059669' : '#64748B' }]}>
-                  {isDone ? '✓ GPS Verified — QR Matched' : 'Pending Scan'}
-                </AppText>
+              <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
+                <TouchableOpacity
+                  style={styles.iconActionBtnView}
+                  onPress={() => isScannerOpen ? handleDirectCapture(cp.qrCode || cp.number) : handleLaunchQRScanner()}
+                  activeOpacity={0.7}
+                  accessibilityLabel="View checkpoint details"
+                  accessibilityRole="button"
+                >
+                  <NavIcon name="eye" size={24} color="#4F46E5" />
+                </TouchableOpacity>
               </View>
             </Card>
           );
@@ -318,9 +392,9 @@ export const PatrolDetailsScreen: React.FC = () => {
         <View style={styles.scannerModalScreen}>
           {/* Header */}
           <View style={styles.scannerHeader}>
-            <Heading level="h2" style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '700' }}>Scan Checkpoint QR</Heading>
+            <Heading level="h2" style={styles.scannerHeaderTitle}>Scan Checkpoint QR</Heading>
             <TouchableOpacity onPress={() => setIsScannerOpen(false)} style={styles.closeBtn}>
-              <AppText style={{ color: '#38BDF8', fontSize: 16.5, fontWeight: '700' }}>Close</AppText>
+              <AppText style={styles.scannerCloseText}>Close</AppText>
             </TouchableOpacity>
           </View>
 
@@ -344,8 +418,8 @@ export const PatrolDetailsScreen: React.FC = () => {
                 onPress={() => handleDirectCapture()}
                 activeOpacity={0.8}
               >
-                <AppText style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '700' }}>
-                  CAPTURE & VERIFY QR CODE
+                <AppText style={styles.triggerCameraBtnText}>
+                  Capture & Verify QR Code
                 </AppText>
               </TouchableOpacity>
 
@@ -356,7 +430,7 @@ export const PatrolDetailsScreen: React.FC = () => {
 
             {/* Quick Checkpoint Selector Buttons inside modal */}
             <View style={styles.quickSelectorContainer}>
-              <AppText style={{ color: '#94A3B8', fontSize: 14, fontWeight: '700', marginBottom: 12, textAlign: 'center' }}>
+              <AppText style={styles.quickSelectorTitle}>
                 SELECT CHECKPOINT TO VERIFY:
               </AppText>
               <View style={styles.cpChipsGrid}>
@@ -370,7 +444,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                       disabled={isDone}
                       activeOpacity={0.7}
                     >
-                      <AppText style={{ color: isDone ? '#059669' : '#FFFFFF', fontSize: 14.5, fontWeight: '700' }}>
+                      <AppText style={{ color: isDone ? '#059669' : '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
                         {isDone ? `✓ ${cp.number}` : `Scan ${cp.number}`}
                       </AppText>
                     </TouchableOpacity>
@@ -382,7 +456,7 @@ export const PatrolDetailsScreen: React.FC = () => {
             {/* Feedback Banners */}
             {scanSuccessText && (
               <View style={[styles.feedbackOverlay, { backgroundColor: '#059669' }]}>
-                <AppText style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '700' }}>
+                <AppText style={styles.feedbackOverlayText}>
                   ✓ {scanSuccessText}
                 </AppText>
               </View>
@@ -390,7 +464,7 @@ export const PatrolDetailsScreen: React.FC = () => {
 
             {scanErrorText && (
               <View style={[styles.feedbackOverlay, { backgroundColor: '#DC2626' }]}>
-                <AppText style={{ color: '#FFFFFF', fontSize: 16.5, fontWeight: '700' }}>
+                <AppText style={styles.feedbackOverlayText}>
                   ✕ {scanErrorText}
                 </AppText>
               </View>
@@ -408,6 +482,62 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 16,
   },
+  card: {
+    marginBottom: 12,
+    padding: 16,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    lineHeight: 24,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  metaLabelText: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    color: '#64748B',
+  },
+  metaValueText: {
+    fontSize: 15,
+    fontWeight: '700',
+    marginTop: 2,
+    lineHeight: 20,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  inlineActionBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 10,
+  },
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   bannerCard: {
     padding: 18,
     borderWidth: 1.5,
@@ -420,9 +550,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   bannerTitleText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
     color: '#0F172A',
+    lineHeight: 26,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -430,7 +561,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   badgeText: {
-    fontSize: 14.5,
+    fontSize: 14,
     fontWeight: '700',
   },
   completedBox: {
@@ -442,12 +573,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#A7F3D0',
   },
+  completedText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#059669',
+    lineHeight: 20,
+  },
   pastDateBox: {
     marginTop: 14,
     padding: 14,
     backgroundColor: '#F1F5F9',
     borderRadius: 8,
     alignItems: 'center',
+  },
+  pastDateText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#64748B',
+    lineHeight: 20,
   },
   detailsCard: {
     padding: 18,
@@ -458,45 +601,50 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#475569',
     letterSpacing: 0.8,
-    fontSize: 14.5,
+    fontSize: 13,
     fontWeight: '700',
   },
   dividerLine: {
     height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 14,
+    marginVertical: 12,
   },
   gridContainer: {
-    gap: 16,
+    gap: 14,
   },
   gridRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 12,
   },
   gridCol: {
-    width: '48%',
+    flex: 1,
   },
   gridColFull: {
     width: '100%',
   },
   fieldLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: '#64748B',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   fieldValuePrimary: {
-    fontSize: 16.5,
+    fontSize: 15.5,
     fontWeight: '700',
     color: '#0F172A',
     marginTop: 3,
+    lineHeight: 22,
   },
   sectionHeaderRow: {
     marginTop: 8,
   },
   sectionHeaderTitle: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '700',
     color: '#0F172A',
+    lineHeight: 25,
   },
   checkpointCard: {
     padding: 18,
@@ -510,14 +658,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cpTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#0F172A',
+    lineHeight: 23,
   },
   cpLocationText: {
-    fontSize: 15,
+    fontSize: 14.5,
     color: '#64748B',
     marginTop: 3,
+    lineHeight: 20,
   },
   cpBadge: {
     paddingHorizontal: 10,
@@ -525,20 +675,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   cpBadgeText: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '700',
   },
   cpDetailsRow: {
     marginTop: 10,
   },
   cpScanTimeText: {
-    fontSize: 14.5,
+    fontSize: 14,
     color: '#64748B',
+    lineHeight: 19,
   },
   cpStatusSubtext: {
-    fontSize: 14.5,
+    fontSize: 14,
     fontWeight: '600',
     marginTop: 3,
+    lineHeight: 19,
   },
   // Scanner Modal Styles
   scannerModalScreen: {
@@ -553,13 +705,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1.5,
     borderBottomColor: '#1E293B',
   },
+  scannerHeaderTitle: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  scannerCloseText: {
+    color: '#38BDF8',
+    fontSize: 16,
+    fontWeight: '700',
+  },
   closeBtn: {
     padding: 6,
   },
   cameraViewportContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 24,
     paddingHorizontal: 20,
   },
   cameraBox: {
@@ -583,8 +745,9 @@ const styles = StyleSheet.create({
   },
   cameraLabelText: {
     color: '#94A3B8',
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '700',
+    letterSpacing: 0.5,
   },
   triggerCameraBtn: {
     backgroundColor: '#2563EB',
@@ -595,15 +758,29 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
+  triggerCameraBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
   scanInstructionsText: {
     color: '#94A3B8',
-    fontSize: 14.5,
+    fontSize: 14,
     marginTop: 12,
     textAlign: 'center',
+    lineHeight: 20,
   },
   quickSelectorContainer: {
     marginTop: 24,
     paddingHorizontal: 20,
+  },
+  quickSelectorTitle: {
+    color: '#94A3B8',
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 12,
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   cpChipsGrid: {
     flexDirection: 'row',
@@ -632,4 +809,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+  feedbackOverlayText: {
+    color: '#FFFFFF',
+    fontSize: 15.5,
+    fontWeight: '700',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
 });
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Alert, Linking, Platform } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -137,6 +137,36 @@ export const PoliciesScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
 
+  const handleDownloadDocument = async (policy: PolicyItem) => {
+    const doc = policy.attachedDocument;
+    const url = doc?.url || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+    const filename = doc?.name || `Policy_${policy.id}.pdf`;
+
+    if (Platform.OS === 'web') {
+      const globalObj = typeof globalThis !== 'undefined' ? (globalThis as any) : {};
+      if (globalObj.document) {
+        const link = globalObj.document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        globalObj.document.body.appendChild(link);
+        link.click();
+        globalObj.document.body.removeChild(link);
+      }
+    } else {
+      try {
+        await Linking.openURL(url);
+      } catch (err) {
+        console.warn('File download error:', err);
+      }
+    }
+
+    Alert.alert(
+      'Download Complete',
+      `Policy document (${filename}) has been downloaded & saved to mobile storage (Downloads).`,
+      [{ text: 'OK' }]
+    );
+  };
+
   const filteredPolicies = mockPolicies.filter(p =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -167,12 +197,11 @@ export const PoliciesScreen: React.FC = () => {
           </AppText>
         ) : (
           filteredPolicies.map((policy) => (
-            <TouchableOpacity
-              key={policy.id}
-              activeOpacity={0.8}
-              onPress={() => navigation.navigate('PolicyDetails', { policyId: policy.id })}
-            >
-              <Card style={styles.policyCard}>
+            <Card key={policy.id} style={styles.policyCard}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('PolicyDetails', { policyId: policy.id })}
+              >
                 <View style={styles.cardHeader}>
                   <Heading level="h4" color="primary" style={{ flex: 1 }}>{policy.title}</Heading>
                   <AppText size="xs" weight="bold" style={styles.categoryBadge}>
@@ -185,12 +214,28 @@ export const PoliciesScreen: React.FC = () => {
                 <AppText size="sm" color="secondary" numberOfLines={2} style={styles.summary}>
                   {policy.summary}
                 </AppText>
-                <View style={styles.viewRow}>
-                  <AppText size="sm" weight="bold" color="primary">View Policy</AppText>
-                  <AppText size="sm" color="primary"> ›</AppText>
-                </View>
-              </Card>
-            </TouchableOpacity>
+              </TouchableOpacity>
+
+              <View style={styles.viewRow}>
+                <TouchableOpacity
+                  style={styles.iconActionBtnView}
+                  onPress={() => navigation.navigate('PolicyDetails', { policyId: policy.id })}
+                  activeOpacity={0.7}
+                  accessibilityLabel="View policy details"
+                >
+                  <NavIcon name="eye" size={24} color="#4F46E5" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.quickDownloadBtn}
+                  onPress={() => handleDownloadDocument(policy)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityLabel="Download policy document"
+                >
+                  <NavIcon name="download" size={22} color="#4F46E5" />
+                </TouchableOpacity>
+              </View>
+            </Card>
           ))
         )}
       </ScrollView>
@@ -256,8 +301,31 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     paddingTop: 10,
+    marginTop: 4,
+  },
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickDownloadBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

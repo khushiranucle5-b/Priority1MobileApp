@@ -49,7 +49,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
   const [attachment, setAttachment] = useState<LeaveAttachment | null>(null);
   const [durationDays, setDurationDays] = useState(0);
 
-  // Pre-fill form if editing an existing leave
+  // Pre-fill form if editing an existing leave or reset if null
   useEffect(() => {
     if (editingLeave) {
       setLeaveType(editingLeave.type || 'Annual Leave');
@@ -68,6 +68,15 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
       setIsHalfDay(editingLeave.days === 0.5);
       setReason(editingLeave.reason || '');
       setAttachment(editingLeave.attachment || null);
+      setErrors({});
+    } else {
+      setLeaveType('Annual Leave');
+      setFromDate(null);
+      setToDate(null);
+      setIsHalfDay(false);
+      setReason('');
+      setAttachment(null);
+      setErrors({});
     }
   }, [editingLeave]);
 
@@ -93,10 +102,30 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
 
   const currentAvailableBal = getAvailableBalance(leaveType);
 
+  // When editing, account for the days already reserved by this leave
+  const reservedDaysForThisLeave = (editingLeave && editingLeave.type.toLowerCase() === leaveType.toLowerCase())
+    ? (editingLeave.days || 0)
+    : 0;
+
+  const effectiveAvailableBal = typeof currentAvailableBal === 'number'
+    ? currentAvailableBal + reservedDaysForThisLeave
+    : currentAvailableBal;
+
+  const getOptionBalance = (optType: string) => {
+    const bal = getAvailableBalance(optType);
+    if (typeof bal === 'number') {
+      const reserved = (editingLeave && editingLeave.type.toLowerCase() === optType.toLowerCase())
+        ? (editingLeave.days || 0)
+        : 0;
+      return bal + reserved;
+    }
+    return bal;
+  };
+
   // Leave types configuration with live balance
   const LEAVE_TYPE_OPTIONS = [
-    { type: 'Annual Leave', balance: leaveBalances?.annual ?? 12, exhausted: (leaveBalances?.annual ?? 12) <= 0 },
-    { type: 'Sick Leave', balance: leaveBalances?.sick ?? 5, exhausted: (leaveBalances?.sick ?? 5) <= 0 },
+    { type: 'Annual Leave', balance: getOptionBalance('Annual Leave'), exhausted: typeof getOptionBalance('Annual Leave') === 'number' && (getOptionBalance('Annual Leave') as number) <= 0 },
+    { type: 'Sick Leave', balance: getOptionBalance('Sick Leave'), exhausted: typeof getOptionBalance('Sick Leave') === 'number' && (getOptionBalance('Sick Leave') as number) <= 0 },
     { type: 'Unpaid Leave', balance: 'Unlimited', exhausted: false },
   ];
 
@@ -165,8 +194,8 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
     }
 
     // Leave Balance Validation
-    if (typeof currentAvailableBal === 'number' && durationDays > currentAvailableBal) {
-      newErrors.leaveType = `Insufficient leave balance. Available balance is ${currentAvailableBal} day(s).`;
+    if (typeof effectiveAvailableBal === 'number' && durationDays > effectiveAvailableBal) {
+      newErrors.leaveType = `Insufficient leave balance. Available balance is ${effectiveAvailableBal} day(s).`;
     }
 
     if (!reason.trim()) {
@@ -510,7 +539,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
                   Leave Type <AppText size="sm" style={{ color: colors.error }}>*</AppText>
                 </AppText>
                 <AppText size="xs" weight="bold" color="secondary">
-                  Available: {currentAvailableBal} {typeof currentAvailableBal === 'number' ? 'days' : ''}
+                  Available: {effectiveAvailableBal} {typeof effectiveAvailableBal === 'number' ? 'days' : ''}
                 </AppText>
               </View>
 
@@ -688,7 +717,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
       {showSuccess && (
         <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
           <AppText color="surface" weight="semibold" size="base">
-            Leave Request Submitted Successfully!
+            {editingLeave ? 'Leave Application Updated Successfully!' : 'Leave Request Submitted Successfully!'}
           </AppText>
         </View>
       )}

@@ -11,6 +11,7 @@ import { HolidaysScreen } from '../features/holidays/screens/HolidaysScreen';
 import { HolidayDetailsScreen } from '../features/holidays/screens/HolidayDetailsScreen';
 import { NotificationsScreen } from '../features/notifications/screens/NotificationsScreen';
 import { NotificationDetailsScreen } from '../features/notifications/screens/NotificationDetailsScreen';
+import { RecentActivityScreen } from '../features/home/screens/RecentActivityScreen';
 import { LoneWorkerScreen } from '../features/safety/screens/LoneWorkerScreen';
 import { LoneWorkerDetailsScreen } from '../features/safety/screens/LoneWorkerDetailsScreen';
 import { SafetyHistoryScreen } from '../features/safety/screens/SafetyHistoryScreen';
@@ -47,6 +48,7 @@ export const HomeNavigator = () => {
       <Stack.Screen name="HolidayDetails" component={HolidayDetailsScreen} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
       <Stack.Screen name="NotificationDetails" component={NotificationDetailsScreen} />
+      <Stack.Screen name="RecentActivity" component={RecentActivityScreen} />
       <Stack.Screen name="LoneWorker" component={LoneWorkerScreen} />
       <Stack.Screen name="LoneWorkerDetails" component={LoneWorkerDetailsScreen} />
       <Stack.Screen name="PatrolDateLogs" component={PatrolDateLogsScreen} />

@@ -89,7 +89,8 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
     }
   };
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   return (
     <View style={styles.container}>
@@ -98,10 +99,10 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
         const statusLower = leave.status.toLowerCase();
 
         // Business rules for actions:
-        // Pending: Edit allowed (if not past), Cancel allowed
+        // Pending: Edit allowed, Cancel allowed
         // Approved: Cancel allowed if future start date, Edit disabled
         // Rejected/Cancelled: Actions disabled
-        const canEdit = statusLower === 'pending' && leave.toDate >= todayStr;
+        const canEdit = statusLower === 'pending';
         const canCancel = statusLower === 'pending' || (statusLower === 'approved' && leave.fromDate > todayStr);
 
         return (

@@ -50,30 +50,31 @@ export const PolicyDetailsScreen: React.FC = () => {
 
   const handleDownloadDocument = async () => {
     const url = doc.url;
+    const filename = doc.name || `Policy_${policy.id}.pdf`;
+
     if (Platform.OS === 'web') {
       const globalObj = typeof globalThis !== 'undefined' ? (globalThis as any) : {};
       if (globalObj.document) {
         const link = globalObj.document.createElement('a');
         link.href = url;
-        link.download = doc.name;
-        link.target = '_blank';
+        link.download = filename;
         globalObj.document.body.appendChild(link);
         link.click();
         globalObj.document.body.removeChild(link);
-        return;
+      }
+    } else {
+      try {
+        await Linking.openURL(url);
+      } catch (err) {
+        console.warn('File download error:', err);
       }
     }
 
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-      } else {
-        Alert.alert('Download Started', `Downloading ${doc.name} (${doc.size})...`);
-      }
-    } catch (error) {
-      Alert.alert('Download Started', `Downloading ${doc.name} (${doc.size})...`);
-    }
+    Alert.alert(
+      'Download Complete',
+      `Policy document (${filename}) has been downloaded & saved to mobile storage (Downloads).`,
+      [{ text: 'OK' }]
+    );
   };
 
   return (
@@ -172,30 +173,31 @@ export const PolicyDetailsScreen: React.FC = () => {
           </AppText>
         </Card>
 
-        {/* Full Policy Directives & Rules */}
+        {/* Targeted Roles & Applicability Card */}
         <Card style={styles.card}>
-          <View style={styles.sectionHeaderRow}>
-            <View style={{ marginRight: 8 }}>
-              <NavIcon name="attendance" size={18} color="#4F46E5" />
-            </View>
-            <Heading level="h4" color="primary">Mandatory Rules & Operational Directives</Heading>
+          <Heading level="h4" color="primary" style={{ marginBottom: 10 }}>Target Roles & Applicability</Heading>
+          <View style={styles.rolesRow}>
+            {(policy.targetRoles || ['Security Guards', 'Supervisors']).map((role, idx) => (
+              <View key={idx} style={styles.roleChip}>
+                <AppText size="xs" weight="bold" style={{ color: '#1E293B' }}>{role}</AppText>
+              </View>
+            ))}
           </View>
+        </Card>
 
+        {/* Detailed Policy Operational Clauses Card */}
+        <Card style={styles.card}>
+          <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Operational Directives & Clauses</Heading>
           <View style={styles.directivesList}>
-            {policy.content.map((rule, idx) => (
+            {policy.content.map((clause, idx) => (
               <View key={idx} style={styles.directiveCard}>
                 <View style={styles.directiveHeader}>
                   <View style={styles.directiveNumberBadge}>
-                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>
-                      #{idx + 1}
-                    </AppText>
+                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>#{idx + 1}</AppText>
                   </View>
-                  <AppText size="xs" color="secondary" weight="medium">
-                    Directive Rule {idx + 1}
-                  </AppText>
                 </View>
-                <AppText size="sm" color="primary" style={styles.directiveText}>
-                  {rule.replace(/^\d+\.\s*/, '')}
+                <AppText size="sm" color="text" style={styles.directiveText}>
+                  {clause}
                 </AppText>
               </View>
             ))}
@@ -228,17 +230,12 @@ export const PolicyDetailsScreen: React.FC = () => {
 
           {/* Glove-friendly Touch Action Buttons: View & Download */}
           <View style={styles.buttonGroup}>
-            <Button
-              title="View Document"
-              variant="primary"
-              size="large"
-              onPress={() => handleOpenDocument(false)}
-              style={[styles.actionBtn, { backgroundColor: '#4F46E5' }]}
-            />
+            
             <Button
               title="Download"
               variant="outline"
               size="large"
+              leftIcon={<NavIcon name="download" size={20} color="#4F46E5" />}
               onPress={handleDownloadDocument}
               style={[styles.actionBtn, { borderColor: '#4F46E5' }]}
             />

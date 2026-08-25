@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Alert, Linking, Platform } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -10,79 +10,22 @@ import { useNavigation } from '@react-navigation/native';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
 
-export interface PayslipItem {
-  id: string;
-  companyName: string;
-  statementTitle: string;
-  payslipId: string;
-  monthYear: string;
-  cyclePeriod: string;
-  status: string;
-  employeeName?: string;
-  designation: string;
-  totalHours: string;
-  basicRosterWages: string;
-  overtimeWages: string;
-  taxInsuranceDeductions: string;
-  netDisbursedWages: string;
-  pdfUrl?: string;
-}
+import { getPayslipList, ExtendedPayslipItem } from '../services/payslipService';
+import { downloadPayslipPdf } from '../services/payslipPdfGenerator';
 
-export const mockPayslips: PayslipItem[] = [
-  {
-    id: 'pay-2026-08',
-    companyName: 'ACME SECURITY SERVICES',
-    statementTitle: 'Official Employee Wages Payslip Statement',
-    payslipId: 'PAY-2026-08',
-    monthYear: 'August 2026',
-    cyclePeriod: 'Aug 01, 2026 - Aug 31, 2026',
-    status: 'Disbursed & Finalized',
-    designation: 'Senior Security Officer',
-    totalHours: '176 hrs',
-    basicRosterWages: '₹24,000.00',
-    overtimeWages: '₹4,500.00',
-    taxInsuranceDeductions: '₹2,500.00',
-    netDisbursedWages: '₹26,000.00',
-    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  },
-  {
-    id: 'pay-2026-07',
-    companyName: 'ACME SECURITY SERVICES',
-    statementTitle: 'Official Employee Wages Payslip Statement',
-    payslipId: 'PAY-2026-07',
-    monthYear: 'July 2026',
-    cyclePeriod: 'Jul 01, 2026 - Jul 31, 2026',
-    status: 'Disbursed & Finalized',
-    designation: 'Senior Security Officer',
-    totalHours: '168 hrs',
-    basicRosterWages: '₹22,000.00',
-    overtimeWages: '₹4,500.00',
-    taxInsuranceDeductions: '₹2,100.00',
-    netDisbursedWages: '₹24,400.00',
-    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  },
-  {
-    id: 'pay-2026-06',
-    companyName: 'ACME SECURITY SERVICES',
-    statementTitle: 'Official Employee Wages Payslip Statement',
-    payslipId: 'PAY-2026-06',
-    monthYear: 'June 2026',
-    cyclePeriod: 'Jun 01, 2026 - Jun 30, 2026',
-    status: 'Disbursed & Finalized',
-    designation: 'Senior Security Officer',
-    totalHours: '160 hrs',
-    basicRosterWages: '₹22,000.00',
-    overtimeWages: '₹3,800.00',
-    taxInsuranceDeductions: '₹2,000.00',
-    netDisbursedWages: '₹23,800.00',
-    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  },
-];
+export type PayslipItem = ExtendedPayslipItem;
+export const mockPayslips = getPayslipList();
 
 export const PayslipsScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
   const { guardName, guardId, assignedSite } = useGuardStore();
+
+  const payslips = getPayslipList({ guardName, guardId });
+
+  const handleDownloadPdf = async (slip: ExtendedPayslipItem) => {
+    await downloadPayslipPdf(slip);
+  };
 
   return (
     <ScreenLayout activeRoute="Payslips">
@@ -107,15 +50,14 @@ export const PayslipsScreen: React.FC = () => {
           </View>
         </Card>
 
-        <Heading level="h4" style={styles.sectionTitle}>Pay Statements ({mockPayslips.length})</Heading>
+        <Heading level="h4" style={styles.sectionTitle}>Pay Statements ({payslips.length})</Heading>
 
-        {mockPayslips.map((slip) => (
-          <TouchableOpacity
-            key={slip.id}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('PayslipDetails', { payslipId: slip.id })}
-          >
-            <Card style={styles.payslipCard}>
+        {payslips.map((slip) => (
+          <Card key={slip.id} style={styles.payslipCard}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('PayslipDetails', { payslipId: slip.id })}
+            >
               <View style={styles.cardHeader}>
                 <View style={{ flex: 1 }}>
                   <Heading level="h3" color="primary">{slip.monthYear}</Heading>
@@ -147,13 +89,28 @@ export const PayslipsScreen: React.FC = () => {
                   <AppText size="base" weight="bold" style={{ color: '#4F46E5' }}>{slip.netDisbursedWages}</AppText>
                 </View>
               </View>
+            </TouchableOpacity>
 
-              <View style={styles.viewRow}>
-                <AppText size="sm" weight="bold" color="primary">View Payslip Statement</AppText>
-                <AppText size="sm" color="primary"> ›</AppText>
-              </View>
-            </Card>
-          </TouchableOpacity>
+            <View style={styles.viewRow}>
+              <TouchableOpacity
+                style={styles.iconActionBtnView}
+                onPress={() => navigation.navigate('PayslipDetails', { payslipId: slip.id })}
+                activeOpacity={0.7}
+                accessibilityLabel="View payslip details"
+              >
+                <NavIcon name="eye" size={24} color="#4F46E5" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.quickDownloadBtn}
+                onPress={() => handleDownloadPdf(slip)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityLabel="Download payslip PDF"
+              >
+                <NavIcon name="download" size={22} color="#4F46E5" />
+              </TouchableOpacity>
+            </View>
+          </Card>
         ))}
       </ScrollView>
     </ScreenLayout>
@@ -225,6 +182,28 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
+    gap: 10,
+    paddingTop: 4,
+  },
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickDownloadBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,24 +1,34 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
+import { StatusBadge } from '../../../components/StatusBadge';
+import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
 import { formatDisplayDate } from '../../../utils/dateUtils';
-import { getPatrolAvailability } from '../utils/patrolUtils';
+import { getPatrolAvailability, useLiveNow } from '../utils/patrolUtils';
 
 export const PatrolDateLogsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { patrols, startPatrol, ensurePatrolsForDate } = useGuardStore();
+  const isFocused = useIsFocused();
+  const { colors, spacing, borderRadius } = useTheme();
+  const { patrols, startPatrol, ensurePatrolsForDate, isClockedIn, loadGuardData, guardId, guardEmail } = useGuardStore();
 
   const selectedDateStr = route.params?.dateStr || new Date().toISOString();
   const displayTitleDate = formatDisplayDate(selectedDateStr);
+
+  useEffect(() => {
+    if (isFocused && guardId) {
+      loadGuardData(guardId, guardEmail || '');
+    }
+  }, [isFocused, guardId, guardEmail, loadGuardData]);
 
   useEffect(() => {
     if (ensurePatrolsForDate && selectedDateStr) {
@@ -26,14 +36,8 @@ export const PatrolDateLogsScreen: React.FC = () => {
     }
   }, [selectedDateStr, ensurePatrolsForDate]);
 
-  // Live timer tick every 10 seconds to dynamically update button availability
-  const [now, setNow] = useState(new Date());
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(new Date());
-    }, 10000);
-    return () => clearInterval(timer);
-  }, []);
+  // Live timer tick & foreground listener to dynamically update button availability
+  const now = useLiveNow(5000);
 
   // Filter records for selected date only
   const recordsForDate = useMemo(() => {
@@ -44,7 +48,7 @@ export const PatrolDateLogsScreen: React.FC = () => {
   }, [patrols, displayTitleDate]);
 
   const handlePatrolAction = async (patrol: DBPatrol) => {
-    const avail = getPatrolAvailability(patrol, 15, now);
+    const avail = getPatrolAvailability(patrol, 0, now);
 
     if (avail.isCompleted) {
       navigation.navigate('PatrolDetails', { patrolId: patrol.id });
@@ -53,6 +57,14 @@ export const PatrolDateLogsScreen: React.FC = () => {
 
     if (avail.isInProgress) {
       navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+      return;
+    }
+
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'You must clock in before starting a patrol. Please clock in first.'
+      );
       return;
     }
 
@@ -114,67 +126,73 @@ export const PatrolDateLogsScreen: React.FC = () => {
           </Card>
         ) : (
           recordsForDate.map((item) => {
-            const avail = getPatrolAvailability(item, 15, now);
-            const badgeStyle = getStatusBadgeStyle(avail.statusLabel);
+            const avail = getPatrolAvailability(item, 0, now);
             const timeDisplay = `${item.scheduledStartTime || item.startTime || '08:00 AM'} - ${item.scheduledEndTime || '09:00 AM'}`;
 
             return (
-              <Card key={item.id} style={styles.patrolCard}>
-                <View style={styles.cardHeaderRow}>
-                  {/* Left Column: Enlarged Patrol Title */}
-                  <View style={{ flex: 1, paddingRight: 8 }}>
-                    <Heading level="h3" color="primary" style={styles.patrolTitle}>
-                      {item.title}
-                    </Heading>
+              <Card key={item.id} variant="outlined" style={styles.card}>
+                <View style={styles.headerRow}>
+                  <View style={{ flex: 1, marginRight: 10 }}>
+                    <AppText size="lg" weight="bold" color="primary" style={styles.cardHeaderTitle}>
+                      {item.title || 'Patrol'}
+                    </AppText>
                   </View>
+                  <StatusBadge status={avail.statusLabel} size="md" />
+                </View>
 
-                  {/* Right Action: Eye Icon Button */}
+                <View style={[styles.detailRow, { marginTop: spacing.sm || 10 }]}>
+                  <View style={{ flex: 1, paddingRight: 8 }}>
+                    <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                      CHECKPOINTS
+                    </AppText>
+                    <AppText size="base" weight="bold" color="primary" style={styles.metaValueText}>
+                      {item.scanned}/{item.checkpoints} Scanned
+                    </AppText>
+                  </View>
+                  <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                    <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                      SCHEDULED TIME
+                    </AppText>
+                    <AppText size="base" weight="bold" style={[styles.metaValueText, { color: colors.primary[600] || '#2563EB' }]}>
+                      {timeDisplay}
+                    </AppText>
+                  </View>
+                </View>
+
+                <View style={{ marginTop: 10 }}>
+                  <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
+                    SITE / ROUTE
+                  </AppText>
+                  <AppText size="base" color="text" weight="bold" style={styles.metaValueText}>
+                    {item.site || item.route || 'Unassigned Site'}
+                  </AppText>
+                </View>
+
+                <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
+                  {!avail.isPastDate && (
+                    <Button
+                      title={avail.buttonText}
+                      variant={avail.canStart ? "primary" : "secondary"}
+                      disabled={avail.isExpired || (!avail.canStart && !avail.isCompleted && !avail.isInProgress)}
+                      onPress={() => handlePatrolAction(item)}
+                      style={[
+                        styles.inlineActionBtn,
+                        avail.isInProgress && { backgroundColor: '#0284C7' },
+                        avail.isCompleted && { backgroundColor: '#D1FAE5' },
+                      ]}
+                    />
+                  )}
+
                   <TouchableOpacity
-                    style={styles.eyeIconButton}
+                    style={styles.iconActionBtnView}
                     onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id })}
                     activeOpacity={0.7}
+                    accessibilityLabel="View patrol details"
+                    accessibilityRole="button"
                   >
-                    <NavIcon name="eye" size={22} color="#4F46E5" />
+                    <NavIcon name="eye" size={24} color="#4F46E5" />
                   </TouchableOpacity>
                 </View>
-
-                {/* Enlarged Status, Checkpoint Progress & Scheduled Time Chips */}
-                <View style={styles.badgesRow}>
-                  <View style={[styles.statusBadge, { backgroundColor: badgeStyle.bg }]}>
-                    <AppText style={[styles.badgeText, { color: badgeStyle.text }]}>
-                      ● {avail.statusLabel}
-                    </AppText>
-                  </View>
-
-                  <View style={[styles.statusBadge, { backgroundColor: '#F1F5F9' }]}>
-                    <AppText style={[styles.badgeText, { color: '#334155' }]}>
-                      {item.scanned}/{item.checkpoints} Checkpoints
-                    </AppText>
-                  </View>
-
-                  <View style={[styles.statusBadge, { backgroundColor: '#EEF2FF' }]}>
-                    <AppText style={[styles.badgeText, { color: '#4F46E5' }]}>
-                      🕒 {timeDisplay}
-                    </AppText>
-                  </View>
-                </View>
-
-                {/* Enlarged Dynamic Action Button */}
-                {!avail.isPastDate && (
-                  <Button
-                    title={avail.buttonText}
-                    variant={avail.canStart ? "primary" : "secondary"}
-                    size="large"
-                    fullWidth
-                    disabled={!avail.canStart && !avail.isCompleted && !avail.isInProgress}
-                    onPress={() => handlePatrolAction(item)}
-                    style={[
-                      styles.actionBtn,
-                      avail.isInProgress && { backgroundColor: '#0284C7' },
-                      avail.isCompleted && { backgroundColor: '#D1FAE5' },
-                    ]}
-                  />
-                )}
               </Card>
             );
           })
@@ -198,41 +216,68 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   headerSubtitle: {
-    fontSize: 14.5,
+    fontSize: 15,
     marginTop: 3,
     color: '#64748B',
   },
-  patrolCard: {
-    padding: 18,
-    marginBottom: 16,
-    borderRadius: 12,
+  card: {
+    marginBottom: 12,
+    padding: 16,
   },
-  cardHeaderRow: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  patrolTitle: {
-    fontSize: 18.5,
+  cardHeaderTitle: {
+    fontSize: 18,
     fontWeight: '700',
+    lineHeight: 24,
     color: '#0F172A',
   },
-  eyeIconButton: {
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  metaLabelText: {
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    color: '#64748B',
+    textTransform: 'uppercase',
+  },
+  metaValueText: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 3,
+    lineHeight: 22,
+    color: '#0F172A',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  inlineActionBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 10,
+  },
+  iconActionBtnView: {
     width: 48,
     height: 48,
-    borderRadius: 12,
-    backgroundColor: '#EEF2FF',
+    borderRadius: 10,
     borderWidth: 1.5,
     borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 14,
-    marginBottom: 16,
   },
   statusBadge: {
     paddingHorizontal: 12,
