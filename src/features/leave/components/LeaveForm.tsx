@@ -165,8 +165,12 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
     }
 
     // Leave Balance Validation
-    if (typeof currentAvailableBal === 'number' && durationDays > currentAvailableBal) {
-      newErrors.leaveType = `Insufficient leave balance. Available balance is ${currentAvailableBal} day(s).`;
+    if (typeof currentAvailableBal === 'number') {
+      if (currentAvailableBal <= 0) {
+        newErrors.leaveType = `Leave balance exhausted for ${leaveType}. (0 days remaining)`;
+      } else if (durationDays > currentAvailableBal) {
+        newErrors.leaveType = `Insufficient leave balance. Requested ${durationDays} day(s), but only ${currentAvailableBal} day(s) available.`;
+      }
     }
 
     if (!reason.trim()) {

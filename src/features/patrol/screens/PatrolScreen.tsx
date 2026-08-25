@@ -21,7 +21,7 @@ import {
   formatDisplayDate,
   formatDateGroupHeader,
 } from '../../../utils/dateUtils';
-import { getPatrolAvailability } from '../utils/patrolUtils';
+import { getPatrolAvailability, getCurrentRelevantPatrol } from '../utils/patrolUtils';
 
 interface DatePatrolSummary {
   dateStr: string;
@@ -37,9 +37,9 @@ interface DatePatrolSummary {
 const parseDateToTimestamp = (dateVal: string | number | null | undefined): number => {
   if (!dateVal) return 0;
   if (typeof dateVal === 'number') return dateVal;
-  
+
   const str = String(dateVal).trim();
-  
+
   const ymdMatch = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (ymdMatch) {
     const year = parseInt(ymdMatch[1], 10);
@@ -84,6 +84,7 @@ export const PatrolScreen: React.FC = () => {
     assignedSite,
     startPatrol,
     ensurePatrolsForDate,
+    isClockedIn,
   } = useGuardStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -110,23 +111,9 @@ export const PatrolScreen: React.FC = () => {
     return patrols || [];
   }, [patrols]);
 
-  // Find active or next eligible patrol for today using live date & time
+  // Find active or next eligible patrol for today using central application helper
   const activeOrNextPatrol = useMemo(() => {
-    const todayStr = formatDisplayDate(now.toISOString());
-    const todayPatrols = allPatrolList.filter(p => formatDisplayDate(p.date) === todayStr);
-
-    const inProgress = todayPatrols.find(p => p.status === 'In Progress' || p.status === 'in_progress');
-    if (inProgress) return inProgress;
-
-    // Find next available scheduled patrol for today
-    const available = todayPatrols.find(p => {
-      const avail = getPatrolAvailability(p, 15, now);
-      return avail.canStart;
-    });
-
-    if (available) return available;
-
-    return todayPatrols.find(p => p.status !== 'Completed' && p.status !== 'completed') || todayPatrols[0] || allPatrolList[0];
+    return getCurrentRelevantPatrol(allPatrolList, now);
   }, [allPatrolList, now]);
 
   const activeAvailability = useMemo(() => {
@@ -218,6 +205,17 @@ export const PatrolScreen: React.FC = () => {
   }, [filteredPatrols]);
 
   const handleStartPatrolAction = async () => {
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'Please Clock In before starting patrol.',
+        [
+          { text: 'Clock In Now', onPress: () => navigation.navigate('Attendance') },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+      return;
+    }
     if (!activeOrNextPatrol) {
       Alert.alert('No Patrol Available', 'There are no active or scheduled patrols for today.');
       return;
@@ -335,41 +333,42 @@ export const PatrolScreen: React.FC = () => {
           ) : (
             dateSummaries.map((summary) => {
               return (
-                <Card key={summary.dateStr} style={styles.dateSummaryCard}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate('PatrolDateLogs', { dateStr: summary.dateStr })}
-                    style={styles.cardRow}
-                  >
-                    {/* Left Column: Date & Aggregated Stats */}
-                    <View style={{ flex: 1 }}>
-                      <Heading level="h3" color="primary" style={styles.dateHeaderTitle}>
-                        {summary.displayHeader}
-                      </Heading>
+                <Card key={summary.dateStr} variant="outlined" style={styles.dateSummaryCard}>
+                  {/* 1. Patrol Information */}
+                  <View style={styles.patrolInfoContainer}>
+                    <Heading level="h3" color="primary" style={styles.dateHeaderTitle}>
+                      {summary.displayHeader}
+                    </Heading>
 
-                      <AppText style={styles.patrolCountText}>
-                        {summary.totalPatrols} Patrol{summary.totalPatrols > 1 ? 's' : ''} Assigned
-                      </AppText>
+                    <AppText style={styles.patrolCountText}>
+                      {summary.totalPatrols} Patrol{summary.totalPatrols > 1 ? 's' : ''} Assigned
+                    </AppText>
 
-                      <AppText style={styles.patrolSubStatsText}>
-                        {summary.inProgressCount > 0 ? `${summary.inProgressCount} In Progress • ` : ''}
-                        {summary.completedCount} Completed
-                      </AppText>
+                    <AppText style={styles.patrolSubStatsText}>
+                      {summary.inProgressCount > 0 ? `${summary.inProgressCount} In Progress • ` : ''}
+                      {summary.completedCount} Completed
+                    </AppText>
 
-                      <View style={{ marginTop: 10 }}>
-                        <StatusBadge status={summary.overallStatus} size="sm" />
-                      </View>
+                    <View style={{ marginTop: 10 }}>
+                      <StatusBadge status={summary.overallStatus} size="sm" />
                     </View>
+                  </View>
 
-                    {/* Right Eye Icon Button */}
+                  {/* 2. Horizontal Divider Line */}
+                  <View style={styles.divider} />
+
+                  {/* 3. Bottom Action Row: Eye Button aligned to right */}
+                  <View style={styles.bottomActionRow}>
                     <TouchableOpacity
                       style={styles.eyeIconButton}
                       onPress={() => navigation.navigate('PatrolDateLogs', { dateStr: summary.dateStr })}
                       activeOpacity={0.7}
+                      accessibilityLabel="View Patrol Logs"
+                      accessibilityRole="button"
                     >
                       <NavIcon name="eye" size={22} color="#4F46E5" />
                     </TouchableOpacity>
-                  </TouchableOpacity>
+                  </View>
                 </Card>
               );
             })
@@ -468,14 +467,12 @@ const styles = StyleSheet.create({
     paddingBottom: 96,
   },
   dateSummaryCard: {
-    padding: 18,
+    padding: 16,
     marginBottom: 12,
     borderRadius: 12,
   },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  patrolInfoContainer: {
+    marginBottom: 4,
   },
   dateHeaderTitle: {
     fontSize: 20,
@@ -493,12 +490,22 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 2,
   },
+  divider: {
+    height: 1,
+    backgroundColor: '#CBD5E1',
+    marginVertical: 12,
+  },
+  bottomActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
   eyeIconButton: {
     width: 52,
     height: 52,
     borderRadius: 10,
     backgroundColor: '#EEF2FF',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',

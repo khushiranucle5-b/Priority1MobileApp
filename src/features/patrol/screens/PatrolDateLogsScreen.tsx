@@ -7,7 +7,7 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
-import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
+import { useGuardStore, DBPatrol, isSameDate } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
 import { formatDisplayDate } from '../../../utils/dateUtils';
 import { getPatrolAvailability } from '../utils/patrolUtils';
@@ -15,7 +15,7 @@ import { getPatrolAvailability } from '../utils/patrolUtils';
 export const PatrolDateLogsScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { patrols, startPatrol, ensurePatrolsForDate } = useGuardStore();
+  const { patrols, startPatrol, ensurePatrolsForDate, isClockedIn } = useGuardStore();
 
   const selectedDateStr = route.params?.dateStr || new Date().toISOString();
   const displayTitleDate = formatDisplayDate(selectedDateStr);
@@ -38,36 +38,61 @@ export const PatrolDateLogsScreen: React.FC = () => {
   // Filter records for selected date only
   const recordsForDate = useMemo(() => {
     return (patrols || []).filter((item) => {
-      const itemDateFormatted = formatDisplayDate(item.date);
-      return itemDateFormatted.toLowerCase() === displayTitleDate.toLowerCase();
+      return isSameDate(item.date, selectedDateStr) ||
+        formatDisplayDate(item.date).toLowerCase() === displayTitleDate.toLowerCase();
     });
-  }, [patrols, displayTitleDate]);
+  }, [patrols, selectedDateStr, displayTitleDate]);
 
   const handlePatrolAction = async (patrol: DBPatrol) => {
     const avail = getPatrolAvailability(patrol, 15, now);
 
-    if (avail.isCompleted) {
+    if (avail.isCompleted || avail.isInProgress) {
       navigation.navigate('PatrolDetails', { patrolId: patrol.id });
       return;
     }
 
-    if (avail.isInProgress) {
-      navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'Please Clock In before starting patrol.',
+        [
+          { text: 'Clock In Now', onPress: () => navigation.navigate('Attendance') },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
       return;
     }
 
     if (!avail.canStart) {
-      if (avail.isPastDate) {
-        Alert.alert('Past Date', 'Past patrols cannot be started or modified.');
-      } else if (avail.isBeforeBuffer) {
+      if (avail.isBeforeBuffer) {
         Alert.alert(
           'Patrol Not Started Yet',
-          `This patrol is scheduled for ${patrol.scheduledStartTime || patrol.startTime}. You can start it from ${avail.startWindowStartStr} (15-min buffer window).`
+          `This patrol is scheduled for ${patrol.scheduledStartTime || patrol.startTime}. You can start it from ${avail.startWindowStartStr} (15-min buffer window).`,
+          [
+            { text: 'View Patrol Details', onPress: () => navigation.navigate('PatrolDetails', { patrolId: patrol.id }) },
+            { text: 'OK', style: 'cancel' }
+          ]
         );
+      } else if (avail.isPastDate) {
+        Alert.alert('Past Date', 'Past patrols cannot be started or modified.');
       } else if (avail.isFutureDate) {
-        Alert.alert('Future Date', `This patrol is scheduled for ${patrol.date} at ${patrol.scheduledStartTime || patrol.startTime}.`);
+        Alert.alert(
+          'Future Date Patrol',
+          `This patrol is scheduled for ${patrol.date} at ${patrol.scheduledStartTime || patrol.startTime}.`,
+          [
+            { text: 'View Patrol Details', onPress: () => navigation.navigate('PatrolDetails', { patrolId: patrol.id }) },
+            { text: 'OK', style: 'cancel' }
+          ]
+        );
       } else if (avail.isExpired) {
-        Alert.alert('Patrol Expired', 'The scheduled window for this patrol has passed.');
+        Alert.alert(
+          'Patrol Expired',
+          'The scheduled window for this patrol has passed.',
+          [
+            { text: 'View Patrol Details', onPress: () => navigation.navigate('PatrolDetails', { patrolId: patrol.id }) },
+            { text: 'OK', style: 'cancel' }
+          ]
+        );
       }
       return;
     }
@@ -116,29 +141,20 @@ export const PatrolDateLogsScreen: React.FC = () => {
           recordsForDate.map((item) => {
             const avail = getPatrolAvailability(item, 15, now);
             const badgeStyle = getStatusBadgeStyle(avail.statusLabel);
-            const timeDisplay = `${item.scheduledStartTime || item.startTime || '08:00 AM'} - ${item.scheduledEndTime || '09:00 AM'}`;
+            const timeDisplay = `${item.scheduledStartTime || item.startTime || '02:00 PM'} - ${item.scheduledEndTime || '03:00 PM'}`;
 
             return (
-              <Card key={item.id} style={styles.patrolCard}>
+              <Card key={item.id} variant="outlined" style={styles.patrolCard}>
+                {/* 1. Patrol Information Header */}
                 <View style={styles.cardHeaderRow}>
-                  {/* Left Column: Enlarged Patrol Title */}
-                  <View style={{ flex: 1, paddingRight: 8 }}>
+                  <View style={{ flex: 1 }}>
                     <Heading level="h3" color="primary" style={styles.patrolTitle}>
                       {item.title}
                     </Heading>
                   </View>
-
-                  {/* Right Action: Eye Icon Button */}
-                  <TouchableOpacity
-                    style={styles.eyeIconButton}
-                    onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id })}
-                    activeOpacity={0.7}
-                  >
-                    <NavIcon name="eye" size={22} color="#4F46E5" />
-                  </TouchableOpacity>
                 </View>
 
-                {/* Enlarged Status, Checkpoint Progress & Scheduled Time Chips */}
+                {/* Status, Checkpoint Progress & Scheduled Time Chips */}
                 <View style={styles.badgesRow}>
                   <View style={[styles.statusBadge, { backgroundColor: badgeStyle.bg }]}>
                     <AppText style={[styles.badgeText, { color: badgeStyle.text }]}>
@@ -159,22 +175,38 @@ export const PatrolDateLogsScreen: React.FC = () => {
                   </View>
                 </View>
 
-                {/* Enlarged Dynamic Action Button */}
-                {!avail.isPastDate && (
-                  <Button
-                    title={avail.buttonText}
-                    variant={avail.canStart ? "primary" : "secondary"}
-                    size="large"
-                    fullWidth
-                    disabled={!avail.canStart && !avail.isCompleted && !avail.isInProgress}
-                    onPress={() => handlePatrolAction(item)}
-                    style={[
-                      styles.actionBtn,
-                      avail.isInProgress && { backgroundColor: '#0284C7' },
-                      avail.isCompleted && { backgroundColor: '#D1FAE5' },
-                    ]}
-                  />
-                )}
+                {/* 2. Horizontal Divider Line */}
+                <View style={styles.divider} />
+
+                {/* 3. Bottom Action Row: Action Button + Eye Button on Right */}
+                <View style={styles.bottomActionRow}>
+                  {!avail.isPastDate && (
+                    <View style={{ flex: 1, marginRight: 12 }}>
+                      <Button
+                        title={avail.buttonText}
+                        variant={avail.canStart ? "primary" : "secondary"}
+                        size="medium"
+                        fullWidth
+                        disabled={false}
+                        onPress={() => handlePatrolAction(item)}
+                        style={[
+                          styles.actionBtn,
+                          avail.isInProgress && { backgroundColor: '#0284C7' },
+                          avail.isCompleted && { backgroundColor: '#D1FAE5' },
+                        ]}
+                      />
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={styles.eyeIconButton}
+                    onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id })}
+                    activeOpacity={0.7}
+                    accessibilityLabel="View Patrol Details"
+                    accessibilityRole="button"
+                  >
+                    <NavIcon name="eye" size={22} color="#4F46E5" />
+                  </TouchableOpacity>
+                </View>
               </Card>
             );
           })
@@ -203,7 +235,7 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   patrolCard: {
-    padding: 18,
+    padding: 16,
     marginBottom: 16,
     borderRadius: 12,
   },
@@ -217,22 +249,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0F172A',
   },
-  eyeIconButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   badgesRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginTop: 14,
-    marginBottom: 16,
+    marginTop: 12,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -244,8 +265,28 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     fontWeight: '700',
   },
+  divider: {
+    height: 1,
+    backgroundColor: '#CBD5E1',
+    marginVertical: 12,
+  },
+  bottomActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  eyeIconButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   actionBtn: {
-    height: 54,
+    height: 52,
     borderRadius: 10,
   },
   actionBtnText: {

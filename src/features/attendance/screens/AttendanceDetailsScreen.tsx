@@ -50,7 +50,19 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
 
   // Resolve and sort sessions with latest/live session first
   const sortedSessions: AttendanceRecord[] = useMemo(() => {
-    const dayRecords = attendanceHistory.filter(r => r.date === targetDateStr);
+    const isSameDateKey = (d1Str?: string | null, d2Str?: string | null) => {
+      if (!d1Str || !d2Str) return false;
+      if (d1Str === d2Str) return true;
+      try {
+        const k1 = formatDateKey(new Date(d1Str));
+        const k2 = formatDateKey(new Date(d2Str));
+        return k1 === k2;
+      } catch {
+        return false;
+      }
+    };
+
+    let dayRecords = attendanceHistory.filter(r => isSameDateKey(r.date, targetDateStr) || isSameDateKey(r.clockIn, targetDateStr));
 
     // Deduplicate by ID or identical clockIn timestamp
     const uniqueMap = new Map<string, AttendanceRecord>();
@@ -67,13 +79,33 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
       list = [mergedRecord.attendance];
     }
 
+    const isToday = isSameDateKey(targetDateStr, formatDateKey(new Date()));
+    if (isToday && isClockedIn && clockInTimestamp) {
+      const hasOpenSession = list.some(s => !s.clockOut || s.clockOut === '—' || s.clockOut === 'Ongoing' || s.clockOut === 'null');
+      if (!hasOpenSession) {
+        const liveRecord: AttendanceRecord = {
+          id: `att-live-${clockInTimestamp}`,
+          date: targetDateStr,
+          day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+          siteName: assignedSite || 'Ahmedabad Plant',
+          shiftName: todayShift ? todayShift.title : 'Day Shift Guard',
+          clockIn: new Date(clockInTimestamp).toISOString(),
+          clockOut: null,
+          workingHours: 0,
+          status: 'Present',
+          notes: 'Active Clocked In Session',
+        };
+        list.unshift(liveRecord);
+      }
+    }
+
     // Sort descending by clockIn time so latest/live session is SESSION 1 at top
     return list.sort((a, b) => {
       const timeA = a.clockIn ? new Date(a.clockIn).getTime() : 0;
       const timeB = b.clockIn ? new Date(b.clockIn).getTime() : 0;
       return timeB - timeA;
     });
-  }, [targetDateStr, attendanceHistory, mergedRecord]);
+  }, [targetDateStr, attendanceHistory, mergedRecord, isClockedIn, clockInTimestamp, assignedSite, todayShift]);
 
   const formatTimeStr = (timeString?: string | null) => {
     if (!timeString || timeString === '—') return null;
@@ -91,9 +123,9 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
   };
 
   const getSessionDuration = (session: AttendanceRecord): { minutes: number; text: string; isLive: boolean } => {
-    const isClockedOutValid = session.clockOut && 
-      session.clockOut !== '—' && 
-      session.clockOut !== 'Ongoing' && 
+    const isClockedOutValid = session.clockOut &&
+      session.clockOut !== '—' &&
+      session.clockOut !== 'Ongoing' &&
       session.clockOut !== 'Not recorded' &&
       session.clockOut !== 'null' &&
       session.clockOut !== 'undefined';
@@ -111,10 +143,10 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
         const hrs = Math.floor(totalSecs / 3600);
         const mins = Math.floor((totalSecs % 3600) / 60);
         const secs = totalSecs % 60;
-        return { 
-          minutes: Math.round(diffMs / 60000), 
-          text: `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`, 
-          isLive: false 
+        return {
+          minutes: Math.round(diffMs / 60000),
+          text: `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+          isLive: false
         };
       }
     }
@@ -162,7 +194,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
 
           {/* Shift Section */}
           <View style={styles.sectionBlock}>
-            <AppText size="xs" weight="bold" color="secondary" style={styles.blockHeader}>
+            <AppText size="sm" weight="bold" color="secondary" style={styles.blockHeader}>
               SHIFT
             </AppText>
             <AppText size="base" weight="bold" color="primary" style={styles.shiftTitle}>
@@ -178,7 +210,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
           {/* Attendance Sessions Section */}
           <View style={styles.sectionBlock}>
             <View style={styles.sessionTitleRow}>
-              <AppText size="xs" weight="bold" color="secondary" style={styles.blockHeader}>
+              <AppText size="sm" weight="bold" color="secondary" style={styles.blockHeader}>
                 ATTENDANCE SESSIONS ({sortedSessions.length})
               </AppText>
             </View>
@@ -192,25 +224,25 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
 
                   return (
                     <View key={sess.id || `sess-${idx}`} style={styles.sessionCard}>
-                      <AppText size="xs" weight="bold" color="primary" style={styles.sessionTag}>
+                      <AppText size="sm" weight="bold" color="primary" style={styles.sessionTag}>
                         SESSION {idx + 1}
                       </AppText>
                       <View style={styles.sessionGridRow}>
                         <View style={styles.sessionCol}>
-                          <AppText size="xs" color="secondary" weight="semibold" style={styles.colLabel}>Clock In</AppText>
-                          <AppText size="sm" weight="bold" color="primary" style={styles.colValue}>
+                          <AppText size="sm" color="secondary" weight="semibold" style={styles.colLabel}>Clock In</AppText>
+                          <AppText size="md" weight="bold" color="primary" style={styles.colValue}>
                             {clockInStr}
                           </AppText>
                         </View>
                         <View style={styles.sessionCol}>
-                          <AppText size="xs" color="secondary" weight="semibold" style={styles.colLabel}>Clock Out</AppText>
-                          <AppText size="sm" weight="bold" color={sess.clockOut ? 'primary' : 'secondary'} style={styles.colValue}>
+                          <AppText size="sm" color="secondary" weight="semibold" style={styles.colLabel}>Clock Out</AppText>
+                          <AppText size="md" weight="bold" color={sess.clockOut ? 'primary' : 'secondary'} style={styles.colValue}>
                             {clockOutStr}
                           </AppText>
                         </View>
                         <View style={styles.sessionCol}>
-                          <AppText size="xs" color="secondary" weight="semibold" style={styles.colLabel}>Duration</AppText>
-                          <AppText size="sm" weight="bold" style={[styles.colValue, { color: durObj.isLive ? '#059669' : colors.primary[600] || '#2563EB' }]}>
+                          <AppText size="sm" color="secondary" weight="semibold" style={styles.colLabel}>Duration</AppText>
+                          <AppText size="md" weight="bold" style={[styles.colValue, { color: durObj.isLive ? '#059669' : colors.primary[600] || '#2563EB' }]}>
                             {durObj.text}
                           </AppText>
                         </View>
@@ -232,7 +264,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
 
           {/* Total Working Hours */}
           <View style={styles.sectionBlock}>
-            <AppText size="xs" weight="bold" color="secondary" style={styles.blockHeader}>
+            <AppText size="sm" weight="bold" color="secondary" style={styles.blockHeader}>
               TOTAL WORKING HOURS
             </AppText>
             <AppText size="xl" weight="bold" style={styles.totalHoursText}>
@@ -244,11 +276,11 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
 
           {/* Location Section */}
           <View style={styles.sectionBlock}>
-            <AppText size="xs" weight="bold" color="secondary" style={styles.blockHeader}>
+            <AppText size="sm" weight="bold" color="secondary" style={styles.blockHeader}>
               LOCATION
             </AppText>
-            <AppText size="sm" weight="bold" color="secondary" style={styles.locationText}>
-              Site: <AppText size="sm" weight="bold" color="primary" style={styles.locationText}>{siteName}</AppText>
+            <AppText size="md" weight="bold" color="secondary" style={styles.locationText}>
+              Site: <AppText size="md" weight="bold" color="primary" style={styles.locationText}>{siteName}</AppText>
             </AppText>
           </View>
         </Card>
@@ -292,18 +324,18 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   blockHeader: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: '#64748B',
+    color: '#475569',
     marginBottom: 6,
   },
   shiftTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
   },
   shiftSub: {
-    fontSize: 13.5,
+    fontSize: 15,
     color: '#64748B',
     marginTop: 2,
   },
@@ -324,7 +356,7 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   sessionTag: {
-    fontSize: 12.5,
+    fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -339,23 +371,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   colLabel: {
-    fontSize: 12.5,
+    fontSize: 14,
     fontWeight: '600',
     color: '#64748B',
   },
   colValue: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
     marginTop: 4,
   },
   totalHoursText: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: '700',
     color: '#2563EB',
-    marginTop: 2,
+    marginTop: 4,
   },
   locationText: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
   },
   emptySessionBox: {

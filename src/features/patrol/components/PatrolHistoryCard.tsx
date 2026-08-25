@@ -21,7 +21,7 @@ export const PatrolHistoryCard: React.FC = () => {
         {completedPatrols.map((item, index) => (
           <View key={item.id} style={[styles.item, index !== completedPatrols.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
             <View style={styles.headerRow}>
-              <AppText size="sm" weight="semibold">Morning Perimeter Patrol</AppText>
+              <AppText size="sm" weight="semibold">{item.title || 'Patrol'}</AppText>
               <AppText size="xs" color="secondary">{item.date}</AppText>
             </View>
             <View style={styles.detailRow}>

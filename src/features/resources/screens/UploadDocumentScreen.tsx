@@ -142,7 +142,7 @@ export const UploadDocumentScreen: React.FC = () => {
             Upload Document for HR Verification
           </Heading>
           <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
-            Submit official guard documents, government IDs, licenses, or certificates for {guardName || 'Khushi Rani'}.
+            Submit official guard documents, government IDs, licenses, or certificates for {guardName || 'John Smith'}.
           </AppText>
         </Card>
 

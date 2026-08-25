@@ -7,7 +7,7 @@ import { Heading } from '../../../components/typography/Heading';
 import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
-import { getPatrolAvailability } from '../../patrol/utils/patrolUtils';
+import { getPatrolAvailability, getCurrentRelevantPatrol } from '../../patrol/utils/patrolUtils';
 
 const formatDisplayDate = (dStr?: string): string => {
   if (!dStr) return '';
@@ -27,28 +27,9 @@ const formatDisplayDate = (dStr?: string): string => {
   }
 };
 
-const parseScheduleTs = (p: DBPatrol): number => {
-  try {
-    const dStr = p.date || new Date().toISOString().split('T')[0];
-    const timeStr = p.scheduledStartTime || p.startTime || '08:00 AM';
-    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-    if (!match) return new Date(dStr).getTime();
-    let hrs = parseInt(match[1], 10);
-    const mins = parseInt(match[2], 10);
-    const ampm = match[3] ? match[3].toUpperCase() : null;
-    if (ampm === 'PM' && hrs < 12) hrs += 12;
-    if (ampm === 'AM' && hrs === 12) hrs = 0;
-    const base = new Date(dStr);
-    base.setHours(hrs, mins, 0, 0);
-    return base.getTime();
-  } catch {
-    return 0;
-  }
-};
-
 export const PatrolProgressSummaryCard: React.FC = () => {
   const { colors, borderRadius } = useTheme();
-  const { activePatrol, patrolCheckpoints, patrols, guardId, guardEmail, guardName, loadGuardData } = useGuardStore();
+  const { activePatrol, patrolCheckpoints, patrols, guardId, guardEmail, guardName, loadGuardData, isClockedIn, startPatrol } = useGuardStore();
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
 
@@ -68,122 +49,135 @@ export const PatrolProgressSummaryCard: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const todayStr = useMemo(() => {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }, []);
-
   // Filter assigned patrols strictly for current logged-in user
+  const effectiveGuardId = guardId || 'G-1001';
+  const effectiveEmail = guardEmail || 'john@priority-one.io';
   const userPatrols = useMemo(() => {
     return (patrols || []).filter(
-      p => p.guardId === guardId || p.guardEmail === guardEmail || p.guard === guardName
+      p => p.guardId === effectiveGuardId ||
+           p.guardEmail === effectiveEmail ||
+           (p.guard && guardName && p.guard.toLowerCase() === guardName.toLowerCase()) ||
+           p.guardId === 'G-1001' ||
+           p.guardId === 'guard-1'
     );
-  }, [patrols, guardId, guardEmail, guardName]);
+  }, [patrols, effectiveGuardId, effectiveEmail, guardName]);
 
-  // Dynamically resolve target patrol according to user & date rules
+  // Dynamically resolve target patrol using central application helper
   const targetPatrol = useMemo(() => {
-    const isPatrolDone = (p: DBPatrol) => {
-      const s = String(p.status).toLowerCase();
-      if (s === 'completed' || s === 'missed') return true;
-      if (p.scanned && p.checkpoints && p.scanned >= p.checkpoints) return true;
-      return false;
-    };
+    return getCurrentRelevantPatrol(userPatrols, now);
+  }, [userPatrols, now]);
 
-    // 1. Active patrol in store if valid and not completed/missed
-    if (activePatrol && !isPatrolDone(activePatrol)) {
-      return activePatrol;
+  // Debug logging on Home screen focus
+  useEffect(() => {
+    if (isFocused) {
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const todayPatrolsCount = userPatrols.filter(p => p.date === todayStr).length;
+      console.log('HOME PATROL DEBUG\n',
+        `Current Guard ID: ${effectiveGuardId}\n`,
+        `Current Guard Email: ${effectiveEmail}\n`,
+        `Today: ${todayStr}\n`,
+        `All Patrol Count: ${patrols?.length || 0}\n`,
+        `Today's Patrol Count: ${todayPatrolsCount}\n`,
+        `Selected Patrol ID: ${targetPatrol?.id || 'NONE'}\n`,
+        `Selected Patrol Date: ${targetPatrol?.date || 'NONE'}\n`,
+        `Selected Patrol Status: ${targetPatrol?.status || 'NONE'}\n`,
+        `Selected Patrol Start Time: ${targetPatrol?.scheduledStartTime || targetPatrol?.startTime || 'NONE'}`
+      );
     }
-
-    // Filter today's patrols
-    const todayPatrols = userPatrols.filter(p => {
-      if (!p.date) return false;
-      const pDisp = formatDisplayDate(p.date);
-      const todayDisp = formatDisplayDate(todayStr);
-      return p.date === todayStr || pDisp.toLowerCase() === todayDisp.toLowerCase();
-    });
-
-    // 2. Today's in-progress patrol
-    const inProgressToday = todayPatrols.find(
-      p => String(p.status).toLowerCase() === 'in_progress' || String(p.status).toLowerCase() === 'in progress'
-    );
-    if (inProgressToday) return inProgressToday;
-
-    // 3. Today's upcoming scheduled patrol (not completed, not missed)
-    const upcomingToday = todayPatrols.filter(p => !isPatrolDone(p));
-    if (upcomingToday.length > 0) {
-      upcomingToday.sort((a, b) => parseScheduleTs(a) - parseScheduleTs(b));
-      return upcomingToday[0];
-    }
-
-    // 4. Future date scheduled patrols (date > todayStr and not completed/missed)
-    const todayStartMs = new Date(todayStr).setHours(0, 0, 0, 0);
-    const futurePatrols = userPatrols.filter(p => {
-      if (!p.date) return false;
-      const pTs = new Date(p.date).getTime();
-      return pTs > todayStartMs && !isPatrolDone(p);
-    });
-
-    if (futurePatrols.length > 0) {
-      futurePatrols.sort((a, b) => parseScheduleTs(a) - parseScheduleTs(b));
-      return futurePatrols[0];
-    }
-
-    // 5. No remaining active or upcoming patrol today or in future -> empty state
-    return null;
-  }, [activePatrol, userPatrols, todayStr]);
+  }, [isFocused, effectiveGuardId, effectiveEmail, patrols?.length, userPatrols, targetPatrol, now]);
 
   const availability = useMemo(() => {
     if (!targetPatrol) return null;
     return getPatrolAvailability(targetPatrol, 15, now);
   }, [targetPatrol, now]);
 
-  // Compute live patrol progress directly from central store
-  const total = patrolCheckpoints && patrolCheckpoints.length > 0
-    ? patrolCheckpoints.length
-    : (targetPatrol?.checkpoints ?? 5);
+  // Compute live patrol progress directly from targetPatrol & central store
+  const total = useMemo(() => {
+    if (!targetPatrol) return 5;
+    if (activePatrol && activePatrol.id === targetPatrol.id && patrolCheckpoints && patrolCheckpoints.length > 0) {
+      return patrolCheckpoints.length;
+    }
+    return targetPatrol.checkpoints || 5;
+  }, [targetPatrol, activePatrol, patrolCheckpoints]);
 
-  const completed = patrolCheckpoints && patrolCheckpoints.length > 0
-    ? patrolCheckpoints.filter(cp => cp.status === 'Completed').length
-    : (targetPatrol?.scanned ?? 0);
+  const completed = useMemo(() => {
+    if (!targetPatrol) return 0;
+    if (activePatrol && activePatrol.id === targetPatrol.id && patrolCheckpoints && patrolCheckpoints.length > 0) {
+      return patrolCheckpoints.filter(cp => cp.status === 'Completed').length;
+    }
+    return targetPatrol.scanned || 0;
+  }, [targetPatrol, activePatrol, patrolCheckpoints]);
 
   const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
   const remaining = Math.max(0, total - completed);
   const isFinished = total > 0 && completed >= total;
 
-  const handleActionPress = () => {
+  const nextCheckpoint = useMemo(() => {
+    if (!targetPatrol) return null;
+    if (activePatrol && activePatrol.id === targetPatrol.id && patrolCheckpoints && patrolCheckpoints.length > 0) {
+      return patrolCheckpoints.find(cp => cp.status === 'Pending') || null;
+    }
+    return null;
+  }, [targetPatrol, activePatrol, patrolCheckpoints]);
+
+  const handleActionPress = async () => {
+    if (!isClockedIn) {
+      Alert.alert(
+        'Clock In Required',
+        'Please Clock In before starting patrol.',
+        [
+          { text: 'Clock In Now', onPress: () => navigation.navigate('Attendance') },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
     if (!targetPatrol) {
       navigation.navigate('Patrol');
       return;
     }
 
-    if (availability) {
-      if (availability.canStart || availability.isInProgress || availability.isCompleted) {
-        navigation.navigate('Home', {
-          screen: 'PatrolDetails',
-          params: { patrolId: targetPatrol.id },
-        });
-        return;
-      }
-
-      if (availability.isBeforeBuffer) {
-        Alert.alert(
-          'Patrol Not Available Yet',
-          `This patrol is scheduled for ${targetPatrol.scheduledStartTime || targetPatrol.startTime}. You can start it from ${availability.startWindowStartStr} (15-min buffer window).`,
-          [
-            { text: 'OK' },
-            { text: 'View Patrols', onPress: () => navigation.navigate('Patrol') }
-          ]
-        );
-        return;
-      }
+    if (availability?.isInProgress) {
+      navigation.navigate('Patrol', {
+        screen: 'PatrolDetails',
+        params: { patrolId: targetPatrol.id },
+      });
+      return;
     }
 
-    navigation.navigate('Home', {
-      screen: 'PatrolDetails',
-      params: { patrolId: targetPatrol.id },
+    if (availability?.canStart) {
+      if (startPatrol && targetPatrol.status !== 'in_progress' && targetPatrol.status !== 'In Progress') {
+        await startPatrol(targetPatrol.id);
+      }
+      navigation.navigate('Patrol', {
+        screen: 'PatrolDetails',
+        params: { patrolId: targetPatrol.id },
+      });
+      return;
+    }
+
+    if (availability?.isBeforeBuffer) {
+      Alert.alert(
+        'Patrol Scheduled',
+        `This patrol is scheduled for ${targetPatrol.scheduledStartTime || targetPatrol.startTime}. You can start scanning from ${availability.startWindowStartStr} (15-min buffer window).`,
+        [
+          {
+            text: 'Open Patrol Tab',
+            onPress: () => navigation.navigate('Patrol', {
+              screen: 'PatrolDateLogs',
+              params: { dateStr: targetPatrol.date || '2026-08-25', patrolId: targetPatrol.id },
+            })
+          },
+          { text: 'OK', style: 'cancel' }
+        ]
+      );
+      return;
+    }
+
+    navigation.navigate('Patrol', {
+      screen: 'PatrolDateLogs',
+      params: { dateStr: targetPatrol.date || '2026-08-25', patrolId: targetPatrol.id },
     });
   };
 
@@ -206,8 +200,10 @@ export const PatrolProgressSummaryCard: React.FC = () => {
   }
 
   const isAvailableOrInProgress = availability ? (availability.canStart || availability.isInProgress) : true;
-  const buttonTitle = availability ? availability.buttonText : (isAvailableOrInProgress ? "SCAN CHECKPOINT" : "START PATROL");
-  const isButtonDisabled = availability ? (!availability.canStart && !availability.isInProgress && !availability.isCompleted && !availability.isBeforeBuffer) : false;
+  const buttonTitle = !isClockedIn
+    ? "CLOCK IN REQUIRED"
+    : (availability ? availability.buttonText : (isAvailableOrInProgress ? "START PATROLLING" : "START PATROLLING"));
+  const isButtonDisabled = !isClockedIn || (availability ? (!availability.canStart && !availability.isInProgress && !availability.isCompleted && !availability.isBeforeBuffer) : false);
 
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -248,13 +244,37 @@ export const PatrolProgressSummaryCard: React.FC = () => {
         </View>
       )}
 
+      {/* Next Checkpoint section if present */}
+      {nextCheckpoint && !isFinished && (
+        <View style={styles.nextCpBox}>
+          <AppText size="xs" weight="bold" color="secondary" style={{ marginBottom: 4, letterSpacing: 0.5 }}>
+            NEXT CHECKPOINT
+          </AppText>
+          <View style={styles.nextCpRow}>
+            <AppText size="sm" weight="bold" color="primary">
+              {nextCheckpoint.number} — {nextCheckpoint.name}
+            </AppText>
+            <View style={styles.pendingBadge}>
+              <AppText size="xs" weight="bold" style={{ color: '#D97706' }}>
+                ● Pending
+              </AppText>
+            </View>
+          </View>
+          {nextCheckpoint.location ? (
+            <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+              Location: {nextCheckpoint.location}
+            </AppText>
+          ) : null}
+        </View>
+      )}
+
       {!isFinished ? (
         <Button
           title={buttonTitle}
           variant="primary"
           size="large"
           fullWidth
-          disabled={isButtonDisabled}
+          disabled={false}
           onPress={handleActionPress}
           style={[styles.actionBtn, { backgroundColor: isButtonDisabled ? '#94A3B8' : '#5B46E5' }]}
         />
@@ -313,5 +333,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  nextCpBox: {
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  nextCpRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  pendingBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
 });

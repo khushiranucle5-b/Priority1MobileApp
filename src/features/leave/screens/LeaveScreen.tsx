@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,7 +7,7 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -16,7 +16,8 @@ import { NavIcon } from '../../../components/NavIcon';
 import { LeaveBalanceCard } from '../components/LeaveBalanceCard';
 import { LeaveForm } from '../components/LeaveForm';
 import { LeaveHistory } from '../components/LeaveHistory';
-import { LeaveRequest } from '../../../store/useGuardStore';
+import { useGuardStore, LeaveRequest } from '../../../store/useGuardStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 const filterOptions = [
   { label: 'All', value: 'All' },
@@ -28,7 +29,18 @@ const filterOptions = [
 
 export const LeaveScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
   const { colors, borderRadius } = useTheme();
+  const { guardId, guardEmail, loadGuardData } = useGuardStore();
+
+  useEffect(() => {
+    if (isFocused) {
+      const authUser = useAuthStore.getState().user;
+      const effectiveId = guardId || authUser?.id || authUser?.employeeId || 'G-1001';
+      const effectiveEmail = guardEmail || authUser?.email || 'john@priority-one.io';
+      loadGuardData(effectiveId, effectiveEmail);
+    }
+  }, [isFocused, guardId, guardEmail, loadGuardData]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');

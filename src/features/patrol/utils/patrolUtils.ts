@@ -131,7 +131,7 @@ export const getPatrolAvailability = (
   }
 
   // Same Day Check — evaluate scheduled start time & buffer
-  const startTimeStr = patrol.scheduledStartTime || patrol.startTime || '08:00 AM';
+  const startTimeStr = patrol.scheduledStartTime || patrol.startTime || '02:00 PM';
   const scheduledStartObj = parsePatrolDateTime(patrol.date, startTimeStr);
 
   if (!scheduledStartObj) {
@@ -207,4 +207,82 @@ export const getPatrolAvailability = (
     isInProgress: false,
     startWindowStartStr,
   };
+};
+
+/**
+ * Returns the single current/latest relevant patrol for Dashboard, Patrol List, and Patrol Details
+ */
+export const getCurrentRelevantPatrol = (patrols: DBPatrol[], now: Date = new Date()): DBPatrol | null => {
+  if (!patrols || patrols.length === 0) return null;
+
+  const isDone = (p: DBPatrol) => {
+    const s = String(p.status).toLowerCase();
+    if (s === 'completed' || s === 'missed' || s === 'expired') return true;
+    if (p.scanned && p.checkpoints && p.scanned >= p.checkpoints) return true;
+    return false;
+  };
+
+  const todayYear = now.getFullYear();
+  const todayMonth = String(now.getMonth() + 1).padStart(2, '0');
+  const todayDay = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+
+  const isTodayDate = (dStr?: string) => {
+    if (!dStr) return false;
+    const parts = dStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}` === todayStr;
+    }
+    const d = new Date(dStr);
+    if (isNaN(d.getTime())) return false;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}` === todayStr;
+  };
+
+  const todayPatrols = patrols.filter(p => isTodayDate(p.date));
+
+  if (todayPatrols.length > 0) {
+    // 1. Today's in-progress patrol (highest priority)
+    const inProgressToday = todayPatrols.find(p => {
+      const s = String(p.status).toLowerCase();
+      return (s === 'in_progress' || s === 'in progress') && !isDone(p);
+    });
+    if (inProgressToday) return inProgressToday;
+
+    // 2. Today's currently available or next upcoming patrol
+    const pendingToday = todayPatrols.filter(p => !isDone(p));
+    if (pendingToday.length > 0) {
+      const parseTs = (p: DBPatrol) => {
+        const timeStr = p.scheduledStartTime || p.startTime || '08:00 AM';
+        const d = parsePatrolDateTime(p.date || todayStr, timeStr);
+        return d ? d.getTime() : 0;
+      };
+
+      const nowMs = now.getTime();
+      pendingToday.sort((a, b) => parseTs(a) - parseTs(b));
+
+      // Find patrol currently within or closest to start window
+      const activeOrUpcoming = pendingToday.find(p => {
+        const avail = getPatrolAvailability(p, 15, now);
+        return avail.canStart || avail.isInProgress;
+      }) || pendingToday.find(p => parseTs(p) >= nowMs - 60 * 60 * 1000) || pendingToday[0];
+
+      return activeOrUpcoming;
+    }
+
+    // 3. If all today's patrols are completed, return the latest patrol of today
+    return todayPatrols[todayPatrols.length - 1];
+  }
+
+  // 4. Any other in-progress patrol strictly for today or active session
+  const anyInProgress = patrols.find(p => {
+    const s = String(p.status).toLowerCase();
+    return (s === 'in_progress' || s === 'in progress') && isTodayDate(p.date) && !isDone(p);
+  });
+  if (anyInProgress) return anyInProgress;
+
+  // Never fall back to past historical patrols (e.g., Aug 17) for current home dashboard
+  return null;
 };

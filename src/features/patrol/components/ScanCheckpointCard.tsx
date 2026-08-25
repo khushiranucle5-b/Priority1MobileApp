@@ -10,7 +10,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 
 export const ScanCheckpointCard: React.FC = () => {
   const { spacing, colors, borderRadius } = useTheme();
-  const { scanCheckpointCode, activePatrol, patrolCheckpoints } = useGuardStore();
+  const { scanCheckpointCode, activePatrol, patrolCheckpoints, isClockedIn } = useGuardStore();
 
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [manualCode, setManualCode] = useState('');
@@ -94,6 +94,10 @@ export const ScanCheckpointCard: React.FC = () => {
   };
 
   const handleQRScan = async () => {
+    if (!isClockedIn) {
+      Alert.alert('Clock In Required', 'Please Clock In before scanning checkpoints.');
+      return;
+    }
     if (!activePatrol) {
       Alert.alert('Patrol Not Started', 'Please tap "Start Patrol" before scanning checkpoints.');
       return;
@@ -132,11 +136,14 @@ export const ScanCheckpointCard: React.FC = () => {
   };
 
   const handleNFCScan = () => {
+    if (!isClockedIn) {
+      Alert.alert('Clock In Required', 'Please Clock In before scanning checkpoints.');
+      return;
+    }
     if (!activePatrol) {
       Alert.alert('Patrol Not Started', 'Please tap "Start Patrol" before scanning checkpoints.');
       return;
     }
-    // NFC is simulated by scanning the next pending checkpoint automatically for quick ease
     const nextPending = patrolCheckpoints.find(c => c.status === 'Pending');
     if (nextPending) {
       handleProcessScan(nextPending.qrCode);
@@ -145,6 +152,8 @@ export const ScanCheckpointCard: React.FC = () => {
       Alert.alert('All Completed', 'No pending checkpoints to scan.');
     }
   };
+
+  const isScanDisabled = !isClockedIn || !activePatrol;
 
   return (
     <Card variant="elevated" style={styles.card}>
@@ -157,7 +166,8 @@ export const ScanCheckpointCard: React.FC = () => {
             variant="primary"
             leftIcon={<AppText style={styles.icon}>📷</AppText>}
             onPress={handleQRScan}
-            style={styles.actionBtn}
+            disabled={isScanDisabled}
+            style={[styles.actionBtn, isScanDisabled && { backgroundColor: '#94A3B8' }]}
             fullWidth
           />
         </View>
@@ -167,77 +177,101 @@ export const ScanCheckpointCard: React.FC = () => {
             variant="secondary"
             leftIcon={<AppText style={styles.icon}>📱</AppText>}
             onPress={handleNFCScan}
-            style={styles.actionBtn}
+            disabled={isScanDisabled}
+            style={[styles.actionBtn, isScanDisabled && { opacity: 0.5 }]}
             fullWidth
           />
         </View>
       </View>
 
-      {!activePatrol && (
+      {!isClockedIn ? (
+        <View style={[styles.infoBox, { backgroundColor: '#FEF2F2', borderRadius: borderRadius.md, marginTop: spacing.md }]}>
+          <AppText size="sm" color="error" weight="bold" style={styles.infoText}>
+            🔒 Clock In required to scan checkpoints.
+          </AppText>
+        </View>
+      ) : !activePatrol ? (
         <View style={[styles.infoBox, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, marginTop: spacing.md }]}>
           <AppText size="sm" color="error" weight="bold" style={styles.infoText}>
             ⚠️ You must start a patrol before checkpoints can be scanned.
           </AppText>
         </View>
-      )}
+      ) : null}
 
       {/* DETAILED QR SCANNER INTERACTIVE MODAL */}
-      <Modal visible={isScannerOpen} animationType="slide" transparent={false} onRequestClose={() => setIsScannerOpen(false)}>
-        <View style={[styles.scannerContainer, { backgroundColor: '#111827' }]}>
-          {/* Header */}
-          <View style={styles.scannerHeader}>
-            <AppText size="lg" weight="bold" style={{ color: '#FFFFFF' }}>Scan Checkpoint QR</AppText>
-            <TouchableOpacity onPress={() => setIsScannerOpen(false)} style={styles.closeBtn}>
-              <AppText size="base" weight="bold" style={{ color: colors.primary[400] }}>Close</AppText>
-            </TouchableOpacity>
-          </View>
+      <Modal visible={isScannerOpen} animationType="slide" transparent={true} onRequestClose={() => setIsScannerOpen(false)}>
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setIsScannerOpen(false)}
+        >
+          <TouchableOpacity
+            style={styles.scannerContainer}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <View style={styles.scannerHeader}>
+              <AppText size="lg" weight="bold" style={{ color: '#FFFFFF' }}>Scan Checkpoint QR</AppText>
+              <TouchableOpacity
+                onPress={() => setIsScannerOpen(false)}
+                style={styles.closeBtn}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                activeOpacity={0.7}
+                accessibilityLabel="Close Modal"
+                accessibilityRole="button"
+              >
+                <AppText size="base" weight="bold" style={{ color: colors.primary[400] }}>Close</AppText>
+              </TouchableOpacity>
+            </View>
 
-          {/* Camera Viewport */}
-          <View style={styles.viewportContainer}>
-            <View style={[styles.cameraBorder, { borderColor: colors.primary[500] }]}>
-              {/* Animated laser line */}
-              <Animated.View
-                style={[
-                  styles.laserLine,
-                  {
-                    backgroundColor: colors.error,
-                    transform: [{ translateY: laserAnim }]
-                  }
-                ]}
-              />
-              <AppText size="xs" style={styles.cameraPlaceholderText}>
-                LIVE CAMERA ACTIVE
+            {/* Camera Viewport */}
+            <View style={styles.viewportContainer}>
+              <View style={[styles.cameraBorder, { borderColor: colors.primary[500] }]}>
+                {/* Animated laser line */}
+                <Animated.View
+                  style={[
+                    styles.laserLine,
+                    {
+                      backgroundColor: colors.error,
+                      transform: [{ translateY: laserAnim }]
+                    }
+                  ]}
+                />
+                <AppText size="xs" style={styles.cameraPlaceholderText}>
+                  LIVE CAMERA ACTIVE
+                </AppText>
+              </View>
+
+              <TouchableOpacity
+                style={[styles.cameraScanBtn, { backgroundColor: colors.primary[600] }]}
+                onPress={() => handleLaunchNativeCamera()}
+                activeOpacity={0.8}
+              >
+                <AppText size="base" weight="bold" style={{ color: '#FFFFFF' }}>
+                  CAPTURE & VERIFY QR CODE
+                </AppText>
+              </TouchableOpacity>
+
+              <AppText size="sm" style={styles.scanInstruction}>
+                Point real phone camera directly at the physical QR code to scan
               </AppText>
             </View>
 
-            <TouchableOpacity
-              style={[styles.cameraScanBtn, { backgroundColor: colors.primary[600] }]}
-              onPress={() => handleLaunchNativeCamera()}
-              activeOpacity={0.8}
-            >
-              <AppText size="base" weight="bold" style={{ color: '#FFFFFF' }}>
-                CAPTURE & VERIFY QR CODE
-              </AppText>
-            </TouchableOpacity>
+            {/* Feedback Overlay inside viewport */}
+            {scanSuccessText && (
+              <View style={[styles.feedbackOverlay, { backgroundColor: colors.success }]}>
+                <AppText size="base" weight="bold" color="surface">✅ {scanSuccessText}</AppText>
+              </View>
+            )}
 
-            <AppText size="sm" style={styles.scanInstruction}>
-              Point real phone camera directly at the physical QR code to scan
-            </AppText>
-          </View>
-
-          {/* Feedback Overlay inside viewport */}
-          {scanSuccessText && (
-            <View style={[styles.feedbackOverlay, { backgroundColor: colors.success }]}>
-              <AppText size="base" weight="bold" color="surface">✅ {scanSuccessText}</AppText>
-            </View>
-          )}
-
-          {scanErrorText && (
-            <View style={[styles.feedbackOverlay, { backgroundColor: colors.error }]}>
-              <AppText size="base" weight="bold" color="surface">❌ {scanErrorText}</AppText>
-            </View>
-          )}
-        </View>
+            {scanErrorText && (
+              <View style={[styles.feedbackOverlay, { backgroundColor: colors.error }]}>
+                <AppText size="base" weight="bold" color="surface">❌ {scanErrorText}</AppText>
+              </View>
+            )}
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </Card>
   );
@@ -271,19 +305,48 @@ const styles = StyleSheet.create({
   infoText: {
     textAlign: 'center',
   },
-  scannerContainer: {
+  modalBackdrop: {
     flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  scannerContainer: {
+    width: '100%',
+    maxHeight: '83%',
+    backgroundColor: '#111827',
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#374151',
+    overflow: 'hidden',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
   },
   scannerHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#374151',
   },
   closeBtn: {
-    padding: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#1F2937',
+    borderWidth: 1,
+    borderColor: '#374151',
+    minWidth: 54,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   viewportContainer: {
     alignItems: 'center',

@@ -24,22 +24,25 @@ export const AttendanceActionButtons: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Button 
-        title="Clock In" 
-        variant={isCheckedIn ? "outline" : "primary"} 
-        size="large" 
-        fullWidth 
-        style={styles.button}
-        onPress={handleClockIn}
-      />
-      <Button 
-        title="Clock Out" 
-        variant={isCheckedIn ? "primary" : "secondary"} 
-        size="large" 
-        fullWidth 
-        style={styles.button}
-        onPress={handleClockOut}
-      />
+      {!isCheckedIn ? (
+        <Button 
+          title="Clock In" 
+          variant="primary" 
+          size="large" 
+          fullWidth 
+          style={styles.button}
+          onPress={handleClockIn}
+        />
+      ) : (
+        <Button 
+          title="Clock Out" 
+          variant="danger" 
+          size="large" 
+          fullWidth 
+          style={styles.button}
+          onPress={handleClockOut}
+        />
+      )}
     </View>
   );
 };

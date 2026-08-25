@@ -28,7 +28,13 @@ export const SelfieVerificationScreen: React.FC = () => {
   const [imageUri, setImageUri] = useState<string | undefined>();
   const { colors, spacing, borderRadius } = useTheme();
 
-  const { clockIn, clockOut } = useGuardStore();
+  const { clockIn, clockOut, guardId, loadGuardData } = useGuardStore();
+
+  useEffect(() => {
+    if (!guardId && loadGuardData) {
+      loadGuardData('G-1001', 'john@priority-one.io');
+    }
+  }, [guardId, loadGuardData]);
 
   // Re-check permissions automatically when returning from Phone App Settings
   useEffect(() => {

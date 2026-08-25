@@ -25,12 +25,14 @@ export const RootNavigator = () => {
     }
   }, [isAuthenticated, user]);
 
-  // Safety fallback: ensure initialization resolves within 2 seconds
+  // Safety fallback: ensure initialization resolves if loadGuardData experiences unexpected delay
   useEffect(() => {
     if (isAuthenticated && !isInitialized) {
       const timer = setTimeout(() => {
-        useGuardStore.setState({ isInitialized: true });
-      }, 2000);
+        if (!useGuardStore.getState().isInitialized) {
+          useGuardStore.setState({ isInitialized: true });
+        }
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, isInitialized]);

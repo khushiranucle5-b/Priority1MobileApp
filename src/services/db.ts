@@ -356,14 +356,12 @@ export interface DBLeaveBalances {
 export const initializeDB = async (forceReset = false) => {
   try {
     const initialized = await AsyncStorage.getItem(`${DB_PREFIX}initialized`);
-    const rawEmployees = await AsyncStorage.getItem(`${DB_PREFIX}employees`);
-    const hasG1001 = rawEmployees && rawEmployees.includes('G-1001');
-    const hasEmp103 = rawEmployees && rawEmployees.includes('emp-103');
+    if (initialized === 'true' && !forceReset) {
+      return;
+    }
+    console.log('Initializing local AsyncStorage DB from seed data...');
 
-    if (!initialized || !hasG1001 || !hasEmp103 || forceReset) {
-      console.log('Initializing local AsyncStorage DB from seed data...');
-      
-      // Load all seed keys
+    // Load all seed keys
       const keys = Object.keys(SEED_DATA) as (keyof typeof SEED_DATA)[];
       for (const key of keys) {
         await AsyncStorage.setItem(`${DB_PREFIX}${key}`, JSON.stringify(SEED_DATA[key]));
@@ -455,24 +453,25 @@ export const initializeDB = async (forceReset = false) => {
       ];
       await AsyncStorage.setItem(`${DB_PREFIX}shifts`, JSON.stringify(shiftsList));
 
-      // Seed today's 2 patrols for G-1001 / guard-1
+      // Seed today's 6 PM patrols for G-1001 / guard-1
+      const dateCode = todayStr.replace(/-/g, '');
       const patrolsList: DBPatrol[] = [
         {
-          id: 'patrol-today-morning',
-          patrolCode: `PT-${todayStr.replace(/-/g, '')}-01`,
-          title: 'Morning Perimeter Patrol',
+          id: `patrol-${todayStr}-slot-14`,
+          patrolCode: `PT-${dateCode}-01`,
+          title: 'Afternoon Perimeter Patrol',
           companyId: 'c-1',
           site: 'Ahmedabad Plant',
           siteId: 's-01',
-          route: 'Morning Perimeter Route',
+          route: 'Perimeter Route A',
           guard: 'John Smith',
           guardId: 'G-1001',
           guardEmail: 'john@priority-one.io',
           date: todayStr,
-          startTime: '08:00 AM',
-          endTime: '08:45 AM',
-          scheduledStartTime: '08:00 AM',
-          scheduledEndTime: '09:00 AM',
+          startTime: '02:00 PM',
+          endTime: '02:50 PM',
+          scheduledStartTime: '02:00 PM',
+          scheduledEndTime: '03:00 PM',
           startBufferMinutes: 15,
           status: 'Completed',
           checkpoints: 5,
@@ -482,9 +481,105 @@ export const initializeDB = async (forceReset = false) => {
           lastCheckpoint: 'Emergency Exit B',
         },
         {
-          id: 'patrol-today-evening',
-          patrolCode: `PT-${todayStr.replace(/-/g, '')}-02`,
-          title: 'Evening Perimeter Patrol',
+          id: `patrol-${todayStr}-slot-15`,
+          patrolCode: `PT-${dateCode}-02`,
+          title: 'Mid-Afternoon Facility Patrol',
+          companyId: 'c-1',
+          site: 'Ahmedabad Plant',
+          siteId: 's-01',
+          route: 'Facility Internal Route',
+          guard: 'John Smith',
+          guardId: 'G-1001',
+          guardEmail: 'john@priority-one.io',
+          date: todayStr,
+          startTime: '03:00 PM',
+          endTime: undefined,
+          scheduledStartTime: '03:00 PM',
+          scheduledEndTime: '04:00 PM',
+          startBufferMinutes: 15,
+          status: 'Scheduled',
+          checkpoints: 5,
+          scanned: 0,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Pending Start',
+        },
+        {
+          id: `patrol-${todayStr}-slot-16`,
+          patrolCode: `PT-${dateCode}-03`,
+          title: 'Late Afternoon Security Patrol',
+          companyId: 'c-1',
+          site: 'Ahmedabad Plant',
+          siteId: 's-01',
+          route: 'Security Sector B Route',
+          guard: 'John Smith',
+          guardId: 'G-1001',
+          guardEmail: 'john@priority-one.io',
+          date: todayStr,
+          startTime: '04:00 PM',
+          endTime: undefined,
+          scheduledStartTime: '04:00 PM',
+          scheduledEndTime: '05:00 PM',
+          startBufferMinutes: 15,
+          status: 'Scheduled',
+          checkpoints: 5,
+          scanned: 0,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Pending Start',
+        },
+        {
+          id: `patrol-${todayStr}-slot-17`,
+          patrolCode: `PT-${dateCode}-04`,
+          title: 'Shift Change Patrol',
+          companyId: 'c-1',
+          site: 'Ahmedabad Plant',
+          siteId: 's-01',
+          route: 'Perimeter Route B',
+          guard: 'John Smith',
+          guardId: 'G-1001',
+          guardEmail: 'john@priority-one.io',
+          date: todayStr,
+          startTime: '05:00 PM',
+          endTime: undefined,
+          scheduledStartTime: '05:00 PM',
+          scheduledEndTime: '06:00 PM',
+          startBufferMinutes: 15,
+          status: 'Scheduled',
+          checkpoints: 5,
+          scanned: 0,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Pending Start',
+        },
+        {
+          id: `patrol-${todayStr}-slot-18`,
+          patrolCode: `PT-${dateCode}-05`,
+          title: 'Early Evening Perimeter Patrol',
+          companyId: 'c-1',
+          site: 'Ahmedabad Plant',
+          siteId: 's-01',
+          route: 'Main Entrance & Gate Route',
+          guard: 'John Smith',
+          guardId: 'G-1001',
+          guardEmail: 'john@priority-one.io',
+          date: todayStr,
+          startTime: '06:00 PM',
+          endTime: undefined,
+          scheduledStartTime: '06:00 PM',
+          scheduledEndTime: '07:00 PM',
+          startBufferMinutes: 15,
+          status: 'Scheduled',
+          checkpoints: 5,
+          scanned: 0,
+          missed: 0,
+          incidents: 0,
+          lastCheckpoint: 'Pending Start',
+        },
+        {
+          id: `patrol-${todayStr}-slot-19`,
+          patrolCode: `PT-${dateCode}-06`,
+          title: 'Evening Main Patrol',
           companyId: 'c-1',
           site: 'Ahmedabad Plant',
           siteId: 's-01',
@@ -493,10 +588,10 @@ export const initializeDB = async (forceReset = false) => {
           guardId: 'G-1001',
           guardEmail: 'john@priority-one.io',
           date: todayStr,
-          startTime: '08:00 PM',
+          startTime: '07:00 PM',
           endTime: undefined,
-          scheduledStartTime: '08:00 PM',
-          scheduledEndTime: '09:00 PM',
+          scheduledStartTime: '07:00 PM',
+          scheduledEndTime: '08:00 PM',
           startBufferMinutes: 15,
           status: 'Scheduled',
           checkpoints: 5,
@@ -620,7 +715,6 @@ export const initializeDB = async (forceReset = false) => {
       await AsyncStorage.setItem(`${DB_PREFIX}users`, JSON.stringify(usersList));
 
       await AsyncStorage.setItem(`${DB_PREFIX}initialized`, 'true');
-    }
   } catch (error) {
     console.error('Failed to initialize local DB', error);
   }
@@ -786,38 +880,36 @@ const DEFAULT_INCIDENTS: DBIncident[] = [
 export const getTable = async <T>(table: string): Promise<T[]> => {
   try {
     const raw = await AsyncStorage.getItem(`${DB_PREFIX}${table}`);
-    let data: T[] = raw ? JSON.parse(raw) : [];
+    if (raw !== null) {
+      try {
+        const data: T[] = JSON.parse(raw);
+        LoggerService.log(`[DB] getTable: read ${table} table from AsyncStorage, returned ${data.length} rows`);
+        return data;
+      } catch (parseError) {
+        console.error(`Failed to parse table ${table}`, parseError);
+      }
+    }
     
     if (table === 'assets') {
-      data = DEFAULT_ASSETS as unknown as T[];
       await AsyncStorage.setItem(`${DB_PREFIX}assets`, JSON.stringify(DEFAULT_ASSETS));
-      return data;
+      return DEFAULT_ASSETS as unknown as T[];
     }
 
     if (table === 'incidents') {
-      if (!data || data.length === 0) {
-        data = DEFAULT_INCIDENTS as unknown as T[];
-        await AsyncStorage.setItem(`${DB_PREFIX}incidents`, JSON.stringify(DEFAULT_INCIDENTS));
-      }
-      return data;
+      await AsyncStorage.setItem(`${DB_PREFIX}incidents`, JSON.stringify(DEFAULT_INCIDENTS));
+      return DEFAULT_INCIDENTS as unknown as T[];
     }
     
-    if ((!data || data.length === 0) && SEED_DATA[table as keyof typeof SEED_DATA]) {
+    if (SEED_DATA[table as keyof typeof SEED_DATA]) {
       const seedItems = SEED_DATA[table as keyof typeof SEED_DATA] as unknown as T[];
       if (seedItems && seedItems.length > 0) {
-        data = seedItems;
         await AsyncStorage.setItem(`${DB_PREFIX}${table}`, JSON.stringify(seedItems));
-        LoggerService.log(`[DB] getTable: seeded ${seedItems.length} rows to ${table}`);
+        LoggerService.log(`[DB] getTable: initialized ${seedItems.length} seed rows to ${table}`);
+        return seedItems;
       }
     }
-
-    if ((!data || data.length === 0) && table === 'assets') {
-      data = DEFAULT_ASSETS as unknown as T[];
-      await AsyncStorage.setItem(`${DB_PREFIX}assets`, JSON.stringify(DEFAULT_ASSETS));
-    }
     
-    LoggerService.log(`[DB] getTable: read ${table} table, returned ${data.length} rows`);
-    return data;
+    return [];
   } catch (error: any) {
     LoggerService.log(`[DB] getTable error for ${table}: ${error?.message || error}`, 'error');
     console.error(`Failed to read table: ${table}`, error);

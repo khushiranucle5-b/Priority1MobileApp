@@ -46,7 +46,7 @@ export const PatrolOverviewCard: React.FC = () => {
         <View style={styles.detailRow}>
           <AppText size="sm" color="secondary" style={styles.label}>Patrol Name</AppText>
           <AppText size="sm" weight="medium">
-            {activePatrol ? 'Morning Perimeter Patrol' : 'No Scheduled Patrol'}
+            {activePatrol ? (activePatrol.title || 'Afternoon Perimeter Patrol') : 'No Scheduled Patrol'}
           </AppText>
         </View>
         <View style={styles.detailRow}>
