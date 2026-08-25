@@ -162,23 +162,39 @@ export const NavIcon: React.FC<NavIconProps> = ({
         </View>
       );
 
-    case 'payslips':
+    case 'payslips': {
+      const sWidth = size * 0.35;
+      const sHeight = size * 0.22;
+      const sStroke = Math.max(1.5, strokeWidth * 0.8);
       return (
-        <View style={[styles.container, { width: size, height: size }]}>
-          <View style={{ width: size * 0.75, height: size * 0.5, borderRadius: 4, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: size * 0.3, height: size * 0.2, borderRadius: size * 0.1, borderWidth: strokeWidth, borderColor: iconColor }} />
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.85, height: size * 0.85, borderRadius: size * 0.425, backgroundColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ width: sStroke, height: size * 0.55, backgroundColor: '#FFFFFF', position: 'absolute' }} />
+            <View style={{ position: 'absolute', width: sWidth, height: sHeight, borderColor: '#FFFFFF', borderWidth: sStroke, borderRightWidth: 0, borderTopLeftRadius: sHeight / 2, borderBottomLeftRadius: sHeight / 2, top: '50%', marginTop: -sHeight + sStroke / 2, left: '50%', marginLeft: -sWidth / 2 - sStroke / 2 }} />
+            <View style={{ position: 'absolute', width: sWidth, height: sHeight, borderColor: '#FFFFFF', borderWidth: sStroke, borderLeftWidth: 0, borderTopRightRadius: sHeight / 2, borderBottomRightRadius: sHeight / 2, top: '50%', marginTop: -sStroke / 2, left: '50%', marginLeft: -sWidth / 2 + sStroke / 2 }} />
           </View>
         </View>
       );
+    }
 
-    case 'holidays':
+    case 'holidays': {
+      const leafStroke = Math.max(1.5, strokeWidth * 0.8);
       return (
-        <View style={[styles.container, { width: size, height: size }]}>
-          <View style={{ width: size * 0.75, height: size * 0.75, borderRadius: size * 0.375, borderWidth: strokeWidth, borderColor: iconColor, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: size * 0.3, height: size * 0.3, borderRadius: size * 0.15, backgroundColor: iconColor }} />
-          </View>
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.8, height: size * 0.2, backgroundColor: iconColor, borderTopLeftRadius: size * 0.4, borderTopRightRadius: size * 0.4, position: 'absolute', bottom: size * 0.15 }} />
+          
+          <View style={{ width: leafStroke, height: size * 0.45, backgroundColor: iconColor, position: 'absolute', bottom: size * 0.25, left: size * 0.35, transform: [{ rotate: '-5deg' }] }} />
+          <View style={{ width: size * 0.35, height: size * 0.25, borderTopWidth: leafStroke, borderLeftWidth: leafStroke, borderColor: iconColor, borderTopLeftRadius: size * 0.2, position: 'absolute', bottom: size * 0.5, left: size * 0.15, transform: [{ rotate: '20deg' }] }} />
+          <View style={{ width: size * 0.35, height: size * 0.25, borderTopWidth: leafStroke, borderRightWidth: leafStroke, borderColor: iconColor, borderTopRightRadius: size * 0.2, position: 'absolute', bottom: size * 0.55, left: size * 0.3, transform: [{ rotate: '-20deg' }] }} />
+          <View style={{ width: size * 0.25, height: size * 0.2, borderTopWidth: leafStroke, borderColor: iconColor, borderTopLeftRadius: size * 0.15, borderTopRightRadius: size * 0.15, position: 'absolute', bottom: size * 0.6, left: size * 0.2, transform: [{ rotate: '-40deg' }] }} />
+          <View style={{ width: size * 0.25, height: size * 0.2, borderTopWidth: leafStroke, borderColor: iconColor, borderTopLeftRadius: size * 0.15, borderTopRightRadius: size * 0.15, position: 'absolute', bottom: size * 0.6, left: size * 0.35, transform: [{ rotate: '40deg' }] }} />
+
+          <View style={{ width: leafStroke * 0.8, height: size * 0.3, backgroundColor: iconColor, position: 'absolute', bottom: size * 0.25, left: size * 0.6, transform: [{ rotate: '15deg' }] }} />
+          <View style={{ width: size * 0.25, height: size * 0.15, borderTopWidth: leafStroke * 0.8, borderLeftWidth: leafStroke * 0.8, borderColor: iconColor, borderTopLeftRadius: size * 0.15, position: 'absolute', bottom: size * 0.4, left: size * 0.45, transform: [{ rotate: '10deg' }] }} />
+          <View style={{ width: size * 0.25, height: size * 0.15, borderTopWidth: leafStroke * 0.8, borderRightWidth: leafStroke * 0.8, borderColor: iconColor, borderTopRightRadius: size * 0.15, position: 'absolute', bottom: size * 0.45, left: size * 0.55, transform: [{ rotate: '-30deg' }] }} />
         </View>
       );
+    }
 
     case 'policies':
       return (

@@ -5,6 +5,7 @@ import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
+import { StatusBadge, StatusType } from '../../../components/StatusBadge';
 import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
@@ -84,29 +85,11 @@ export const IncidentScreen: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const getSeverityBadgeStyle = (sev?: string) => {
-    switch (sev) {
-      case 'Critical':
-        return { bg: '#FEE2E2', text: '#DC2626' };
-      case 'High':
-        return { bg: '#FFEDD5', text: '#D97706' };
-      case 'Medium':
-        return { bg: '#FEF3C7', text: '#CA8A04' };
-      case 'Low':
-      default:
-        return { bg: '#ECFDF5', text: '#047857' };
-    }
-  };
-
-  const getStatusBadgeStyle = (status?: string) => {
+  const getMappedStatusType = (status?: string): StatusType => {
     switch (status) {
-      case 'Resolved':
-        return { bg: '#D1FAE5', text: '#059669' };
-      case 'Under Review':
-        return { bg: '#EEF2FF', text: '#4F46E5' };
-      case 'Open':
-      default:
-        return { bg: '#FEF3C7', text: '#D97706' };
+      case 'Resolved': return 'success';
+      case 'Under Review': return 'info';
+      case 'Open': default: return 'warning';
     }
   };
 
@@ -114,86 +97,73 @@ export const IncidentScreen: React.FC = () => {
     <ScreenLayout activeRoute="Incident">
       <PageHeader title="My Incident Reports" showBack />
 
-      <View style={styles.mainWrapper}>
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.mainContainer}>
+        {/* Search & Dropdown Filter Row */}
+        <View style={styles.searchFilterRow}>
+          <View style={styles.searchInputWrapper}>
+            <NavIcon name="search" size={22} color="#64748B" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search incidents..."
+              placeholderTextColor="#94A3B8"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoCapitalize="none"
+            />
+          </View>
 
-          {/* Header Block */}
-          <View style={styles.headerBlock}>
-            <Heading level="h2" color="primary">My Incident Reports</Heading>
-            <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-              Official security incident logs filed for {assignedSite || 'Ahmedabad Plant'}.
+          <TouchableOpacity
+            style={styles.dropdownTrigger}
+            onPress={() => setDropdownOpen(!dropdownOpen)}
+            activeOpacity={0.7}
+          >
+            <AppText size="base" weight="semibold" style={{ color: '#0F172A', marginRight: 6 }}>
+              Filter: {statusFilter === 'All' ? 'All' : statusFilter}
             </AppText>
-          </View>
+            <AppText size="xs" color="secondary">
+              {dropdownOpen ? '▲' : '▼'}
+            </AppText>
+          </TouchableOpacity>
+        </View>
 
-          {/* Search & Dropdown Filter Row */}
-          <View style={styles.searchFilterRow}>
-            <View style={styles.searchInputWrapper}>
-              <View style={{ marginRight: 8 }}>
-                <NavIcon name="search" size={16} color="#64748B" />
-              </View>
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search by title, ID, site..."
-                placeholderTextColor="#94A3B8"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-              {searchQuery ? (
-                <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-                  <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-
-            {/* Dropdown Filter Trigger */}
-            <TouchableOpacity
-              style={styles.dropdownTrigger}
-              onPress={() => setDropdownOpen(!dropdownOpen)}
-              activeOpacity={0.8}
-            >
-              <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
-                {statusFilter === 'All' ? 'Filter: All' : statusFilter}
-              </AppText>
-              <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
-            </TouchableOpacity>
-          </View>
-
-          {/* Dropdown Menu Options */}
-          {dropdownOpen && (
-            <View style={styles.dropdownMenuContainer}>
-              {filterOptions.map((opt) => {
-                const valueKey = opt === 'All Statuses' ? 'All' : opt;
-                const isSel = statusFilter === valueKey;
-                return (
-                  <TouchableOpacity
-                    key={opt}
-                    style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                    onPress={() => {
-                      setStatusFilter(valueKey as any);
-                      setDropdownOpen(false);
-                    }}
+        {/* Dropdown Menu Options */}
+        {dropdownOpen && (
+          <View style={styles.dropdownMenuContainer}>
+            {filterOptions.map((opt) => {
+              const valueKey = opt === 'All Statuses' ? 'All' : opt;
+              const isSel = statusFilter === valueKey;
+              return (
+                <TouchableOpacity
+                  key={opt}
+                  style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
+                  onPress={() => {
+                    setStatusFilter(valueKey as any);
+                    setDropdownOpen(false);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <AppText
+                    size="base"
+                    weight={isSel ? 'bold' : 'medium'}
+                    style={{ color: isSel ? '#4F46E5' : '#0F172A' }}
                   >
-                    <AppText
-                      size="xs"
-                      weight={isSel ? 'bold' : 'medium'}
-                      style={{ color: isSel ? '#4F46E5' : '#334155' }}
-                    >
-                      {isSel ? `✓ ${opt}` : opt}
-                    </AppText>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
+                    {opt === 'All Statuses' ? 'All' : opt}
+                  </AppText>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
-          {/* Incidents List */}
+        {/* Incidents List */}
+        <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
           {loading ? (
             <View style={styles.centerBox}>
               <ActivityIndicator size="large" color="#4F46E5" />
               <AppText size="sm" color="secondary" style={{ marginTop: 10 }}>Loading incident logs...</AppText>
             </View>
           ) : filteredIncidents.length === 0 ? (
-            <Card style={{ padding: 24, alignItems: 'center' }}>
+            <Card style={{ padding: 24, alignItems: 'center', marginHorizontal: 16 }}>
               <NavIcon name="incidents" size={36} color="#94A3B8" />
               <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
                 {searchQuery || statusFilter !== 'All'
@@ -202,112 +172,83 @@ export const IncidentScreen: React.FC = () => {
               </AppText>
             </Card>
           ) : (
-            filteredIncidents.map((item) => {
-              const severityColors = getSeverityBadgeStyle(item.severity);
-              const statusColors = getStatusBadgeStyle(item.status);
+            filteredIncidents.map((item) => (
+              <Card key={item.id} variant="outlined" style={styles.card}>
+                <View style={styles.headerRow}>
+                  <View style={{ flex: 1, paddingRight: 8 }}>
+                    <AppText size="lg" weight="bold" color="primary" numberOfLines={1}>{(item.title || 'Untitled').toUpperCase()}</AppText>
+                  </View>
+                  <StatusBadge status={item.status || 'Open'} type={getMappedStatusType(item.status)} size="md" />
+                </View>
+                
+                <View style={[styles.detailRow, { marginTop: spacing.sm }]}>
+                  <View>
+                    <AppText size="xs" color="secondary" weight="semibold">DATE</AppText>
+                    <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                      {item.date}
+                    </AppText>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <AppText size="xs" color="secondary" weight="semibold">INCIDENT TYPE</AppText>
+                    <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
+                      {item.category || 'General'}
+                    </AppText>
+                  </View>
+                </View>
 
-              return (
-                <Card key={item.id} style={styles.incidentCard}>
+                <View style={{ marginTop: 10 }}>
+                  <AppText size="xs" color="secondary" weight="semibold">LOCATION</AppText>
+                  <AppText size="base" color="text" weight="medium" style={{ marginTop: 2 }}>
+                    {item.site || assignedSite || 'Ahmedabad Plant'}
+                  </AppText>
+                </View>
+
+                <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                   <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => navigation.navigate('IncidentDetails', { incidentId: item.id })}
+                    style={styles.iconActionBtnEdit}
+                    onPress={() => navigation.navigate('FileIncident', { incidentId: item.id })}
+                    activeOpacity={0.7}
+                    accessibilityLabel="Edit incident"
+                    accessibilityRole="button"
                   >
-                    <View style={styles.cardHeaderRow}>
-                      <View style={{ flex: 1 }}>
-                        <Heading level="h4" color="primary">
-                          {item.title}
-                        </Heading>
-                        <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                          ID: {item.incidentCode || item.id} • {item.site || 'Ahmedabad Plant'}
-                        </AppText>
-                      </View>
-
-                      <TouchableOpacity
-                        style={styles.viewIconButton}
-                        onPress={() => navigation.navigate('FileIncident', { incidentId: item.id })}
-                        activeOpacity={0.7}
-                      >
-                        <NavIcon name="edit" size={18} color="#4F46E5" />
-                      </TouchableOpacity>
-                    </View>
-
-                    {/* Status & Severity Badges Row */}
-                    <View style={styles.badgesRow}>
-                      <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
-                          ● {item.status}
-                        </AppText>
-                      </View>
-
-                      <View style={[styles.badge, { backgroundColor: severityColors.bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: severityColors.text }}>
-                          {item.severity} Severity
-                        </AppText>
-                      </View>
-
-                      {item.category ? (
-                        <View style={[styles.badge, { backgroundColor: '#F1F5F9' }]}>
-                          <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
-                            {item.category}
-                          </AppText>
-                        </View>
-                      ) : null}
-                    </View>
-
-                    <View style={styles.cardFooterRow}>
-                      <AppText size="xs" color="secondary">
-                        Reported: {item.date} {item.exactTime ? `at ${item.exactTime}` : ''}
-                      </AppText>
-                      {item.assignedTo ? (
-                        <AppText size="xs" weight="semibold" style={{ color: '#4F46E5' }}>
-                          Assigned: {item.assignedTo}
-                        </AppText>
-                      ) : null}
-                    </View>
+                    <NavIcon name="edit" size={24} color="#4F46E5" />
                   </TouchableOpacity>
-                </Card>
-              );
-            })
+                </View>
+              </Card>
+            ))
           )}
-
         </ScrollView>
 
-        {/* Fixed Bottom Glove-Friendly Action Button */}
-        <View style={styles.bottomBar}>
-          <Button
-            title="FILE INCIDENT REPORT"
-            variant="primary"
-            size="large"
-            fullWidth
-            onPress={() => navigation.navigate('FileIncident')}
-            style={{ height: 54, backgroundColor: '#5B46E5' }}
-          />
-        </View>
+        {/* Floating Action Button (FAB) for REPORT INCIDENT */}
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => navigation.navigate('FileIncident')}
+          activeOpacity={0.85}
+          accessibilityLabel="Report incident"
+          accessibilityRole="button"
+        >
+          <NavIcon name="incidents" size={22} color="#FFFFFF" />
+          <AppText size="base" weight="bold" style={styles.floatingButtonText}>
+            REPORT INCIDENT
+          </AppText>
+        </TouchableOpacity>
       </View>
     </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  mainWrapper: {
+  mainContainer: {
     flex: 1,
-  },
-  container: {
-    padding: 16,
-    paddingBottom: 90,
-  },
-  centerBox: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  headerBlock: {
-    marginBottom: 10,
+    position: 'relative',
   },
   searchFilterRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 14,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    marginTop: 8,
   },
   searchInputWrapper: {
     flex: 1,
@@ -317,14 +258,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 44,
+    paddingHorizontal: 14,
+    height: 56,
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
+    fontSize: 16,
     color: '#0F172A',
     paddingVertical: 0,
+    marginLeft: 8,
+    includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
@@ -333,8 +276,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    height: 44,
-    paddingHorizontal: 12,
+    height: 56,
+    paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
     backgroundColor: '#FFFFFF',
@@ -342,66 +285,84 @@ const styles = StyleSheet.create({
     borderColor: '#CBD5E1',
     borderRadius: 8,
     padding: 4,
-    marginBottom: 14,
-    elevation: 3,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    zIndex: 100,
   },
   dropdownMenuItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 6,
+    minHeight: 48,
+    justifyContent: 'center',
   },
   dropdownMenuItemActive: {
     backgroundColor: '#EEF2FF',
   },
-  incidentCard: {
-    padding: 16,
+  listContainer: {
+    paddingBottom: 100,
+    paddingHorizontal: 16,
+  },
+  centerBox: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  card: {
     marginBottom: 12,
+    padding: 16,
   },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  viewIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  badgesRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 10,
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  cardFooterRow: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
-  bottomBar: {
+  iconActionBtnEdit: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  floatingButton: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    bottom: 20,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#5B46E5',
+    paddingHorizontal: 20,
+    height: 56,
+    borderRadius: 28,
+    elevation: 8,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    zIndex: 999,
+    gap: 8,
+  },
+  floatingButtonText: {
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
 });
