@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, FlatList } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, FlatList, StatusBar } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { Card } from '../../../components/Card';
@@ -99,7 +99,7 @@ export const MessagesScreen: React.FC = () => {
       
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
         {/* SITE CONVERSATION SECTION */}
-        <Heading level="h4" style={styles.sectionHeader}>SITE</Heading>
+        <Heading level="h3" style={styles.sectionHeader}>SITE</Heading>
         {assignedSiteId ? (
           <TouchableOpacity
             style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md }]}
@@ -113,16 +113,16 @@ export const MessagesScreen: React.FC = () => {
           >
             <View style={styles.threadInfo}>
               <View style={styles.avatarPlaceholder}>
-                <AppText size="lg">🏢</AppText>
+                <AppText size="xl">🏢</AppText>
               </View>
               <View style={styles.textDetails}>
-                <AppText size="base" weight="bold">{assignedSite}</AppText>
-                <AppText size="xs" color="secondary">Site Communication Chat</AppText>
+                <AppText size="md" weight="bold">{assignedSite}</AppText>
+                <AppText size="sm" color="secondary">Site Communication Chat</AppText>
               </View>
             </View>
             {getUnreadCount(`site:${assignedSiteId}`) > 0 && (
               <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
-                <AppText size="xs" color="surface" weight="bold">
+                <AppText size="sm" color="surface" weight="bold">
                   {getUnreadCount(`site:${assignedSiteId}`)}
                 </AppText>
               </View>
@@ -130,12 +130,12 @@ export const MessagesScreen: React.FC = () => {
           </TouchableOpacity>
         ) : (
           <Card variant="flat" padding={12}>
-            <AppText size="sm" color="secondary">No site assigned.</AppText>
+            <AppText size="base" color="secondary">No site assigned.</AppText>
           </Card>
         )}
 
         {/* DIRECT MESSAGES SECTION */}
-        <Heading level="h4" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>DIRECT MESSAGES</Heading>
+        <Heading level="h3" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>DIRECT MESSAGES</Heading>
         <View style={styles.directList}>
           {/* Assigned Supervisor */}
           {supervisor && (
@@ -151,16 +151,16 @@ export const MessagesScreen: React.FC = () => {
             >
               <View style={styles.threadInfo}>
                 <View style={styles.avatarPlaceholder}>
-                  <AppText size="lg">👮</AppText>
+                  <AppText size="xl">👮</AppText>
                 </View>
                 <View style={styles.textDetails}>
-                  <AppText size="base" weight="bold">{supervisor}</AppText>
-                  <AppText size="xs" color="secondary">Supervisor • Online</AppText>
+                  <AppText size="md" weight="bold">{supervisor}</AppText>
+                  <AppText size="sm" color="secondary">Supervisor • Online</AppText>
                 </View>
               </View>
               {getUnreadCount(getDirectConversationId('emp-102')) > 0 && (
                 <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
-                  <AppText size="xs" color="surface" weight="bold">
+                  <AppText size="sm" color="surface" weight="bold">
                     {getUnreadCount(getDirectConversationId('emp-102'))}
                   </AppText>
                 </View>
@@ -183,16 +183,16 @@ export const MessagesScreen: React.FC = () => {
             >
               <View style={styles.threadInfo}>
                 <View style={styles.avatarPlaceholder}>
-                  <AppText size="lg">🚶</AppText>
+                  <AppText size="xl">🚶</AppText>
                 </View>
                 <View style={styles.textDetails}>
-                  <AppText size="base" weight="bold">{guard.name}</AppText>
-                  <AppText size="xs" color="secondary">Guard Officer • Ahmedabad Plant</AppText>
+                  <AppText size="md" weight="bold">{guard.name}</AppText>
+                  <AppText size="sm" color="secondary">Guard Officer • Ahmedabad Plant</AppText>
                 </View>
               </View>
               {getUnreadCount(getDirectConversationId(guard.id)) > 0 && (
                 <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
-                  <AppText size="xs" color="surface" weight="bold">
+                  <AppText size="sm" color="surface" weight="bold">
                     {getUnreadCount(getDirectConversationId(guard.id))}
                   </AppText>
                 </View>
@@ -202,7 +202,7 @@ export const MessagesScreen: React.FC = () => {
 
           {contacts.length === 0 && !supervisor && (
             <Card variant="flat" padding={12}>
-              <AppText size="sm" color="secondary">No contacts available at your site.</AppText>
+              <AppText size="base" color="secondary">No contacts available at your site.</AppText>
             </Card>
           )}
         </View>
@@ -214,7 +214,7 @@ export const MessagesScreen: React.FC = () => {
         animationType="slide"
         onRequestClose={() => setSelectedChat(null)}
       >
-        <View style={[styles.modalSafeArea, { backgroundColor: colors.surface }]}>
+        <SafeAreaView style={[styles.modalSafeArea, { backgroundColor: colors.surface }]} edges={['top', 'bottom', 'left', 'right']}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.modalContainer}
@@ -230,8 +230,8 @@ export const MessagesScreen: React.FC = () => {
                 <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
               </TouchableOpacity>
               <View style={styles.headerTitleContainer}>
-                <AppText size="base" weight="bold" style={{ color: colors.text }}>{selectedChat?.name}</AppText>
-                <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                <AppText size="lg" weight="bold" style={{ color: colors.text }}>{selectedChat?.name}</AppText>
+                <AppText size="base" color="secondary" style={{ marginTop: 2 }}>
                   {selectedChat?.type === 'site' ? 'Site Broadcast Chat' : 'Direct secure message'}
                 </AppText>
               </View>
@@ -249,7 +249,7 @@ export const MessagesScreen: React.FC = () => {
               return (
                 <View key={msg.id} style={[styles.messageRow, isMe ? styles.myMessageRow : styles.otherMessageRow]}>
                   {!isMe && (
-                    <AppText size="xs" color="secondary" style={styles.senderLabel}>
+                    <AppText size="base" color="secondary" style={styles.senderLabel}>
                       {msg.senderName}
                     </AppText>
                   )}
@@ -262,11 +262,11 @@ export const MessagesScreen: React.FC = () => {
                       paddingVertical: 10,
                     }
                   ]}>
-                    <AppText size="base" style={{ color: isMe ? '#FFFFFF' : colors.text }}>
+                    <AppText size="lg" style={{ color: isMe ? '#FFFFFF' : colors.text }}>
                       {msg.message}
                     </AppText>
                   </View>
-                  <AppText size="xs" color="secondary" style={styles.msgTime}>
+                  <AppText size="base" color="secondary" style={styles.msgTime}>
                     {formatMsgTime(msg.timestamp)}
                   </AppText>
                 </View>
@@ -277,17 +277,17 @@ export const MessagesScreen: React.FC = () => {
               <View style={styles.emptyChatContainer}>
                 {selectedChat?.type === 'site' ? (
                   <View style={styles.emptySubContainer}>
-                    <AppText size="lg" style={styles.emptyIcon}>🏢</AppText>
-                    <Heading level="h4" style={styles.emptyHeader}>No Site Messages</Heading>
-                    <AppText size="sm" color="secondary" style={styles.emptyBodyText}>
+                    <AppText size="xl" style={styles.emptyIcon}>🏢</AppText>
+                    <Heading level="h2" style={styles.emptyHeader}>No Site Messages</Heading>
+                    <AppText size="lg" color="secondary" style={styles.emptyBodyText}>
                       There are no messages for your assigned site yet.
                     </AppText>
                   </View>
                 ) : (
                   <View style={styles.emptySubContainer}>
-                    <AppText size="lg" style={styles.emptyIcon}>💬</AppText>
-                    <Heading level="h4" style={styles.emptyHeader}>No Direct Messages</Heading>
-                    <AppText size="sm" color="secondary" style={styles.emptyBodyText}>
+                    <AppText size="xl" style={styles.emptyIcon}>💬</AppText>
+                    <Heading level="h2" style={styles.emptyHeader}>No Direct Messages</Heading>
+                    <AppText size="lg" color="secondary" style={styles.emptyBodyText}>
                       Start a conversation with your supervisor or a guard assigned to your site.
                     </AppText>
                   </View>
@@ -310,11 +310,11 @@ export const MessagesScreen: React.FC = () => {
               style={[styles.sendButton, { backgroundColor: colors.primary[600], borderRadius: borderRadius.md }]}
               onPress={handleSend}
             >
-              <AppText size="base" weight="bold" style={{ color: '#FFFFFF' }}>Send</AppText>
+              <AppText size="lg" weight="bold" style={{ color: '#FFFFFF' }}>Send</AppText>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
-      </View>
+      </SafeAreaView>
     </Modal>
   </ScreenLayout>
 );
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     marginBottom: 8,
-    fontSize: 14,
+    fontSize: 16,
     letterSpacing: 0.5,
   },
   threadRow: {
@@ -379,8 +379,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'android' ? 12 : 8,
-    paddingBottom: 14,
+    paddingTop: 10,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     minHeight: 56,
   },
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     height: 48,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    fontSize: 16,
+    fontSize: 18,
     marginRight: 10,
     textAlignVertical: 'center',
   },

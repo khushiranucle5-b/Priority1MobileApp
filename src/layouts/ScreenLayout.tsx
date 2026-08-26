@@ -3,6 +3,7 @@ import { StyleSheet, View, ViewProps, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../providers/ThemeProvider';
 import { PersistentSidebar } from '../components/PersistentSidebar';
+import { SidebarDrawer } from '../components/SidebarDrawer';
 
 interface ScreenLayoutProps extends ViewProps {
   children: React.ReactNode;
@@ -32,6 +33,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
           {children}
         </View>
       </View>
+      {!isLargeScreen && <SidebarDrawer activeRouteName={activeRoute} />}
     </SafeAreaView>
   );
 };

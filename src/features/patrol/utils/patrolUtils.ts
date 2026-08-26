@@ -65,19 +65,30 @@ export const parsePatrolDateTime = (dateStr: string, timeStr: string): Date | nu
   }
 };
 
+export const formatTime12h = (dateObj: Date): string => {
+  let hours = dateObj.getHours();
+  const minutes = dateObj.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const minutesStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+  const hoursStr = hours < 10 ? `0${hours}` : `${hours}`;
+  return `${hoursStr}:${minutesStr} ${ampm}`;
+};
+
 /**
  * Evaluates patrol availability according to standard lifecycle:
  * - Scheduled Start -> normal action window -> Scheduled End -> 30-min grace period -> Final Cutoff -> expired/incomplete
  */
 export const getPatrolAvailability = (
   patrol: DBPatrol,
-  bufferMinutes: number = 0,
+  bufferMinutes: number = 15,
   now: Date = new Date()
 ): PatrolAvailability => {
   const statusStr = (patrol.status || '').toLowerCase();
   const scannedCount = patrol.scanned || 0;
   const totalCPs = patrol.checkpoints || 5;
-  const isCompleted = statusStr === 'completed' || (totalCPs > 0 && scannedCount >= totalCPs);
+  const isCompleted = (totalCPs > 0 && scannedCount >= totalCPs);
 
   // Time calculations
   const startTimeStr = patrol.scheduledStartTime || patrol.startTime || '08:00 AM';
@@ -87,6 +98,13 @@ export const getPatrolAvailability = (
   let scheduledEndObj = parsePatrolDateTime(patrol.date, endTimeStr);
 
   const scheduledStartMs = scheduledStartObj ? scheduledStartObj.getTime() : now.getTime();
+
+  // 15-minute start buffer (button enables 15 mins prior to scheduled start time)
+  const activeBufferMinutes = typeof bufferMinutes === 'number' && bufferMinutes > 0 ? bufferMinutes : (patrol.startBufferMinutes || 15);
+  const bufferMs = activeBufferMinutes * 60 * 1000;
+  const startWindowStartMs = scheduledStartMs - bufferMs;
+  const startWindowStartObj = new Date(startWindowStartMs);
+  const startWindowStartStr = formatTime12h(startWindowStartObj);
 
   if (!scheduledEndObj) {
     scheduledEndObj = new Date(scheduledStartMs + 60 * 60 * 1000);
@@ -100,10 +118,7 @@ export const getPatrolAvailability = (
   const graceEndMs = scheduledEndMs + 30 * 60 * 1000;
   const graceEndObj = new Date(graceEndMs);
 
-  const expireTimeStr = graceEndObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const startWindowStartStr = scheduledStartObj
-    ? scheduledStartObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    : startTimeStr;
+  const expireTimeStr = formatTime12h(graceEndObj);
 
   const nowMs = now.getTime();
   const diffMs = graceEndMs - nowMs;
@@ -159,22 +174,23 @@ export const getPatrolAvailability = (
 
   // Past Date Check (strictly before today)
   if (targetDate.getTime() < todayDate.getTime()) {
-    const hasProgress = scannedCount > 0;
+    const hasProgress = scannedCount > 0 && scannedCount < totalCPs;
+    const isFull = scannedCount >= totalCPs;
     return {
       canStart: false,
-      buttonText: hasProgress ? 'INCOMPLETE PATROL' : 'PATROL MISSED',
-      statusLabel: hasProgress ? 'Incomplete' : 'Missed',
+      buttonText: isFull ? 'PATROL COMPLETED' : (hasProgress ? 'INCOMPLETE PATROL' : 'PATROL EXPIRED'),
+      statusLabel: isFull ? 'Completed' : (hasProgress ? 'Incomplete' : 'Missed'),
       isPastDate: true,
       isFutureDate: false,
       isBeforeBuffer: false,
-      isExpired: !hasProgress,
+      isExpired: !isFull && !hasProgress,
       isIncomplete: hasProgress,
-      isCompleted: false,
+      isCompleted: isFull,
       isInProgress: false,
       startWindowStartStr,
       expireTimeStr,
       expiresInMinutes: 0,
-      expiresInText: hasProgress ? 'Incomplete' : 'Missed',
+      expiresInText: isFull ? 'Completed' : (hasProgress ? 'Incomplete' : 'Missed'),
     };
   }
 
@@ -198,14 +214,14 @@ export const getPatrolAvailability = (
     };
   }
 
-  // Same Day Check — active window (scheduled start until grace period end) vs cutoff after grace period:
+  // Same Day Check — active window (15 mins prior scheduled start until 30 mins after scheduled end):
   const patrolStarted = statusStr === 'in_progress' || statusStr === 'in progress' || scannedCount > 0;
 
-  // Bracket 1: Before scheduled start time (e.g. before 7:00 PM)
-  if (nowMs < scheduledStartMs) {
+  // Bracket 1: Before the 15-minute prior start window (e.g. before 03:45 PM for a 04:00 PM patrol)
+  if (nowMs < startWindowStartMs) {
     return {
       canStart: false,
-      buttonText: `Available at ${startTimeStr}`,
+      buttonText: `Available at ${startWindowStartStr}`,
       statusLabel: 'Scheduled',
       isPastDate: false,
       isFutureDate: false,
@@ -260,22 +276,23 @@ export const getPatrolAvailability = (
   }
 
   // Bracket 3: After 30-min grace period cutoff (e.g. after 8:30 PM for a 7:00 PM - 8:00 PM patrol)
-  const isPartial = scannedCount > 0;
+  const isPartial = scannedCount > 0 && scannedCount < totalCPs;
+  const isFull = scannedCount >= totalCPs;
   return {
     canStart: false,
-    buttonText: isPartial ? 'INCOMPLETE PATROL' : 'PATROL EXPIRED',
-    statusLabel: isPartial ? 'Incomplete' : 'Expired',
+    buttonText: isFull ? 'PATROL COMPLETED' : (isPartial ? 'INCOMPLETE PATROL' : 'PATROL EXPIRED'),
+    statusLabel: isFull ? 'Completed' : (isPartial ? 'Incomplete' : 'Expired'),
     isPastDate: false,
     isFutureDate: false,
     isBeforeBuffer: false,
-    isExpired: !isPartial,
+    isExpired: !isFull && !isPartial,
     isIncomplete: isPartial,
-    isCompleted: false,
+    isCompleted: isFull,
     isInProgress: false,
     startWindowStartStr,
     expireTimeStr,
     expiresInMinutes: 0,
-    expiresInText: isPartial ? 'Incomplete Patrol' : `Expired at ${expireTimeStr}`,
+    expiresInText: isFull ? 'Completed' : (isPartial ? 'Incomplete Patrol' : `Expired at ${expireTimeStr}`),
   };
 };
 
@@ -319,21 +336,21 @@ export const findCurrentPatrol = (patrols: DBPatrol[], now: Date = new Date()): 
 
   // 1. IN_PROGRESS patrol that is still inside its final cutoff
   const inProgressPatrol = listToSearch.find(p => {
-    const avail = getPatrolAvailability(p, 0, now);
+    const avail = getPatrolAvailability(p, 15, now);
     return avail.isInProgress && avail.canStart;
   });
   if (inProgressPatrol) return inProgressPatrol;
 
   // 2. AVAILABLE patrol whose scheduled start has arrived
   const availablePatrol = listToSearch.find(p => {
-    const avail = getPatrolAvailability(p, 0, now);
+    const avail = getPatrolAvailability(p, 15, now);
     return avail.canStart && !avail.isInProgress;
   });
   if (availablePatrol) return availablePatrol;
 
   // 3. Next UPCOMING patrol
   const upcomingPatrols = listToSearch.filter(p => {
-    const avail = getPatrolAvailability(p, 0, now);
+    const avail = getPatrolAvailability(p, 15, now);
     return avail.isBeforeBuffer || avail.isFutureDate;
   });
   if (upcomingPatrols.length > 0) {

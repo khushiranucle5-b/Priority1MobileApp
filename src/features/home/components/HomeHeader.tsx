@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../../../types/navigation.types';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
+import { useDrawerStore } from '../../../store/useDrawerStore';
 import { Heading } from '../../../components/typography/Heading';
 import { AppText } from '../../../components/typography/Text';
 
@@ -54,16 +55,23 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled 
       ]}
     >
       <View style={styles.profileSection}>
-        {onMenuPress && (
-          <TouchableOpacity
-            onPress={onMenuPress}
-            style={styles.menuIconBtn}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
+        <TouchableOpacity
+          onPress={() => {
+            console.log('[HomeHeader] HAMBURGER PRESSED');
+            if (onMenuPress) {
+              onMenuPress();
+            } else {
+              useDrawerStore.getState().openDrawer();
+            }
+          }}
+          style={styles.menuIconBtn}
+          activeOpacity={0.7}
+          hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+        >
+          <View pointerEvents="none">
             <NavIcon name="menu" size={24} color="#334155" />
-          </TouchableOpacity>
-        )}
+          </View>
+        </TouchableOpacity>
         <Image
           source={{ uri: 'https://i.pravatar.cc/150?img=11' }}
           style={[styles.avatar, { borderRadius: borderRadius.full }]}

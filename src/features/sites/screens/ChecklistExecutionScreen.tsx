@@ -132,7 +132,7 @@ export const ChecklistExecutionScreen: React.FC = () => {
 
   return (
     <ScreenLayout style={styles.screenContainer}>
-      <PageHeader title="Checklist Execution" onBack={handleBack} />
+      <PageHeader title="Checklist Execution" showBack onBack={handleBack} />
 
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Success Banner */}

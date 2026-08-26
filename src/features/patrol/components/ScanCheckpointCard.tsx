@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Modal, TouchableOpacity, Animated, TextInput, Alert, ScrollView, Platform, PermissionsAndroid } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, TouchableOpacity, Alert, Platform, PermissionsAndroid } from 'react-native';
 import { launchCamera, CameraOptions } from 'react-native-image-picker';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
@@ -10,36 +10,12 @@ import { useGuardStore } from '../../../store/useGuardStore';
 
 export const ScanCheckpointCard: React.FC = () => {
   const { spacing, colors, borderRadius } = useTheme();
-  const { scanCheckpointCode, activePatrol, patrolCheckpoints, isClockedIn } = useGuardStore();
+  const { scanCheckpointCode, activePatrol, patrolCheckpointsMap, isClockedIn } = useGuardStore();
 
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [manualCode, setManualCode] = useState('');
-  const [scanSuccessText, setScanSuccessText] = useState<string | null>(null);
-  const [scanErrorText, setScanErrorText] = useState<string | null>(null);
-
-  // Animated red laser scan line
-  const laserAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (isScannerOpen) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(laserAnim, {
-            toValue: 200,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(laserAnim, {
-            toValue: 0,
-            duration: 2000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    } else {
-      laserAnim.setValue(0);
-    }
-  }, [isScannerOpen]);
+  const patrolCheckpoints = useMemo(() => {
+    if (!activePatrol?.id) return [];
+    return patrolCheckpointsMap[activePatrol.id] || [];
+  }, [patrolCheckpointsMap, activePatrol?.id]);
 
   const requestCameraPermission = async (): Promise<'granted' | 'denied' | 'never_ask_again'> => {
     if (Platform.OS !== 'android') return 'granted';
@@ -67,9 +43,6 @@ export const ScanCheckpointCard: React.FC = () => {
   };
 
   const handleProcessScan = async (code: string) => {
-    setScanSuccessText(null);
-    setScanErrorText(null);
-
     const normCode = code.trim().toUpperCase();
     const existingCp = patrolCheckpoints.find(c => c.qrCode.toUpperCase() === normCode || c.number.toUpperCase() === normCode);
 
@@ -78,18 +51,11 @@ export const ScanCheckpointCard: React.FC = () => {
       return;
     }
 
-    const result = await scanCheckpointCode(code);
+    const result = await scanCheckpointCode(code, activePatrol?.id);
     if (result.success) {
-      setScanSuccessText(result.message);
-      setTimeout(() => {
-        setScanSuccessText(null);
-        setIsScannerOpen(false);
-      }, 2000);
+      Alert.alert('✓ Checkpoint Verified', result.message || 'Checkpoint scanned successfully.');
     } else {
-      setScanErrorText(result.message);
-      setTimeout(() => {
-        setScanErrorText(null);
-      }, 3000);
+      Alert.alert('Scan Result', result.message || 'Could not verify checkpoint.');
     }
   };
 
@@ -106,7 +72,6 @@ export const ScanCheckpointCard: React.FC = () => {
 
     const perm = await requestCameraPermission();
     if (perm === 'granted') {
-      setIsScannerOpen(true);
       handleLaunchNativeCamera();
     } else if (perm === 'never_ask_again') {
       Alert.alert(
@@ -129,11 +94,25 @@ export const ScanCheckpointCard: React.FC = () => {
   const handleLaunchNativeCamera = async (specificCode?: string) => {
     const nextPending = patrolCheckpoints.find(c => c.status === 'Pending');
     if (!nextPending && !specificCode) {
-      setScanErrorText('All checkpoints for this patrol are already completed.');
+      Alert.alert('Patrol Completed', 'All checkpoints for this patrol are already completed.');
       return;
     }
     const scannedCode = specificCode || nextPending?.qrCode || nextPending?.number || 'CP-01';
-    await handleProcessScan(scannedCode);
+
+    const options: CameraOptions = {
+      mediaType: 'photo',
+      saveToPhotos: false,
+      cameraType: 'back',
+      quality: 0.8,
+    };
+
+    try {
+      const result = await launchCamera(options);
+      if (result.didCancel) return;
+      await handleProcessScan(scannedCode);
+    } catch (e) {
+      await handleProcessScan(scannedCode);
+    }
   };
 
   const handleNFCScan = () => {
@@ -141,7 +120,6 @@ export const ScanCheckpointCard: React.FC = () => {
       Alert.alert('Patrol Not Started', 'Please tap "Start Patrol" before scanning checkpoints.');
       return;
     }
-    // NFC is simulated by scanning the next pending checkpoint automatically for quick ease
     const nextPending = patrolCheckpoints.find(c => c.status === 'Pending');
     if (nextPending) {
       handleProcessScan(nextPending.qrCode);
@@ -185,65 +163,6 @@ export const ScanCheckpointCard: React.FC = () => {
           </AppText>
         </View>
       )}
-
-      {/* DETAILED QR SCANNER INTERACTIVE MODAL */}
-      <Modal visible={isScannerOpen} animationType="slide" transparent={false} onRequestClose={() => setIsScannerOpen(false)}>
-        <View style={[styles.scannerContainer, { backgroundColor: '#111827' }]}>
-          {/* Header */}
-          <View style={styles.scannerHeader}>
-            <AppText size="lg" weight="bold" style={{ color: '#FFFFFF' }}>Scan Checkpoint QR</AppText>
-            <TouchableOpacity onPress={() => setIsScannerOpen(false)} style={styles.closeBtn}>
-              <AppText size="base" weight="bold" style={{ color: colors.primary[400] }}>Close</AppText>
-            </TouchableOpacity>
-          </View>
-
-          {/* Camera Viewport */}
-          <View style={styles.viewportContainer}>
-            <View style={[styles.cameraBorder, { borderColor: colors.primary[500] }]}>
-              {/* Animated laser line */}
-              <Animated.View
-                style={[
-                  styles.laserLine,
-                  {
-                    backgroundColor: colors.error,
-                    transform: [{ translateY: laserAnim }]
-                  }
-                ]}
-              />
-              <AppText size="xs" style={styles.cameraPlaceholderText}>
-                LIVE CAMERA ACTIVE
-              </AppText>
-            </View>
-
-            <TouchableOpacity
-              style={[styles.cameraScanBtn, { backgroundColor: colors.primary[600] }]}
-              onPress={() => handleLaunchNativeCamera()}
-              activeOpacity={0.8}
-            >
-              <AppText size="base" weight="bold" style={{ color: '#FFFFFF' }}>
-                CAPTURE & VERIFY QR CODE
-              </AppText>
-            </TouchableOpacity>
-
-            <AppText size="sm" style={styles.scanInstruction}>
-              Point real phone camera directly at the physical QR code to scan
-            </AppText>
-          </View>
-
-          {/* Feedback Overlay inside viewport */}
-          {scanSuccessText && (
-            <View style={[styles.feedbackOverlay, { backgroundColor: colors.success }]}>
-              <AppText size="base" weight="bold" color="surface">✅ {scanSuccessText}</AppText>
-            </View>
-          )}
-
-          {scanErrorText && (
-            <View style={[styles.feedbackOverlay, { backgroundColor: colors.error }]}>
-              <AppText size="base" weight="bold" color="surface">❌ {scanErrorText}</AppText>
-            </View>
-          )}
-        </View>
-      </Modal>
     </Card>
   );
 };

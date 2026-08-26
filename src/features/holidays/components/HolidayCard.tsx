@@ -41,18 +41,18 @@ export const HolidayCard: React.FC<HolidayCardProps> = ({ data }) => {
   return (
     <Card variant="elevated" style={[styles.card, data.isUpcoming && { borderColor: colors.primary[500], borderWidth: 1 }]}>
       <View style={styles.header}>
-        <AppText size="base" weight="semibold">{data.name}</AppText>
+        <AppText size="md" weight="semibold">{data.name}</AppText>
         {data.isUpcoming && (
           <View style={[styles.upcomingBadge, { backgroundColor: colors.primary[500], borderRadius: borderRadius.full }]}>
-            <AppText size="xs" color="surface" weight="medium">Upcoming</AppText>
+            <AppText size="sm" color="surface" weight="medium">Upcoming</AppText>
           </View>
         )}
       </View>
       
       <View style={[styles.details, { marginTop: spacing.xs }]}>
-        <AppText size="sm" color="secondary">📅 {data.dateStr} ({data.dayOfWeek})</AppText>
+        <AppText size="base" color="secondary">📅 {data.dateStr} ({data.dayOfWeek})</AppText>
         <View style={[styles.typeBadge, { backgroundColor: getTypeBgColor(), borderRadius: borderRadius.full }]}>
-          <AppText size="xs" color={getTypeColor()} weight="medium">{data.type}</AppText>
+          <AppText size="sm" color={getTypeColor()} weight="medium">{data.type}</AppText>
         </View>
       </View>
     </Card>

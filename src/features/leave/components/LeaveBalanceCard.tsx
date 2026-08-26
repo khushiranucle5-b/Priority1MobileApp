@@ -17,16 +17,12 @@ export const LeaveBalanceCard: React.FC = () => {
       
       <View style={[styles.grid, { marginTop: spacing.md }]}>
         <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Annual</AppText>
-          <AppText size="base" weight="semibold">{leaveBalances.annual}</AppText>
+          <AppText size="sm" weight="bold" color="secondary">Annual</AppText>
+          <AppText size="xl" weight="bold" color="primary" style={styles.countText}>{leaveBalances.annual}</AppText>
         </View>
         <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Sick</AppText>
-          <AppText size="base" weight="semibold">{leaveBalances.sick}</AppText>
-        </View>
-        <View style={[styles.item, { backgroundColor: colors.surface, borderRadius: borderRadius.md }]}>
-          <AppText size="xs" color="secondary">Unpaid</AppText>
-          <AppText size="base" weight="semibold">Unlimited</AppText>
+          <AppText size="sm" weight="bold" color="secondary">Sick</AppText>
+          <AppText size="xl" weight="bold" color="primary" style={styles.countText}>{leaveBalances.sick}</AppText>
         </View>
       </View>
     </Card>
@@ -41,11 +37,22 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: 12,
   },
   item: {
     flex: 1,
-    padding: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
     alignItems: 'center',
-  }
+    justifyContent: 'center',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  countText: {
+    fontSize: 22,
+    marginTop: 4,
+  },
 });

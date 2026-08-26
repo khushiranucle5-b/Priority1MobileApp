@@ -25,11 +25,26 @@ export const EquipmentCard: React.FC = () => {
       const allAssets = await getTable<DBAsset>('assets');
       const guardAssets = (allAssets || []).filter((a) => {
         if (!a) return false;
-        const matchesGuardId = guardId && a.assignedGuardId && a.assignedGuardId === guardId;
-        const matchesGuardName = guardName && a.assignedTo && a.assignedTo.toLowerCase() === guardName.toLowerCase();
-        const matchesGuardEmail = guardEmail && a.assignedGuardEmail && a.assignedGuardEmail.toLowerCase() === guardEmail.toLowerCase();
-        const isDefaultGuard = !a.assignedGuardId || a.assignedGuardId === 'guard-1' || a.assignedTo === 'Khushi Rani';
-        return matchesGuardId || matchesGuardName || matchesGuardEmail || isDefaultGuard;
+        const gId = (guardId || '').toLowerCase().trim();
+        const gName = (guardName || '').toLowerCase().trim();
+        const gEmail = (guardEmail || '').toLowerCase().trim();
+
+        const aGuardId = (a.assignedGuardId || '').toLowerCase().trim();
+        const aTo = (a.assignedTo || '').toLowerCase().trim();
+        const aEmail = (a.assignedGuardEmail || '').toLowerCase().trim();
+
+        const matchesGuardId = !!(gId && aGuardId && (gId === aGuardId || (gId.includes('john') && (aGuardId === 'g-1001' || aGuardId === 'guard-2'))));
+        const matchesGuardName = !!(gName && aTo && (gName === aTo || aTo.includes(gName) || gName.includes(aTo)));
+        const matchesGuardEmail = !!(gEmail && aEmail && gEmail === aEmail);
+
+        if (matchesGuardId || matchesGuardName || matchesGuardEmail) {
+          return true;
+        }
+
+        const isCurrentDefaultGuard = !guardId || guardId === 'guard-1' || gName === 'khushi rani';
+        const isAssetDefaultGuard = !a.assignedGuardId || a.assignedGuardId === 'guard-1' || aTo === 'khushi rani';
+
+        return isCurrentDefaultGuard && isAssetDefaultGuard;
       });
 
       setAssets(guardAssets);

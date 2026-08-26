@@ -21,7 +21,7 @@ export const DocumentsSummaryCard: React.FC = () => {
         <View style={styles.leftRow}>
           <NavIcon name="policies" size={22} color="#0F172A" />
           <Heading level="h4" color="primary" style={styles.title}>
-            DOCUMENTS
+            MY DOCUMENTS
           </Heading>
         </View>
 

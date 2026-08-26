@@ -122,7 +122,7 @@ export const PatrolScreen: React.FC = () => {
 
   const activeAvailability = useMemo(() => {
     if (!activeOrNextPatrol) return null;
-    return getPatrolAvailability(activeOrNextPatrol, 0, now);
+    return getPatrolAvailability(activeOrNextPatrol, 15, now);
   }, [activeOrNextPatrol, now]);
 
   // Filter list based on search query & status filter
@@ -218,7 +218,7 @@ export const PatrolScreen: React.FC = () => {
     if (!avail) return;
 
     if (avail.isInProgress || avail.isCompleted) {
-      navigation.navigate('PatrolDetails', { patrolId: activeOrNextPatrol.id });
+      navigation.navigate('PatrolDetails', { patrolId: activeOrNextPatrol.id, patrol: activeOrNextPatrol });
       return;
     }
 
@@ -245,7 +245,7 @@ export const PatrolScreen: React.FC = () => {
     if (startPatrol) {
       await startPatrol(activeOrNextPatrol.id);
     }
-    navigation.navigate('PatrolDetails', { patrolId: activeOrNextPatrol.id });
+    navigation.navigate('PatrolDetails', { patrolId: activeOrNextPatrol.id, patrol: activeOrNextPatrol });
   };
 
   return (

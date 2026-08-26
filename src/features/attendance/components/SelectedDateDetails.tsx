@@ -170,10 +170,10 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
 
           <View style={[styles.tableContainer, { borderColor: colors.border, borderRadius: borderRadius.md }]}>
             <View style={[styles.tableHeaderRow, { backgroundColor: colors.background || 'rgba(0,0,0,0.03)', borderBottomColor: colors.border }]}>
-              <AppText size="xs" weight="bold" color="secondary" style={styles.colSession}>Session</AppText>
-              <AppText size="xs" weight="bold" color="secondary" style={styles.colTime}>Clock In</AppText>
-              <AppText size="xs" weight="bold" color="secondary" style={styles.colTime}>Clock Out</AppText>
-              <AppText size="xs" weight="bold" color="secondary" style={styles.colDuration}>Total Hours</AppText>
+              <AppText size="sm" weight="bold" color="secondary" style={styles.colSession}>Session</AppText>
+              <AppText size="sm" weight="bold" color="secondary" style={styles.colTime}>Clock In</AppText>
+              <AppText size="sm" weight="bold" color="secondary" style={styles.colTime}>Clock Out</AppText>
+              <AppText size="sm" weight="bold" color="secondary" style={styles.colDuration}>Total Hours</AppText>
             </View>
 
             {sessions.map((sess: AttendanceRecord, idx: number) => {
@@ -187,17 +187,17 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
                     idx === sessions.length - 1 ? { borderBottomWidth: 0 } : null
                   ]}
                 >
-                  <AppText size="xs" weight="bold" color="primary" style={styles.colSession}>
+                  <AppText size="sm" weight="bold" color="primary" style={styles.colSession}>
                     Session {idx + 1}
                   </AppText>
-                  <AppText size="xs" color="primary" style={styles.colTime}>
+                  <AppText size="sm" color="primary" style={styles.colTime}>
                     {formatTimeStr(sess.clockIn)}
                   </AppText>
-                  <AppText size="xs" color="primary" style={styles.colTime}>
+                  <AppText size="sm" color="primary" style={styles.colTime}>
                     {sess.clockOut ? formatTimeStr(sess.clockOut) : '—'}
                   </AppText>
                   <AppText
-                    size="xs"
+                    size="sm"
                     weight="bold"
                     style={[
                       styles.colDuration,
@@ -212,7 +212,7 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
           </View>
 
           <View style={[styles.totalHoursBox, { backgroundColor: colors.background || 'rgba(0,0,0,0.02)', borderColor: colors.border, borderRadius: borderRadius.md }]}>
-            <AppText size="sm" weight="bold" color="primary">
+            <AppText size="base" weight="bold" color="primary">
               TOTAL HOURS: {totalHoursStr}
             </AppText>
           </View>

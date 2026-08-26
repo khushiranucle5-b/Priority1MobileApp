@@ -9,14 +9,19 @@ import { CheckpointCard } from './CheckpointCard';
 
 export const CheckpointList: React.FC = () => {
   const { spacing } = useTheme();
-  const { patrolCheckpoints, activePatrol } = useGuardStore();
+  const { patrolCheckpointsMap, activePatrol } = useGuardStore();
+
+  const patrolCheckpoints = React.useMemo(() => {
+    if (!activePatrol?.id) return [];
+    return patrolCheckpointsMap[activePatrol.id] || [];
+  }, [patrolCheckpointsMap, activePatrol?.id]);
 
   return (
     <Card variant="flat" style={styles.card}>
       <Heading level="h4" style={styles.title}>Assigned Checkpoints</Heading>
       
       <View style={{ marginTop: spacing.sm }}>
-        {activePatrol && activePatrol.status === 'in_progress' ? (
+        {activePatrol && (activePatrol.status === 'in_progress' || activePatrol.status === 'In Progress') ? (
           patrolCheckpoints.map((cp) => (
             <CheckpointCard key={cp.id} data={cp} />
           ))

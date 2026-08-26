@@ -72,7 +72,7 @@ export const HolidaysScreen: React.FC = () => {
         {/* Search Bar matching Reference Screenshot */}
         <View style={styles.searchBox}>
           <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-            <NavIcon name="search" size={16} color="#64748B" />
+            <NavIcon name="search" size={18} color="#64748B" />
           </View>
           <TextInput
             placeholder="Search holidays by name, code, category..."
@@ -91,12 +91,12 @@ export const HolidaysScreen: React.FC = () => {
             activeOpacity={0.7}
           >
             <View style={{ flex: 1 }}>
-              <AppText size="xs" color="secondary">Status</AppText>
-              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
+              <AppText size="sm" color="secondary">Status</AppText>
+              <AppText size="base" weight="bold" color="primary" numberOfLines={1}>
                 {statusFilter === 'All' ? 'All Statuses' : statusFilter}
               </AppText>
             </View>
-            <AppText size="xs" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
+            <AppText size="sm" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -105,22 +105,22 @@ export const HolidaysScreen: React.FC = () => {
             activeOpacity={0.7}
           >
             <View style={{ flex: 1 }}>
-              <AppText size="xs" color="secondary">Category</AppText>
-              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
+              <AppText size="sm" color="secondary">Category</AppText>
+              <AppText size="base" weight="bold" color="primary" numberOfLines={1}>
                 {typeFilter === 'All' ? 'All Categories' : typeFilter}
               </AppText>
             </View>
-            <AppText size="xs" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
+            <AppText size="sm" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
           </TouchableOpacity>
         </View>
 
-        <Heading level="h4" style={styles.sectionTitle}>
+        <Heading level="h3" style={styles.sectionTitle}>
           Holidays ({filteredHolidays.length})
         </Heading>
 
         {filteredHolidays.length === 0 ? (
           <Card style={{ padding: 24, alignItems: 'center' }}>
-            <AppText size="sm" color="secondary">No holidays match current filter selections.</AppText>
+            <AppText size="base" color="secondary">No holidays match current filter selections.</AppText>
           </Card>
         ) : (
           filteredHolidays.map((holiday) => {
@@ -135,15 +135,15 @@ export const HolidaysScreen: React.FC = () => {
                 >
                   <View style={styles.cardHeader}>
                     <View style={{ flex: 1 }}>
-                      <Heading level="h4" color="primary">{holiday.name}</Heading>
-                      <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                      <Heading level="h3" color="primary">{holiday.name}</Heading>
+                      <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
                         Holiday ID: {holiday.holidayCode} • {holiday.dateStr}
                       </AppText>
                     </View>
 
                     <View style={styles.badgeColumn}>
                       <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                        <AppText size="sm" weight="bold" style={{ color: statusColors.text }}>
                           {holiday.status}
                         </AppText>
                       </View>
@@ -152,7 +152,7 @@ export const HolidaysScreen: React.FC = () => {
 
                   <View style={styles.cardFooter}>
                     <View style={[styles.badge, { backgroundColor: typeColors.bg }]}>
-                      <AppText size="xs" weight="bold" style={{ color: typeColors.text }}>
+                      <AppText size="sm" weight="bold" style={{ color: typeColors.text }}>
                         {holiday.type}
                       </AppText>
                     </View>
@@ -162,7 +162,7 @@ export const HolidaysScreen: React.FC = () => {
                       onPress={() => navigation.navigate('HolidayDetails', { holidayId: holiday.id })}
                       activeOpacity={0.7}
                     >
-                      <NavIcon name="eye" size={18} color="#4F46E5" />
+                      <NavIcon name="eye" size={20} color="#4F46E5" />
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
@@ -186,7 +186,7 @@ export const HolidaysScreen: React.FC = () => {
           onPress={() => setIsStatusPickerOpen(false)}
         >
           <View style={styles.pickerSheet}>
-            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Select Status</Heading>
+            <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Select Status</Heading>
             {(['All', 'Active', 'Upcoming', 'Past'] as const).map((st) => (
               <TouchableOpacity
                 key={st}
@@ -200,13 +200,13 @@ export const HolidaysScreen: React.FC = () => {
                 }}
               >
                 <AppText
-                  size="sm"
+                  size="base"
                   weight={statusFilter === st ? 'bold' : 'regular'}
                   color={statusFilter === st ? 'primary' : 'secondary'}
                 >
                   {st === 'All' ? 'All Statuses' : st}
                 </AppText>
-                {statusFilter === st && <AppText size="sm" color="primary">✓</AppText>}
+                {statusFilter === st && <AppText size="base" color="primary">✓</AppText>}
               </TouchableOpacity>
             ))}
           </View>
@@ -226,7 +226,7 @@ export const HolidaysScreen: React.FC = () => {
           onPress={() => setIsCategoryPickerOpen(false)}
         >
           <View style={styles.pickerSheet}>
-            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Select Category</Heading>
+            <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Select Category</Heading>
             {['All', 'Public', 'National Holiday', 'Company Holiday', 'Festival Holiday'].map((tp) => (
               <TouchableOpacity
                 key={tp}
@@ -240,20 +240,20 @@ export const HolidaysScreen: React.FC = () => {
                 }}
               >
                 <AppText
-                  size="sm"
+                  size="base"
                   weight={typeFilter === tp ? 'bold' : 'regular'}
                   color={typeFilter === tp ? 'primary' : 'secondary'}
                 >
                   {tp === 'All' ? 'All Categories' : tp}
                 </AppText>
-                {typeFilter === tp && <AppText size="sm" color="primary">✓</AppText>}
+                {typeFilter === tp && <AppText size="base" color="primary">✓</AppText>}
               </TouchableOpacity>
             ))}
           </View>
         </TouchableOpacity>
       </Modal>
 
-      {/* HOLIDAY DETAILS MODAL (Matching Reference Screenshot 1 Exactly) */}
+      {/* HOLIDAY DETAILS MODAL */}
       <Modal
         visible={selectedHoliday !== null}
         animationType="slide"
@@ -266,8 +266,8 @@ export const HolidaysScreen: React.FC = () => {
               <>
                 <View style={styles.modalHeaderRow}>
                   <View style={{ flex: 1 }}>
-                    <Heading level="h3" color="primary">View Holiday</Heading>
-                    <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+                    <Heading level="h2" color="primary">View Holiday</Heading>
+                    <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
                       View the details and configuration of the selected holiday.
                     </AppText>
                   </View>
@@ -276,7 +276,7 @@ export const HolidaysScreen: React.FC = () => {
                     onPress={() => setSelectedHoliday(null)}
                     style={styles.backButtonBtn}
                   >
-                    <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
+                    <AppText size="sm" weight="bold" style={{ color: '#475569' }}>
                       ← Back to Holidays
                     </AppText>
                   </TouchableOpacity>
@@ -284,7 +284,7 @@ export const HolidaysScreen: React.FC = () => {
 
                 {/* Main Card: HOLIDAY INFORMATION */}
                 <View style={styles.holidayInfoCard}>
-                  <AppText size="xs" weight="bold" style={styles.sectionHeading}>
+                  <AppText size="sm" weight="bold" style={styles.sectionHeading}>
                     HOLIDAY INFORMATION
                   </AppText>
 
@@ -292,40 +292,40 @@ export const HolidaysScreen: React.FC = () => {
 
                   <View style={styles.infoGrid}>
                     <View style={styles.infoCol}>
-                      <AppText size="xs" color="secondary">Holiday Name</AppText>
-                      <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                      <AppText size="sm" color="secondary">Holiday Name</AppText>
+                      <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
                         {selectedHoliday.name}
                       </AppText>
                     </View>
 
                     <View style={styles.infoCol}>
-                      <AppText size="xs" color="secondary">Date</AppText>
-                      <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                      <AppText size="sm" color="secondary">Date</AppText>
+                      <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
                         {selectedHoliday.dateStr}
                       </AppText>
                     </View>
 
                     <View style={styles.infoCol}>
-                      <AppText size="xs" color="secondary">Type</AppText>
+                      <AppText size="sm" color="secondary">Type</AppText>
                       <View style={[styles.badgeInline, { backgroundColor: getTypeBadgeStyle(selectedHoliday.type).bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: getTypeBadgeStyle(selectedHoliday.type).text }}>
+                        <AppText size="sm" weight="bold" style={{ color: getTypeBadgeStyle(selectedHoliday.type).text }}>
                           {selectedHoliday.type}
                         </AppText>
                       </View>
                     </View>
 
                     <View style={styles.infoCol}>
-                      <AppText size="xs" color="secondary">Status</AppText>
+                      <AppText size="sm" color="secondary">Status</AppText>
                       <View style={[styles.badgeInline, { backgroundColor: getStatusBadgeStyle(selectedHoliday.status).bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: getStatusBadgeStyle(selectedHoliday.status).text }}>
+                        <AppText size="sm" weight="bold" style={{ color: getStatusBadgeStyle(selectedHoliday.status).text }}>
                           {selectedHoliday.status}
                         </AppText>
                       </View>
                     </View>
 
                     <View style={styles.infoCol}>
-                      <AppText size="xs" color="secondary">Holiday ID</AppText>
-                      <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                      <AppText size="sm" color="secondary">Holiday ID</AppText>
+                      <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
                         {selectedHoliday.holidayCode}
                       </AppText>
                     </View>
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 17,
     color: '#0F172A',
   },
   dropdownRow: {

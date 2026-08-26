@@ -161,7 +161,7 @@ export const AssetDetailsScreen: React.FC = () => {
 
         {/* ASSET INFORMATION CARD */}
         <Card style={styles.infoCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          <AppText size="sm" weight="bold" style={styles.cardSectionHeading}>
             ASSET INFORMATION
           </AppText>
 
@@ -172,8 +172,8 @@ export const AssetDetailsScreen: React.FC = () => {
             <View style={styles.gridRow}>
               {asset.assetCode ? (
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Asset Code</AppText>
-                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                  <AppText size="sm" color="secondary">Asset Code</AppText>
+                  <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                     {asset.assetCode}
                   </AppText>
                 </View>
@@ -181,8 +181,8 @@ export const AssetDetailsScreen: React.FC = () => {
 
               {asset.serialNumber ? (
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Serial Number</AppText>
-                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                  <AppText size="sm" color="secondary">Serial Number</AppText>
+                  <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                     {asset.serialNumber}
                   </AppText>
                 </View>
@@ -192,16 +192,16 @@ export const AssetDetailsScreen: React.FC = () => {
             {/* Row 2: Category & Condition */}
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Category / Type</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                <AppText size="sm" color="secondary">Category / Type</AppText>
+                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                   {asset.type}
                 </AppText>
               </View>
 
               {asset.condition ? (
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Condition</AppText>
-                  <AppText size="sm" weight="bold" style={{ color: conditionColors.text, marginTop: 4 }}>
+                  <AppText size="sm" color="secondary">Condition</AppText>
+                  <AppText size="base" weight="bold" style={{ color: conditionColors.text, marginTop: 4 }}>
                     {asset.condition}
                   </AppText>
                 </View>
@@ -212,8 +212,8 @@ export const AssetDetailsScreen: React.FC = () => {
             <View style={styles.gridRow}>
               {asset.site ? (
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Assigned Site</AppText>
-                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                  <AppText size="sm" color="secondary">Assigned Site</AppText>
+                  <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                     {asset.site}
                   </AppText>
                 </View>
@@ -221,49 +221,34 @@ export const AssetDetailsScreen: React.FC = () => {
 
               {asset.assignedDate ? (
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Assigned Date</AppText>
-                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                  <AppText size="sm" color="secondary">Assigned Date</AppText>
+                  <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                     {asset.assignedDate}
                   </AppText>
                 </View>
               ) : null}
             </View>
 
-            {/* Row 4: Quantity & Assigned To */}
+            {/* Row 4: Quantity & Assigned By */}
             <View style={styles.gridRow}>
               {asset.quantity && asset.quantity > 1 ? (
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Quantity</AppText>
-                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                  <AppText size="sm" color="secondary">Quantity</AppText>
+                  <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                     {asset.quantity} units
                   </AppText>
                 </View>
               ) : null}
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Assigned Guard</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
-                  {asset.assignedTo || guardName || 'Khushi Rani'}
+                <AppText size="sm" color="secondary">Assigned By</AppText>
+                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                  {asset.assignedBy || 'Jane Smith (Supervisor)'}
                 </AppText>
               </View>
             </View>
           </View>
         </Card>
-
-        {/* EQUIPMENT GUIDELINES & NOTES */}
-        {asset.notes ? (
-          <Card style={styles.notesCard}>
-            <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
-              EQUIPMENT GUIDELINES & NOTES
-            </AppText>
-
-            <View style={styles.dividerLine} />
-
-            <AppText size="sm" color="secondary" style={{ lineHeight: 20 }}>
-              {asset.notes}
-            </AppText>
-          </Card>
-        ) : null}
 
         {/* End of Asset Details */}
 
@@ -288,6 +273,9 @@ const styles = StyleSheet.create({
   },
   mainCard: {
     padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
   },
   badgeRow: {
     flexDirection: 'row',
@@ -297,9 +285,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   infoCard: {
     padding: 20,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
   },
   notesCard: {
     padding: 20,

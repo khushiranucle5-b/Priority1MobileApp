@@ -23,6 +23,8 @@ export const Card: React.FC<CardProps> = ({
       case 'elevated':
         return {
           backgroundColor: colors.card,
+          borderWidth: 1,
+          borderColor: colors.border,
           shadowColor: theme === 'dark' ? colors.black : '#e2e8f0',
           ...shadows.md,
         };

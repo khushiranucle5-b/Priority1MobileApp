@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
+import { useDrawerStore } from '../../../store/useDrawerStore';
 import {
   HomeHeader,
   TodayDutyCard,
@@ -12,10 +13,8 @@ import {
   DailySummaryCard,
 } from '../components';
 
-import { SidebarDrawer } from '../../../components';
-
 export const HomeScreen: React.FC = () => {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const openDrawer = useDrawerStore((state) => state.openDrawer);
   const [isScrolled, setIsScrolled] = useState(false);
 
   return (
@@ -24,7 +23,10 @@ export const HomeScreen: React.FC = () => {
         {/* Sticky Home Header at top */}
         <HomeHeader
           isScrolled={isScrolled}
-          onMenuPress={() => setIsDrawerOpen(true)}
+          onMenuPress={() => {
+            console.log('[HomeScreen] onMenuPress triggered, opening drawer store');
+            openDrawer();
+          }}
         />
 
         <ScrollView
@@ -42,8 +44,6 @@ export const HomeScreen: React.FC = () => {
           {/* 2. Patrol Progress (Directly below Attendance) */}
           <PatrolProgressSummaryCard />
 
-         
-
           {/* 4. Quick Actions */}
           <QuickActionsGrid />
 
@@ -51,7 +51,6 @@ export const HomeScreen: React.FC = () => {
           <NotificationCard />
         </ScrollView>
       </View>
-      <SidebarDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
     </ScreenLayout>
   );
 };

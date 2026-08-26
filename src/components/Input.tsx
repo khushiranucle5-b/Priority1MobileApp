@@ -70,10 +70,11 @@ export const Input: React.FC<InputProps> = ({
             borderRadius: borderRadius.md,
             paddingHorizontal: spacing.md,
           },
+          props.multiline && { alignItems: 'flex-start', paddingTop: 8, paddingBottom: 8 },
           style,
         ]}
       >
-        {leftIcon && <View style={{ marginRight: spacing.sm }}>{leftIcon}</View>}
+        {leftIcon && <View style={{ marginRight: spacing.sm, marginTop: props.multiline ? 4 : 0 }}>{leftIcon}</View>}
         <TextInput
           style={[
             styles.input,
@@ -81,7 +82,12 @@ export const Input: React.FC<InputProps> = ({
               color: disabled ? colors.disabledText : colors.text,
               fontSize: typography.fontSize.base, // 14px input text
             },
+            props.multiline && {
+              textAlignVertical: 'top',
+              paddingVertical: 2,
+            },
           ]}
+          textAlignVertical={props.multiline ? 'top' : props.textAlignVertical}
           placeholderTextColor={colors.textTertiary}
           editable={!disabled}
           onFocus={() => setIsFocused(true)}
@@ -89,7 +95,7 @@ export const Input: React.FC<InputProps> = ({
           {...(label ? a11yInput(label) : {})}
           {...props}
         />
-        {rightIcon && <View style={{ marginLeft: spacing.sm }}>{rightIcon}</View>}
+        {rightIcon && <View style={{ marginLeft: spacing.sm, marginTop: props.multiline ? 4 : 0 }}>{rightIcon}</View>}
       </View>
 
       {error && (

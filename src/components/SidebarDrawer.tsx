@@ -7,11 +7,12 @@ import { Heading } from './typography/Heading';
 import { useTheme } from '../providers/ThemeProvider';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
+import { useDrawerStore } from '../store/useDrawerStore';
 import { NavIcon, NavIconName } from './NavIcon';
 
 interface SidebarDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
   activeRouteName?: string;
 }
 
@@ -59,14 +60,25 @@ const isRouteActive = (itemRoute: string, currentRoute?: string) => {
 
 const getInitials = (name?: string) => {
   if (!name || !name.trim()) return 'DJ';
-  const parts = name.trim().split(/\s+/);
+  const parts = name.trim().split(/\s+/) ;
   if (parts.length >= 2) {
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   }
   return name.slice(0, 2).toUpperCase();
 };
 
-export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose, activeRouteName }) => {
+export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
+  isOpen: propIsOpen,
+  onClose: propOnClose,
+  activeRouteName,
+}) => {
+  const storeIsOpen = useDrawerStore((state) => state.isOpen);
+  const storeCloseDrawer = useDrawerStore((state) => state.closeDrawer);
+
+  const isOpen = propIsOpen ?? storeIsOpen;
+  const onClose = propOnClose ?? storeCloseDrawer;
+
+  console.log('[SidebarDrawer] Rendering, isOpen:', isOpen);
   const { borderRadius } = useTheme();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -155,7 +167,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({ isOpen, onClose, a
           </View>
 
           {/* Navigation Sections */}
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
             {sections.map((sec, idx) => (
               <View key={idx} style={styles.section}>
                 <AppText size="xs" weight="bold" style={styles.sectionTitle}>

@@ -213,7 +213,7 @@ export const SitesListScreen: React.FC = () => {
         {/* Header Block */}
         <View style={styles.headerBlock}>
           <Heading level="h2" color="primary">Sites</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+          <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
             Protected Sites • Client sites, coverage, risk tier and geofencing.
           </AppText>
         </View>
@@ -223,7 +223,7 @@ export const SitesListScreen: React.FC = () => {
           {/* Full-width rounded search input */}
           <View style={styles.searchBar}>
             <View style={{ marginRight: 8 }}>
-              <NavIcon name="search" size={16} color="#64748B" />
+              <NavIcon name="search" size={18} color="#64748B" />
             </View>
             <TextInput
               style={styles.searchInput}
@@ -234,7 +234,7 @@ export const SitesListScreen: React.FC = () => {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-                <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+                <AppText size="sm" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -250,11 +250,11 @@ export const SitesListScreen: React.FC = () => {
               }}
               activeOpacity={0.8}
             >
-              <AppText size="xs" color="secondary" style={{ marginRight: 4 }}>Risk:</AppText>
-              <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+              <AppText size="sm" color="secondary" style={{ marginRight: 4 }}>Risk:</AppText>
+              <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
                 {riskFilter}
               </AppText>
-              <AppText size="xs" color="secondary">{riskDropdownOpen ? '▲' : '▼'}</AppText>
+              <AppText size="sm" color="secondary">{riskDropdownOpen ? '▲' : '▼'}</AppText>
             </TouchableOpacity>
 
             {/* Status Dropdown Trigger */}
@@ -266,11 +266,11 @@ export const SitesListScreen: React.FC = () => {
               }}
               activeOpacity={0.8}
             >
-              <AppText size="xs" color="secondary" style={{ marginRight: 4 }}>Status:</AppText>
-              <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+              <AppText size="sm" color="secondary" style={{ marginRight: 4 }}>Status:</AppText>
+              <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
                 {statusFilter}
               </AppText>
-              <AppText size="xs" color="secondary">{statusDropdownOpen ? '▲' : '▼'}</AppText>
+              <AppText size="sm" color="secondary">{statusDropdownOpen ? '▲' : '▼'}</AppText>
             </TouchableOpacity>
           </View>
 
@@ -287,7 +287,7 @@ export const SitesListScreen: React.FC = () => {
                   }}
                 >
                   <AppText
-                    size="xs"
+                    size="sm"
                     weight={riskFilter === r ? 'bold' : 'medium'}
                     style={{ color: riskFilter === r ? '#4F46E5' : '#334155' }}
                   >
@@ -311,7 +311,7 @@ export const SitesListScreen: React.FC = () => {
                   }}
                 >
                   <AppText
-                    size="xs"
+                    size="sm"
                     weight={statusFilter === s ? 'bold' : 'medium'}
                     style={{ color: statusFilter === s ? '#4F46E5' : '#334155' }}
                   >
@@ -325,14 +325,14 @@ export const SitesListScreen: React.FC = () => {
 
         {/* List Title */}
         <View style={styles.listHeaderRow}>
-          <Heading level="h4" color="primary">Protected Sites List ({filteredSites.length})</Heading>
+          <Heading level="h3" color="primary">Protected Sites List ({filteredSites.length})</Heading>
         </View>
 
         {/* Site Cards List */}
         {filteredSites.length === 0 ? (
           <Card style={{ padding: 24, alignItems: 'center' }}>
             <NavIcon name="sites" size={36} color="#94A3B8" />
-            <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
+            <AppText size="base" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
               No sites match your search query or filter criteria.
             </AppText>
           </Card>
@@ -350,20 +350,20 @@ export const SitesListScreen: React.FC = () => {
                   {/* Card Header */}
                   <View style={styles.siteCardHeader}>
                     <View style={{ flex: 1, paddingRight: 8 }}>
-                      <Heading level="h4" color="primary">{site.name}</Heading>
-                      <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                        Client: <AppText size="xs" weight="bold" color="primary">{site.clientName}</AppText>
+                      <Heading level="h3" color="primary">{site.name}</Heading>
+                      <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
+                        Client: <AppText size="sm" weight="bold" color="primary">{site.clientName}</AppText>
                       </AppText>
                     </View>
 
                     <View style={styles.badgeGroup}>
                       <View style={[styles.badge, { backgroundColor: riskColors.bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: riskColors.text }}>
+                        <AppText size="sm" weight="bold" style={{ color: riskColors.text }}>
                           {site.riskLevel} Risk
                         </AppText>
                       </View>
                       <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
-                        <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                        <AppText size="sm" weight="bold" style={{ color: statusColors.text }}>
                           {(site.status || 'ACTIVE').toUpperCase()}
                         </AppText>
                       </View>
@@ -375,41 +375,35 @@ export const SitesListScreen: React.FC = () => {
                   {/* Card Details Grid */}
                   <View style={styles.grid}>
                     <View style={styles.gridCol}>
-                      <AppText size="xs" color="secondary">Branch:</AppText>
-                      <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>{site.branch}</AppText>
+                      <AppText size="sm" color="secondary">Branch:</AppText>
+                      <AppText size="base" weight="bold" color="primary" numberOfLines={1}>{site.branch}</AppText>
                     </View>
 
                     <View style={styles.gridCol}>
-                      <AppText size="xs" color="secondary">Supervisor:</AppText>
-                      <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>{site.supervisorName}</AppText>
+                      <AppText size="sm" color="secondary">Supervisor:</AppText>
+                      <AppText size="base" weight="bold" color="primary" numberOfLines={1}>{site.supervisorName}</AppText>
                     </View>
 
                     <View style={styles.gridCol}>
-                      <AppText size="xs" color="secondary">Guards on Site:</AppText>
-                      <AppText size="sm" weight="bold" color="primary">{site.guardsCount} Guards</AppText>
+                      <AppText size="sm" color="secondary">Guards on Site:</AppText>
+                      <AppText size="base" weight="bold" color="primary">{site.guardsCount} Guards</AppText>
                     </View>
 
                     <View style={styles.gridCol}>
-                      <AppText size="xs" color="secondary">Contract End:</AppText>
-                      <AppText size="sm" weight="bold" color="primary">{site.contractEnd}</AppText>
+                      <AppText size="sm" color="secondary">Contract End:</AppText>
+                      <AppText size="base" weight="bold" color="primary">{site.contractEnd}</AppText>
                     </View>
                   </View>
 
-                  {/* Card Address & Action Footer */}
+                  {/* Action Footer with View Icon Button */}
                   <View style={styles.cardFooter}>
-                    <View style={{ flex: 1, marginRight: 10 }}>
-                      <AppText size="xs" color="secondary" numberOfLines={2}>
-                        {site.addressLine1}{site.city ? `, ${site.city}` : ''}
-                      </AppText>
-                    </View>
-
-                    <Button
-                      title="VIEW SITE"
-                      variant="outline"
-                      size="small"
+                    <TouchableOpacity
+                      style={styles.viewIconButton}
                       onPress={() => navigation.navigate('SiteDetails', { siteId: site.id })}
-                      style={styles.viewSiteBtn}
-                    />
+                      activeOpacity={0.7}
+                    >
+                      <NavIcon name="eye" size={20} color="#4F46E5" />
+                    </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
               </Card>
@@ -520,15 +514,20 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
     paddingTop: 12,
   },
-  viewSiteBtn: {
-    minHeight: 38,
-    paddingHorizontal: 14,
+  viewIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
-

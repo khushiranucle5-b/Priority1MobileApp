@@ -52,15 +52,15 @@ export const HolidayDetailsScreen: React.FC = () => {
 
         {/* Title Header */}
         <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">View Holiday</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+          <Heading level="h1" color="primary">View Holiday</Heading>
+          <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
             View the details and configuration of the selected holiday.
           </AppText>
         </View>
 
         {/* HOLIDAY INFORMATION CARD */}
         <Card style={styles.infoCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          <AppText size="sm" weight="bold" style={styles.cardSectionHeading}>
             HOLIDAY INFORMATION
           </AppText>
 
@@ -70,15 +70,15 @@ export const HolidayDetailsScreen: React.FC = () => {
             {/* Row 1: Holiday Name & Date */}
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Holiday Name</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                <AppText size="sm" color="secondary">Holiday Name</AppText>
+                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                   {holiday.name}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Date</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                <AppText size="sm" color="secondary">Date</AppText>
+                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                   {holiday.dateStr}
                 </AppText>
               </View>
@@ -87,18 +87,18 @@ export const HolidayDetailsScreen: React.FC = () => {
             {/* Row 2: Type & Status */}
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Type</AppText>
+                <AppText size="sm" color="secondary">Type</AppText>
                 <View style={[styles.badge, { backgroundColor: typeColors.bg }]}>
-                  <AppText size="xs" weight="bold" style={{ color: typeColors.text }}>
+                  <AppText size="sm" weight="bold" style={{ color: typeColors.text }}>
                     {holiday.type}
                   </AppText>
                 </View>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Status</AppText>
+                <AppText size="sm" color="secondary">Status</AppText>
                 <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
-                  <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                  <AppText size="sm" weight="bold" style={{ color: statusColors.text }}>
                     {holiday.status}
                   </AppText>
                 </View>
@@ -108,8 +108,8 @@ export const HolidayDetailsScreen: React.FC = () => {
             {/* Row 3: Holiday ID */}
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Holiday ID</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 4 }}>
+                <AppText size="sm" color="secondary">Holiday ID</AppText>
+                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 4 }}>
                   {holiday.holidayCode}
                 </AppText>
               </View>

@@ -34,13 +34,13 @@ export const PayslipDetailsScreen: React.FC = () => {
           <View style={styles.companyHeaderRow}>
             <View style={{ flex: 1 }}>
               <Heading level="h2" color="primary">{slip.companyName || 'ACME SECURITY SERVICES'}</Heading>
-              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
                 {slip.statementTitle || 'Official Employee Wages Payslip Statement'}
               </AppText>
             </View>
 
             <View style={styles.statusBadge}>
-              <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
+              <AppText size="sm" weight="bold" style={{ color: '#059669' }}>
                 ● {slip.status}
               </AppText>
             </View>
@@ -49,7 +49,7 @@ export const PayslipDetailsScreen: React.FC = () => {
 
         {/* EMPLOYEE / PAYSLIP INFORMATION CARD */}
         <Card style={styles.sectionCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          <AppText size="sm" weight="bold" style={styles.cardSectionHeading}>
             EMPLOYEE & PAYSLIP INFORMATION
           </AppText>
 
@@ -57,43 +57,43 @@ export const PayslipDetailsScreen: React.FC = () => {
 
           <View style={styles.infoGrid}>
             <View style={styles.infoCol}>
-              <AppText size="xs" color="secondary">Payslip ID</AppText>
-              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary">Payslip ID</AppText>
+              <AppText size="base" weight="bold" color="primary" style={{ marginTop: 3 }}>
                 {slip.payslipId}
               </AppText>
             </View>
 
             <View style={styles.infoCol}>
-              <AppText size="xs" color="secondary">Cycle Period</AppText>
-              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary">Cycle Period</AppText>
+              <AppText size="base" weight="bold" color="primary" style={{ marginTop: 3 }}>
                 {slip.cyclePeriod}
               </AppText>
             </View>
 
             <View style={styles.infoCol}>
-              <AppText size="xs" color="secondary">Status</AppText>
-              <AppText size="sm" weight="bold" style={{ color: '#059669', marginTop: 2 }}>
+              <AppText size="sm" color="secondary">Status</AppText>
+              <AppText size="base" weight="bold" style={{ color: '#059669', marginTop: 3 }}>
                 {slip.status}
               </AppText>
             </View>
 
             <View style={styles.infoCol}>
-              <AppText size="xs" color="secondary">Employee Name</AppText>
-              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary">Employee Name</AppText>
+              <AppText size="base" weight="bold" color="primary" style={{ marginTop: 3 }}>
                 {guardName || slip.employeeName || 'Khushi Rani'}
               </AppText>
             </View>
 
             <View style={styles.infoCol}>
-              <AppText size="xs" color="secondary">Designation</AppText>
-              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary">Designation</AppText>
+              <AppText size="base" weight="bold" color="primary" style={{ marginTop: 3 }}>
                 {slip.designation || 'Senior Security Officer'}
               </AppText>
             </View>
 
             <View style={styles.infoCol}>
-              <AppText size="xs" color="secondary">Total Hours Worked</AppText>
-              <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary">Total Hours Worked</AppText>
+              <AppText size="base" weight="bold" color="primary" style={{ marginTop: 3 }}>
                 {slip.totalHours}
               </AppText>
             </View>
@@ -102,38 +102,38 @@ export const PayslipDetailsScreen: React.FC = () => {
 
         {/* EARNINGS & DEDUCTIONS SUMMARY CARD */}
         <Card style={styles.sectionCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          <AppText size="sm" weight="bold" style={styles.cardSectionHeading}>
             EARNINGS & DEDUCTIONS SUMMARY
           </AppText>
 
           <View style={styles.dividerLine} />
 
           <View style={styles.tableRow}>
-            <AppText size="sm" color="secondary">Basic Roster Wages</AppText>
-            <AppText size="sm" weight="bold" color="primary">{slip.basicRosterWages}</AppText>
+            <AppText size="base" color="secondary">Basic Roster Wages</AppText>
+            <AppText size="base" weight="bold" color="primary">{slip.basicRosterWages}</AppText>
           </View>
 
           <View style={styles.tableRow}>
-            <AppText size="sm" color="secondary">Overtime Wages (1.5x Multiplier)</AppText>
-            <AppText size="sm" weight="bold" color="primary">{slip.overtimeWages}</AppText>
+            <AppText size="base" color="secondary">Overtime Wages (1.5x Multiplier)</AppText>
+            <AppText size="base" weight="bold" color="primary">{slip.overtimeWages}</AppText>
           </View>
 
           <View style={styles.tableRow}>
-            <AppText size="sm" color="secondary">Tax & Insurance Deductions</AppText>
-            <AppText size="sm" weight="bold" style={{ color: '#DC2626' }}>{slip.taxInsuranceDeductions}</AppText>
+            <AppText size="base" color="secondary">Tax & Insurance Deductions</AppText>
+            <AppText size="base" weight="bold" style={{ color: '#DC2626' }}>{slip.taxInsuranceDeductions}</AppText>
           </View>
         </Card>
 
         {/* FINAL NET DISBURSED WAGES CARD */}
-        <Card style={[styles.sectionCard, { backgroundColor: '#F8FAFC', borderColor: '#C7D2FE', borderWidth: 1.5 }]}>
-          <AppText size="xs" weight="bold" color="secondary" style={{ letterSpacing: 0.5 }}>
+        <Card style={[styles.sectionCard, { backgroundColor: '#F8FAFC', borderColor: '#C7D2FE', borderWidth: 1.5, borderRadius: 12 }]}>
+          <AppText size="sm" weight="bold" color="secondary" style={{ letterSpacing: 0.5 }}>
             FINAL DISBURSEMENT
           </AppText>
           <View style={styles.netDisbursedRow}>
-            <AppText size="sm" weight="bold" color="primary" style={{ flex: 1, marginTop: 4 }}>
+            <AppText size="base" weight="bold" color="primary" style={{ flex: 1, marginTop: 4 }}>
               NET DISBURSED WAGES
             </AppText>
-            <Heading level="h2" style={{ color: '#4F46E5', fontSize: 20 }}>
+            <Heading level="h2" style={{ color: '#4F46E5', fontSize: 24 }}>
               {slip.netDisbursedWages}
             </Heading>
           </View>
@@ -163,6 +163,9 @@ const styles = StyleSheet.create({
   },
   headerCard: {
     padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
   },
   companyHeaderRow: {
     flexDirection: 'row',
@@ -174,10 +177,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
   },
   sectionCard: {
     padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
   },
   cardSectionHeading: {
     color: '#64748B',

@@ -48,7 +48,7 @@ const parseScheduleTs = (p: DBPatrol): number => {
 
 export const PatrolProgressSummaryCard: React.FC = () => {
   const { colors, borderRadius } = useTheme();
-  const { activePatrol, patrolCheckpoints, patrols, guardId, guardEmail, guardName, loadGuardData } = useGuardStore();
+  const { activePatrol, patrolCheckpointsMap, patrols, guardId, guardEmail, guardName, loadGuardData } = useGuardStore();
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
 
@@ -86,18 +86,20 @@ export const PatrolProgressSummaryCard: React.FC = () => {
 
   const availability = useMemo(() => {
     if (!targetPatrol) return null;
-    return getPatrolAvailability(targetPatrol, 0, now);
+    return getPatrolAvailability(targetPatrol, 15, now);
   }, [targetPatrol, now]);
 
-  // Compute live patrol progress directly from central store
-  const isTargetActive = activePatrol && targetPatrol && activePatrol.id === targetPatrol.id;
+  const targetPatrolCheckpoints = useMemo(() => {
+    if (!targetPatrol?.id) return [];
+    return patrolCheckpointsMap[targetPatrol.id] || [];
+  }, [patrolCheckpointsMap, targetPatrol?.id]);
 
-  const total = isTargetActive && patrolCheckpoints && patrolCheckpoints.length > 0
-    ? patrolCheckpoints.length
+  const total = targetPatrolCheckpoints.length > 0
+    ? targetPatrolCheckpoints.length
     : (targetPatrol?.checkpoints ?? 5);
 
-  const completed = isTargetActive && patrolCheckpoints && patrolCheckpoints.length > 0
-    ? patrolCheckpoints.filter(cp => cp.status === 'Completed').length
+  const completed = targetPatrolCheckpoints.length > 0
+    ? targetPatrolCheckpoints.filter(cp => cp.status === 'Completed').length
     : (targetPatrol?.scanned ?? 0);
 
   const percent = total > 0 ? Math.round((completed / total) * 100) : 0;

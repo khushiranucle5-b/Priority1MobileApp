@@ -20,11 +20,8 @@ export const AssetsScreen: React.FC = () => {
   const [assets, setAssets] = useState<DBAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('All');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');
-
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     loadGuardAssets();
@@ -37,15 +34,27 @@ export const AssetsScreen: React.FC = () => {
       
       // Filter assets assigned specifically to the logged in guard
       const guardAssets = (allAssets || []).filter((a) => {
-        if (!a) return false;
-        const matchesGuardId = guardId && a.assignedGuardId && a.assignedGuardId === guardId;
-        const matchesGuardName = guardName && a.assignedTo && a.assignedTo.toLowerCase() === guardName.toLowerCase();
-        const matchesGuardEmail = guardEmail && a.assignedGuardEmail && a.assignedGuardEmail.toLowerCase() === guardEmail.toLowerCase();
-        
-        // If system default dataset, return items assigned to default guard identity
-        const isDefaultGuard = !a.assignedGuardId || a.assignedGuardId === 'guard-1' || a.assignedTo === 'Khushi Rani';
-        
-        return matchesGuardId || matchesGuardName || matchesGuardEmail || isDefaultGuard;
+        const gId = (guardId || '').toLowerCase().trim();
+        const gName = (guardName || '').toLowerCase().trim();
+        const gEmail = (guardEmail || '').toLowerCase().trim();
+
+        const aGuardId = (a.assignedGuardId || '').toLowerCase().trim();
+        const aTo = (a.assignedTo || '').toLowerCase().trim();
+        const aEmail = (a.assignedGuardEmail || '').toLowerCase().trim();
+
+        const matchesGuardId = !!(gId && aGuardId && (gId === aGuardId || (gId.includes('john') && (aGuardId === 'g-1001' || aGuardId === 'guard-2'))));
+        const matchesGuardName = !!(gName && aTo && (gName === aTo || aTo.includes(gName) || gName.includes(aTo)));
+        const matchesGuardEmail = !!(gEmail && aEmail && gEmail === aEmail);
+
+        if (matchesGuardId || matchesGuardName || matchesGuardEmail) {
+          return true;
+        }
+
+        // If current logged-in user is default guard (Khushi Rani / guard-1 or unset), show default assets
+        const isCurrentDefaultGuard = !guardId || guardId === 'guard-1' || gName === 'khushi rani';
+        const isAssetDefaultGuard = !a.assignedGuardId || a.assignedGuardId === 'guard-1' || aTo === 'khushi rani';
+
+        return isCurrentDefaultGuard && isAssetDefaultGuard;
       });
 
       setAssets(guardAssets);
@@ -75,10 +84,9 @@ export const AssetsScreen: React.FC = () => {
     const typeStr = (a.type || '').toLowerCase();
 
     const matchesSearch = !q || nameStr.includes(q) || codeStr.includes(q) || serialStr.includes(q) || typeStr.includes(q);
-    const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
     const matchesCategory = categoryFilter === 'All' || typeStr.includes((categoryFilter || '').toLowerCase());
 
-    return matchesSearch && matchesStatus && matchesCategory;
+    return matchesSearch && matchesCategory;
   });
 
   const getStatusBadgeStyle = (status: string) => {
@@ -130,50 +138,77 @@ export const AssetsScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Mobile Search Bar */}
-        <View style={styles.searchBox}>
-          <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-            <NavIcon name="search" size={16} color="#64748B" />
+        {/* Top Search & Filter Row */}
+        <View style={styles.searchFilterRow}>
+          <View style={styles.searchBox}>
+            <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
+              <NavIcon name="search" size={16} color="#64748B" />
+            </View>
+            <TextInput
+              placeholder="Search assets by name, code, serial..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={styles.searchInput}
+              placeholderTextColor="#94A3B8"
+            />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
+                <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+              </TouchableOpacity>
+            ) : null}
           </View>
-          <TextInput
-            placeholder="Search assets by name, code, serial..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={styles.searchInput}
-            placeholderTextColor="#94A3B8"
-          />
-        </View>
 
-        {/* Dropdown Filters Row */}
-        <View style={styles.dropdownRow}>
+          {/* Inline Dropdown Trigger Button */}
           <TouchableOpacity
-            style={styles.dropdownPicker}
-            onPress={() => setIsStatusModalOpen(true)}
-            activeOpacity={0.7}
+            style={styles.dropdownTrigger}
+            onPress={() => setDropdownOpen(!dropdownOpen)}
+            activeOpacity={0.8}
           >
-            <View style={{ flex: 1 }}>
-              <AppText size="xs" color="secondary">Status</AppText>
-              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
-                {statusFilter === 'All' ? 'All Statuses' : statusFilter}
-              </AppText>
-            </View>
-            <AppText size="xs" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.dropdownPicker}
-            onPress={() => setIsCategoryModalOpen(true)}
-            activeOpacity={0.7}
-          >
-            <View style={{ flex: 1 }}>
-              <AppText size="xs" color="secondary">Category</AppText>
-              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
-                {categoryFilter === 'All' ? 'All Categories' : categoryFilter}
-              </AppText>
-            </View>
-            <AppText size="xs" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
+            <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+              {categoryFilter === 'All' ? 'Filter: All' : `Filter: ${categoryFilter}`}
+            </AppText>
+            <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
           </TouchableOpacity>
         </View>
+
+        {/* Inline Dropdown Options */}
+        {dropdownOpen && (
+          <ScrollView
+            style={styles.dropdownMenuContainer}
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={true}
+            persistentScrollbar={true}
+          >
+            {[
+              { label: 'All', value: 'All' },
+              { label: 'Communication', value: 'Communication' },
+              { label: 'Security Gear', value: 'Security Gear' },
+              { label: 'Uniform', value: 'Uniform' },
+              { label: 'Electronics', value: 'Electronics' },
+              { label: 'Safety Equipment', value: 'Safety Equipment' },
+            ].map((opt) => {
+              const isSel = categoryFilter === opt.value;
+              return (
+                <TouchableOpacity
+                  key={opt.value}
+                  style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
+                  onPress={() => {
+                    setCategoryFilter(opt.value);
+                    setDropdownOpen(false);
+                  }}
+                >
+                  <AppText
+                    size="sm"
+                    weight={isSel ? 'bold' : 'medium'}
+                    style={{ color: isSel ? '#4F46E5' : '#334155' }}
+                  >
+                    {isSel ? `✓ ${opt.label}` : opt.label}
+                  </AppText>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
 
         <Heading level="h4" style={styles.sectionTitle}>
           My Assigned Equipment ({filteredAssets.length})
@@ -239,37 +274,10 @@ export const AssetsScreen: React.FC = () => {
                     ) : null}
                   </View>
 
-                  {/* Metadata Rows (Hiding null/undefined fields) */}
-                  <View style={styles.metaList}>
-                    {asset.serialNumber ? (
-                      <AppText size="xs" color="secondary">
-                        S/N: <AppText size="xs" weight="semibold" color="primary">{asset.serialNumber}</AppText>
-                      </AppText>
-                    ) : null}
-
-                    {asset.site ? (
-                      <AppText size="xs" color="secondary">
-                        Site: <AppText size="xs" weight="semibold" color="primary">{asset.site}</AppText>
-                      </AppText>
-                    ) : null}
-
-                    {asset.assignedDate ? (
-                      <AppText size="xs" color="secondary">
-                        Assigned: <AppText size="xs" weight="semibold" color="primary">{asset.assignedDate}</AppText>
-                      </AppText>
-                    ) : null}
-
-                    {asset.quantity && asset.quantity > 1 ? (
-                      <AppText size="xs" color="secondary">
-                        Qty: <AppText size="xs" weight="semibold" color="primary">{asset.quantity} units</AppText>
-                      </AppText>
-                    ) : null}
-                  </View>
-
                   {/* Card Footer Touch Action */}
                   <View style={styles.cardFooter}>
-                    <AppText size="xs" color="secondary">
-                      Assigned to: {asset.assignedTo || guardName || 'Khushi Rani'}
+                    <AppText size="sm" color="secondary">
+                      Assigned by: <AppText size="sm" weight="semibold" color="primary">{asset.assignedBy || 'Jane Smith (Supervisor)'}</AppText>
                     </AppText>
 
                     <TouchableOpacity
@@ -287,88 +295,6 @@ export const AssetsScreen: React.FC = () => {
         )}
 
       </ScrollView>
-
-      {/* STATUS PICKER MODAL DROPDOWN */}
-      <Modal
-        visible={isStatusModalOpen}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setIsStatusModalOpen(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsStatusModalOpen(false)}
-        >
-          <View style={styles.pickerSheet}>
-            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Select Status</Heading>
-            {['All', 'Assigned', 'Pending Verification', 'Returned'].map((st) => (
-              <TouchableOpacity
-                key={st}
-                style={[
-                  styles.pickerOption,
-                  statusFilter === st && { backgroundColor: '#EEF2FF' },
-                ]}
-                onPress={() => {
-                  setStatusFilter(st);
-                  setIsStatusModalOpen(false);
-                }}
-              >
-                <AppText
-                  size="sm"
-                  weight={statusFilter === st ? 'bold' : 'regular'}
-                  color={statusFilter === st ? 'primary' : 'secondary'}
-                >
-                  {st === 'All' ? 'All Statuses' : st}
-                </AppText>
-                {statusFilter === st && <AppText size="sm" color="primary">✓</AppText>}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
-      {/* CATEGORY PICKER MODAL DROPDOWN */}
-      <Modal
-        visible={isCategoryModalOpen}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setIsCategoryModalOpen(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsCategoryModalOpen(false)}
-        >
-          <View style={styles.pickerSheet}>
-            <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Select Category</Heading>
-            {['All', 'Communication', 'Security Gear', 'Uniform', 'Electronics', 'Safety Equipment'].map((tp) => (
-              <TouchableOpacity
-                key={tp}
-                style={[
-                  styles.pickerOption,
-                  categoryFilter === tp && { backgroundColor: '#EEF2FF' },
-                ]}
-                onPress={() => {
-                  setCategoryFilter(tp);
-                  setIsCategoryModalOpen(false);
-                }}
-              >
-                <AppText
-                  size="sm"
-                  weight={categoryFilter === tp ? 'bold' : 'regular'}
-                  color={categoryFilter === tp ? 'primary' : 'secondary'}
-                >
-                  {tp === 'All' ? 'All Categories' : tp}
-                </AppText>
-                {categoryFilter === tp && <AppText size="sm" color="primary">✓</AppText>}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
-      {/* End of Pickers */}
     </ScreenLayout>
   );
 };
@@ -378,39 +304,62 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
+  searchFilterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
   searchBox: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
     paddingHorizontal: 12,
     height: 48,
-    marginBottom: 12,
   },
   searchInput: {
     flex: 1,
     fontSize: 15,
     color: '#0F172A',
+    paddingVertical: 0,
   },
-  dropdownRow: {
+  dropdownTrigger: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
-  },
-  dropdownPicker: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#CBD5E1',
     borderRadius: 10,
+    height: 48,
     paddingHorizontal: 14,
+  },
+  dropdownMenuContainer: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    padding: 6,
+    marginBottom: 16,
+    maxHeight: 200,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  dropdownMenuItem: {
     paddingVertical: 12,
-    minHeight: 56,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  dropdownMenuItemActive: {
+    backgroundColor: '#EEF2FF',
   },
   sectionTitle: {
     marginBottom: 12,
@@ -422,6 +371,9 @@ const styles = StyleSheet.create({
   assetCard: {
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -439,11 +391,9 @@ const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 4,
-  },
-  metaList: {
-    marginTop: 10,
-    gap: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -463,77 +413,5 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
-  },
-  modalSheet: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: '85%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  modalContent: {
-    gap: 12,
-    paddingBottom: 24,
-  },
-  modalMainCard: {
-    backgroundColor: '#F8FAFC',
-    padding: 14,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  metaGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    rowGap: 12,
-    backgroundColor: '#FFFFFF',
-    padding: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  metaItem: {
-    width: '50%',
-  },
-  detailSectionCard: {
-    backgroundColor: '#F8FAFC',
-    padding: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  modalActions: {
-    gap: 10,
-    marginTop: 8,
-  },
-  pickerSheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    width: '100%',
-  },
-  pickerOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginBottom: 4,
   },
 });

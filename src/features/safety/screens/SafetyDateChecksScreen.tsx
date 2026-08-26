@@ -36,7 +36,7 @@ export const SafetyDateChecksScreen: React.FC = () => {
   return (
     <ScreenLayout activeRoute="LoneWorker">
       <PageHeader
-        title={`Safety Checks — ${displayTitleDate}`}
+        title="Safety Checks"
         showBack
       />
 

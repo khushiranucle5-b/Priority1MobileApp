@@ -5,7 +5,6 @@ import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
-import { Button } from '../../../components/Button';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useGuardStore, LoneWorkerHistoryItem } from '../../../store/useGuardStore';
 import { useTheme } from '../../../providers/ThemeProvider';
@@ -42,9 +41,9 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
   const isSafe = record.status === 'Safe' || record.status === 'SAFE';
   const isIssue = record.status === 'SOS / Issue Reported' || record.status?.includes('Issue') || record.status?.includes('SOS');
 
-  const gpsColors = isGpsValid ? { bg: '#D1FAE5', text: '#059669' } : { bg: '#FEE2E2', text: '#DC2626' };
+  const gpsColors = isGpsValid ? { bg: '#ECFDF5', text: '#059669' } : { bg: '#FEF2F2', text: '#DC2626' };
   const timingColors = record.onTimeStatus === 'On Time' ? { bg: '#ECFDF5', text: '#047857' } : { bg: '#FEF3C7', text: '#D97706' };
-  const statusColors = isSafe ? { bg: '#D1FAE5', text: '#059669' } : isIssue ? { bg: '#FEE2E2', text: '#DC2626' } : { bg: '#F1F5F9', text: '#475569' };
+  const statusColors = isSafe ? { bg: '#ECFDF5', text: '#059669' } : isIssue ? { bg: '#FEF2F2', text: '#DC2626' } : { bg: '#F1F5F9', text: '#475569' };
 
   const formattedDate = formatDisplayDate(record.dateStr || record.timestamp);
   const formattedTime = formatDisplayTime(record.exactTime || record.timestamp);
@@ -57,7 +56,7 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="LoneWorker">
-      <PageHeader title="Safety Check Detail" showBack />
+      <PageHeader title="Safety Check Detail" showBack onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
@@ -65,25 +64,25 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
         <Card style={styles.statusBannerCard}>
           <View style={styles.bannerHeader}>
             <View style={{ flex: 1 }}>
-              <AppText size="xs" color="secondary" weight="semibold">SAFETY STATUS</AppText>
-              <Heading level="h2" style={{ color: statusColors.text, marginTop: 2 }}>
+              <AppText size="sm" weight="bold" style={styles.sectionLabel}>SAFETY STATUS</AppText>
+              <Heading level="h2" style={{ color: statusColors.text, marginTop: 2, fontSize: 26, fontWeight: '700' }}>
                 {isSafe ? 'SAFE' : isIssue ? 'ISSUE REPORTED' : record.status}
               </Heading>
-              <AppText size="xs" color="secondary" style={{ marginTop: 4 }}>
+              <AppText size="base" color="secondary" style={{ marginTop: 2 }}>
                 {formattedDate} at {formattedTime}
               </AppText>
             </View>
           </View>
 
           <View style={styles.badgeRow}>
-            <View style={[styles.badge, { backgroundColor: gpsColors.bg }]}>
-              <AppText size="xs" weight="bold" style={{ color: gpsColors.text }}>
+            <View style={[styles.pillBadge, { backgroundColor: gpsColors.bg, borderColor: isGpsValid ? '#A7F3D0' : '#FECACA' }]}>
+              <AppText size="sm" weight="bold" style={{ color: gpsColors.text }}>
                 ● {record.gpsStatus || 'GPS Verified'}
               </AppText>
             </View>
 
-            <View style={[styles.badge, { backgroundColor: timingColors.bg }]}>
-              <AppText size="xs" weight="bold" style={{ color: timingColors.text }}>
+            <View style={[styles.pillBadge, { backgroundColor: timingColors.bg, borderColor: record.onTimeStatus === 'On Time' ? '#A7F3D0' : '#FDE68A' }]}>
+              <AppText size="sm" weight="bold" style={{ color: timingColors.text }}>
                 ● {record.onTimeStatus || 'On Time'}
               </AppText>
             </View>
@@ -93,7 +92,7 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
         {/* ISSUE INFORMATION CARD (Shown only if record contains an issue) */}
         {isIssue && (
           <Card style={[styles.infoCard, { borderColor: '#FCA5A5', backgroundColor: '#FEF2F2' }]}>
-            <AppText size="xs" weight="bold" style={{ color: '#DC2626', letterSpacing: 0.5 }}>
+            <AppText size="sm" weight="bold" style={{ color: '#DC2626', letterSpacing: 0.8 }}>
               ISSUE / EMERGENCY DETAILS
             </AppText>
             <View style={[styles.dividerLine, { backgroundColor: '#FCA5A5' }]} />
@@ -101,8 +100,8 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
             <View style={styles.gridContainer}>
               <View style={styles.gridRow}>
                 <View style={styles.gridColFull}>
-                  <AppText size="xs" color="secondary">Status</AppText>
-                  <AppText size="sm" weight="bold" style={{ color: '#DC2626', marginTop: 2 }}>
+                  <AppText style={styles.fieldLabelText}>Status</AppText>
+                  <AppText size="base" weight="bold" style={{ color: '#DC2626', marginTop: 2 }}>
                     ISSUE REPORTED / SOS TRIGGERED
                   </AppText>
                 </View>
@@ -110,8 +109,8 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
               <View style={styles.gridRow}>
                 <View style={styles.gridColFull}>
-                  <AppText size="xs" color="secondary">Issue Summary</AppText>
-                  <AppText size="sm" weight="semibold" color="primary" style={{ marginTop: 2 }}>
+                  <AppText style={styles.fieldLabelText}>Issue Summary</AppText>
+                  <AppText size="base" weight="semibold" color="primary" style={{ marginTop: 2 }}>
                     {linkedIncident?.title || 'Emergency SOS Safety Alert triggered during routine 30-min lone worker check-in.'}
                   </AppText>
                 </View>
@@ -119,15 +118,15 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
               <View style={styles.gridRow}>
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Reported At</AppText>
-                  <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                  <AppText style={styles.fieldLabelText}>Reported At</AppText>
+                  <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
                     {formattedTime}
                   </AppText>
                 </View>
 
                 <View style={styles.gridCol}>
-                  <AppText size="xs" color="secondary">Action Taken</AppText>
-                  <AppText size="sm" weight="bold" style={{ color: '#047857', marginTop: 2 }}>
+                  <AppText style={styles.fieldLabelText}>Action Taken</AppText>
+                  <AppText size="base" weight="bold" style={{ color: '#047857', marginTop: 2 }}>
                     Control Room Notified
                   </AppText>
                 </View>
@@ -136,9 +135,10 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
           </Card>
         )}
 
-        {/* COMPLETE SAFETY CHECK DETAILS CARD */}
+        {/* UNIFIED COMPACT SAFETY & GEOLOCATION CARD */}
         <Card style={styles.infoCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          {/* SECTION 1: SAFETY CHECK INFORMATION */}
+          <AppText style={styles.cardSectionHeading}>
             SAFETY CHECK INFORMATION
           </AppText>
 
@@ -147,15 +147,15 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
           <View style={styles.gridContainer}>
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Date</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Date</AppText>
+                <AppText style={styles.valText}>
                   {formattedDate}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Check-In Time</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Check-In Time</AppText>
+                <AppText style={styles.valText}>
                   {formattedTime}
                 </AppText>
               </View>
@@ -163,31 +163,31 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Site</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Site</AppText>
+                <AppText style={styles.valText}>
                   {record.siteName || 'Ahmedabad Plant'}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Guard</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
-                  {record.guardName || guardName || 'John Smith'}
+                <AppText style={styles.fieldLabelText}>Guard</AppText>
+                <AppText style={styles.valText}>
+                  {record.guardName || guardName || 'Security Officer'}
                 </AppText>
               </View>
             </View>
 
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Shift</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Shift</AppText>
+                <AppText style={styles.valText}>
                   {record.shiftInfo || 'Morning Shift (08:00 AM - 04:00 PM)'}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Timing</AppText>
-                <AppText size="sm" weight="bold" style={{ color: timingColors.text, marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Timing</AppText>
+                <AppText style={[styles.valText, { color: timingColors.text }]}>
                   {record.onTimeStatus || 'On Time'}
                 </AppText>
               </View>
@@ -195,15 +195,15 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Check Completed</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Check Completed</AppText>
+                <AppText style={styles.valText}>
                   {formattedTime}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Next Check Scheduled</AppText>
-                <AppText size="sm" weight="bold" style={{ color: '#D97706', marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Next Scheduled</AppText>
+                <AppText style={[styles.valText, { color: '#D97706' }]}>
                   {nextCheckTime}
                 </AppText>
               </View>
@@ -211,20 +211,20 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
             <View style={styles.gridRow}>
               <View style={styles.gridColFull}>
-                <AppText size="xs" color="secondary">Safety Check Result</AppText>
-                <View style={[styles.badge, { backgroundColor: statusColors.bg, marginTop: 4 }]}>
-                  <AppText size="xs" weight="bold" style={{ color: statusColors.text }}>
+                <AppText style={styles.fieldLabelText}>Safety Check Result</AppText>
+                <View style={[styles.resultBadge, { backgroundColor: statusColors.bg }]}>
+                  <AppText style={{ color: statusColors.text, fontSize: 14, fontWeight: '700' }}>
                     {isSafe ? '✓ SAFE — Routine check-in confirmed' : isIssue ? '⚠️ ISSUE REPORTED — SOS alert logged' : record.status}
                   </AppText>
                 </View>
               </View>
             </View>
           </View>
-        </Card>
 
-        {/* GEOLOCATION & GEOFENCE VERIFICATION CARD */}
-        <Card style={styles.infoCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          {/* SECTION 2: GEOLOCATION & GEOFENCE VERIFICATION */}
+          <View style={styles.sectionGap} />
+          
+          <AppText style={styles.cardSectionHeading}>
             GEOLOCATION & GEOFENCE VERIFICATION
           </AppText>
 
@@ -233,31 +233,31 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
           <View style={styles.gridContainer}>
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">GPS Verification</AppText>
-                <AppText size="sm" weight="bold" style={{ color: gpsColors.text, marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>GPS Verification</AppText>
+                <AppText style={[styles.valText, { color: gpsColors.text }]}>
                   {record.gpsStatus || 'GPS Verified'}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Geofence Radius</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
-                  Inside allowed geofence ({record.radiusMeters || 200}m)
+                <AppText style={styles.fieldLabelText}>Geofence Radius</AppText>
+                <AppText style={styles.valText}>
+                  Inside ({record.radiusMeters || 200}m)
                 </AppText>
               </View>
             </View>
 
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Latitude</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Latitude</AppText>
+                <AppText style={styles.valText}>
                   {record.latitude ? `${record.latitude.toFixed(4)}° N` : '23.1145° N'}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText size="xs" color="secondary">Longitude</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Longitude</AppText>
+                <AppText style={styles.valText}>
                   {record.longitude ? `${record.longitude.toFixed(4)}° E` : '72.5821° E'}
                 </AppText>
               </View>
@@ -265,8 +265,8 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
             <View style={styles.gridRow}>
               <View style={styles.gridColFull}>
-                <AppText size="xs" color="secondary">Distance from Site Center</AppText>
-                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText style={styles.fieldLabelText}>Distance from Site Center</AppText>
+                <AppText style={styles.valText}>
                   {record.distanceMeters ?? 42} meters (Max allowed: {record.radiusMeters ?? 200}m)
                 </AppText>
               </View>
@@ -280,42 +280,66 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    paddingBottom: 40,
-    gap: 16,
+    padding: 14,
+    paddingBottom: 32,
+    gap: 12,
   },
   statusBannerCard: {
-    padding: 18,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
   },
   bannerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  sectionLabel: {
+    color: '#64748B',
+    letterSpacing: 0.8,
+    fontSize: 13.5,
   },
   badgeRow: {
     flexDirection: 'row',
     gap: 8,
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+  pillBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  resultBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 6,
+    marginTop: 4,
     alignSelf: 'flex-start',
   },
   infoCard: {
-    padding: 18,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
   },
   cardSectionHeading: {
-    color: '#64748B',
-    letterSpacing: 0.5,
+    fontSize: 15.5,
+    fontWeight: '700',
+    color: '#4F46E5',
+    letterSpacing: 0.8,
   },
   dividerLine: {
-    height: 1,
+    height: 1.5,
     backgroundColor: '#E2E8F0',
-    marginVertical: 12,
+    marginVertical: 10,
+  },
+  sectionGap: {
+    height: 20,
   },
   gridContainer: {
-    gap: 14,
+    gap: 12,
   },
   gridRow: {
     flexDirection: 'row',
@@ -326,5 +350,17 @@ const styles = StyleSheet.create({
   },
   gridColFull: {
     width: '100%',
+  },
+  fieldLabelText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  valText: {
+    marginTop: 2,
+    fontSize: 18,
+    lineHeight: 22,
+    fontWeight: '700',
+    color: '#0F172A',
   },
 });

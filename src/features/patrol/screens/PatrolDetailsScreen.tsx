@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -16,7 +16,6 @@ import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { StatusBadge } from '../../../components/StatusBadge';
-import { NavIcon } from '../../../components/NavIcon';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
 import { getPatrolAvailability, findCurrentPatrol, useLiveNow } from '../utils/patrolUtils';
@@ -26,21 +25,43 @@ export const PatrolDetailsScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
   const { colors, spacing, borderRadius } = useTheme();
-  const { patrols, activePatrol, patrolCheckpoints, scanCheckpointCode, loadPatrolCheckpoints, startPatrol, guardName, guardId, assignedSite, isClockedIn, loadGuardData, guardEmail } = useGuardStore();
+  const { patrols, activePatrol, patrolCheckpointsMap, scanCheckpointCode, loadPatrolCheckpoints, startPatrol, guardName, guardId, assignedSite, isClockedIn, loadGuardData, guardEmail } = useGuardStore();
 
   const now = useLiveNow(5000);
 
-  useEffect(() => {
-    if (isFocused && guardId) {
-      loadGuardData(guardId, guardEmail || '');
-    }
-  }, [isFocused, guardId, guardEmail, loadGuardData]);
-
   const patrolIdParam = route.params?.patrolId;
+  const patrolParam = route.params?.patrol;
+
   const targetPatrol: DBPatrol = useMemo(() => {
+    if (patrolParam) return patrolParam;
     if (patrolIdParam) {
       const found = (patrols || []).find((p) => p.id === patrolIdParam);
       if (found) return found;
+
+      const formattedTitle = patrolIdParam
+        .replace(/patrol-/, '')
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+      return {
+        id: patrolIdParam,
+        patrolCode: `PT-${patrolIdParam.toUpperCase().slice(0, 12)}`,
+        title: formattedTitle || 'Patrol Details',
+        companyId: 'c-1',
+        site: assignedSite || 'Ahmedabad Plant',
+        route: `${formattedTitle} Route`,
+        guard: guardName || 'Khushi Rani',
+        guardId: guardId || 'guard-1',
+        date: 'Today',
+        startTime: '08:00 AM',
+        scheduledStartTime: '08:00 AM',
+        scheduledEndTime: '09:00 AM',
+        status: 'Scheduled',
+        checkpoints: 5,
+        scanned: 0,
+        missed: 0,
+        incidents: 0,
+      };
     }
     const current = findCurrentPatrol(patrols || [], now);
     if (current) return current;
@@ -64,27 +85,33 @@ export const PatrolDetailsScreen: React.FC = () => {
       missed: 0,
       incidents: 0,
     });
-  }, [patrolIdParam, patrols, activePatrol, assignedSite, guardName, guardId, now]);
+  }, [patrolParam, patrolIdParam, patrols, activePatrol, assignedSite, guardName, guardId]);
 
-  // Load checkpoints for the active target patrol on load
+  // Read checkpoints explicitly mapped to targetPatrol.id
+  const patrolCheckpoints = useMemo(() => {
+    if (!targetPatrol || !targetPatrol.id) return [];
+    return patrolCheckpointsMap[targetPatrol.id] || [];
+  }, [patrolCheckpointsMap, targetPatrol?.id]);
+
+  // Load checkpoints for this specific patrol on focus/load without triggering global loadGuardData clobbering
   useEffect(() => {
-    if (targetPatrol && targetPatrol.id) {
+    if (isFocused && targetPatrol && targetPatrol.id) {
       loadPatrolCheckpoints(targetPatrol.id);
     }
-  }, [targetPatrol?.id]);
+  }, [isFocused, targetPatrol?.id, loadPatrolCheckpoints]);
 
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scanSuccessText, setScanSuccessText] = useState<string | null>(null);
   const [scanErrorText, setScanErrorText] = useState<string | null>(null);
 
-  const laserAnim = React.useRef(new Animated.Value(0)).current;
+  const laserAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isScannerOpen) {
       Animated.loop(
         Animated.sequence([
           Animated.timing(laserAnim, {
-            toValue: 180,
+            toValue: 160,
             duration: 1800,
             useNativeDriver: true,
           }),
@@ -107,14 +134,27 @@ export const PatrolDetailsScreen: React.FC = () => {
     }
   }, [route.params?.autoScan]);
 
-  const completedCount = (patrolCheckpoints || []).filter((c) => c.status === 'Completed').length;
-  const totalCount = (patrolCheckpoints || []).length || targetPatrol.checkpoints || 5;
+  const completedCount = patrolCheckpoints.filter((c) => c.status === 'Completed').length;
+  const totalCount = patrolCheckpoints.length || targetPatrol.checkpoints || 5;
   const remainingCount = Math.max(0, totalCount - completedCount);
   const percentCompleted = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-  const lastScannedCP = completedCount > 0 ? ((patrolCheckpoints || []).filter((c) => c.status === 'Completed').pop() || null) : null;
+  const lastScannedCP = completedCount > 0 ? (patrolCheckpoints.filter((c) => c.status === 'Completed').pop() || null) : null;
 
-  const isPatrolCompleted = completedCount >= totalCount || targetPatrol.status === 'Completed' || targetPatrol.status === 'completed';
-  const avail = getPatrolAvailability(targetPatrol, 0, now);
+  const avail = getPatrolAvailability(targetPatrol, 15, now);
+  const isPatrolCompleted = totalCount > 0 && completedCount >= totalCount;
+  const isPatrolIncomplete = completedCount > 0 && completedCount < totalCount;
+  const isPatrolExpired = completedCount === 0 && (avail.isExpired || avail.isPastDate || targetPatrol.status === 'Missed' || targetPatrol.status === 'Expired');
+
+  let headerBadgeStatus = 'Scheduled';
+  if (isPatrolCompleted) {
+    headerBadgeStatus = 'Completed';
+  } else if (isPatrolIncomplete) {
+    headerBadgeStatus = 'Incomplete';
+  } else if (isPatrolExpired) {
+    headerBadgeStatus = 'Missed';
+  } else {
+    headerBadgeStatus = avail.statusLabel;
+  }
 
   const handleProcessQRScan = async (scannedCode: string) => {
     setScanSuccessText(null);
@@ -208,7 +248,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                 {targetPatrol.title || 'Patrol Details'}
               </AppText>
             </View>
-            <StatusBadge status={avail.statusLabel} size="md" />
+            <StatusBadge status={headerBadgeStatus} size="md" />
           </View>
 
           <View style={[styles.detailRow, { marginTop: spacing.sm || 10 }]}>
@@ -231,7 +271,7 @@ export const PatrolDetailsScreen: React.FC = () => {
           </View>
 
           <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
-            {!isPatrolCompleted && !avail.isPastDate ? (
+            {!isPatrolCompleted && !avail.isPastDate && !isPatrolExpired ? (
               <Button
                 title={buttonTitleText}
                 variant="primary"
@@ -248,23 +288,19 @@ export const PatrolDetailsScreen: React.FC = () => {
                   ✓ Patrol Completed (100% Verified)
                 </AppText>
               </View>
+            ) : isPatrolIncomplete ? (
+              <View style={{ flex: 1, marginTop: 0, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: '#FEF3C7', borderColor: '#FDE68A', borderWidth: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                <AppText style={{ color: '#D97706', fontWeight: '700', fontSize: 14 }}>
+                  ⚠️ Incomplete Patrol ({completedCount}/{totalCount} Completed)
+                </AppText>
+              </View>
             ) : (
-              <View style={[styles.pastDateBox, { flex: 1, marginTop: 0, paddingVertical: 12 }]}>
-                <AppText style={styles.pastDateText}>
-                  Past Date Record (View Only)
+              <View style={{ flex: 1, marginTop: 0, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: '#FEE2E2', borderColor: '#FCA5A5', borderWidth: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                <AppText style={{ color: '#DC2626', fontWeight: '700', fontSize: 14 }}>
+                  ✕ Patrol Expired ({completedCount}/{totalCount} Completed)
                 </AppText>
               </View>
             )}
-
-            <TouchableOpacity
-              style={styles.iconActionBtnView}
-              onPress={handleLaunchQRScanner}
-              activeOpacity={0.7}
-              accessibilityLabel="Scan QR"
-              accessibilityRole="button"
-            >
-              <NavIcon name="eye" size={24} color="#4F46E5" />
-            </TouchableOpacity>
           </View>
         </Card>
 
@@ -370,107 +406,112 @@ export const PatrolDetailsScreen: React.FC = () => {
                   </AppText>
                 </View>
               ) : null}
-
-              <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
-                <TouchableOpacity
-                  style={styles.iconActionBtnView}
-                  onPress={() => isScannerOpen ? handleDirectCapture(cp.qrCode || cp.number) : handleLaunchQRScanner()}
-                  activeOpacity={0.7}
-                  accessibilityLabel="View checkpoint details"
-                  accessibilityRole="button"
-                >
-                  <NavIcon name="eye" size={24} color="#4F46E5" />
-                </TouchableOpacity>
-              </View>
             </Card>
           );
         })}
       </ScrollView>
 
-      {/* DEDICATED IN-APP QR SCANNER MODAL */}
-      <Modal visible={isScannerOpen} animationType="slide" transparent={false} onRequestClose={() => setIsScannerOpen(false)}>
-        <View style={styles.scannerModalScreen}>
-          {/* Header */}
-          <View style={styles.scannerHeader}>
-            <Heading level="h2" style={styles.scannerHeaderTitle}>Scan Checkpoint QR</Heading>
-            <TouchableOpacity onPress={() => setIsScannerOpen(false)} style={styles.closeBtn}>
-              <AppText style={styles.scannerCloseText}>Close</AppText>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-            {/* Camera Viewport Frame Box */}
-            <View style={styles.cameraViewportContainer}>
-              <TouchableOpacity activeOpacity={0.9} onPress={() => handleDirectCapture()} style={styles.cameraBox}>
-                <Animated.View
-                  style={[
-                    styles.laserLine,
-                    { transform: [{ translateY: laserAnim }] }
-                  ]}
-                />
-                <AppText style={styles.cameraLabelText}>
-                  REAR CAMERA ACTIVE
-                </AppText>
+      {/* CENTERED POPUP DIALOG SCANNER MODAL */}
+      <Modal
+        visible={isScannerOpen}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setIsScannerOpen(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.modalOverlayBackdrop}
+          onPress={() => setIsScannerOpen(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            style={styles.popupCardContainer}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <View style={styles.popupHeader}>
+              <Heading level="h3" style={styles.popupHeaderTitle}>
+                Scan Checkpoint QR
+              </Heading>
+              <TouchableOpacity onPress={() => setIsScannerOpen(false)} style={styles.closeBtn}>
+                <AppText style={styles.popupCloseText}>✕</AppText>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.triggerCameraBtn}
-                onPress={() => handleDirectCapture()}
-                activeOpacity={0.8}
-              >
-                <AppText style={styles.triggerCameraBtnText}>
-                  Capture & Verify QR Code
-                </AppText>
-              </TouchableOpacity>
-
-              <AppText style={styles.scanInstructionsText}>
-                Align the physical checkpoint QR code inside the frame to scan
-              </AppText>
             </View>
 
-            {/* Quick Checkpoint Selector Buttons inside modal */}
-            <View style={styles.quickSelectorContainer}>
-              <AppText style={styles.quickSelectorTitle}>
-                SELECT CHECKPOINT TO VERIFY:
-              </AppText>
-              <View style={styles.cpChipsGrid}>
-                {patrolCheckpoints.map(cp => {
-                  const isDone = cp.status === 'Completed';
-                  return (
-                    <TouchableOpacity
-                      key={cp.id}
-                      style={[styles.cpChip, isDone ? styles.cpChipDone : styles.cpChipPending]}
-                      onPress={() => handleDirectCapture(cp.qrCode || cp.number)}
-                      disabled={isDone}
-                      activeOpacity={0.7}
-                    >
-                      <AppText style={{ color: isDone ? '#059669' : '#FFFFFF', fontSize: 14, fontWeight: '700' }}>
-                        {isDone ? `✓ ${cp.number}` : `Scan ${cp.number}`}
-                      </AppText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
+            <ScrollView contentContainerStyle={{ paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+              {/* Camera Viewport Frame Box */}
+              <View style={styles.cameraViewportContainer}>
+                <TouchableOpacity activeOpacity={0.9} onPress={() => handleDirectCapture()} style={styles.cameraBox}>
+                  <Animated.View
+                    style={[
+                      styles.laserLine,
+                      { transform: [{ translateY: laserAnim }] }
+                    ]}
+                  />
+                  <AppText style={styles.cameraLabelText}>
+                    REAR CAMERA ACTIVE
+                  </AppText>
+                </TouchableOpacity>
 
-            {/* Feedback Banners */}
-            {scanSuccessText && (
-              <View style={[styles.feedbackOverlay, { backgroundColor: '#059669' }]}>
-                <AppText style={styles.feedbackOverlayText}>
-                  ✓ {scanSuccessText}
+                <TouchableOpacity
+                  style={styles.triggerCameraBtn}
+                  onPress={() => handleDirectCapture()}
+                  activeOpacity={0.8}
+                >
+                  <AppText style={styles.triggerCameraBtnText}>
+                    Capture & Verify QR Code
+                  </AppText>
+                </TouchableOpacity>
+
+                <AppText style={styles.scanInstructionsText}>
+                  Align physical QR code inside frame to scan
                 </AppText>
               </View>
-            )}
 
-            {scanErrorText && (
-              <View style={[styles.feedbackOverlay, { backgroundColor: '#DC2626' }]}>
-                <AppText style={styles.feedbackOverlayText}>
-                  ✕ {scanErrorText}
+              {/* Quick Checkpoint Selector Buttons inside modal */}
+              <View style={styles.quickSelectorContainer}>
+                <AppText style={styles.quickSelectorTitle}>
+                  SELECT CHECKPOINT TO VERIFY:
                 </AppText>
+                <View style={styles.cpChipsGrid}>
+                  {patrolCheckpoints.map(cp => {
+                    const isDone = cp.status === 'Completed';
+                    return (
+                      <TouchableOpacity
+                        key={cp.id}
+                        style={[styles.cpChip, isDone ? styles.cpChipDone : styles.cpChipPending]}
+                        onPress={() => handleDirectCapture(cp.qrCode || cp.number)}
+                        disabled={isDone}
+                        activeOpacity={0.7}
+                      >
+                        <AppText style={{ color: isDone ? '#059669' : '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                          {isDone ? `✓ ${cp.number}` : `Scan ${cp.number}`}
+                        </AppText>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
-            )}
-          </ScrollView>
-        </View>
+
+              {/* Feedback Banners */}
+              {scanSuccessText && (
+                <View style={[styles.feedbackOverlay, { backgroundColor: '#059669' }]}>
+                  <AppText style={styles.feedbackOverlayText}>
+                    ✓ {scanSuccessText}
+                  </AppText>
+                </View>
+              )}
+
+              {scanErrorText && (
+                <View style={[styles.feedbackOverlay, { backgroundColor: '#DC2626' }]}>
+                  <AppText style={styles.feedbackOverlayText}>
+                    ✕ {scanErrorText}
+                  </AppText>
+                </View>
+              )}
+            </ScrollView>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
     </ScreenLayout>
   );
@@ -692,27 +733,46 @@ const styles = StyleSheet.create({
     marginTop: 3,
     lineHeight: 19,
   },
-  // Scanner Modal Styles
-  scannerModalScreen: {
+  // Scanner Popup Modal Styles
+  modalOverlayBackdrop: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
   },
-  scannerHeader: {
+  popupCardContainer: {
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '85%',
+    backgroundColor: '#0F172A',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+    padding: 16,
+    elevation: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+  },
+  popupHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1.5,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
     borderBottomColor: '#1E293B',
+    marginBottom: 12,
   },
-  scannerHeaderTitle: {
+  popupHeaderTitle: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
   },
-  scannerCloseText: {
-    color: '#38BDF8',
-    fontSize: 16,
+  popupCloseText: {
+    color: '#94A3B8',
+    fontSize: 18,
     fontWeight: '700',
   },
   closeBtn: {
@@ -721,12 +781,12 @@ const styles = StyleSheet.create({
   cameraViewportContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
-    paddingHorizontal: 20,
+    marginTop: 8,
+    paddingHorizontal: 8,
   },
   cameraBox: {
-    width: 240,
-    height: 240,
+    width: 200,
+    height: 200,
     borderWidth: 3,
     borderColor: '#2563EB',
     backgroundColor: '#1E293B',
@@ -745,52 +805,51 @@ const styles = StyleSheet.create({
   },
   cameraLabelText: {
     color: '#94A3B8',
-    fontSize: 12.5,
+    fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   triggerCameraBtn: {
     backgroundColor: '#2563EB',
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 14,
     width: '100%',
     alignItems: 'center',
   },
   triggerCameraBtnText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   scanInstructionsText: {
     color: '#94A3B8',
-    fontSize: 14,
-    marginTop: 12,
+    fontSize: 12,
     textAlign: 'center',
-    lineHeight: 20,
+    marginTop: 8,
   },
   quickSelectorContainer: {
-    marginTop: 24,
-    paddingHorizontal: 20,
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#1E293B',
   },
   quickSelectorTitle: {
     color: '#94A3B8',
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
+    marginBottom: 8,
   },
   cpChipsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-    justifyContent: 'center',
+    gap: 8,
   },
   cpChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
   },
@@ -803,18 +862,16 @@ const styles = StyleSheet.create({
     borderColor: '#059669',
   },
   feedbackOverlay: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 10,
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 8,
     alignItems: 'center',
   },
   feedbackOverlayText: {
     color: '#FFFFFF',
-    fontSize: 15.5,
+    fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
-    lineHeight: 22,
   },
 });
 

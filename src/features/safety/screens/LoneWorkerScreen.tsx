@@ -129,11 +129,7 @@ export const LoneWorkerScreen: React.FC = () => {
         <Card style={styles.mainSafetyCard}>
           <View style={styles.headerRow}>
             <View style={{ flex: 1 }}>
-              <Heading level="h3" color="primary">{guardName || 'Security Officer'}</Heading>
-              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                {guardId || 'GRD-1001'} • {assignedSite || 'Assigned Site'}
-              </AppText>
-              <AppText size="xs" weight="semibold" style={{ color: '#475569', marginTop: 2 }}>
+              <AppText size="xs" weight="semibold" style={{ color: '#475569' }}>
                 Active Shift: Morning Shift (08:00 AM - 04:00 PM)
               </AppText>
             </View>

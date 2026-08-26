@@ -178,7 +178,7 @@ export const PoliciesScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.searchBox}>
           <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-            <NavIcon name="search" size={16} color="#64748B" />
+            <NavIcon name="search" size={18} color="#64748B" />
           </View>
           <TextInput
             placeholder="Search policies by name, category..."
@@ -189,10 +189,10 @@ export const PoliciesScreen: React.FC = () => {
           />
         </View>
 
-        <Heading level="h4" style={styles.sectionTitle}>Guard Security Policies</Heading>
+        <Heading level="h3" style={styles.sectionTitle}>Guard Security Policies</Heading>
 
         {filteredPolicies.length === 0 ? (
-          <AppText size="sm" color="secondary" style={{ textAlign: 'center', marginTop: 24 }}>
+          <AppText size="base" color="secondary" style={{ textAlign: 'center', marginTop: 24 }}>
             No policies found matching search query.
           </AppText>
         ) : (
@@ -203,15 +203,15 @@ export const PoliciesScreen: React.FC = () => {
                 onPress={() => navigation.navigate('PolicyDetails', { policyId: policy.id })}
               >
                 <View style={styles.cardHeader}>
-                  <Heading level="h4" color="primary" style={{ flex: 1 }}>{policy.title}</Heading>
-                  <AppText size="xs" weight="bold" style={styles.categoryBadge}>
+                  <Heading level="h3" color="primary" style={{ flex: 1 }}>{policy.title}</Heading>
+                  <AppText size="sm" weight="bold" style={styles.categoryBadge}>
                     {policy.category}
                   </AppText>
                 </View>
-                <AppText size="xs" color="secondary" style={styles.updatedText}>
+                <AppText size="sm" color="secondary" style={styles.updatedText}>
                   Updated: {policy.updatedDate}
                 </AppText>
-                <AppText size="sm" color="secondary" numberOfLines={2} style={styles.summary}>
+                <AppText size="base" color="secondary" numberOfLines={2} style={styles.summary}>
                   {policy.summary}
                 </AppText>
               </TouchableOpacity>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 17,
     color: '#0F172A',
   },
   sectionTitle: {

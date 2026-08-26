@@ -591,7 +591,8 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               value={reason}
               onChangeText={(val) => { setReason(val); setErrors((prev) => ({ ...prev, reason: '' })); }}
               multiline
-              numberOfLines={4}
+              numberOfLines={3}
+              textAlignVertical="top"
               placeholder="Enter reason or detailed description for leave application..."
               error={errors.reason}
               style={styles.textArea}
@@ -827,10 +828,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   textArea: {
-    height: 120,
+    height: 80,
+    minHeight: 80,
     textAlignVertical: 'top',
-    fontSize: 16,
-    paddingTop: 12,
+    fontSize: 15,
   },
   errorText: {
     marginTop: 6,

@@ -87,37 +87,37 @@ export const PolicyDetailsScreen: React.FC = () => {
         <Card style={styles.card}>
           <View style={styles.headerBadgeRow}>
             <View style={styles.statusBadge}>
-              <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
+              <AppText size="sm" weight="bold" style={{ color: '#059669' }}>
                 ● {policy.status || 'Published'}
               </AppText>
             </View>
 
             <View style={styles.categoryBadge}>
-              <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>
+              <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>
                 {policy.category}
               </AppText>
             </View>
 
             <View style={styles.versionBadge}>
-              <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
+              <AppText size="sm" weight="bold" style={{ color: '#475569' }}>
                 {policy.version || 'v1.0'}
               </AppText>
             </View>
           </View>
 
-          <Heading level="h3" color="primary" style={styles.title}>
+          <Heading level="h2" color="primary" style={styles.title}>
             {policy.title}
           </Heading>
 
           {/* Target / Assigned Roles */}
           <View style={styles.rolesSection}>
-            <AppText size="xs" color="secondary" weight="bold" style={styles.rolesLabel}>
+            <AppText size="sm" color="secondary" weight="bold" style={styles.rolesLabel}>
               ASSIGNED ROLES:
             </AppText>
             <View style={styles.rolesRow}>
               {(policy.targetRoles || ['Security Guards', 'Supervisors']).map((role, idx) => (
                 <View key={idx} style={styles.roleChip}>
-                  <AppText size="xs" weight="medium" style={{ color: '#334155' }}>
+                  <AppText size="sm" weight="medium" style={{ color: '#334155' }}>
                     {role}
                   </AppText>
                 </View>
@@ -130,29 +130,29 @@ export const PolicyDetailsScreen: React.FC = () => {
           {/* Metadata Grid */}
           <View style={styles.metaGrid}>
             <View style={styles.metaItem}>
-              <AppText size="xs" color="secondary">Effective Date</AppText>
-              <AppText size="sm" weight="bold" color="primary">
+              <AppText size="sm" color="secondary">Effective Date</AppText>
+              <AppText size="base" weight="bold" color="primary">
                 {policy.effectiveDate || 'Jan 01, 2026'}
               </AppText>
             </View>
 
             <View style={styles.metaItem}>
-              <AppText size="xs" color="secondary">Last Revised</AppText>
-              <AppText size="sm" weight="bold" color="primary">
+              <AppText size="sm" color="secondary">Last Revised</AppText>
+              <AppText size="base" weight="bold" color="primary">
                 {policy.updatedDate}
               </AppText>
             </View>
 
             <View style={styles.metaItem}>
-              <AppText size="xs" color="secondary">Department / Author</AppText>
-              <AppText size="sm" weight="bold" color="primary">
+              <AppText size="sm" color="secondary">Department / Author</AppText>
+              <AppText size="base" weight="bold" color="primary">
                 {policy.author || 'Operations Desk'}
               </AppText>
             </View>
 
             <View style={styles.metaItem}>
-              <AppText size="xs" color="secondary">Policy ID</AppText>
-              <AppText size="sm" weight="bold" color="primary">
+              <AppText size="sm" color="secondary">Policy ID</AppText>
+              <AppText size="base" weight="bold" color="primary">
                 {policy.id.toUpperCase()}
               </AppText>
             </View>
@@ -163,23 +163,23 @@ export const PolicyDetailsScreen: React.FC = () => {
         <Card style={styles.card}>
           <View style={styles.sectionHeaderRow}>
             <View style={{ marginRight: 8 }}>
-              <NavIcon name="policies" size={18} color="#4F46E5" />
+              <NavIcon name="policies" size={20} color="#4F46E5" />
             </View>
-            <Heading level="h4" color="primary">Policy Description & Scope</Heading>
+            <Heading level="h3" color="primary">Policy Description & Scope</Heading>
           </View>
 
-          <AppText size="sm" color="primary" style={styles.summaryText}>
+          <AppText size="base" color="primary" style={styles.summaryText}>
             {policy.summary}
           </AppText>
         </Card>
 
         {/* Targeted Roles & Applicability Card */}
         <Card style={styles.card}>
-          <Heading level="h4" color="primary" style={{ marginBottom: 10 }}>Target Roles & Applicability</Heading>
+          <Heading level="h3" color="primary" style={{ marginBottom: 10 }}>Target Roles & Applicability</Heading>
           <View style={styles.rolesRow}>
             {(policy.targetRoles || ['Security Guards', 'Supervisors']).map((role, idx) => (
               <View key={idx} style={styles.roleChip}>
-                <AppText size="xs" weight="bold" style={{ color: '#1E293B' }}>{role}</AppText>
+                <AppText size="sm" weight="bold" style={{ color: '#1E293B' }}>{role}</AppText>
               </View>
             ))}
           </View>
@@ -187,16 +187,16 @@ export const PolicyDetailsScreen: React.FC = () => {
 
         {/* Detailed Policy Operational Clauses Card */}
         <Card style={styles.card}>
-          <Heading level="h4" color="primary" style={{ marginBottom: 12 }}>Operational Directives & Clauses</Heading>
+          <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Operational Directives & Clauses</Heading>
           <View style={styles.directivesList}>
             {policy.content.map((clause, idx) => (
               <View key={idx} style={styles.directiveCard}>
                 <View style={styles.directiveHeader}>
                   <View style={styles.directiveNumberBadge}>
-                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>#{idx + 1}</AppText>
+                    <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>#{idx + 1}</AppText>
                   </View>
                 </View>
-                <AppText size="sm" color="text" style={styles.directiveText}>
+                <AppText size="base" color="text" style={styles.directiveText}>
                   {clause}
                 </AppText>
               </View>
@@ -208,9 +208,9 @@ export const PolicyDetailsScreen: React.FC = () => {
         <Card style={styles.card}>
           <View style={styles.sectionHeaderRow}>
             <View style={{ marginRight: 8 }}>
-              <NavIcon name="payslips" size={18} color="#4F46E5" />
+              <NavIcon name="payslips" size={20} color="#4F46E5" />
             </View>
-            <Heading level="h4" color="primary">Attached Policy Document</Heading>
+            <Heading level="h3" color="primary">Attached Policy Document</Heading>
           </View>
 
           <View style={styles.docBox}>
@@ -219,10 +219,10 @@ export const PolicyDetailsScreen: React.FC = () => {
             </View>
 
             <View style={{ flex: 1 }}>
-              <AppText size="sm" weight="bold" color="primary" numberOfLines={1}>
+              <AppText size="base" weight="bold" color="primary" numberOfLines={1}>
                 {doc.name}
               </AppText>
-              <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
                 {doc.size} • {doc.type}
               </AppText>
             </View>
@@ -233,11 +233,11 @@ export const PolicyDetailsScreen: React.FC = () => {
             
             <Button
               title="Download"
-              variant="outline"
+              variant="primary"
               size="large"
-              leftIcon={<NavIcon name="download" size={20} color="#4F46E5" />}
+              leftIcon={<NavIcon name="download" size={20} color="#FFFFFF" />}
               onPress={handleDownloadDocument}
-              style={[styles.actionBtn, { borderColor: '#4F46E5' }]}
+              style={styles.actionBtn}
             />
           </View>
         </Card>
@@ -251,30 +251,30 @@ export const PolicyDetailsScreen: React.FC = () => {
             <View style={styles.modalHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ marginRight: 8 }}>
-                  <NavIcon name="policies" size={20} color="#4F46E5" />
+                  <NavIcon name="policies" size={22} color="#4F46E5" />
                 </View>
-                <Heading level="h3" color="primary">Document Viewer</Heading>
+                <Heading level="h2" color="primary">Document Viewer</Heading>
               </View>
 
               <TouchableOpacity onPress={() => setIsDocModalVisible(false)}>
-                <AppText size="lg" color="secondary" weight="bold">✕</AppText>
+                <AppText size="xl" color="secondary" weight="bold">✕</AppText>
               </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.modalContent} showsVerticalScrollIndicator={false}>
               <View style={styles.docModalInfo}>
-                <Heading level="h4" color="primary">{doc.name}</Heading>
-                <AppText size="xs" color="secondary" style={{ marginTop: 4 }}>
+                <Heading level="h3" color="primary">{doc.name}</Heading>
+                <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
                   Size: {doc.size} • Type: {doc.type} • Status: Certified PDF
                 </AppText>
               </View>
 
               <View style={styles.docPreviewCard}>
-                <NavIcon name="policies" size={36} color="#4F46E5" />
-                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 12 }}>
+                <NavIcon name="policies" size={40} color="#4F46E5" />
+                <AppText size="md" weight="bold" color="primary" style={{ marginTop: 12 }}>
                   Official Policy Document Attachment
                 </AppText>
-                <AppText size="sm" color="secondary" style={{ textAlign: 'center', marginTop: 6, lineHeight: 20 }}>
+                <AppText size="base" color="secondary" style={{ textAlign: 'center', marginTop: 6, lineHeight: 22 }}>
                   This document contains official Priority One Security operational guidelines and regulatory compliance procedures for {policy.title}.
                 </AppText>
               </View>

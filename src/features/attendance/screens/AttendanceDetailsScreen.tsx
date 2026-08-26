@@ -274,12 +274,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   sectionTag: {
-    fontSize: 12,
+    fontSize: 14,
     letterSpacing: 0.8,
     color: '#64748B',
   },
   dateHeading: {
-    fontSize: 21,
+    fontSize: 24,
     fontWeight: '700',
     marginTop: 4,
   },
@@ -289,21 +289,21 @@ const styles = StyleSheet.create({
     marginVertical: 14,
   },
   sectionBlock: {
-    gap: 4,
+    gap: 6,
   },
   blockHeader: {
-    fontSize: 13,
+    fontSize: 14.5,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: '#64748B',
+    color: '#475569',
     marginBottom: 6,
   },
   shiftTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
   },
   shiftSub: {
-    fontSize: 13.5,
+    fontSize: 15,
     color: '#64748B',
     marginTop: 2,
   },
@@ -318,17 +318,17 @@ const styles = StyleSheet.create({
   },
   sessionCard: {
     backgroundColor: '#F8FAFC',
-    padding: 14,
+    padding: 16,
     borderRadius: 10,
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
   },
   sessionTag: {
-    fontSize: 12.5,
+    fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0.5,
     marginBottom: 8,
-    color: '#475569',
+    color: '#334155',
   },
   sessionGridRow: {
     flexDirection: 'row',
@@ -339,23 +339,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   colLabel: {
-    fontSize: 12.5,
+    fontSize: 13.5,
     fontWeight: '600',
     color: '#64748B',
   },
   colValue: {
-    fontSize: 15,
+    fontSize: 16.5,
     fontWeight: '700',
     marginTop: 4,
   },
   totalHoursText: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: '700',
     color: '#2563EB',
-    marginTop: 2,
+    marginTop: 4,
   },
   locationText: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
   },
   emptySessionBox: {

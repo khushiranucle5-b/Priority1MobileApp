@@ -48,15 +48,15 @@ export const PatrolDateLogsScreen: React.FC = () => {
   }, [patrols, displayTitleDate]);
 
   const handlePatrolAction = async (patrol: DBPatrol) => {
-    const avail = getPatrolAvailability(patrol, 0, now);
+    const avail = getPatrolAvailability(patrol, 15, now);
 
     if (avail.isCompleted) {
-      navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+      navigation.navigate('PatrolDetails', { patrolId: patrol.id, patrol: patrol });
       return;
     }
 
     if (avail.isInProgress) {
-      navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+      navigation.navigate('PatrolDetails', { patrolId: patrol.id, patrol: patrol });
       return;
     }
 
@@ -88,7 +88,7 @@ export const PatrolDateLogsScreen: React.FC = () => {
     if (startPatrol) {
       await startPatrol(patrol.id);
     }
-    navigation.navigate('PatrolDetails', { patrolId: patrol.id });
+    navigation.navigate('PatrolDetails', { patrolId: patrol.id, patrol: patrol });
   };
 
   const getStatusBadgeStyle = (statusStr?: string) => {
@@ -126,8 +126,24 @@ export const PatrolDateLogsScreen: React.FC = () => {
           </Card>
         ) : (
           recordsForDate.map((item) => {
-            const avail = getPatrolAvailability(item, 0, now);
+            const avail = getPatrolAvailability(item, 15, now);
             const timeDisplay = `${item.scheduledStartTime || item.startTime || '08:00 AM'} - ${item.scheduledEndTime || '09:00 AM'}`;
+            const scannedCount = item.scanned || 0;
+            const totalCount = item.checkpoints || 5;
+            const isFullyCompleted = scannedCount >= totalCount;
+            const isPartialIncomplete = scannedCount > 0 && scannedCount < totalCount;
+            const isZeroScannedExpired = scannedCount === 0 && (avail.isExpired || avail.isPastDate || item.status === 'Missed' || item.status === 'Expired');
+
+            let badgeStatusStr = 'Scheduled';
+            if (isFullyCompleted) {
+              badgeStatusStr = 'Completed';
+            } else if (isPartialIncomplete) {
+              badgeStatusStr = 'Incomplete';
+            } else if (isZeroScannedExpired) {
+              badgeStatusStr = 'Missed';
+            } else {
+              badgeStatusStr = avail.statusLabel;
+            }
 
             return (
               <Card key={item.id} variant="outlined" style={styles.card}>
@@ -137,7 +153,7 @@ export const PatrolDateLogsScreen: React.FC = () => {
                       {item.title || 'Patrol'}
                     </AppText>
                   </View>
-                  <StatusBadge status={avail.statusLabel} size="md" />
+                  <StatusBadge status={badgeStatusStr} size="md" />
                 </View>
 
                 <View style={[styles.detailRow, { marginTop: spacing.sm || 10 }]}>
@@ -146,7 +162,7 @@ export const PatrolDateLogsScreen: React.FC = () => {
                       CHECKPOINTS
                     </AppText>
                     <AppText size="base" weight="bold" color="primary" style={styles.metaValueText}>
-                      {item.scanned}/{item.checkpoints} Scanned
+                      {scannedCount}/{totalCount} Scanned
                     </AppText>
                   </View>
                   <View style={{ flex: 1, alignItems: 'flex-end' }}>
@@ -169,23 +185,52 @@ export const PatrolDateLogsScreen: React.FC = () => {
                 </View>
 
                 <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
-                  {!avail.isPastDate && (
-                    <Button
-                      title={avail.buttonText}
-                      variant={avail.canStart ? "primary" : "secondary"}
-                      disabled={avail.isExpired || (!avail.canStart && !avail.isCompleted && !avail.isInProgress)}
+                  {isFullyCompleted ? (
+                    <TouchableOpacity
+                      disabled
+                      onPress={() => handlePatrolAction(item)}
+                      style={[styles.inlineActionBtn, { backgroundColor: '#D1FAE5', borderColor: '#A7F3D0', borderWidth: 1, justifyContent: 'center', alignItems: 'center' }]}
+                    >
+                      <AppText size="base" weight="bold" style={{ color: '#059669' }}>
+                        PATROL COMPLETED
+                      </AppText>
+                    </TouchableOpacity>
+                  ) : isPartialIncomplete ? (
+                    <TouchableOpacity
                       onPress={() => handlePatrolAction(item)}
                       style={[
                         styles.inlineActionBtn,
-                        avail.isInProgress && { backgroundColor: '#0284C7' },
-                        avail.isCompleted && { backgroundColor: '#D1FAE5' },
+                        { borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
+                        avail.isInProgress ? { backgroundColor: '#0284C7', borderColor: '#0284C7' } : { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' },
                       ]}
+                    >
+                      <AppText size="base" weight="bold" style={{ color: avail.isInProgress ? '#FFFFFF' : '#D97706' }}>
+                        {avail.isInProgress ? "CONTINUE PATROLLING" : "INCOMPLETE PATROL"}
+                      </AppText>
+                    </TouchableOpacity>
+                  ) : isZeroScannedExpired ? (
+                    <TouchableOpacity
+                      disabled
+                      onPress={() => handlePatrolAction(item)}
+                      style={[styles.inlineActionBtn, { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5', borderWidth: 1, justifyContent: 'center', alignItems: 'center' }]}
+                    >
+                      <AppText size="base" weight="bold" style={{ color: '#DC2626' }}>
+                        PATROL EXPIRED
+                      </AppText>
+                    </TouchableOpacity>
+                  ) : (
+                    <Button
+                      title={avail.buttonText}
+                      variant={avail.canStart ? "primary" : "secondary"}
+                      disabled={!avail.canStart}
+                      onPress={() => handlePatrolAction(item)}
+                      style={styles.inlineActionBtn}
                     />
                   )}
 
                   <TouchableOpacity
                     style={styles.iconActionBtnView}
-                    onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id })}
+                    onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id, patrol: item })}
                     activeOpacity={0.7}
                     accessibilityLabel="View patrol details"
                     accessibilityRole="button"
