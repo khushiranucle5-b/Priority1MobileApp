@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as DocumentPicker from '@react-native-documents/picker';
@@ -18,16 +19,19 @@ import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 
 const documentTypeOptions = [
   'PSARA Security Guard License',
-  'Aadhaar Card / Government ID',
+  'Government ID',
   'Police Clearance Certificate',
   'Driving License',
   'Medical Fitness Certificate',
   'Training / Certification',
   'Other Document',
 ];
+
+const SAMPLE_PDF_DATA_URL = 'data:application/pdf;base64,JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDAKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDAKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNCAwIFIKL1Jlc291cmNlcyA8PAovRm9udCA8PAovRjEgNSAwIFIKPj4KPj4KPj4KZW5kb2JqCjQgMCBvYmoKPDAKL0xlbmd0aCA1Ngo+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKFByaW9yaXR5MSAtIE9mZmljaWFsIEd1YXJkIERvY3VtZW50KSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCjUgMCBvYmoKPDAKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwDYTY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1OCAwMDAwMCBuIAowMDAwMDAwMTE1IDAwMDAwIG4gCjAwMDAwMDAyNjEgMDAwMDAgbiAKMDAwMDAwMDM2OCAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjQ1NwolJUVPRg==';
 
 export const UploadDocumentScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -48,8 +52,74 @@ export const UploadDocumentScreen: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  // Helper to extract clean name without extension
+  const getCleanDocName = (fileName: string) => {
+    return fileName.replace(/\.[^/.]+$/, '').replace(/_/g, ' ').trim();
+  };
+
   // Single unified file picker for both Image and PDF
   const handleChooseFile = async () => {
+    // Web fallback for native file picker dialog
+    if (Platform.OS === 'web') {
+      const globalObj = typeof globalThis !== 'undefined' ? (globalThis as any) : {};
+      if (globalObj.document) {
+        const input = globalObj.document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/pdf,image/*';
+        input.onchange = (e: any) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            const isPdf = file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf');
+            const cleanFileName = file.name || 'document.pdf';
+            const extractedName = getCleanDocName(cleanFileName);
+
+            const blobUrl = globalObj.URL ? globalObj.URL.createObjectURL(file) : '';
+
+            if (globalObj.FileReader) {
+              const reader = new globalObj.FileReader();
+              reader.onload = () => {
+                const dataUrl = reader.result as string;
+                setSelectedFile({
+                  uri: dataUrl || blobUrl,
+                  name: cleanFileName,
+                  mimeType: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
+                  fileTypeLabel: isPdf ? 'PDF Document' : 'Image File',
+                });
+
+                if (!customDocName.trim()) {
+                  setCustomDocName(extractedName);
+                }
+              };
+              reader.onerror = () => {
+                setSelectedFile({
+                  uri: blobUrl || 'blob:' + cleanFileName,
+                  name: cleanFileName,
+                  mimeType: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
+                  fileTypeLabel: isPdf ? 'PDF Document' : 'Image File',
+                });
+                if (!customDocName.trim()) {
+                  setCustomDocName(extractedName);
+                }
+              };
+              reader.readAsDataURL(file);
+            } else {
+              setSelectedFile({
+                uri: blobUrl || 'blob:' + cleanFileName,
+                name: cleanFileName,
+                mimeType: file.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
+                fileTypeLabel: isPdf ? 'PDF Document' : 'Image File',
+              });
+              if (!customDocName.trim()) {
+                setCustomDocName(extractedName);
+              }
+            }
+          }
+        };
+        input.click();
+        return;
+      }
+    }
+
     try {
       const result = await DocumentPicker.pick({
         type: [DocumentPicker.types.pdf, DocumentPicker.types.images],
@@ -58,12 +128,19 @@ export const UploadDocumentScreen: React.FC = () => {
       const res = result[0];
       if (res && res.uri) {
         const isPdf = (res.type || '').includes('pdf') || (res.name || '').toLowerCase().endsWith('.pdf');
+        const cleanFileName = res.name || 'document.pdf';
+        const extractedName = getCleanDocName(cleanFileName);
+
         setSelectedFile({
           uri: res.uri,
-          name: res.name || 'document.pdf',
+          name: cleanFileName,
           mimeType: res.type || (isPdf ? 'application/pdf' : 'image/jpeg'),
           fileTypeLabel: isPdf ? 'PDF Document' : 'Image File',
         });
+
+        if (!customDocName.trim()) {
+          setCustomDocName(extractedName);
+        }
       }
     } catch (err) {
       if (DocumentPicker.isErrorWithCode(err) && err.code === DocumentPicker.errorCodes.OPERATION_CANCELED) {
@@ -71,37 +148,43 @@ export const UploadDocumentScreen: React.FC = () => {
       } else {
         // Fallback simulated file pick for testing
         const docBase = selectedType === 'Other Document' ? (customDocName || 'Custom_Document') : selectedType.replace(/[^a-zA-Z0-9]/g, '_');
+        const cleanFileName = `${docBase}.pdf`;
+        const extractedName = getCleanDocName(cleanFileName);
+
         setSelectedFile({
-          uri: 'file://simulated_document.pdf',
-          name: `${docBase}.pdf`,
+          uri: SAMPLE_PDF_DATA_URL,
+          name: cleanFileName,
           mimeType: 'application/pdf',
-          fileTypeLabel: 'PDF Document (Simulated)',
+          fileTypeLabel: 'PDF Document',
         });
+
+        if (!customDocName.trim()) {
+          setCustomDocName(extractedName);
+        }
       }
     }
   };
 
   const handleSaveAndSubmit = async () => {
-    let finalDocName = selectedType;
-
-    // Validation: If "Other Document" is selected, custom name MUST NOT be empty!
-    if (selectedType === 'Other Document') {
-      if (!customDocName.trim()) {
-        Alert.alert(
-          'Missing Document Name',
-          'Please enter the custom document name when selecting "Other Document".'
-        );
-        return;
-      }
-      finalDocName = customDocName.trim();
-    }
-
     if (!selectedFile) {
       Alert.alert(
         'No File Attached',
         'Please choose a PDF or image document before submitting.'
       );
       return;
+    }
+
+    let finalDocName = selectedType;
+    const extractedName = getCleanDocName(selectedFile.name);
+
+    if (selectedType === 'Other Document') {
+      if (customDocName.trim()) {
+        finalDocName = customDocName.trim();
+      } else {
+        // Fetch and use document name from uploaded file
+        finalDocName = extractedName || 'Custom Document';
+        setCustomDocName(finalDocName);
+      }
     }
 
     setIsSubmitting(true);
@@ -169,50 +252,38 @@ export const UploadDocumentScreen: React.FC = () => {
               <AppText size="sm" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
             </TouchableOpacity>
 
-            {/* Dropdown Options */}
-            {dropdownOpen && (
-              <View style={styles.dropdownMenu}>
-                {documentTypeOptions.map((opt) => {
-                  const isSel = selectedType === opt;
-                  return (
-                    <TouchableOpacity
-                      key={opt}
-                      style={[styles.dropdownItem, isSel && styles.dropdownItemActive]}
-                      onPress={() => {
-                        setSelectedType(opt);
-                        setDropdownOpen(false);
-                      }}
-                    >
-                      <AppText
-                        size="sm"
-                        weight={isSel ? 'bold' : 'medium'}
-                        style={{ color: isSel ? '#4F46E5' : '#334155' }}
-                      >
-                        {isSel ? `✓ ${opt}` : opt}
-                      </AppText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
+            {/* Document Type Bottom Sheet */}
+            <FilterBottomSheet
+              visible={dropdownOpen}
+              onClose={() => setDropdownOpen(false)}
+              title="Select Document Type"
+              options={documentTypeOptions}
+              selectedValue={selectedType}
+              onSelect={(opt) => {
+                setSelectedType(opt);
+                if (opt === 'Other Document' && selectedFile && !customDocName.trim()) {
+                  setCustomDocName(getCleanDocName(selectedFile.name));
+                }
+              }}
+            />
           </View>
 
           {/* Conditional Name Input for "Other Document" */}
           {selectedType === 'Other Document' && (
             <View style={styles.inputGroup}>
               <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-                CUSTOM DOCUMENT NAME *
+                CUSTOM DOCUMENT NAME
               </AppText>
               <TextInput
                 style={styles.textInput}
-                placeholder="Enter document name (e.g. Birth Certificate, Passbook)"
+                placeholder="Enter document name or leave blank to fetch from file"
                 placeholderTextColor="#94A3B8"
                 value={customDocName}
                 onChangeText={setCustomDocName}
               />
-              {!customDocName.trim() && (
-                <AppText size="xs" style={{ color: '#DC2626', marginTop: 2 }}>
-                  * Required when selecting "Other Document"
+              {!customDocName.trim() && selectedFile && (
+                <AppText size="xs" style={{ color: '#059669', marginTop: 2 }}>
+                  * Will automatically use fetched file name: "{getCleanDocName(selectedFile.name)}"
                 </AppText>
               )}
             </View>

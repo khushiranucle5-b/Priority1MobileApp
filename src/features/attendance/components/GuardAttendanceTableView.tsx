@@ -11,6 +11,7 @@ import { Heading } from '../../../components/typography/Heading';
 import { AppText } from '../../../components/typography/Text';
 import { Button } from '../../../components/Button';
 import { Input } from '../../../components/Input';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, AttendanceRecord } from '../../../store/useGuardStore';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
@@ -25,6 +26,8 @@ export const GuardAttendanceTableView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [geoFilter, setGeoFilter] = useState('ALL');
+  const [isStatusPickerOpen, setIsStatusPickerOpen] = useState(false);
+  const [isGeoPickerOpen, setIsGeoPickerOpen] = useState(false);
 
   const handleClockIn = () => {
     LoggerService.log('[GuardAttendanceTableView] Clock In pressed');
@@ -125,10 +128,7 @@ export const GuardAttendanceTableView: React.FC = () => {
 
         <TouchableOpacity
           style={[styles.filterDropdown, { borderColor: colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }]}
-          onPress={() => {
-            const next = statusFilter === 'ALL' ? 'PRESENT' : statusFilter === 'PRESENT' ? 'ABSENT' : 'ALL';
-            setStatusFilter(next);
-          }}
+          onPress={() => setIsStatusPickerOpen(true)}
         >
           <AppText size="xs" color="secondary">Status: </AppText>
           <AppText size="xs" weight="bold" color="primary">{statusFilter}</AppText>
@@ -136,10 +136,7 @@ export const GuardAttendanceTableView: React.FC = () => {
 
         <TouchableOpacity
           style={[styles.filterDropdown, { borderColor: colors.border, borderRadius: borderRadius.md, backgroundColor: colors.surface }]}
-          onPress={() => {
-            const next = geoFilter === 'ALL' ? 'INSIDE_GEOFENCE' : 'ALL';
-            setGeoFilter(next);
-          }}
+          onPress={() => setIsGeoPickerOpen(true)}
         >
           <AppText size="xs" color="secondary">Geo: </AppText>
           <AppText size="xs" weight="bold" color="primary">{geoFilter}</AppText>
@@ -152,6 +149,36 @@ export const GuardAttendanceTableView: React.FC = () => {
           <AppText size="xs" weight="bold" color="primary">📥 Export CSV</AppText>
         </TouchableOpacity>
       </View>
+
+      {/* Attendance Status Filter Bottom Sheet */}
+      <FilterBottomSheet
+        visible={isStatusPickerOpen}
+        onClose={() => setIsStatusPickerOpen(false)}
+        title="Select Attendance Status"
+        options={[
+          { label: 'All Statuses', value: 'ALL' },
+          { label: 'Present', value: 'PRESENT' },
+          { label: 'Absent', value: 'ABSENT' },
+          { label: 'Half Day', value: 'HALF_DAY' },
+          { label: 'Leave', value: 'LEAVE' },
+        ]}
+        selectedValue={statusFilter}
+        onSelect={(val) => setStatusFilter(val)}
+      />
+
+      {/* Geofence Location Filter Bottom Sheet */}
+      <FilterBottomSheet
+        visible={isGeoPickerOpen}
+        onClose={() => setIsGeoPickerOpen(false)}
+        title="Select Geofence Location"
+        options={[
+          { label: 'All Locations', value: 'ALL' },
+          { label: 'Inside Geofence', value: 'INSIDE_GEOFENCE' },
+          { label: 'Outside Geofence', value: 'OUTSIDE_GEOFENCE' },
+        ]}
+        selectedValue={geoFilter}
+        onSelect={(val) => setGeoFilter(val)}
+      />
 
       {/* Attendance Data Table */}
       <ScrollView horizontal showsHorizontalScrollIndicator={true} style={styles.tableScroll}>

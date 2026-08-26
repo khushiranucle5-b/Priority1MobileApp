@@ -7,6 +7,8 @@ import {
   Alert,
   Modal,
   Animated,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
@@ -19,6 +21,161 @@ import { StatusBadge } from '../../../components/StatusBadge';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, DBPatrol } from '../../../store/useGuardStore';
 import { getPatrolAvailability, findCurrentPatrol, useLiveNow } from '../utils/patrolUtils';
+
+import { Camera, CameraType } from 'react-native-camera-kit';
+
+const NativeCameraScannerView: React.FC<{
+  isOpen: boolean;
+  onBarcodeScan?: (code: string) => void;
+}> = ({ isOpen, onBarcodeScan }) => {
+  const [permissionStatus, setPermissionStatus] = useState<boolean | null>(null);
+  const webVideoRef = useRef<any>(null);
+  const webStreamRef = useRef<any>(null);
+
+  const requestPermission = async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') return true;
+    try {
+      console.log('[CameraDebug] Requesting Android camera permission...');
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Camera Permission Required',
+          message: 'Priority One requires camera access to scan checkpoint QR codes.',
+          buttonPositive: 'OK',
+        }
+      );
+      const isGranted = granted === PermissionsAndroid.RESULTS.GRANTED;
+      console.log('[CameraDebug] Camera permission granted status:', isGranted);
+      return isGranted;
+    } catch (err) {
+      console.warn('[CameraDebug] Camera permission request error:', err);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      if (webStreamRef.current) {
+        try {
+          webStreamRef.current.getTracks().forEach((t: any) => t.stop());
+        } catch (e) {}
+        webStreamRef.current = null;
+      }
+      return;
+    }
+
+    let isMounted = true;
+    (async () => {
+      console.log('[CameraDebug] Checking camera permission on modal open...');
+      const isGranted = await requestPermission();
+      if (!isMounted) return;
+      setPermissionStatus(isGranted);
+
+      const nav = (globalThis as any).navigator;
+      if (Platform.OS === 'web' && typeof nav !== 'undefined' && nav.mediaDevices?.getUserMedia) {
+        try {
+          const mediaStream = await nav.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 640 }, height: { ideal: 640 } },
+            audio: false,
+          });
+          if (!isMounted) {
+            mediaStream.getTracks().forEach((t: any) => t.stop());
+            return;
+          }
+          webStreamRef.current = mediaStream;
+          if (webVideoRef.current) {
+            webVideoRef.current.srcObject = mediaStream;
+            webVideoRef.current.play().catch(() => {});
+          }
+        } catch (err: any) {
+          console.warn('[CameraDebug] Web media stream error:', err);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+      if (webStreamRef.current) {
+        try {
+          webStreamRef.current.getTracks().forEach((t: any) => t.stop());
+        } catch (e) {}
+        webStreamRef.current = null;
+      }
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  if (permissionStatus === false) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+        <AppText size="xs" weight="bold" style={{ color: '#EF4444', textAlign: 'center', marginBottom: 8 }}>
+          ⚠️ Camera Permission Required
+        </AppText>
+        <TouchableOpacity
+          style={{ backgroundColor: '#2563EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
+          onPress={async () => {
+            const res = await requestPermission();
+            setPermissionStatus(res);
+          }}
+        >
+          <AppText size="xs" weight="bold" style={{ color: '#FFFFFF' }}>
+            Grant Permission
+          </AppText>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (Platform.OS === 'web') {
+    return (
+      <video
+        ref={webVideoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: 12,
+        }}
+      />
+    );
+  }
+
+  try {
+    return (
+      <Camera
+        style={StyleSheet.absoluteFill}
+        cameraType={CameraType?.Back || 'back'}
+        flashMode="auto"
+        focusMode="on"
+        zoomMode="on"
+        scanBarcode={true}
+        showFrame={false}
+        laserColor="transparent"
+        frameColor="transparent"
+        onReadCode={(event: any) => {
+          const code = event.nativeEvent?.codeStringValue || event.codeStringValue;
+          console.log('[CameraDebug] QR Code scanned from native camera:', code);
+          if (code && onBarcodeScan) {
+            onBarcodeScan(code);
+          }
+        }}
+      />
+    );
+  } catch (err: any) {
+    console.error('[CameraDebug] Native Camera render exception:', err);
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0F172A', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+        <AppText size="xs" weight="bold" style={{ color: '#94A3B8', textAlign: 'center' }}>
+          Camera Viewfinder Active
+        </AppText>
+      </View>
+    );
+  }
+};
 
 export const PatrolDetailsScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -201,6 +358,23 @@ export const PatrolDetailsScreen: React.FC = () => {
     }
 
     setIsScannerOpen(true);
+  };
+
+  const requestCameraPermission = async (): Promise<boolean> => {
+    if (Platform.OS !== 'android') return true;
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'Camera Permission Required',
+          message: 'Priority One requires camera access to scan checkpoint QR codes.',
+          buttonPositive: 'OK',
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      return false;
+    }
   };
 
   const handleDirectCapture = async (specificCode?: string) => {
@@ -390,7 +564,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                   <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
                     VERIFICATION
                   </AppText>
-                  <AppText size="base" weight="bold" style={[styles.metaValueText, { color: isDone ? '#059669' : '#64748B' }]}>
+                  <AppText size="base" weight="bold" style={[styles.metaValueText, { color: isDone ? '#059669' : '#D97706' }]}>
                     {isDone ? 'GPS & QR Matched' : 'Pending Scan'}
                   </AppText>
                 </View>
@@ -442,15 +616,22 @@ export const PatrolDetailsScreen: React.FC = () => {
               {/* Camera Viewport Frame Box */}
               <View style={styles.cameraViewportContainer}>
                 <TouchableOpacity activeOpacity={0.9} onPress={() => handleDirectCapture()} style={styles.cameraBox}>
+                  {/* Real-time Rear Camera Native Stream */}
+                  <NativeCameraScannerView isOpen={isScannerOpen} />
+
+                  {/* Viewfinder Target Reticle Brackets Overlay */}
+                  <View style={[styles.targetBracket, styles.bracketTL]} pointerEvents="none" />
+                  <View style={[styles.targetBracket, styles.bracketTR]} pointerEvents="none" />
+                  <View style={[styles.targetBracket, styles.bracketBL]} pointerEvents="none" />
+                  <View style={[styles.targetBracket, styles.bracketBR]} pointerEvents="none" />
+
                   <Animated.View
+                    pointerEvents="none"
                     style={[
                       styles.laserLine,
                       { transform: [{ translateY: laserAnim }] }
                     ]}
                   />
-                  <AppText style={styles.cameraLabelText}>
-                    REAR CAMERA ACTIVE
-                  </AppText>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -484,7 +665,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                         disabled={isDone}
                         activeOpacity={0.7}
                       >
-                        <AppText style={{ color: isDone ? '#059669' : '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                        <AppText style={{ color: isDone ? '#059669' : '#FBBF24', fontSize: 13, fontWeight: '700' }}>
                           {isDone ? `✓ ${cp.number}` : `Scan ${cp.number}`}
                         </AppText>
                       </TouchableOpacity>
@@ -805,9 +986,36 @@ const styles = StyleSheet.create({
   },
   cameraLabelText: {
     color: '#94A3B8',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  targetBracket: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderColor: '#10B981',
+  },
+  bracketTL: { top: 10, left: 10, borderTopWidth: 3, borderLeftWidth: 3 },
+  bracketTR: { top: 10, right: 10, borderTopWidth: 3, borderRightWidth: 3 },
+  bracketBL: { bottom: 10, left: 10, borderBottomWidth: 3, borderLeftWidth: 3 },
+  bracketBR: { bottom: 10, right: 10, borderBottomWidth: 3, borderRightWidth: 3 },
+  liveIndicatorBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  greenLiveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
   },
   triggerCameraBtn: {
     backgroundColor: '#2563EB',
@@ -854,8 +1062,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cpChipPending: {
-    backgroundColor: '#1E293B',
-    borderColor: '#3B82F6',
+    backgroundColor: '#451A03',
+    borderColor: '#F59E0B',
   },
   cpChipDone: {
     backgroundColor: '#064E3B',

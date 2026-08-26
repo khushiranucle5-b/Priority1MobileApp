@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ViewProps, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRoute } from '@react-navigation/native';
 import { useTheme } from '../providers/ThemeProvider';
 import { PersistentSidebar } from '../components/PersistentSidebar';
 import { SidebarDrawer } from '../components/SidebarDrawer';
@@ -20,7 +21,10 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
 }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
+  const route = useRoute();
   const isLargeScreen = width >= 768;
+
+  const currentActiveRoute = activeRoute || route.name;
 
   return (
     <SafeAreaView
@@ -28,12 +32,12 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
       edges={edges}
     >
       <View style={styles.layoutRow}>
-        {isLargeScreen && <PersistentSidebar activeRoute={activeRoute} />}
+        {isLargeScreen && <PersistentSidebar activeRoute={currentActiveRoute} />}
         <View style={[styles.container, style]} {...props}>
           {children}
         </View>
       </View>
-      {!isLargeScreen && <SidebarDrawer activeRouteName={activeRoute} />}
+      {!isLargeScreen && <SidebarDrawer activeRouteName={currentActiveRoute} />}
     </SafeAreaView>
   );
 };

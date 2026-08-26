@@ -10,6 +10,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 import { NotificationCard, EmptyNotificationState, NotificationListSkeleton } from '../components';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'Notifications'>;
 
@@ -238,28 +239,15 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Dropdown Menu Options */}
-      {dropdownOpen && (
-        <View style={[styles.dropdownMenuContainer, { marginHorizontal: spacing.base }]}>
-          {filterOptions.map((opt) => {
-            const isSel = activeCategory === opt.value;
-            return (
-              <TouchableOpacity
-                key={opt.value}
-                style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                onPress={() => {
-                  setActiveCategory(opt.value);
-                  setDropdownOpen(false);
-                }}
-              >
-                <AppText style={[styles.dropdownMenuItemText, { color: isSel ? '#2563EB' : '#334155', fontWeight: isSel ? '700' : '500' }]}>
-                  {isSel ? `✓ ${opt.label}` : opt.label}
-                </AppText>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
+      {/* Notifications Category Filter Bottom Sheet */}
+      <FilterBottomSheet
+        visible={dropdownOpen}
+        onClose={() => setDropdownOpen(false)}
+        title="Select Category"
+        options={filterOptions}
+        selectedValue={activeCategory}
+        onSelect={(val) => setActiveCategory(val)}
+      />
 
       {/* Action Bar with Item Count & Bulk Buttons */}
       <View style={[styles.actionBar, { paddingHorizontal: spacing.base }]}>

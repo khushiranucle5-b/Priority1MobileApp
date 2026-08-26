@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Linking, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Linking, Alert, Platform } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
@@ -10,6 +10,7 @@ import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { getTable, DBSite } from '../../../services/db';
 import { NavIcon, NavIconName } from '../../../components/NavIcon';
+import { SiteGeofenceMap } from '../components/SiteGeofenceMap';
 
 type TabType =
   | 'Overview & Settings'
@@ -62,6 +63,14 @@ export const SiteDetailsScreen: React.FC = () => {
       content: docItem.content || `Mandatory Operational Directive: All security personnel assigned to ${site?.name || 'this site'} must strictly comply with the procedures specified in ${docItem.title || docItem.name}.`,
       fileUrl: targetUrl,
     });
+
+    if (Platform.OS === 'web') {
+      const globalObj = typeof globalThis !== 'undefined' ? (globalThis as any) : {};
+      if (globalObj.window && globalObj.window.open) {
+        globalObj.window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        return;
+      }
+    }
 
     try {
       await Linking.openURL(targetUrl);
@@ -390,6 +399,15 @@ export const SiteDetailsScreen: React.FC = () => {
               Operational site boundary coordinates and active attendance rules.
             </AppText>
 
+            {/* Interactive Google Map + Geofence Polygon Overlay & Controls */}
+            <SiteGeofenceMap
+              initialLatitude={geofence.latitude}
+              initialLongitude={geofence.longitude}
+              initialRadius={geofence.radiusMeters}
+            />
+
+            <View style={styles.dividerLine} />
+
             <View style={styles.infoGrid}>
               <View style={styles.infoBox}>
                 <AppText size="sm" color="secondary">Boundary Type</AppText>
@@ -425,42 +443,24 @@ export const SiteDetailsScreen: React.FC = () => {
 
             <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Geofence Validation Policies (Read-Only)</Heading>
             <View style={{ gap: 8 }}>
-              <View style={styles.toggleRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
+                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Enable Geofence Validation</AppText>
-                <View style={styles.statusChipGreen}><AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Active Policy</AppText></View>
               </View>
 
-              <View style={styles.toggleRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
+                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Require Geofence for Clock-In</AppText>
-                <View style={styles.statusChipGreen}><AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Enforced</AppText></View>
               </View>
 
-              <View style={styles.toggleRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
+                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Require Geofence for Clock-Out</AppText>
-                <View style={styles.statusChipGreen}><AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Enforced</AppText></View>
               </View>
 
-              <View style={styles.toggleRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
+                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Require Location Permission</AppText>
-                <View style={styles.statusChipGreen}><AppText size="sm" weight="bold" style={{ color: '#059669' }}>✓ Mandatory</AppText></View>
-              </View>
-            </View>
-
-            <View style={styles.dividerLine} />
-
-            <View style={styles.infoGrid}>
-              <View style={styles.infoBoxFull}>
-                <AppText size="sm" color="secondary">Outside Boundary Action</AppText>
-                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
-                  {geofence.outsideBoundaryAction || 'Allow But Flag Exception'}
-                </AppText>
-              </View>
-
-              <View style={styles.infoBoxFull}>
-                <AppText size="sm" color="secondary">Location Accuracy Threshold</AppText>
-                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
-                  {geofence.accuracyThresholdMeters || 50} meters
-                </AppText>
               </View>
             </View>
           </Card>
@@ -666,26 +666,21 @@ export const SiteDetailsScreen: React.FC = () => {
             {checkpoints.length === 0 ? (
               <AppText size="base" color="secondary">No tour checkpoints configured for this site.</AppText>
             ) : (
-              checkpoints.map((cp) => (
+              checkpoints.map((cp, idx) => (
                 <View key={cp.id} style={styles.checkpointCard}>
                   <View style={styles.cpNumberBadge}>
-                    <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>{cp.sequence || cp.patrolOrder || 1}</AppText>
+                    <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>
+                      {cp.sequence || cp.patrolOrder || (idx + 1)}
+                    </AppText>
                   </View>
 
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Heading level="h3" color="primary">{cp.name}</Heading>
-                      <View style={[styles.priorityBadge, { backgroundColor: '#EEF2FF' }]}>
-                        <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>{cp.type || 'QR Tag'}</AppText>
-                      </View>
                     </View>
 
                     <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-                      Tag ID: <AppText size="sm" weight="semibold" color="primary">{cp.tagId || 'TAG-101'}</AppText> • Location: <AppText size="sm" weight="bold" color="primary">{cp.location}</AppText>
-                    </AppText>
-
-                    <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-                      Scan Window: <AppText size="sm" weight="semibold" color="primary">{cp.scanWindowMins || 15}m</AppText> • Grace: <AppText size="sm" weight="semibold" color="primary">{cp.graceTimeMins || 5}m</AppText>
+                      Location: <AppText size="sm" weight="bold" color="primary">{addressStr || cp.location}</AppText>
                     </AppText>
                   </View>
                 </View>
@@ -715,26 +710,12 @@ export const SiteDetailsScreen: React.FC = () => {
                       </AppText>
                     </View>
 
-                    <View style={[styles.roleBadge, { backgroundColor: user.role.includes('Supervisor') ? '#EEF2FF' : '#F1F5F9' }]}>
-                      <AppText size="sm" weight="bold" style={{ color: user.role.includes('Supervisor') ? '#4F46E5' : '#475569' }}>
-                        {user.role}
-                      </AppText>
-                    </View>
+                    
                   </View>
 
-                  <View style={styles.dividerLineLight} />
+                  
 
-                  <View style={styles.infoGrid}>
-                    <View style={styles.infoBox}>
-                      <AppText size="sm" color="secondary">Shift Timing:</AppText>
-                      <AppText size="base" weight="bold" color="primary">{user.shiftTiming || '08:00 AM - 04:00 PM'}</AppText>
-                    </View>
-
-                    <View style={styles.infoBox}>
-                      <AppText size="sm" color="secondary">Shift Period:</AppText>
-                      <AppText size="base" weight="bold" color="primary">{user.shiftPeriod || 'Active Shift'}</AppText>
-                    </View>
-                  </View>
+                  
                 </View>
               ))
             )}
@@ -1204,10 +1185,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   cpNumberBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#4F46E5',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
   },

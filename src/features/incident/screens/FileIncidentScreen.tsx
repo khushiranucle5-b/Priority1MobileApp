@@ -11,6 +11,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { insertRow, updateRow, getTable, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { pick, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 
@@ -390,55 +391,25 @@ export const FileIncidentScreen: React.FC = () => {
 
       </ScrollView>
 
-      {/* Category Dropdown Modal */}
-      <Modal visible={dropdownCategoryOpen} transparent animationType="fade">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDropdownCategoryOpen(false)}>
-          <View style={styles.modalContent}>
-            <AppText size="lg" weight="bold" color="primary" style={{ marginBottom: 12 }}>Select Category</AppText>
-            <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
-              {categories.map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[styles.modalOption, category === cat && styles.modalOptionActive]}
-                  onPress={() => {
-                    setCategory(cat);
-                    setDropdownCategoryOpen(false);
-                  }}
-                >
-                  <AppText size="base" weight={category === cat ? 'bold' : 'medium'} style={{ color: category === cat ? '#4F46E5' : '#0F172A' }}>
-                    {cat}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      {/* Category Bottom Sheet */}
+      <FilterBottomSheet
+        visible={dropdownCategoryOpen}
+        onClose={() => setDropdownCategoryOpen(false)}
+        title="Select Category"
+        options={categories}
+        selectedValue={category}
+        onSelect={(cat) => setCategory(cat)}
+      />
 
-      {/* Severity Dropdown Modal */}
-      <Modal visible={dropdownSeverityOpen} transparent animationType="fade">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setDropdownSeverityOpen(false)}>
-          <View style={styles.modalContent}>
-            <AppText size="lg" weight="bold" color="primary" style={{ marginBottom: 12 }}>Select Severity</AppText>
-            <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
-              {severities.map((sev) => (
-                <TouchableOpacity
-                  key={sev}
-                  style={[styles.modalOption, severity === sev && styles.modalOptionActive]}
-                  onPress={() => {
-                    setSeverity(sev);
-                    setDropdownSeverityOpen(false);
-                  }}
-                >
-                  <AppText size="base" weight={severity === sev ? 'bold' : 'medium'} style={{ color: severity === sev ? '#4F46E5' : '#0F172A' }}>
-                    {sev}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      {/* Severity Bottom Sheet */}
+      <FilterBottomSheet
+        visible={dropdownSeverityOpen}
+        onClose={() => setDropdownSeverityOpen(false)}
+        title="Select Severity"
+        options={severities}
+        selectedValue={severity}
+        onSelect={(sev) => setSeverity(sev as any)}
+      />
 
     </ScreenLayout>
   );

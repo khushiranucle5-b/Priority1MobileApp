@@ -13,6 +13,7 @@ import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 import { useGuardStore, LoneWorkerHistoryItem } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
 import {
@@ -192,32 +193,15 @@ export const SafetyHistoryScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Dropdown Menu Options */}
-      {dropdownOpen && (
-        <View style={styles.dropdownMenuContainer}>
-          {filterOptions.map((opt) => {
-            const isSel = statusFilter === opt.value;
-            return (
-              <TouchableOpacity
-                key={opt.value}
-                style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                onPress={() => {
-                  setStatusFilter(opt.value);
-                  setDropdownOpen(false);
-                }}
-              >
-                <AppText
-                  size="xs"
-                  weight={isSel ? 'bold' : 'medium'}
-                  style={{ color: isSel ? '#4F46E5' : '#334155' }}
-                >
-                  {isSel ? `✓ ${opt.label}` : opt.label}
-                </AppText>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      )}
+      {/* Safety History Filter Bottom Sheet */}
+      <FilterBottomSheet
+        visible={dropdownOpen}
+        onClose={() => setDropdownOpen(false)}
+        title="Select Safety Filter"
+        options={filterOptions}
+        selectedValue={statusFilter}
+        onSelect={(val) => setStatusFilter(val)}
+      />
 
       {/* LEVEL 1 — DATE-ONLY SUMMARY LIST */}
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>

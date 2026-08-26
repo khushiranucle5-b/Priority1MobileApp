@@ -8,6 +8,7 @@ import { NavIcon } from '../../../components/NavIcon';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LeaveAttachment, LeaveRequest } from '../../../store/useGuardStore';
 import { Input } from '../../../components/Input';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 import { getHolidayInfoForDate, checkDateRangeForHolidays } from '../../holidays/data/holidaysData';
 
 // Helper to format date nicely
@@ -630,51 +631,22 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
         </View>
       </View>
 
-      {/* Leave Type Selector Modal */}
-      <Modal visible={isTypeModalVisible} animationType="fade" transparent>
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsTypeModalVisible(false)}
-        >
-          <View style={[styles.dropdownCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
-            <View style={styles.dropdownHeader}>
-              <AppText size="base" weight="bold" color="primary">Select Leave Type</AppText>
-              <TouchableOpacity onPress={() => setIsTypeModalVisible(false)} accessibilityLabel="Close modal" accessibilityRole="button">
-                <NavIcon name="close" size={20} color={colors.textSecondary || '#64748b'} />
-              </TouchableOpacity>
-            </View>
-
-            {LEAVE_TYPE_OPTIONS.map((opt) => {
-              const isSelected = leaveType === opt.type;
-              return (
-                <TouchableOpacity
-                  key={opt.type}
-                  disabled={opt.exhausted}
-                  style={[
-                    styles.dropdownOption,
-                    { borderBottomColor: colors.border },
-                    isSelected && { backgroundColor: colors.primary[50] || '#f3e8ff' },
-                    opt.exhausted && { opacity: 0.5 }
-                  ]}
-                  onPress={() => {
-                    setLeaveType(opt.type);
-                    setErrors((prev) => ({ ...prev, leaveType: '' }));
-                    setIsTypeModalVisible(false);
-                  }}
-                >
-                  <View style={styles.optionLabelRow}>
-                    <AppText size="base" weight={isSelected ? 'bold' : 'medium'} color={opt.exhausted ? 'disabled' : 'primary'}>
-                      {opt.type} ({opt.balance}) {opt.exhausted ? '— Exhausted' : ''}
-                    </AppText>
-                    {isSelected && <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#8b5cf6' }}>✓</AppText>}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      {/* Leave Type Selector Bottom Sheet */}
+      <FilterBottomSheet
+        visible={isTypeModalVisible}
+        onClose={() => setIsTypeModalVisible(false)}
+        title="Select Leave Type"
+        options={LEAVE_TYPE_OPTIONS.map((opt) => ({
+          label: `${opt.type} (${opt.balance})${opt.exhausted ? ' — Exhausted' : ''}`,
+          value: opt.type,
+          disabled: opt.exhausted,
+        }))}
+        selectedValue={leaveType}
+        onSelect={(typeVal) => {
+          setLeaveType(typeVal);
+          setErrors((prev) => ({ ...prev, leaveType: '' }));
+        }}
+      />
 
       {/* Date Picker Modal with Holiday Visual Indicators */}
       <Modal visible={isDatePickerVisible} animationType="fade" transparent>

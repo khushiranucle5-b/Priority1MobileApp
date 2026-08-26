@@ -10,6 +10,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { getTable, DBAsset, updateRow } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 import { useNavigation } from '@react-navigation/native';
 
 export const AssetsScreen: React.FC = () => {
@@ -171,44 +172,22 @@ export const AssetsScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Inline Dropdown Options */}
-        {dropdownOpen && (
-          <ScrollView
-            style={styles.dropdownMenuContainer}
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={true}
-            persistentScrollbar={true}
-          >
-            {[
-              { label: 'All', value: 'All' },
-              { label: 'Communication', value: 'Communication' },
-              { label: 'Security Gear', value: 'Security Gear' },
-              { label: 'Uniform', value: 'Uniform' },
-              { label: 'Electronics', value: 'Electronics' },
-              { label: 'Safety Equipment', value: 'Safety Equipment' },
-            ].map((opt) => {
-              const isSel = categoryFilter === opt.value;
-              return (
-                <TouchableOpacity
-                  key={opt.value}
-                  style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                  onPress={() => {
-                    setCategoryFilter(opt.value);
-                    setDropdownOpen(false);
-                  }}
-                >
-                  <AppText
-                    size="sm"
-                    weight={isSel ? 'bold' : 'medium'}
-                    style={{ color: isSel ? '#4F46E5' : '#334155' }}
-                  >
-                    {isSel ? `✓ ${opt.label}` : opt.label}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
+        {/* Category Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={dropdownOpen}
+          onClose={() => setDropdownOpen(false)}
+          title="Select Category"
+          options={[
+            { label: 'All Categories', value: 'All' },
+            { label: 'Communication', value: 'Communication' },
+            { label: 'Security Gear', value: 'Security Gear' },
+            { label: 'Uniform', value: 'Uniform' },
+            { label: 'Electronics', value: 'Electronics' },
+            { label: 'Safety Equipment', value: 'Safety Equipment' },
+          ]}
+          selectedValue={categoryFilter}
+          onSelect={(val) => setCategoryFilter(val)}
+        />
 
         <Heading level="h4" style={styles.sectionTitle}>
           My Assigned Equipment ({filteredAssets.length})

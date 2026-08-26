@@ -363,12 +363,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     {
       id: 'doc-temp-2',
       employeeId: 'emp-1',
-      name: 'Aadhaar Card / Government ID',
+      name: 'Government ID',
       type: 'Government ID',
       status: 'Approved',
       uploadedAt: '2026-08-12',
       uri: '',
-      fileName: 'aadhaar_verification_doc.pdf',
+      fileName: 'gov_id.pdf',
       mimeType: 'application/pdf',
     },
     {

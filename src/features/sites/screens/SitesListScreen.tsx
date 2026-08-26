@@ -10,6 +10,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { getTable, saveTable, DBSite } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 
 const DEFAULT_SITES: DBSite[] = [
   {
@@ -274,53 +275,34 @@ export const SitesListScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Risk Tier Dropdown Options */}
-          {riskDropdownOpen && (
-            <View style={styles.dropdownMenu}>
-              {['All', 'Low', 'Medium', 'High'].map((r) => (
-                <TouchableOpacity
-                  key={r}
-                  style={[styles.dropdownItem, riskFilter === r && styles.dropdownItemActive]}
-                  onPress={() => {
-                    setRiskFilter(r);
-                    setRiskDropdownOpen(false);
-                  }}
-                >
-                  <AppText
-                    size="sm"
-                    weight={riskFilter === r ? 'bold' : 'medium'}
-                    style={{ color: riskFilter === r ? '#4F46E5' : '#334155' }}
-                  >
-                    {riskFilter === r ? `✓ Risk: ${r}` : `Risk: ${r}`}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+        {/* Risk Tier Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={riskDropdownOpen}
+          onClose={() => setRiskDropdownOpen(false)}
+          title="Select Risk Level"
+          options={[
+            { label: 'All Risk Levels', value: 'All' },
+            { label: 'Low', value: 'Low' },
+            { label: 'Medium', value: 'Medium' },
+            { label: 'High', value: 'High' },
+          ]}
+          selectedValue={riskFilter}
+          onSelect={(val) => setRiskFilter(val)}
+        />
 
-          {/* Status Dropdown Options */}
-          {statusDropdownOpen && (
-            <View style={styles.dropdownMenu}>
-              {['All', 'Active', 'Inactive'].map((s) => (
-                <TouchableOpacity
-                  key={s}
-                  style={[styles.dropdownItem, statusFilter === s && styles.dropdownItemActive]}
-                  onPress={() => {
-                    setStatusFilter(s);
-                    setStatusDropdownOpen(false);
-                  }}
-                >
-                  <AppText
-                    size="sm"
-                    weight={statusFilter === s ? 'bold' : 'medium'}
-                    style={{ color: statusFilter === s ? '#4F46E5' : '#334155' }}
-                  >
-                    {statusFilter === s ? `✓ Status: ${s}` : `Status: ${s}`}
-                  </AppText>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+        {/* Status Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={statusDropdownOpen}
+          onClose={() => setStatusDropdownOpen(false)}
+          title="Select Status"
+          options={[
+            { label: 'All Statuses', value: 'All' },
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' },
+          ]}
+          selectedValue={statusFilter}
+          onSelect={(val) => setStatusFilter(val)}
+        />
         </View>
 
         {/* List Title */}

@@ -9,6 +9,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 
 import { getPayslipList, ExtendedPayslipItem } from '../services/payslipService';
 import { downloadPayslipPdf } from '../services/payslipPdfGenerator';
@@ -125,69 +126,31 @@ export const PayslipsScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Inline Month Dropdown */}
-        {activeDropdown === 'month' && (
-          <ScrollView
-            style={styles.dropdownMenuContainer}
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={true}
-            persistentScrollbar={true}
-          >
-            {monthsList.map((m) => {
-              const isSel = selectedMonth === m;
-              return (
-                <TouchableOpacity
-                  key={m}
-                  style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                  onPress={() => {
-                    setSelectedMonth(m);
-                    setActiveDropdown(null);
-                  }}
-                >
-                  <AppText
-                    size="sm"
-                    weight={isSel ? 'bold' : 'medium'}
-                    style={{ color: isSel ? '#4F46E5' : '#334155' }}
-                  >
-                    {isSel ? `✓ ${m === 'All' ? 'All Months' : m}` : (m === 'All' ? 'All Months' : m)}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
+        {/* Month Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={activeDropdown === 'month'}
+          onClose={() => setActiveDropdown(null)}
+          title="Select Month"
+          options={monthsList.map((m) => ({
+            label: m === 'All' ? 'All Months' : m,
+            value: m,
+          }))}
+          selectedValue={selectedMonth}
+          onSelect={(m) => setSelectedMonth(m)}
+        />
 
-        {/* Inline Year Dropdown */}
-        {activeDropdown === 'year' && (
-          <ScrollView
-            style={styles.dropdownMenuContainer}
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={true}
-            persistentScrollbar={true}
-          >
-            {yearsList.map((y) => {
-              const isSel = selectedYear === y;
-              return (
-                <TouchableOpacity
-                  key={y}
-                  style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                  onPress={() => {
-                    setSelectedYear(y);
-                    setActiveDropdown(null);
-                  }}
-                >
-                  <AppText
-                    size="sm"
-                    weight={isSel ? 'bold' : 'medium'}
-                    style={{ color: isSel ? '#4F46E5' : '#334155' }}
-                  >
-                    {isSel ? `✓ ${y === 'All' ? 'All Years' : y}` : (y === 'All' ? 'All Years' : y)}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
+        {/* Year Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={activeDropdown === 'year'}
+          onClose={() => setActiveDropdown(null)}
+          title="Select Year"
+          options={yearsList.map((y) => ({
+            label: y === 'All' ? 'All Years' : y,
+            value: y,
+          }))}
+          selectedValue={selectedYear}
+          onSelect={(y) => setSelectedYear(y)}
+        />
 
         <Heading level="h3" style={styles.sectionTitle}>Pay Statements ({filteredPayslips.length})</Heading>
 

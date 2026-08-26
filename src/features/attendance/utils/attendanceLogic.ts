@@ -135,20 +135,6 @@ export const getMergedStatusForDate = (
     };
   }
 
-  // 3. Weekly Off check (Sundays)
-  const parts = dateStr.split('-').map(Number);
-  if (parts.length === 3) {
-    const dayOfWeek = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
-    if (dayOfWeek === 0) {
-      return {
-        dateStr,
-        type: 'week_off',
-        status: 'Week Off',
-        normalizedStatus: 'WEEK_OFF',
-      };
-    }
-  }
-
   // 4. Past working days with no attendance & no leave are marked Absent
   if (dateStr < todayStr) {
     return {

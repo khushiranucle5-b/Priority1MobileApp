@@ -39,17 +39,18 @@ const isRouteActive = (itemRoute: string, currentRoute?: string) => {
   if (itemRoute === currentRoute) return true;
 
   const routeMap: Record<string, string[]> = {
-    HomeScreen: ['Home', 'HomeMain', 'HomeScreen'],
+    HomeScreen: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
     Attendance: ['Attendance', 'AttendanceMain'],
-    Patrol: ['Patrol', 'PatrolMain', 'PatrolDateLogs', 'PatrolDetails'],
+    Patrol: ['Patrol', 'PatrolMain', 'PatrolDateLogs', 'PatrolDetails', 'PatrolLogs'],
     Leave: ['Leave', 'Leaves'],
     Incident: ['Incident', 'IncidentDetails', 'FileIncident'],
-    LoneWorker: ['LoneWorker', 'LoneWorkerDetails', 'SafetyHistory'],
-    SitesList: ['SitesList', 'SiteDetails'],
+    LoneWorker: ['LoneWorker', 'LoneWorkerDetails', 'SafetyHistory', 'SafetyDateChecks'],
+    SitesList: ['SitesList', 'SiteDetails', 'ChecklistExecution'],
     Payslips: ['Payslips', 'PayslipDetails'],
     Holidays: ['Holidays', 'HolidayDetails'],
     Policies: ['Policies', 'PolicyDetails'],
-    Messages: ['Messages'],
+    Messages: ['Messages', 'ChatScreen'],
+    Assets: ['Assets', 'AssetDetails'],
   };
 
   const matches = routeMap[itemRoute];

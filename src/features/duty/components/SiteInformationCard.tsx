@@ -14,29 +14,23 @@ export const SiteInformationCard: React.FC = () => {
 
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
-      <Heading level="h3" color="primary" style={styles.title}>SITE INFORMATION</Heading>
+      <View style={styles.headerRow}>
+        <Heading level="h3" color="primary" style={styles.title}>SITE INFORMATION</Heading>
+        <View style={[styles.badge, { backgroundColor: '#F1F5F9', borderRadius: borderRadius.sm }]}>
+          <AppText style={styles.badgeText}>ABC-AHM-01</AppText>
+        </View>
+      </View>
       
       <View style={styles.divider} />
 
       <View style={styles.grid}>
         <View style={styles.row}>
-          <AppText style={styles.label}>Site Name</AppText>
           <AppText style={styles.value}>{siteName}</AppText>
         </View>
         <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Site Address</AppText>
           <AppText style={styles.value}>45 Industrial Estate, Changodar</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Site Code</AppText>
-          <AppText style={styles.value}>ABC-AHM-01</AppText>
-        </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Site Type</AppText>
-          <View style={[styles.badge, { backgroundColor: '#F1F5F9', borderRadius: borderRadius.sm }]}>
-            <AppText style={styles.badgeText}>Warehouse Facility</AppText>
-          </View>
-        </View>
+        
       </View>
     </Card>
   );
@@ -55,6 +49,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 19,
     fontWeight: '800',
@@ -70,18 +69,9 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  label: {
-    flex: 1,
-    fontSize: 15.5,
-    fontWeight: '600',
-    color: '#475569',
-  },
   value: {
-    flex: 1.5,
-    textAlign: 'right',
     fontSize: 17.5,
     fontWeight: '700',
     color: '#0F172A',
@@ -96,3 +86,5 @@ const styles = StyleSheet.create({
     color: '#475569',
   },
 });
+
+

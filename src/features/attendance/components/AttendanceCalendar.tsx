@@ -93,7 +93,7 @@ export const AttendanceCalendar = ({
               borderColor = '#D97706';
               dotColor = '#D97706';
               borderWidth = 1.5;
-            } else if (st === 'HOLIDAY' || st === 'WEEK_OFF') {
+            } else if (st === 'HOLIDAY') {
               borderColor = '#64748B';
               dotColor = '#64748B';
               borderWidth = 1.5;

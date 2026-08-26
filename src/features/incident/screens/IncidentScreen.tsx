@@ -12,6 +12,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { getTable, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 
 export const IncidentScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
@@ -126,34 +127,18 @@ export const IncidentScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Dropdown Menu Options */}
-        {dropdownOpen && (
-          <View style={styles.dropdownMenuContainer}>
-            {filterOptions.map((opt) => {
-              const valueKey = opt === 'All Statuses' ? 'All' : opt;
-              const isSel = statusFilter === valueKey;
-              return (
-                <TouchableOpacity
-                  key={opt}
-                  style={[styles.dropdownMenuItem, isSel && styles.dropdownMenuItemActive]}
-                  onPress={() => {
-                    setStatusFilter(valueKey as any);
-                    setDropdownOpen(false);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <AppText
-                    size="base"
-                    weight={isSel ? 'bold' : 'medium'}
-                    style={{ color: isSel ? '#4F46E5' : '#0F172A' }}
-                  >
-                    {opt === 'All Statuses' ? 'All' : opt}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
+        {/* Incident Status Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={dropdownOpen}
+          onClose={() => setDropdownOpen(false)}
+          title="Select Incident Status"
+          options={filterOptions.map((opt) => ({
+            label: opt,
+            value: opt === 'All Statuses' ? 'All' : opt,
+          }))}
+          selectedValue={statusFilter}
+          onSelect={(val) => setStatusFilter(val as any)}
+        />
 
         {/* Incidents List */}
         <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>

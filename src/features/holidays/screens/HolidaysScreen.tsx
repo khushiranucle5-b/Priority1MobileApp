@@ -20,12 +20,6 @@ export const HolidaysScreen: React.FC = () => {
   const navigation = useNavigation<any>();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Upcoming' | 'Past' | 'Active'>('All');
-  const [typeFilter, setTypeFilter] = useState<string>('All');
-
-  const [isStatusPickerOpen, setIsStatusPickerOpen] = useState(false);
-  const [isCategoryPickerOpen, setIsCategoryPickerOpen] = useState(false);
-
   const [selectedHoliday, setSelectedHoliday] = useState<HolidayData | null>(null);
 
   const filteredHolidays = (mockHolidays || []).filter((h) => {
@@ -35,11 +29,7 @@ export const HolidaysScreen: React.FC = () => {
     const codeStr = (h.holidayCode || '').toLowerCase();
     const typeStr = (h.type || '').toLowerCase();
 
-    const matchesSearch = !q || nameStr.includes(q) || codeStr.includes(q) || typeStr.includes(q);
-    const matchesStatus = statusFilter === 'All' || h.status === statusFilter;
-    const matchesType = typeFilter === 'All' || typeStr.includes((typeFilter || '').toLowerCase());
-
-    return matchesSearch && matchesStatus && matchesType;
+    return !q || nameStr.includes(q) || codeStr.includes(q) || typeStr.includes(q);
   });
 
   const getTypeBadgeStyle = (type: string) => {
@@ -83,36 +73,6 @@ export const HolidaysScreen: React.FC = () => {
           />
         </View>
 
-        {/* Dropdown Filters Row (Replacing Chips with Dropdowns) */}
-        <View style={styles.dropdownRow}>
-          <TouchableOpacity
-            style={styles.dropdownPicker}
-            onPress={() => setIsStatusPickerOpen(true)}
-            activeOpacity={0.7}
-          >
-            <View style={{ flex: 1 }}>
-              <AppText size="sm" color="secondary">Status</AppText>
-              <AppText size="base" weight="bold" color="primary" numberOfLines={1}>
-                {statusFilter === 'All' ? 'All Statuses' : statusFilter}
-              </AppText>
-            </View>
-            <AppText size="sm" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.dropdownPicker}
-            onPress={() => setIsCategoryPickerOpen(true)}
-            activeOpacity={0.7}
-          >
-            <View style={{ flex: 1 }}>
-              <AppText size="sm" color="secondary">Category</AppText>
-              <AppText size="base" weight="bold" color="primary" numberOfLines={1}>
-                {typeFilter === 'All' ? 'All Categories' : typeFilter}
-              </AppText>
-            </View>
-            <AppText size="sm" color="secondary" style={{ marginLeft: 6 }}>▼</AppText>
-          </TouchableOpacity>
-        </View>
 
         <Heading level="h3" style={styles.sectionTitle}>
           Holidays ({filteredHolidays.length})
@@ -173,85 +133,6 @@ export const HolidaysScreen: React.FC = () => {
 
       </ScrollView>
 
-      {/* STATUS PICKER MODAL DROPDOWN */}
-      <Modal
-        visible={isStatusPickerOpen}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setIsStatusPickerOpen(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsStatusPickerOpen(false)}
-        >
-          <View style={styles.pickerSheet}>
-            <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Select Status</Heading>
-            {(['All', 'Active', 'Upcoming', 'Past'] as const).map((st) => (
-              <TouchableOpacity
-                key={st}
-                style={[
-                  styles.pickerOption,
-                  statusFilter === st && { backgroundColor: '#EEF2FF' },
-                ]}
-                onPress={() => {
-                  setStatusFilter(st);
-                  setIsStatusPickerOpen(false);
-                }}
-              >
-                <AppText
-                  size="base"
-                  weight={statusFilter === st ? 'bold' : 'regular'}
-                  color={statusFilter === st ? 'primary' : 'secondary'}
-                >
-                  {st === 'All' ? 'All Statuses' : st}
-                </AppText>
-                {statusFilter === st && <AppText size="base" color="primary">✓</AppText>}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
-
-      {/* CATEGORY PICKER MODAL DROPDOWN */}
-      <Modal
-        visible={isCategoryPickerOpen}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setIsCategoryPickerOpen(false)}
-      >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setIsCategoryPickerOpen(false)}
-        >
-          <View style={styles.pickerSheet}>
-            <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Select Category</Heading>
-            {['All', 'Public', 'National Holiday', 'Company Holiday', 'Festival Holiday'].map((tp) => (
-              <TouchableOpacity
-                key={tp}
-                style={[
-                  styles.pickerOption,
-                  typeFilter === tp && { backgroundColor: '#EEF2FF' },
-                ]}
-                onPress={() => {
-                  setTypeFilter(tp);
-                  setIsCategoryPickerOpen(false);
-                }}
-              >
-                <AppText
-                  size="base"
-                  weight={typeFilter === tp ? 'bold' : 'regular'}
-                  color={typeFilter === tp ? 'primary' : 'secondary'}
-                >
-                  {tp === 'All' ? 'All Categories' : tp}
-                </AppText>
-                {typeFilter === tp && <AppText size="base" color="primary">✓</AppText>}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
 
       {/* HOLIDAY DETAILS MODAL */}
       <Modal

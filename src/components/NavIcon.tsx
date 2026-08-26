@@ -22,6 +22,7 @@ export type NavIconName =
   | 'eye'
   | 'edit'
   | 'close'
+  | 'plus'
   | 'calendar'
   | 'profile'
   | 'settings'
@@ -239,6 +240,14 @@ export const NavIcon: React.FC<NavIconProps> = ({
         <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
           <View style={{ width: size * 0.7, height: strokeWidth, backgroundColor: iconColor, position: 'absolute', transform: [{ rotate: '45deg' }] }} />
           <View style={{ width: size * 0.7, height: strokeWidth, backgroundColor: iconColor, position: 'absolute', transform: [{ rotate: '-45deg' }] }} />
+        </View>
+      );
+
+    case 'plus':
+      return (
+        <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
+          <View style={{ width: size * 0.65, height: strokeWidth, backgroundColor: iconColor, position: 'absolute' }} />
+          <View style={{ width: strokeWidth, height: size * 0.65, backgroundColor: iconColor, position: 'absolute' }} />
         </View>
       );
 

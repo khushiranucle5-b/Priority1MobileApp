@@ -8,6 +8,6 @@ export * from './feedback';
 export * from './typography';
 export { SidebarDrawer } from './SidebarDrawer';
 export { PersistentSidebar } from './PersistentSidebar';
+export { FilterBottomSheet } from './FilterBottomSheet';
+export type { FilterOption, FilterBottomSheetProps } from './FilterBottomSheet';
 export { NavIcon } from './NavIcon';
-
-

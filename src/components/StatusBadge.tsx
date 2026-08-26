@@ -29,7 +29,9 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   if (!type) {
     if (
       normalized.includes('check') ||
-      normalized.includes('in') ||
+      normalized === 'in' ||
+      normalized.includes('clock in') ||
+      normalized.includes('check in') ||
       normalized.includes('approve') ||
       normalized.includes('complete') ||
       normalized.includes('active') ||
@@ -47,7 +49,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
       normalized.includes('progress')
     ) {
       detectedType = 'warning';
-      if (!defaultIcon) defaultIcon = '⏳';
+      if (!defaultIcon) defaultIcon = normalized.includes('pend') ? '!' : '⏳';
     } else if (
       normalized.includes('reject') ||
       normalized.includes('fail') ||

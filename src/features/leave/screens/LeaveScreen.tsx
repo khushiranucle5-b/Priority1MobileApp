@@ -13,6 +13,7 @@ import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 import { LeaveBalanceCard } from '../components/LeaveBalanceCard';
 import { LeaveForm } from '../components/LeaveForm';
 import { LeaveHistory } from '../components/LeaveHistory';
@@ -91,36 +92,15 @@ export const LeaveScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Dropdown Options List */}
-        {dropdownOpen && (
-          <View style={styles.dropdownMenuContainer}>
-            {filterOptions.map((opt) => {
-              const isActive = statusFilter === opt.value;
-              return (
-                <TouchableOpacity
-                  key={opt.value}
-                  style={[
-                    styles.dropdownMenuItem,
-                    isActive && styles.dropdownMenuItemActive,
-                  ]}
-                  onPress={() => {
-                    setStatusFilter(opt.value);
-                    setDropdownOpen(false);
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <AppText
-                    size="base"
-                    weight={isActive ? 'bold' : 'medium'}
-                    style={{ color: isActive ? '#4F46E5' : '#0F172A' }}
-                  >
-                    {opt.label}
-                  </AppText>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
+        {/* Leave Status Filter Bottom Sheet */}
+        <FilterBottomSheet
+          visible={dropdownOpen}
+          onClose={() => setDropdownOpen(false)}
+          title="Select Leave Status"
+          options={filterOptions}
+          selectedValue={statusFilter}
+          onSelect={(val) => setStatusFilter(val)}
+        />
 
         {/* Leave History Scrollable Card List */}
         <ScrollView contentContainerStyle={styles.listContainer}>
@@ -139,7 +119,7 @@ export const LeaveScreen: React.FC = () => {
           accessibilityLabel="Apply for leave"
           accessibilityRole="button"
         >
-          <NavIcon name="leaves" size={22} color="#FFFFFF" />
+          <NavIcon name="plus" size={22} color="#FFFFFF" />
           <AppText size="base" weight="bold" style={styles.floatingButtonText}>
             APPLY LEAVE
           </AppText>

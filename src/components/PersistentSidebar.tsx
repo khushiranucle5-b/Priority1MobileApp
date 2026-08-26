@@ -13,6 +13,31 @@ interface PersistentSidebarProps {
   activeRoute?: string;
 }
 
+const isRouteActive = (itemRoute: string, currentRoute?: string) => {
+  if (!itemRoute || !currentRoute) return false;
+  if (itemRoute === currentRoute) return true;
+
+  const routeMap: Record<string, string[]> = {
+    HomeScreen: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
+    Attendance: ['Attendance', 'AttendanceMain'],
+    Patrol: ['Patrol', 'PatrolMain', 'PatrolDateLogs', 'PatrolDetails', 'PatrolLogs'],
+    Leave: ['Leave', 'Leaves'],
+    Incident: ['Incident', 'IncidentDetails', 'FileIncident'],
+    LoneWorker: ['LoneWorker', 'LoneWorkerDetails', 'SafetyHistory', 'SafetyDateChecks'],
+    SitesList: ['SitesList', 'SiteDetails', 'ChecklistExecution'],
+    Payslips: ['Payslips', 'PayslipDetails'],
+    Holidays: ['Holidays', 'HolidayDetails'],
+    Policies: ['Policies', 'PolicyDetails'],
+    Messages: ['Messages', 'ChatScreen'],
+    Assets: ['Assets', 'AssetDetails'],
+  };
+
+  const matches = routeMap[itemRoute];
+  if (matches && matches.includes(currentRoute)) return true;
+
+  return itemRoute.toLowerCase() === currentRoute.toLowerCase();
+};
+
 export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRoute }) => {
   const { borderRadius } = useTheme();
   const navigation = useNavigation<any>();
@@ -86,7 +111,7 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
               {sec.title.toUpperCase()}
             </AppText>
             {sec.items.map((item, itemIdx) => {
-              const isActive = activeName === item.route || (item.route === 'Attendance' && activeName?.includes('Attendance'));
+              const isActive = isRouteActive(item.route, activeName);
               return (
                 <TouchableOpacity
                   key={itemIdx}

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, View, TouchableOpacity, Alert, Platform, PermissionsAndroid } from 'react-native';
-import { launchCamera, CameraOptions } from 'react-native-image-picker';
+import { StyleSheet, View, TouchableOpacity, Alert, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { AppText } from '../../../components/typography/Text';
@@ -9,6 +9,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 
 export const ScanCheckpointCard: React.FC = () => {
+  const navigation = useNavigation<any>();
   const { spacing, colors, borderRadius } = useTheme();
   const { scanCheckpointCode, activePatrol, patrolCheckpointsMap, isClockedIn } = useGuardStore();
 
@@ -16,31 +17,6 @@ export const ScanCheckpointCard: React.FC = () => {
     if (!activePatrol?.id) return [];
     return patrolCheckpointsMap[activePatrol.id] || [];
   }, [patrolCheckpointsMap, activePatrol?.id]);
-
-  const requestCameraPermission = async (): Promise<'granted' | 'denied' | 'never_ask_again'> => {
-    if (Platform.OS !== 'android') return 'granted';
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'Camera Permission Required',
-          message: 'Priority One requires camera access to scan checkpoint QR codes.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        return 'granted';
-      } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-        return 'never_ask_again';
-      } else {
-        return 'denied';
-      }
-    } catch (err) {
-      return 'denied';
-    }
-  };
 
   const handleProcessScan = async (code: string) => {
     const normCode = code.trim().toUpperCase();
@@ -59,7 +35,7 @@ export const ScanCheckpointCard: React.FC = () => {
     }
   };
 
-  const handleQRScan = async () => {
+  const handleQRScan = () => {
     if (!isClockedIn) {
       Alert.alert('Clock In Required', 'You must be clocked in before scanning checkpoints or patrolling.');
       return;
@@ -70,49 +46,7 @@ export const ScanCheckpointCard: React.FC = () => {
       return;
     }
 
-    const perm = await requestCameraPermission();
-    if (perm === 'granted') {
-      handleLaunchNativeCamera();
-    } else if (perm === 'never_ask_again') {
-      Alert.alert(
-        'Camera Permission Disabled',
-        'Camera access was permanently disabled in Android settings. Please enable Camera permission in device Settings -> Apps -> Priority One Security to continue scanning.',
-        [{ text: 'OK' }]
-      );
-    } else {
-      Alert.alert(
-        'Permission Denied',
-        'Camera access is required to scan checkpoint QR codes.',
-        [
-          { text: 'Allow / Retry Permission', onPress: () => handleQRScan() },
-          { text: 'Cancel', style: 'cancel' },
-        ]
-      );
-    }
-  };
-
-  const handleLaunchNativeCamera = async (specificCode?: string) => {
-    const nextPending = patrolCheckpoints.find(c => c.status === 'Pending');
-    if (!nextPending && !specificCode) {
-      Alert.alert('Patrol Completed', 'All checkpoints for this patrol are already completed.');
-      return;
-    }
-    const scannedCode = specificCode || nextPending?.qrCode || nextPending?.number || 'CP-01';
-
-    const options: CameraOptions = {
-      mediaType: 'photo',
-      saveToPhotos: false,
-      cameraType: 'back',
-      quality: 0.8,
-    };
-
-    try {
-      const result = await launchCamera(options);
-      if (result.didCancel) return;
-      await handleProcessScan(scannedCode);
-    } catch (e) {
-      await handleProcessScan(scannedCode);
-    }
+    navigation.navigate('PatrolDetails', { patrol: activePatrol, autoScan: true });
   };
 
   const handleNFCScan = () => {
