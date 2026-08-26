@@ -9,6 +9,8 @@ import {
   Animated,
   Platform,
   PermissionsAndroid,
+  NativeModules,
+  TurboModuleRegistry,
 } from 'react-native';
 import { useRoute, useNavigation, useIsFocused } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
@@ -24,6 +26,47 @@ import { getPatrolAvailability, findCurrentPatrol, useLiveNow } from '../utils/p
 
 import { Camera, CameraType } from 'react-native-camera-kit';
 
+class CameraErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any) {
+    console.warn('[CameraDebug] Camera Error Boundary caught native module error:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#0F172A', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+          <AppText size="xs" weight="bold" style={{ color: '#F59E0B', textAlign: 'center', marginBottom: 4 }}>
+            📷 Native Camera Module Missing
+          </AppText>
+          <AppText size="xs" style={{ color: '#94A3B8', textAlign: 'center' }}>
+            Please run "npx react-native run-android" (or run-ios) to rebuild native app binary with CameraKit support.
+          </AppText>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const isCameraModuleAvailable = (): boolean => {
+  if (Platform.OS === 'web') return true;
+  try {
+    if (NativeModules?.RNCameraKitModule) return true;
+    if (typeof TurboModuleRegistry !== 'undefined' && TurboModuleRegistry.get) {
+      return Boolean(TurboModuleRegistry.get('RNCameraKitModule'));
+    }
+  } catch (e) {
+    return false;
+  }
+  return false;
+};
+
 const NativeCameraScannerView: React.FC<{
   isOpen: boolean;
   onBarcodeScan?: (code: string) => void;
@@ -31,6 +74,7 @@ const NativeCameraScannerView: React.FC<{
   const [permissionStatus, setPermissionStatus] = useState<boolean | null>(null);
   const webVideoRef = useRef<any>(null);
   const webStreamRef = useRef<any>(null);
+  const lastScanTimeRef = useRef<number>(0);
 
   const requestPermission = async (): Promise<boolean> => {
     if (Platform.OS !== 'android') return true;
@@ -144,8 +188,21 @@ const NativeCameraScannerView: React.FC<{
     );
   }
 
-  try {
+  if (!isCameraModuleAvailable()) {
     return (
+      <View style={{ flex: 1, backgroundColor: '#0F172A', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+        <AppText size="xs" weight="bold" style={{ color: '#F59E0B', textAlign: 'center', marginBottom: 4 }}>
+          📷 Native Camera Module Missing
+        </AppText>
+        <AppText size="xs" style={{ color: '#94A3B8', textAlign: 'center' }}>
+          Please run "npx react-native run-android" (or run-ios) to rebuild native app binary with CameraKit support.
+        </AppText>
+      </View>
+    );
+  }
+
+  return (
+    <CameraErrorBoundary>
       <Camera
         style={StyleSheet.absoluteFill}
         cameraType={CameraType?.Back || 'back'}
@@ -159,22 +216,15 @@ const NativeCameraScannerView: React.FC<{
         onReadCode={(event: any) => {
           const code = event.nativeEvent?.codeStringValue || event.codeStringValue;
           console.log('[CameraDebug] QR Code scanned from native camera:', code);
-          if (code && onBarcodeScan) {
+          const now = Date.now();
+          if (code && onBarcodeScan && now - lastScanTimeRef.current > 1500) {
+            lastScanTimeRef.current = now;
             onBarcodeScan(code);
           }
         }}
       />
-    );
-  } catch (err: any) {
-    console.error('[CameraDebug] Native Camera render exception:', err);
-    return (
-      <View style={{ flex: 1, backgroundColor: '#0F172A', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-        <AppText size="xs" weight="bold" style={{ color: '#94A3B8', textAlign: 'center' }}>
-          Camera Viewfinder Active
-        </AppText>
-      </View>
-    );
-  }
+    </CameraErrorBoundary>
+  );
 };
 
 export const PatrolDetailsScreen: React.FC = () => {
@@ -617,7 +667,7 @@ export const PatrolDetailsScreen: React.FC = () => {
               <View style={styles.cameraViewportContainer}>
                 <TouchableOpacity activeOpacity={0.9} onPress={() => handleDirectCapture()} style={styles.cameraBox}>
                   {/* Real-time Rear Camera Native Stream */}
-                  <NativeCameraScannerView isOpen={isScannerOpen} />
+                  <NativeCameraScannerView isOpen={isScannerOpen} onBarcodeScan={handleProcessQRScan} />
 
                   {/* Viewfinder Target Reticle Brackets Overlay */}
                   <View style={[styles.targetBracket, styles.bracketTL]} pointerEvents="none" />
