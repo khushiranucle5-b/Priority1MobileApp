@@ -979,3 +979,27 @@ export const updateRow = async <T extends { id: string }>(table: string, id: str
   await saveTable(table, current);
   return updated;
 };
+
+export const deleteRow = async <T extends { id: string }>(
+  table: string,
+  id: string
+): Promise<boolean> => {
+  LoggerService.log(
+    `[DB] deleteRow: deleting row id ${id} from table ${table}`
+  );
+
+  const current = await getTable<T>(table);
+  const index = current.findIndex(item => item.id === id);
+
+  if (index === -1) {
+    LoggerService.log(
+      `[DB] deleteRow failed: row id ${id} not found in ${table} table`,
+      'warn'
+    );
+    return false;
+  }
+
+  current.splice(index, 1);
+  await saveTable(table, current);
+  return true;
+};
