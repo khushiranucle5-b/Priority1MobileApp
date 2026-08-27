@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
+import { PageHeader } from '../../../components/PageHeader';
 import { Heading } from '../../../components/typography/Heading';
 import { AppText } from '../../../components/typography/Text';
 import { useGuardStore } from '../../../store/useGuardStore';
@@ -41,12 +42,12 @@ export const AttendanceScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="Attendance">
+      <PageHeader title="My Shift & Attendance" showBack />
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.topContainer}>
-          <Heading level="h2" color="primary" style={styles.title}>My Shift & Attendance</Heading>
           <AppText size="sm" color="secondary" style={styles.subtitle}>
             Unified Attendance, Geofence Verification, Overtime Calculation, and Payroll Connection.
           </AppText>
