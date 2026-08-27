@@ -53,7 +53,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           activeOpacity={0.7}
           accessibilityLabel="Go back"
         >
-          <NavIcon name="arrow-left" size={24} color={colors.text || '#334155'} />
+          <View pointerEvents="none">
+            <NavIcon name="arrow-left" size={24} color={colors.text || '#334155'} />
+          </View>
         </TouchableOpacity>
       ) : showMenu !== false ? (
         <TouchableOpacity
@@ -63,7 +65,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           activeOpacity={0.7}
           accessibilityLabel="Open menu"
         >
-          <NavIcon name="menu" size={24} color={colors.text || '#334155'} />
+          <View pointerEvents="none">
+            <NavIcon name="menu" size={24} color={colors.text || '#334155'} />
+          </View>
         </TouchableOpacity>
       ) : null}
       <Heading level="h2" style={styles.title}>{title}</Heading>
