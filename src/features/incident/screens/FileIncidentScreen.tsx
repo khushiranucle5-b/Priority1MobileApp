@@ -12,6 +12,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { insertRow, updateRow, getTable, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
 import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
+import { AttachmentPreviewModal, AttachmentItem } from '../../../components/AttachmentPreviewModal';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { pick, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
@@ -40,6 +41,7 @@ export const FileIncidentScreen: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loadingInitial, setLoadingInitial] = useState(!!route.params?.incidentId);
   const [attachments, setAttachments] = useState<{ id: string; name: string; type: 'image' | 'video' | 'document'; url: string }[]>([]);
+  const [selectedAttachmentForPreview, setSelectedAttachmentForPreview] = useState<AttachmentItem | null>(null);
 
   useEffect(() => {
     const loadIncident = async () => {
@@ -405,15 +407,30 @@ export const FileIncidentScreen: React.FC = () => {
 
           {attachments.map((att) => (
             <View key={att.id} style={styles.attachmentItem}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
-                <NavIcon name={att.type === 'document' ? 'incidents' : 'camera'} size={18} color="#64748B" />
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}
+                onPress={() => setSelectedAttachmentForPreview(att)}
+                activeOpacity={0.7}
+              >
+                <NavIcon name={att.type === 'document' ? 'incidents' : 'camera'} size={18} color="#4F46E5" />
                 <AppText size="sm" weight="semibold" color="primary" style={{ marginLeft: 8 }} numberOfLines={1}>
                   {att.name}
                 </AppText>
-              </View>
-              <TouchableOpacity onPress={() => setAttachments(attachments.filter(a => a.id !== att.id))} style={styles.removeBtn}>
-                <NavIcon name="delete" size={18} color="#DC2626" />
               </TouchableOpacity>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <TouchableOpacity
+                  onPress={() => setSelectedAttachmentForPreview(att)}
+                  style={styles.viewBtn}
+                  activeOpacity={0.7}
+                >
+                  <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>👁️ View</AppText>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => setAttachments(attachments.filter(a => a.id !== att.id))} style={styles.removeBtn}>
+                  <NavIcon name="delete" size={18} color="#DC2626" />
+                </TouchableOpacity>
+              </View>
             </View>
           ))}
         </Card>
@@ -449,6 +466,13 @@ export const FileIncidentScreen: React.FC = () => {
         options={severities}
         selectedValue={severity}
         onSelect={(sev) => setSeverity(sev as any)}
+      />
+
+      {/* Media & Document Evidence Attachment Preview Modal */}
+      <AttachmentPreviewModal
+        visible={!!selectedAttachmentForPreview}
+        attachment={selectedAttachmentForPreview}
+        onClose={() => setSelectedAttachmentForPreview(null)}
       />
 
     </ScreenLayout>
@@ -553,6 +577,14 @@ const styles = StyleSheet.create({
     padding: 6,
     backgroundColor: '#FEE2E2',
     borderRadius: 6,
+  },
+  viewBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: '#EEF2FF',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
   },
   input: {
     backgroundColor: '#F8FAFC',

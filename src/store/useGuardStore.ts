@@ -756,7 +756,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       const safeParseMs = (str: string | null | undefined, dateContextStr?: string): number | null => {
         if (!str) return null;
-        
+
         // Check if full date-time string with valid year (> 2000)
         const d = new Date(str);
         if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
@@ -1043,7 +1043,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
               loadedActivities = parsed;
             }
           }
-        } catch {}
+        } catch { }
       }
 
       // Merge supervisor approvals into notifications
@@ -1131,7 +1131,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     if (guardId) {
       try {
         await AsyncStorage.setItem(`@guard_activities_${guardId}`, JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
     }
   },
 
@@ -1141,7 +1141,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     if (guardId) {
       try {
         await AsyncStorage.removeItem(`@guard_activities_${guardId}`);
-      } catch (e) {}
+      } catch (e) { }
     }
   },
 

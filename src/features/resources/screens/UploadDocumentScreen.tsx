@@ -340,7 +340,7 @@ export const UploadDocumentScreen: React.FC = () => {
 
           {/* Submit Button - Standardized Purple/Indigo #4F46E5 */}
           <Button
-            title={isSubmitting ? "SAVING & SUBMITTING..." : "SAVE & SUBMIT TO HR"}
+            title={isSubmitting ? "SUBMITTING..." : "SUBMIT "}
             variant="primary"
             size="large"
             fullWidth

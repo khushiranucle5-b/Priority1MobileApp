@@ -11,3 +11,5 @@ export { PersistentSidebar } from './PersistentSidebar';
 export { FilterBottomSheet } from './FilterBottomSheet';
 export type { FilterOption, FilterBottomSheetProps } from './FilterBottomSheet';
 export { NavIcon } from './NavIcon';
+export { AttachmentPreviewModal } from './AttachmentPreviewModal';
+export type { AttachmentItem } from './AttachmentPreviewModal';

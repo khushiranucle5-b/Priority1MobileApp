@@ -59,7 +59,7 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
       <PageHeader title="Safety Check Detail" showBack onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
+
         {/* Main Status Banner Card */}
         <Card style={styles.statusBannerCard}>
           <View style={styles.bannerHeader}>
@@ -223,7 +223,7 @@ export const LoneWorkerDetailsScreen: React.FC = () => {
 
           {/* SECTION 2: GEOLOCATION & GEOFENCE VERIFICATION */}
           <View style={styles.sectionGap} />
-          
+
           <AppText style={styles.cardSectionHeading}>
             GEOLOCATION & GEOFENCE VERIFICATION
           </AppText>

@@ -19,6 +19,8 @@ const isRouteActive = (itemRoute: string, currentRoute?: string) => {
 
   const routeMap: Record<string, string[]> = {
     HomeScreen: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
+    HomeMain: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
+    Home: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
     Attendance: ['Attendance', 'AttendanceMain'],
     Patrol: ['Patrol', 'PatrolMain', 'PatrolDateLogs', 'PatrolDetails', 'PatrolLogs'],
     Leave: ['Leave', 'Leaves'],
@@ -48,7 +50,11 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
   const activeName = activeRoute || currentRoute.name;
 
   const navigateTo = (route: string, params?: any) => {
-    const tabRoutes = ['Attendance', 'Duty', 'Patrol', 'Profile'];
+    if (route === 'HomeScreen' || route === 'HomeMain' || route === 'Dashboard') {
+      navigation.navigate('Home', { screen: 'HomeMain', params });
+      return;
+    }
+    const tabRoutes = ['Home', 'Attendance', 'Duty', 'Patrol', 'Profile'];
     if (tabRoutes.includes(route)) {
       navigation.navigate(route);
     } else {

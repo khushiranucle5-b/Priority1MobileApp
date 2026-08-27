@@ -11,6 +11,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { getTable, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
+import { AttachmentPreviewModal, AttachmentItem } from '../../../components/AttachmentPreviewModal';
 
 export const IncidentDetailsScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
@@ -21,6 +22,7 @@ export const IncidentDetailsScreen: React.FC = () => {
   const incidentId = route.params?.incidentId || 'inc-201';
   const [incident, setIncident] = useState<DBIncident | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedAttachmentForPreview, setSelectedAttachmentForPreview] = useState<AttachmentItem | null>(null);
 
   useEffect(() => {
     loadIncident();
@@ -221,7 +223,12 @@ export const IncidentDetailsScreen: React.FC = () => {
 
             <View style={{ gap: 10 }}>
               {incident.attachments.map((att) => (
-                <View key={att.id} style={styles.attachmentRow}>
+                <TouchableOpacity
+                  key={att.id}
+                  style={styles.attachmentRow}
+                  onPress={() => setSelectedAttachmentForPreview(att)}
+                  activeOpacity={0.7}
+                >
                   <View style={{ marginRight: 10 }}>
                     <NavIcon name="incidents" size={20} color="#4F46E5" />
                   </View>
@@ -235,14 +242,12 @@ export const IncidentDetailsScreen: React.FC = () => {
 
                   <TouchableOpacity
                     style={styles.openBtn}
-                    onPress={() => {
-                      if (att.url) Linking.openURL(att.url);
-                    }}
+                    onPress={() => setSelectedAttachmentForPreview(att)}
                     activeOpacity={0.7}
                   >
-                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>View / Open</AppText>
+                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>👁️ View / Open</AppText>
                   </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </Card>
@@ -275,6 +280,13 @@ export const IncidentDetailsScreen: React.FC = () => {
         
 
       </ScrollView>
+
+      {/* Media & Document Attachment Preview Modal */}
+      <AttachmentPreviewModal
+        visible={!!selectedAttachmentForPreview}
+        attachment={selectedAttachmentForPreview}
+        onClose={() => setSelectedAttachmentForPreview(null)}
+      />
     </ScreenLayout>
   );
 };

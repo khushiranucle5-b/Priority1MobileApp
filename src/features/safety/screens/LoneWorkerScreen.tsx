@@ -53,7 +53,7 @@ export const LoneWorkerScreen: React.FC = () => {
   const todayHistory = React.useMemo(() => {
     return (loneWorkerHistory || []).filter((item) => {
       if (!item) return false;
-      const belongsToUser = (guardId && item.guardId === guardId) || 
+      const belongsToUser = (guardId && item.guardId === guardId) ||
         (guardName && item.guardName && item.guardName.toLowerCase() === guardName.toLowerCase());
       if (!belongsToUser) return false;
 

@@ -40,6 +40,8 @@ const isRouteActive = (itemRoute: string, currentRoute?: string) => {
 
   const routeMap: Record<string, string[]> = {
     HomeScreen: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
+    HomeMain: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
+    Home: ['Home', 'HomeMain', 'HomeScreen', 'Dashboard'],
     Attendance: ['Attendance', 'AttendanceMain'],
     Patrol: ['Patrol', 'PatrolMain', 'PatrolDateLogs', 'PatrolDetails', 'PatrolLogs'],
     Leave: ['Leave', 'Leaves'],
@@ -61,7 +63,7 @@ const isRouteActive = (itemRoute: string, currentRoute?: string) => {
 
 const getInitials = (name?: string) => {
   if (!name || !name.trim()) return 'DJ';
-  const parts = name.trim().split(/\s+/) ;
+  const parts = name.trim().split(/\s+/);
   if (parts.length >= 2) {
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
   }
@@ -98,6 +100,10 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
 
   const navigateTo = (route: string, params?: any) => {
     onClose();
+    if (route === 'HomeScreen' || route === 'HomeMain' || route === 'Dashboard') {
+      navigation.navigate('Home', { screen: 'HomeMain', params });
+      return;
+    }
     const tabRoutes = ['Home', 'Attendance', 'Duty', 'Patrol', 'Profile'];
     if (tabRoutes.includes(route)) {
       navigation.navigate(route);
