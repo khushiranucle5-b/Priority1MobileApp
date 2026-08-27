@@ -12,7 +12,8 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { insertRow, updateRow, getTable, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
 import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { pick, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 
 export const FileIncidentScreen: React.FC = () => {
@@ -82,9 +83,43 @@ export const FileIncidentScreen: React.FC = () => {
 
   const severities: ('Low' | 'Medium' | 'High' | 'Critical')[] = ['Low', 'Medium', 'High', 'Critical'];
 
-  const handleAddAttachment = async (type: 'image' | 'video' | 'document') => {
+  const handleAddAttachment = async (type: 'camera' | 'image' | 'video' | 'document') => {
     try {
-      if (type === 'image' || type === 'video') {
+      if (type === 'camera') {
+        if (Platform.OS === 'android') {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.CAMERA,
+            {
+              title: "Camera Permission",
+              message: "App needs camera permission to capture incident photos.",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK"
+            }
+          );
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert("Permission Denied", "Camera permission is required to take photos.");
+            return;
+          }
+        }
+        const result = await launchCamera({
+          mediaType: 'photo',
+          saveToPhotos: true,
+        });
+
+        if (result.didCancel || !result.assets || result.assets.length === 0) return;
+
+        const asset = result.assets[0];
+        setAttachments(prev => [
+          ...prev,
+          {
+            id: `att-${Date.now()}`,
+            name: asset.fileName || `Captured_image`,
+            type: 'image',
+            url: asset.uri || '',
+          },
+        ]);
+      } else if (type === 'image' || type === 'video') {
         const result = await launchImageLibrary({
           mediaType: type === 'image' ? 'photo' : 'video',
           selectionLimit: 1,
@@ -98,7 +133,7 @@ export const FileIncidentScreen: React.FC = () => {
           {
             id: `att-${Date.now()}`,
             name: asset.fileName || `Selected_${type}`,
-            type,
+            type: type === 'image' ? 'image' : 'video',
             url: asset.uri || '',
           },
         ]);
@@ -347,9 +382,14 @@ export const FileIncidentScreen: React.FC = () => {
           <View style={styles.dividerLine} />
 
           <View style={styles.attachBtnRow}>
+            <TouchableOpacity style={styles.attachPillBtn} onPress={() => handleAddAttachment('camera')}>
+              <NavIcon name="camera" size={16} color="#4F46E5" />
+              <AppText size="xs" weight="bold" style={{ color: '#4F46E5', marginLeft: 4 }}>+ Camera</AppText>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.attachPillBtn} onPress={() => handleAddAttachment('image')}>
               <NavIcon name="camera" size={16} color="#4F46E5" />
-              <AppText size="xs" weight="bold" style={{ color: '#4F46E5', marginLeft: 4 }}>+ Add Photo</AppText>
+              <AppText size="xs" weight="bold" style={{ color: '#4F46E5', marginLeft: 4 }}>+ Gallery</AppText>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.attachPillBtn} onPress={() => handleAddAttachment('video')}>

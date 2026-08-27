@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -10,7 +10,7 @@ import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import { getTable, DBIncident } from '../../../services/db';
+import { getTable, deleteRow, DBIncident } from '../../../services/db';
 import { NavIcon } from '../../../components/NavIcon';
 import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
 
@@ -51,6 +51,34 @@ export const IncidentScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteIncident = (incidentId: string) => {
+    Alert.alert(
+      "Delete Incident Report?",
+      "Are you sure you want to delete this incident report? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Delete", 
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const success = await deleteRow<DBIncident>('incidents', incidentId);
+              if (success) {
+                setIncidents(prev => prev.filter(item => item.id !== incidentId));
+                // Optional: Toast or feedback could go here if the app uses a global toast system.
+              } else {
+                Alert.alert("Error", "Failed to delete incident report.");
+              }
+            } catch (err) {
+              console.error('Delete error:', err);
+              Alert.alert("Error", "An unexpected error occurred while deleting.");
+            }
+          }
+        }
+      ]
+    );
   };
 
   const filterOptions = [
@@ -161,7 +189,7 @@ export const IncidentScreen: React.FC = () => {
               <Card key={item.id} variant="outlined" style={styles.card}>
                 <View style={styles.headerRow}>
                   <View style={{ flex: 1, paddingRight: 8 }}>
-                    <AppText size="lg" weight="bold" color="primary" numberOfLines={1}>{(item.title || 'Untitled').toUpperCase()}</AppText>
+                    <AppText size="base" weight="bold" color="primary" numberOfLines={1}>{(item.title || 'Untitled').toUpperCase()}</AppText>
                   </View>
                   <StatusBadge status={item.status || 'Open'} type={getMappedStatusType(item.status)} size="md" />
                 </View>
@@ -169,13 +197,13 @@ export const IncidentScreen: React.FC = () => {
                 <View style={[styles.detailRow, { marginTop: spacing.sm }]}>
                   <View>
                     <AppText size="xs" color="secondary" weight="semibold">DATE</AppText>
-                    <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                    <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
                       {item.date}
                     </AppText>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <AppText size="xs" color="secondary" weight="semibold">INCIDENT TYPE</AppText>
-                    <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
+                    <AppText size="sm" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
                       {item.category || 'General'}
                     </AppText>
                   </View>
@@ -183,12 +211,22 @@ export const IncidentScreen: React.FC = () => {
 
                 <View style={{ marginTop: 10 }}>
                   <AppText size="xs" color="secondary" weight="semibold">LOCATION</AppText>
-                  <AppText size="base" color="text" weight="medium" style={{ marginTop: 2 }}>
+                  <AppText size="sm" color="text" weight="medium" style={{ marginTop: 2 }}>
                     {item.site || assignedSite || 'Ahmedabad Plant'}
                   </AppText>
                 </View>
 
                 <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
+                  <TouchableOpacity
+                    style={styles.iconActionBtnView}
+                    onPress={() => navigation.navigate('IncidentDetails', { incidentId: item.id })}
+                    activeOpacity={0.7}
+                    accessibilityLabel="View incident"
+                    accessibilityRole="button"
+                  >
+                    <NavIcon name="document" size={24} color="#059669" />
+                  </TouchableOpacity>
+
                   <TouchableOpacity
                     style={styles.iconActionBtnEdit}
                     onPress={() => navigation.navigate('FileIncident', { incidentId: item.id })}
@@ -198,6 +236,18 @@ export const IncidentScreen: React.FC = () => {
                   >
                     <NavIcon name="edit" size={24} color="#4F46E5" />
                   </TouchableOpacity>
+
+                  {item.status?.toLowerCase() !== 'resolved' && (
+                    <TouchableOpacity
+                      style={styles.iconActionBtnDelete}
+                      onPress={() => handleDeleteIncident(item.id)}
+                      activeOpacity={0.7}
+                      accessibilityLabel="Delete incident"
+                      accessibilityRole="button"
+                    >
+                      <NavIcon name="delete" size={24} color="#DC2626" />
+                    </TouchableOpacity>
+                  )}
                 </View>
               </Card>
             ))
@@ -325,6 +375,26 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#C7D2FE',
     backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconActionBtnView: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#A7F3D0',
+    backgroundColor: '#ECFDF5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconActionBtnDelete: {
+    width: 52,
+    height: 52,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#FECACA',
+    backgroundColor: '#FEF2F2',
     justifyContent: 'center',
     alignItems: 'center',
   },
