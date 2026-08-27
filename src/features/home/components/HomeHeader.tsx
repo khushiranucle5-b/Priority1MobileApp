@@ -22,7 +22,7 @@ interface HomeHeaderProps {
 export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled = false }) => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<NavigationProp>();
-  const { notifications, guardName } = useGuardStore();
+  const { notifications, guardName, profilePic } = useGuardStore();
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -73,7 +73,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled 
           </View>
         </TouchableOpacity>
         <Image
-          source={{ uri: 'https://i.pravatar.cc/150?img=11' }}
+          source={{ uri: profilePic || 'https://i.pravatar.cc/150?img=11' }}
           style={[styles.avatar, { borderRadius: borderRadius.full }]}
         />
         <View style={styles.textContainer}>

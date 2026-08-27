@@ -56,8 +56,8 @@ export const TabNavigator = () => {
           headerShown: false,
         }}
       >
-        <Tab.Screen 
-          name="Home" 
+        <Tab.Screen
+          name="Home"
           component={HomeNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
@@ -76,10 +76,10 @@ export const TabNavigator = () => {
                 <NavIcon name="dashboard" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
               </View>
             ),
-          }} 
+          }}
         />
-        <Tab.Screen 
-          name="Attendance" 
+        <Tab.Screen
+          name="Attendance"
           component={AttendanceNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
@@ -98,10 +98,10 @@ export const TabNavigator = () => {
                 <NavIcon name="attendance" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
               </View>
             ),
-          }} 
+          }}
         />
-        <Tab.Screen 
-          name="Duty" 
+        <Tab.Screen
+          name="Duty"
           component={DutyScreen}
           options={{
             tabBarLabel: 'DUTY',
@@ -110,10 +110,10 @@ export const TabNavigator = () => {
                 <NavIcon name="shifts" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
               </View>
             ),
-          }} 
+          }}
         />
-        <Tab.Screen 
-          name="Patrol" 
+        <Tab.Screen
+          name="Patrol"
           component={PatrolNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
@@ -132,10 +132,10 @@ export const TabNavigator = () => {
                 <NavIcon name="patrol" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
               </View>
             ),
-          }} 
+          }}
         />
-        <Tab.Screen 
-          name="Profile" 
+        <Tab.Screen
+          name="Profile"
           component={ProfileNavigator}
           listeners={({ navigation }) => ({
             tabPress: () => {
@@ -154,7 +154,7 @@ export const TabNavigator = () => {
                 <NavIcon name="employees" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
               </View>
             ),
-          }} 
+          }}
         />
       </Tab.Navigator>
       <LoneWorkerGlobalListener />

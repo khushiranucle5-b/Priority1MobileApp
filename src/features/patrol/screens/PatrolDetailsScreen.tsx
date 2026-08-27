@@ -496,16 +496,29 @@ export const PatrolDetailsScreen: React.FC = () => {
 
           <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
             {!isPatrolCompleted && !avail.isPastDate && !isPatrolExpired ? (
-              <Button
-                title={buttonTitleText}
-                variant="primary"
-                disabled={isButtonDisabled}
-                onPress={handleLaunchQRScanner}
+              <TouchableOpacity
                 style={[
                   styles.inlineActionBtn,
-                  { backgroundColor: !isClockedIn ? '#DC2626' : isButtonDisabled ? '#94A3B8' : avail.isInProgress ? '#0284C7' : '#2563EB' },
+                  {
+                    backgroundColor: !isClockedIn
+                      ? '#DC2626'
+                      : isButtonDisabled
+                      ? '#64748B'
+                      : avail.isInProgress
+                      ? '#0284C7'
+                      : '#2563EB',
+                  },
                 ]}
-              />
+                disabled={isButtonDisabled}
+                onPress={handleLaunchQRScanner}
+                activeOpacity={0.85}
+                accessibilityLabel={buttonTitleText}
+                accessibilityRole="button"
+              >
+                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF', textAlign: 'center', textTransform: 'uppercase' }}>
+                  {buttonTitleText || 'START PATROLLING'}
+                </AppText>
+              </TouchableOpacity>
             ) : isPatrolCompleted ? (
               <View style={[styles.completedBox, { flex: 1, marginTop: 0, paddingVertical: 12 }]}>
                 <AppText style={styles.completedText}>
@@ -799,6 +812,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
   },
   iconActionBtnView: {
     width: 48,

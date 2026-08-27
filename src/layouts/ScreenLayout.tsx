@@ -21,10 +21,17 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
 }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
-  const route = useRoute();
   const isLargeScreen = width >= 768;
 
-  const currentActiveRoute = activeRoute || route.name;
+  let routeName: string | undefined;
+  try {
+    const route = useRoute();
+    routeName = route?.name;
+  } catch {
+    routeName = undefined;
+  }
+
+  const currentActiveRoute = activeRoute || routeName || 'HomeScreen';
 
   return (
     <SafeAreaView

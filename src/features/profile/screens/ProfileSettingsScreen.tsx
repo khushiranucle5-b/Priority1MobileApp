@@ -106,6 +106,25 @@ export const ProfileSettingsScreen = () => {
       const result = await updateRow<DBEmployee>('employees', empId, updates);
       
       if (result) {
+        useGuardStore.setState({
+          guardName: name,
+          phone,
+          dateOfBirth,
+          gender,
+          bloodGroup,
+          address,
+          profilePic,
+        });
+
+        if (user) {
+          useAuthStore.setState({
+            user: {
+              ...user,
+              name,
+            },
+          });
+        }
+
         await checkSession();
         if (guardStore.loadGuardData && user?.email) {
           await guardStore.loadGuardData(empId, user.email);

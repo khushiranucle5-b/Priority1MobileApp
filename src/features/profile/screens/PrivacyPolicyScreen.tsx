@@ -77,5 +77,6 @@ const styles = StyleSheet.create({
     ...typography.presets.body,
     lineHeight: 26,
     color: '#475569',
+    textAlign: 'justify',
   },
 });

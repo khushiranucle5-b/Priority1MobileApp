@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     ...typography.presets.helper,
     color: '#334155',
     marginBottom: 14,
+    textAlign: 'justify',
   },
   termsBox: {
     padding: 20,
@@ -71,5 +72,6 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     color: '#475569',
     marginBottom: 16,
+    textAlign: 'justify',
   }
 });

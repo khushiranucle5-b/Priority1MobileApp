@@ -11,6 +11,7 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { getTable, DBSite } from '../../../services/db';
 import { NavIcon, NavIconName } from '../../../components/NavIcon';
 import { SiteGeofenceMap } from '../components/SiteGeofenceMap';
+import { StatusBadge } from '../../../components/StatusBadge';
 
 type TabType =
   | 'Overview & Settings'
@@ -607,33 +608,34 @@ export const SiteDetailsScreen: React.FC = () => {
             ) : (
               checklists.map((cl) => (
                 <View key={cl.id} style={styles.cardItemBox}>
-                  {/* Web ERP Aligned Card Header */}
+                  {/* Card Header */}
                   <View style={styles.itemHeaderRow}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1, flexWrap: 'wrap' }}>
-                      <View style={[styles.priorityBadge, { backgroundColor: (cl.priority || 'High').toLowerCase() === 'high' ? '#FEE2E2' : '#FEF3C7', paddingHorizontal: 10, paddingVertical: 4 }]}>
-                        <AppText size="sm" weight="bold" style={{ color: (cl.priority || 'High').toLowerCase() === 'high' ? '#DC2626' : '#D97706', fontSize: 15 }}>
-                          {cl.priority || 'High'}
-                        </AppText>
-                      </View>
-                      <AppText size="lg" weight="bold" style={{ color: '#0F172A', fontSize: 19 }}>
+                    <View style={{ flex: 1 }}>
+                      <Heading level="h4" color="primary" numberOfLines={2}>
                         {cl.title}
-                      </AppText>
-                    </View>
-
-                    <View style={styles.categoryPillWeb}>
-                      <AppText size="sm" weight="semibold" style={{ color: '#475569', fontSize: 15 }}>
-                        {cl.category}
-                      </AppText>
+                      </Heading>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                        <StatusBadge
+                          status={cl.priority || 'High'}
+                          type={(cl.priority || 'High').toLowerCase() === 'high' ? 'error' : 'warning'}
+                          size="sm"
+                        />
+                        <View style={styles.categoryPillWeb}>
+                          <AppText size="xs" weight="medium" style={{ color: '#475569' }}>
+                            {cl.category}
+                          </AppText>
+                        </View>
+                      </View>
                     </View>
                   </View>
 
-                  {/* Web ERP Aligned Ordered Steps Box */}
+                  {/* Ordered Steps Box */}
                   {cl.steps && cl.steps.length > 0 ? (
                     <View style={styles.webChecklistStepsBox}>
                       {cl.steps.map((step, idx) => {
                         const stepText = step.match(/^\d+\./) ? step : `${idx + 1}. ${step}`;
                         return (
-                          <AppText key={idx} style={styles.checklistStepText}>
+                          <AppText key={idx} style={styles.checklistStepText} numberOfLines={2}>
                             {stepText}
                           </AppText>
                         );
@@ -641,7 +643,7 @@ export const SiteDetailsScreen: React.FC = () => {
                     </View>
                   ) : null}
 
-                  {/* Glove-Friendly Start Execution Action Button (Navigates to dedicated ChecklistExecutionScreen) */}
+                  {/* Start Execution Action Button */}
                   <View style={styles.checklistActionRow}>
                     <TouchableOpacity
                       style={styles.startExecutionBtnGlove}
@@ -650,12 +652,12 @@ export const SiteDetailsScreen: React.FC = () => {
                         checklistId: cl.id,
                         checklist: cl,
                       })}
-                      activeOpacity={0.7}
+                      activeOpacity={0.8}
                       accessibilityLabel="Start Execution"
                       accessibilityRole="button"
                     >
-                      <NavIcon name="attendance" size={22} color="#FFFFFF" />
-                      <AppText size="base" weight="bold" style={{ color: '#FFFFFF', fontSize: 17, marginLeft: 10 }}>
+                      <NavIcon name="attendance" size={18} color="#FFFFFF" />
+                      <AppText size="sm" weight="semibold" style={{ color: '#FFFFFF', marginLeft: 8 }}>
                         Start Execution
                       </AppText>
                     </TouchableOpacity>
@@ -963,39 +965,39 @@ const styles = StyleSheet.create({
     minHeight: 36,
   },
   categoryPillWeb: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 16,
-    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#E2E8F0',
   },
   webChecklistStepsBox: {
-    marginTop: 14,
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+    marginTop: 8,
+    padding: 12,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#E2E8F0',
   },
   checklistStepText: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '500',
-    color: '#1E293B',
-    marginBottom: 6,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '400',
+    color: '#334155',
+    marginBottom: 4,
   },
   checklistActionRow: {
-    marginTop: 16,
+    marginTop: 12,
   },
   startExecutionBtnGlove: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 58,
-    minHeight: 58,
+    height: 48,
+    minHeight: 48,
     borderRadius: 10,
-    backgroundColor: '#5B46E5',
+    backgroundColor: '#2563EB',
     width: '100%',
   },
   feedbackBanner: {

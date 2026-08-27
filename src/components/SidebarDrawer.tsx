@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Modal, ScrollView, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Modal, ScrollView, useWindowDimensions, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { AppText } from './typography/Text';
@@ -85,11 +85,22 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   const { borderRadius } = useTheme();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<any>();
+  let navigation: any;
+  try {
+    navigation = useNavigation<any>();
+  } catch {
+    navigation = null;
+  }
 
-  const currentRouteName = useNavigationState((state) => getActiveRouteName(state));
+  let currentRouteName: string | undefined;
+  try {
+    currentRouteName = useNavigationState((state) => (state ? getActiveRouteName(state) : undefined));
+  } catch {
+    currentRouteName = undefined;
+  }
+
   const { user, logout } = useAuthStore();
-  const { guardName, guardId, assignedSite } = useGuardStore();
+  const { guardName, guardId, assignedSite, profilePic } = useGuardStore();
 
   // Drawer Width: 80-85% of mobile screen width
   const drawerWidth = Math.min(Math.round(width * 0.82), 360);
@@ -222,9 +233,13 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
               activeOpacity={0.7}
             >
               <View style={styles.avatarCircle}>
-                <AppText style={styles.avatarText}>
-                  {getInitials(guardName || user?.name)}
-                </AppText>
+                {profilePic ? (
+                  <Image source={{ uri: profilePic }} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                ) : (
+                  <AppText style={styles.avatarText}>
+                    {getInitials(guardName || user?.name)}
+                  </AppText>
+                )}
               </View>
 
               <View style={styles.userInfoContainer}>
