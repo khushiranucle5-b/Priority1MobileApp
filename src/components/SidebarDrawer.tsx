@@ -169,7 +169,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
               <AppText size="xs" style={{ color: '#94A3B8', marginTop: 3, fontWeight: '600' }}>Security ERP • Portal</AppText>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-              <AppText style={{ color: '#94A3B8', fontSize: 24, fontWeight: 'bold' }}>✕</AppText>
+              <NavIcon name="close" size={24} color="#94A3B8" />
             </TouchableOpacity>
           </View>
 

@@ -93,7 +93,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled 
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <NavIcon name="messages" size={24} color="#334155" />
+            <NavIcon name="bell" size={24} color="#334155" />
             {unreadCount > 0 && (
               <View style={[styles.badge, { backgroundColor: colors.error, borderRadius: borderRadius.full }]}>
                 <AppText size="xs" color="surface" weight="bold" style={styles.badgeText}>

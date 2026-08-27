@@ -42,7 +42,7 @@ export const AttendanceScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="Attendance">
-      <PageHeader title="My Shift & Attendance" showBack />
+      <PageHeader title="My Shift & Attendance" />
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}

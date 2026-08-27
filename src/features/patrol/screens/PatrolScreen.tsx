@@ -251,7 +251,7 @@ export const PatrolScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="Patrol">
-      <PageHeader title="Patrol Logs" showBack />
+      <PageHeader title="Patrol Logs" />
 
       <View style={styles.headerSubtitleContainer}>
         <AppText size="sm" color="secondary" style={styles.headerSubtitleText}>

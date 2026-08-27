@@ -46,11 +46,11 @@ export const SettingsScreen: React.FC = () => {
 
   const allSettings: SettingItem[] = [
     { id: 'profile', icon: 'profile', title: 'Profile Settings', section: 'Account', onPress: () => navigation.navigate('ProfileSettings') },
-    { id: 'password', icon: 'settings', title: 'Change Password', section: 'Account', onPress: () => navigation.navigate('ChangePassword') },
-    { id: 'notification', icon: 'messages', title: 'Notification Settings', section: 'Account', onPress: () => navigation.navigate('NotificationSettings') },
+    { id: 'password', icon: 'lock', title: 'Change Password', section: 'Account', onPress: () => navigation.navigate('ChangePassword') },
+    { id: 'notification', icon: 'bell', title: 'Notification Settings', section: 'Account', onPress: () => navigation.navigate('NotificationSettings') },
 
-    { id: 'support', icon: 'messages', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
-    { id: 'contact', icon: 'messages', title: 'Contact Support', section: 'Support', onPress: () => navigation.navigate('ContactSupport') },
+    { id: 'support', icon: 'help', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
+    { id: 'contact', icon: 'phone', title: 'Contact Support', section: 'Support', onPress: () => navigation.navigate('ContactSupport') },
     { id: 'policy', icon: 'policies', title: 'Privacy Policy', section: 'Support', onPress: () => navigation.navigate('PrivacyPolicy') },
     { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Support', onPress: () => navigation.navigate('TermsConditions') },
 
@@ -121,7 +121,7 @@ export const SettingsScreen: React.FC = () => {
                         <AppText style={styles.settingItemTitle}>{setting.title}</AppText>
                       </View>
 
-                      <AppText style={styles.arrowText}>→</AppText>
+                      <NavIcon name="chevron-right" size={20} color="#94A3B8" />
                     </TouchableOpacity>
                   );
                 })}

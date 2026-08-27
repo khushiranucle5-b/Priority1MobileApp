@@ -53,7 +53,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           activeOpacity={0.7}
           accessibilityLabel="Go back"
         >
-          <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
+          <NavIcon name="arrow-left" size={24} color={colors.text || '#334155'} />
         </TouchableOpacity>
       ) : showMenu !== false ? (
         <TouchableOpacity

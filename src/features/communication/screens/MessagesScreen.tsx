@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
@@ -9,6 +9,7 @@ import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { getTable, DBEmployee, DBSite } from '../../../services/db';
+import { NavIcon } from '../../../components/NavIcon';
 
 interface ChatTarget {
   id: string; // receiverId for direct, siteId for site
@@ -200,6 +201,25 @@ export const MessagesScreen: React.FC = () => {
     msg => msg && msg.conversationId === selectedChat?.conversationId
   );
 
+  const getLastMessage = (convoId: string) => {
+    if (!convoId) return null;
+    const threadMsgs = safeMessages.filter(m => m && m.conversationId === convoId);
+    if (threadMsgs.length === 0) return null;
+    const sorted = [...threadMsgs].sort((a, b) => {
+      const timeA = new Date(a.timestamp).getTime() || 0;
+      const timeB = new Date(b.timestamp).getTime() || 0;
+      return timeB - timeA;
+    });
+    return sorted[0];
+  };
+
+  const getLastMessageTimestamp = (convoId: string): number => {
+    const last = getLastMessage(convoId);
+    if (!last) return 0;
+    const t = new Date(last.timestamp).getTime();
+    return isNaN(t) ? 0 : t;
+  };
+
   const getUnreadCount = (convoId: string) => {
     if (!convoId) return 0;
     return safeMessages.filter(msg => msg && msg.conversationId === convoId && !msg.read && msg.senderId !== guardId).length;
@@ -210,16 +230,158 @@ export const MessagesScreen: React.FC = () => {
     try {
       const d = new Date(timestampStr);
       if (isNaN(d.getTime())) return '';
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+
       let hours = d.getHours();
       const minutes = String(d.getMinutes()).padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
       hours = hours ? hours : 12;
-      return `${hours}:${minutes} ${ampm}`;
+      const timeStr = `${hours}:${minutes} ${ampm}`;
+
+      if (isToday) {
+        return timeStr;
+      }
+      return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${timeStr}`;
     } catch {
       return '';
     }
   };
+
+  const activeDirectContacts = useMemo(() => {
+    const list: {
+      id: string;
+      name: string;
+      role: string;
+      roleColor: string;
+      roleBg: string;
+      subtitle: string;
+      type: 'direct';
+      conversationId: string;
+      isReadOnly: boolean;
+      avatarEmoji: string;
+    }[] = [];
+
+    if (supervisor) {
+      list.push({
+        id: 'emp-102',
+        name: supervisor,
+        role: 'Supervisor',
+        roleColor: '#2563EB',
+        roleBg: '#EFF6FF',
+        subtitle: 'Supervisor • Online',
+        type: 'direct',
+        conversationId: getDirectConversationId('emp-102'),
+        isReadOnly: false,
+        avatarEmoji: '👮',
+      });
+    }
+
+    safeContacts.forEach(guard => {
+      list.push({
+        id: guard.id,
+        name: guard.name,
+        role: 'Guard',
+        roleColor: '#475569',
+        roleBg: '#F1F5F9',
+        subtitle: `Guard Officer • ${guard.site || assignedSite || 'Active Site'}`,
+        type: 'direct',
+        conversationId: getDirectConversationId(guard.id),
+        isReadOnly: false,
+        avatarEmoji: '🚶',
+      });
+    });
+
+    list.sort((a, b) => {
+      const tA = getLastMessageTimestamp(a.conversationId);
+      const tB = getLastMessageTimestamp(b.conversationId);
+      return tB - tA;
+    });
+
+    return list;
+  }, [supervisor, safeContacts, safeMessages, guardId, assignedSite]);
+
+  const pastDirectContacts = useMemo(() => {
+    const list = safePastContacts.map(guard => ({
+      id: guard.id,
+      name: guard.name,
+      role: 'Former Guard',
+      roleColor: '#64748B',
+      roleBg: '#F1F5F9',
+      subtitle: `${guard.site || 'Former Site'} • Messaging Disabled`,
+      type: 'direct' as const,
+      conversationId: getDirectConversationId(guard.id),
+      isReadOnly: true,
+      readOnlyReason: `Guard ${guard.name} is no longer on your active site. Messaging is disabled.`,
+      avatarEmoji: '🚶',
+    }));
+
+    list.sort((a, b) => {
+      const tA = getLastMessageTimestamp(a.conversationId);
+      const tB = getLastMessageTimestamp(b.conversationId);
+      return tB - tA;
+    });
+
+    return list;
+  }, [safePastContacts, safeMessages, guardId]);
+
+  const sitesList = useMemo(() => {
+    const list: {
+      id: string;
+      name: string;
+      role: string;
+      roleColor: string;
+      roleBg: string;
+      subtitle: string;
+      type: 'site';
+      conversationId: string;
+      isReadOnly: boolean;
+      readOnlyReason?: string;
+      isCurrentSite: boolean;
+    }[] = [];
+
+    if (assignedSiteId) {
+      list.push({
+        id: assignedSiteId,
+        name: assignedSite || 'Assigned Site',
+        role: 'Current Site',
+        roleColor: '#15803D',
+        roleBg: '#DCFCE7',
+        subtitle: 'Current Site Communication Chat',
+        type: 'site',
+        conversationId: `site:${assignedSiteId}`,
+        isReadOnly: false,
+        isCurrentSite: true,
+      });
+    }
+
+    safeAllSitesList
+      .filter(s => s && s.id !== assignedSiteId && s.code !== assignedSiteId)
+      .forEach(pastSite => {
+        list.push({
+          id: pastSite.id,
+          name: pastSite.name || 'Previous Site',
+          role: 'Previous Site',
+          roleColor: '#64748B',
+          roleBg: '#F1F5F9',
+          subtitle: 'Past Site Chat • Messaging Disabled',
+          type: 'site',
+          conversationId: `site:${pastSite.id}`,
+          isReadOnly: true,
+          readOnlyReason: `You are no longer assigned to ${pastSite.name}. Messages are read-only.`,
+          isCurrentSite: false,
+        });
+      });
+
+    list.sort((a, b) => {
+      const tA = getLastMessageTimestamp(a.conversationId);
+      const tB = getLastMessageTimestamp(b.conversationId);
+      return tB - tA;
+    });
+
+    return list;
+  }, [assignedSiteId, assignedSite, safeAllSitesList, safeMessages]);
 
   const supervisorUnread = getUnreadCount(getDirectConversationId('emp-102'));
   const guardsUnread = safeContacts.reduce((sum, g) => sum + (g ? getUnreadCount(getDirectConversationId(g.id)) : 0), 0);
@@ -298,169 +460,160 @@ export const MessagesScreen: React.FC = () => {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
         {activeTab === 'sites' ? (
           <>
-            {/* CURRENT ASSIGNED SITE */}
-            <Heading level="h3" style={styles.sectionHeader}>CURRENT ASSIGNED SITE</Heading>
-            {assignedSiteId ? (
-              <TouchableOpacity
-                style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md }]}
-                activeOpacity={0.7}
-                onPress={() => setSelectedChat({
-                  id: assignedSiteId,
-                  name: assignedSite || 'Assigned Site',
-                  type: 'site',
-                  conversationId: `site:${assignedSiteId}`,
-                  isReadOnly: false,
-                })}
-              >
-                <View style={styles.threadInfo}>
-                  <View style={styles.avatarPlaceholder}>
-                    <AppText size="xl">🏢</AppText>
-                  </View>
-                  <View style={styles.textDetails}>
-                    <View style={styles.titleWithBadgeRow}>
-                      <AppText size="md" weight="bold">{assignedSite || 'Assigned Site'}</AppText>
-                      <View style={styles.activeBadge}>
-                        <AppText size="xs" weight="bold" style={{ color: '#15803D' }}>Active Site</AppText>
+            <Heading level="h3" style={styles.sectionHeader}>SITE CHATS (SORTED BY LATEST MESSAGE)</Heading>
+            {sitesList.length > 0 ? (
+              sitesList.map((site: any) => {
+                const lastMsg = getLastMessage(site.conversationId);
+                const unread = getUnreadCount(site.conversationId);
+                const isMe = lastMsg?.senderId === guardId;
+
+                return (
+                  <TouchableOpacity
+                    key={site.id}
+                    style={[
+                      styles.threadRow,
+                      { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md },
+                      site.isReadOnly && { opacity: 0.85 }
+                    ]}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedChat({
+                      id: site.id,
+                      name: site.name,
+                      type: 'site',
+                      conversationId: site.conversationId,
+                      isReadOnly: site.isReadOnly,
+                      readOnlyReason: site.readOnlyReason,
+                    })}
+                  >
+                    <View style={styles.threadInfo}>
+                      <View style={[styles.avatarPlaceholder, site.isReadOnly && { backgroundColor: '#F3F4F6' }]}>
+                        <AppText size="xl">🏢</AppText>
+                      </View>
+                      <View style={styles.textDetails}>
+                        <View style={styles.titleWithTimeRow}>
+                          <View style={styles.titleWithBadgeContainer}>
+                            <AppText size="md" weight="bold" numberOfLines={1} style={{ flexShrink: 1, color: site.isReadOnly ? colors.secondary : colors.text }}>
+                              {site.name}
+                            </AppText>
+                            <View style={[styles.roleBadge, { backgroundColor: site.roleBg }]}>
+                              <AppText size="xs" weight="bold" style={{ color: site.roleColor }}>
+                                {site.role}
+                              </AppText>
+                            </View>
+                          </View>
+                          {lastMsg ? (
+                            <AppText size="xs" color="secondary" style={styles.msgTimeRight}>
+                              {formatMsgTime(lastMsg.timestamp)}
+                            </AppText>
+                          ) : null}
+                        </View>
+                        <View style={styles.lastMsgPreviewRow}>
+                          <AppText
+                            size="sm"
+                            numberOfLines={1}
+                            style={{
+                              flex: 1,
+                              color: unread > 0 ? colors.text : '#64748B',
+                              fontWeight: unread > 0 ? '700' : '400',
+                            }}
+                          >
+                            {lastMsg
+                              ? `${isMe ? 'You: ' : `${lastMsg.senderName}: `}${lastMsg.message}`
+                              : site.subtitle}
+                          </AppText>
+                          {unread > 0 && (
+                            <View style={[styles.unreadBadge, { backgroundColor: site.isReadOnly ? '#94A3B8' : colors.error, marginLeft: 8 }]}>
+                              <AppText size="xs" color="surface" weight="bold">
+                                {unread}
+                              </AppText>
+                            </View>
+                          )}
+                        </View>
                       </View>
                     </View>
-                    <AppText size="sm" color="secondary">Current Site Communication Chat</AppText>
-                  </View>
-                </View>
-                {getUnreadCount(`site:${assignedSiteId}`) > 0 && (
-                  <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
-                    <AppText size="sm" color="surface" weight="bold">
-                      {getUnreadCount(`site:${assignedSiteId}`)}
-                    </AppText>
-                  </View>
-                )}
-              </TouchableOpacity>
+                  </TouchableOpacity>
+                );
+              })
             ) : (
               <Card variant="flat" padding={12}>
-                <AppText size="base" color="secondary">No site currently assigned.</AppText>
+                <AppText size="base" color="secondary">No site chats available.</AppText>
               </Card>
             )}
-
-            {/* PREVIOUS SITES (READ-ONLY) */}
-            <Heading level="h3" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>PREVIOUS SITES (READ ONLY)</Heading>
-            {safeAllSitesList.filter(s => s && s.id !== assignedSiteId && s.code !== assignedSiteId).map(pastSite => (
-              <TouchableOpacity
-                key={pastSite.id}
-                style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md, opacity: 0.85 }]}
-                activeOpacity={0.7}
-                onPress={() => setSelectedChat({
-                  id: pastSite.id,
-                  name: pastSite.name || 'Previous Site',
-                  type: 'site',
-                  conversationId: `site:${pastSite.id}`,
-                  isReadOnly: true,
-                  readOnlyReason: `You are no longer assigned to ${pastSite.name}. Messages are read-only.`
-                })}
-              >
-                <View style={styles.threadInfo}>
-                  <View style={[styles.avatarPlaceholder, { backgroundColor: '#F3F4F6' }]}>
-                    <AppText size="xl">🏢</AppText>
-                  </View>
-                  <View style={styles.textDetails}>
-                    <View style={styles.titleWithBadgeRow}>
-                      <AppText size="md" weight="bold" color="secondary">{pastSite.name}</AppText>
-                      <View style={styles.readOnlyBadge}>
-                        <AppText size="xs" weight="medium" style={{ color: '#6B7280' }}>Previous Site • Read Only</AppText>
-                      </View>
-                    </View>
-                    <AppText size="sm" color="secondary">Past Site Chat • Messaging Disabled</AppText>
-                  </View>
-                </View>
-                {getUnreadCount(`site:${pastSite.id}`) > 0 && (
-                  <View style={[styles.unreadBadge, { backgroundColor: '#94A3B8' }]}>
-                    <AppText size="sm" color="surface" weight="bold">
-                      {getUnreadCount(`site:${pastSite.id}`)}
-                    </AppText>
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
           </>
         ) : (
           <>
-            {/* CURRENT SITE CONTACTS */}
-            <Heading level="h3" style={styles.sectionHeader}>CURRENT SITE CONTACTS</Heading>
+            {/* CURRENT SITE CONTACTS (SORTED BY LATEST MESSAGE) */}
+            <Heading level="h3" style={styles.sectionHeader}>CURRENT SITE CONTACTS (SORTED BY LATEST MESSAGE)</Heading>
             <View style={styles.directList}>
-              {/* Supervisor */}
-              {Boolean(supervisor) && (
-                <TouchableOpacity
-                  style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md }]}
-                  activeOpacity={0.7}
-                  onPress={() => setSelectedChat({
-                    id: 'emp-102', // Seeded Jane Smith supervisor ID
-                    name: `Supervisor ${supervisor}`,
-                    type: 'direct',
-                    conversationId: getDirectConversationId('emp-102'),
-                    isReadOnly: false
-                  })}
-                >
-                  <View style={styles.threadInfo}>
-                    <View style={styles.avatarPlaceholder}>
-                      <AppText size="xl">👮</AppText>
-                    </View>
-                    <View style={styles.textDetails}>
-                      <View style={styles.titleWithBadgeRow}>
-                        <AppText size="md" weight="bold">{supervisor}</AppText>
-                        <View style={styles.activeBadge}>
-                          <AppText size="xs" weight="bold" style={{ color: '#15803D' }}>Active Site</AppText>
+              {activeDirectContacts.length > 0 ? (
+                activeDirectContacts.map((contact: any) => {
+                  const lastMsg = getLastMessage(contact.conversationId);
+                  const unread = getUnreadCount(contact.conversationId);
+                  const isMe = lastMsg?.senderId === guardId;
+
+                  return (
+                    <TouchableOpacity
+                      key={contact.id}
+                      style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md }]}
+                      activeOpacity={0.7}
+                      onPress={() => setSelectedChat({
+                        id: contact.id,
+                        name: contact.name,
+                        type: contact.type,
+                        conversationId: contact.conversationId,
+                        isReadOnly: contact.isReadOnly,
+                      })}
+                    >
+                      <View style={styles.threadInfo}>
+                        <View style={styles.avatarPlaceholder}>
+                          <AppText size="xl">{contact.avatarEmoji}</AppText>
+                        </View>
+                        <View style={styles.textDetails}>
+                          <View style={styles.titleWithTimeRow}>
+                            <View style={styles.titleWithBadgeContainer}>
+                              <AppText size="md" weight="bold" numberOfLines={1} style={{ flexShrink: 1, color: colors.text }}>
+                                {contact.name}
+                              </AppText>
+                              <View style={[styles.roleBadge, { backgroundColor: contact.roleBg }]}>
+                                <AppText size="xs" weight="bold" style={{ color: contact.roleColor }}>
+                                  {contact.role}
+                                </AppText>
+                              </View>
+                            </View>
+                            {lastMsg ? (
+                              <AppText size="xs" color="secondary" style={styles.msgTimeRight}>
+                                {formatMsgTime(lastMsg.timestamp)}
+                              </AppText>
+                            ) : null}
+                          </View>
+                          <View style={styles.lastMsgPreviewRow}>
+                            <AppText
+                              size="sm"
+                              numberOfLines={1}
+                              style={{
+                                flex: 1,
+                                color: unread > 0 ? colors.text : '#64748B',
+                                fontWeight: unread > 0 ? '700' : '400',
+                              }}
+                            >
+                              {lastMsg
+                                ? `${isMe ? 'You: ' : ''}${lastMsg.message}`
+                                : contact.subtitle}
+                            </AppText>
+                            {unread > 0 && (
+                              <View style={[styles.unreadBadge, { backgroundColor: colors.error, marginLeft: 8 }]}>
+                                <AppText size="xs" color="surface" weight="bold">
+                                  {unread}
+                                </AppText>
+                              </View>
+                            )}
+                          </View>
                         </View>
                       </View>
-                      <AppText size="sm" color="secondary">Supervisor • Online</AppText>
-                    </View>
-                  </View>
-                  {getUnreadCount(getDirectConversationId('emp-102')) > 0 && (
-                    <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
-                      <AppText size="sm" color="surface" weight="bold">
-                        {getUnreadCount(getDirectConversationId('emp-102'))}
-                      </AppText>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              )}
-
-              {/* Same Site Guards */}
-              {safeContacts.map(guard => (
-                <TouchableOpacity
-                  key={guard.id}
-                  style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md }]}
-                  activeOpacity={0.7}
-                  onPress={() => setSelectedChat({
-                    id: guard.id,
-                    name: `Guard ${guard.name}`,
-                    type: 'direct',
-                    conversationId: getDirectConversationId(guard.id),
-                    isReadOnly: false
-                  })}
-                >
-                  <View style={styles.threadInfo}>
-                    <View style={styles.avatarPlaceholder}>
-                      <AppText size="xl">🚶</AppText>
-                    </View>
-                    <View style={styles.textDetails}>
-                      <View style={styles.titleWithBadgeRow}>
-                        <AppText size="md" weight="bold">{guard.name}</AppText>
-                        <View style={styles.activeBadge}>
-                          <AppText size="xs" weight="bold" style={{ color: '#15803D' }}>Active Site</AppText>
-                        </View>
-                      </View>
-                      <AppText size="sm" color="secondary">Guard Officer • {guard.site || assignedSite || 'Active Site'}</AppText>
-                    </View>
-                  </View>
-                  {getUnreadCount(getDirectConversationId(guard.id)) > 0 && (
-                    <View style={[styles.unreadBadge, { backgroundColor: colors.error }]}>
-                      <AppText size="sm" color="surface" weight="bold">
-                        {getUnreadCount(getDirectConversationId(guard.id))}
-                      </AppText>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              ))}
-
-              {safeContacts.length === 0 && !supervisor && (
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
                 <Card variant="flat" padding={12}>
                   <AppText size="base" color="secondary">No active contacts available at your site.</AppText>
                 </Card>
@@ -468,46 +621,81 @@ export const MessagesScreen: React.FC = () => {
             </View>
 
             {/* PREVIOUS CONTACTS (READ-ONLY) */}
-            <Heading level="h3" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>PREVIOUS / OTHER CONTACTS (READ ONLY)</Heading>
-            <View style={styles.directList}>
-              {safePastContacts.map(guard => (
-                <TouchableOpacity
-                  key={guard.id}
-                  style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md, opacity: 0.85 }]}
-                  activeOpacity={0.7}
-                  onPress={() => setSelectedChat({
-                    id: guard.id,
-                    name: `Guard ${guard.name}`,
-                    type: 'direct',
-                    conversationId: getDirectConversationId(guard.id),
-                    isReadOnly: true,
-                    readOnlyReason: `Guard ${guard.name} is no longer on your active site. Messaging is disabled.`
-                  })}
-                >
-                  <View style={styles.threadInfo}>
-                    <View style={[styles.avatarPlaceholder, { backgroundColor: '#F3F4F6' }]}>
-                      <AppText size="xl">🚶</AppText>
-                    </View>
-                    <View style={styles.textDetails}>
-                      <View style={styles.titleWithBadgeRow}>
-                        <AppText size="md" weight="bold" color="secondary">{guard.name}</AppText>
-                        <View style={styles.readOnlyBadge}>
-                          <AppText size="xs" weight="medium" style={{ color: '#6B7280' }}>Previous Contact • Read Only</AppText>
+            {pastDirectContacts.length > 0 && (
+              <>
+                <Heading level="h3" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>PREVIOUS / OTHER CONTACTS (READ ONLY)</Heading>
+                <View style={styles.directList}>
+                  {pastDirectContacts.map((contact: any) => {
+                    const lastMsg = getLastMessage(contact.conversationId);
+                    const unread = getUnreadCount(contact.conversationId);
+                    const isMe = lastMsg?.senderId === guardId;
+
+                    return (
+                      <TouchableOpacity
+                        key={contact.id}
+                        style={[styles.threadRow, { backgroundColor: colors.surface, borderRadius: borderRadius.md, padding: spacing.md, opacity: 0.85 }]}
+                        activeOpacity={0.7}
+                        onPress={() => setSelectedChat({
+                          id: contact.id,
+                          name: contact.name,
+                          type: contact.type,
+                          conversationId: contact.conversationId,
+                          isReadOnly: contact.isReadOnly,
+                          readOnlyReason: contact.readOnlyReason,
+                        })}
+                      >
+                        <View style={styles.threadInfo}>
+                          <View style={[styles.avatarPlaceholder, { backgroundColor: '#F3F4F6' }]}>
+                            <AppText size="xl">{contact.avatarEmoji}</AppText>
+                          </View>
+                          <View style={styles.textDetails}>
+                            <View style={styles.titleWithTimeRow}>
+                              <View style={styles.titleWithBadgeContainer}>
+                                <AppText size="md" weight="bold" numberOfLines={1} style={{ flexShrink: 1, color: colors.secondary }}>
+                                  {contact.name}
+                                </AppText>
+                                <View style={[styles.roleBadge, { backgroundColor: contact.roleBg }]}>
+                                  <AppText size="xs" weight="bold" style={{ color: contact.roleColor }}>
+                                    {contact.role}
+                                  </AppText>
+                                </View>
+                              </View>
+                              {lastMsg ? (
+                                <AppText size="xs" color="secondary" style={styles.msgTimeRight}>
+                                  {formatMsgTime(lastMsg.timestamp)}
+                                </AppText>
+                              ) : null}
+                            </View>
+                            <View style={styles.lastMsgPreviewRow}>
+                              <AppText
+                                size="sm"
+                                numberOfLines={1}
+                                style={{
+                                  flex: 1,
+                                  color: unread > 0 ? colors.text : '#64748B',
+                                  fontWeight: unread > 0 ? '700' : '400',
+                                }}
+                              >
+                                {lastMsg
+                                  ? `${isMe ? 'You: ' : ''}${lastMsg.message}`
+                                  : contact.subtitle}
+                              </AppText>
+                              {unread > 0 && (
+                                <View style={[styles.unreadBadge, { backgroundColor: '#94A3B8', marginLeft: 8 }]}>
+                                  <AppText size="xs" color="surface" weight="bold">
+                                    {unread}
+                                  </AppText>
+                                </View>
+                              )}
+                            </View>
+                          </View>
                         </View>
-                      </View>
-                      <AppText size="sm" color="secondary">{guard.site || 'Former Site'} • Messaging Disabled</AppText>
-                    </View>
-                  </View>
-                  {getUnreadCount(getDirectConversationId(guard.id)) > 0 && (
-                    <View style={[styles.unreadBadge, { backgroundColor: '#94A3B8' }]}>
-                      <AppText size="sm" color="surface" weight="bold">
-                        {getUnreadCount(getDirectConversationId(guard.id))}
-                      </AppText>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            )}
           </>
         )}
       </ScrollView>
@@ -532,7 +720,7 @@ export const MessagesScreen: React.FC = () => {
                 hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
                 activeOpacity={0.6}
               >
-                <AppText style={[styles.backArrowText, { color: colors.text }]}>←</AppText>
+                <NavIcon name="arrow-left" size={24} color={colors.text || '#0F172A'} />
               </TouchableOpacity>
               <View style={styles.headerTitleContainer}>
                 <AppText size="lg" weight="bold" style={{ color: colors.text }}>{selectedChat?.name}</AppText>
@@ -618,10 +806,11 @@ export const MessagesScreen: React.FC = () => {
                   multiline
                 />
                 <TouchableOpacity
-                  style={[styles.sendButton, { backgroundColor: colors.primary[600], borderRadius: borderRadius.md }]}
+                  style={[styles.sendButton, { backgroundColor: colors.primary[600], borderRadius: 24 }]}
                   onPress={handleSend}
+                  activeOpacity={0.7}
                 >
-                  <AppText size="lg" weight="bold" style={{ color: '#FFFFFF' }}>Send</AppText>
+                  <NavIcon name="send" size={20} color="#FFFFFF" />
                 </TouchableOpacity>
               </View>
             )}
@@ -709,6 +898,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     flexWrap: 'wrap',
+  },
+  titleWithTimeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+    width: '100%',
+  },
+  titleWithBadgeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flex: 1,
+    paddingRight: 8,
+  },
+  roleBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  lastMsgPreviewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  msgTimeRight: {
+    fontSize: 11.5,
+    color: '#64748B',
+    fontWeight: '500',
+    flexShrink: 0,
   },
   activeBadge: {
     backgroundColor: '#DCFCE7',
@@ -805,7 +1025,7 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     height: 48,
-    width: 72,
+    width: 48,
     justifyContent: 'center',
     alignItems: 'center',
   },
