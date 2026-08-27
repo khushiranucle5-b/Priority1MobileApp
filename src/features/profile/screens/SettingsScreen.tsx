@@ -51,7 +51,7 @@ export const SettingsScreen: React.FC = () => {
 
     { id: 'support', icon: 'help', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
     { id: 'contact', icon: 'phone', title: 'Contact Support', section: 'Support', onPress: () => navigation.navigate('ContactSupport') },
-    { id: 'policy', icon: 'policies', title: 'Privacy Policy', section: 'Support', onPress: () => navigation.navigate('PrivacyPolicy') },
+    { id: 'policy', icon: 'security', title: 'Privacy Policy', section: 'Support', onPress: () => navigation.navigate('PrivacyPolicy') },
     { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Support', onPress: () => navigation.navigate('TermsConditions') },
 
     { id: 'about', icon: 'dashboard', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
