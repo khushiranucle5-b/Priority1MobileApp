@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -16,14 +16,18 @@ interface SiteGeofenceMapProps {
   initialLatitude?: number;
   initialLongitude?: number;
   initialRadius?: number;
+  boundaryType?: 'Circle' | 'Rectangle' | 'Polygon' | string;
   onCoordinatesChange?: (lat: number, lng: number, radius: number) => void;
+  onBoundaryTypeChange?: (boundaryType: 'Circle' | 'Rectangle' | 'Polygon') => void;
 }
 
 export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
   initialLatitude = 23.143705,
   initialLongitude = 72.590203,
   initialRadius = 150,
+  boundaryType = 'Circle',
   onCoordinatesChange,
+  onBoundaryTypeChange,
 }) => {
   const [mapType, setMapType] = useState<'map' | 'satellite'>('map');
   const [zoomLevel, setZoomLevel] = useState(17);
@@ -31,6 +35,25 @@ export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
   const [latStr, setLatStr] = useState(String(initialLatitude));
   const [lngStr, setLngStr] = useState(String(initialLongitude));
   const [radiusStr, setRadiusStr] = useState(String(initialRadius));
+
+  useEffect(() => {
+    setLatStr(String(initialLatitude));
+    setLngStr(String(initialLongitude));
+    setRadiusStr(String(initialRadius));
+  }, [initialLatitude, initialLongitude, initialRadius]);
+
+  const currentBoundaryType = boundaryType || 'Circle';
+
+  const numRadius = parseFloat(radiusStr) || 150;
+  const currentLat = parseFloat(latStr) || 23.143705;
+  const currentLng = parseFloat(lngStr) || 72.590203;
+
+  // Ground resolution calculation (meters/pixel) for map zoom scaling
+  const latRad = (currentLat * Math.PI) / 180;
+  const metersPerPixel = (156543.03392 * Math.cos(latRad)) / Math.pow(2, zoomLevel);
+  const radiusPixels = numRadius / metersPerPixel;
+  // Calculate exact visual pixel diameter matching the ground radius at current zoom level
+  const overlaySize = Math.min(300, Math.max(50, Math.round(radiusPixels * 2)));
 
   // Pinch-to-zoom Gesture Handler (Normal finger multi-touch gesture)
   const initialDistanceRef = useRef<number | null>(null);
@@ -110,8 +133,11 @@ export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
     setZoomLevel((prev) => Math.max(1, prev - 1));
   };
 
-  const currentLat = parseFloat(latStr) || 23.143705;
-  const currentLng = parseFloat(lngStr) || 72.590203;
+  const handleTypeSelect = (type: 'Circle' | 'Rectangle' | 'Polygon') => {
+    if (onBoundaryTypeChange) {
+      onBoundaryTypeChange(type);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -141,26 +167,86 @@ export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
           />
         )}
 
-        {/* OVERLAY: GEOFENCE RED TRANSLUCENT BOUNDARY BOX */}
-        <View style={styles.geofenceOverlayBox} pointerEvents="none">
-          {/* Corner Resize Handles */}
-          <View style={[styles.cornerHandle, styles.handleTL]} />
-          <View style={[styles.cornerHandle, styles.handleTR]} />
-          <View style={[styles.cornerHandle, styles.handleBL]} />
-          <View style={[styles.cornerHandle, styles.handleBR]} />
-          <View style={[styles.edgeHandle, styles.handleTop]} />
-          <View style={[styles.edgeHandle, styles.handleBottom]} />
-          <View style={[styles.edgeHandle, styles.handleLeft]} />
-          <View style={[styles.edgeHandle, styles.handleRight]} />
+        {/* OVERLAY: GEOFENCE AREA ANCHORED TO GEOGRAPHIC RADIUS (150m) AT LAT/LNG */}
+        <View
+          style={[
+            styles.fixedGeofenceContainer,
+            {
+              width: overlaySize,
+              height: overlaySize,
+              marginLeft: -overlaySize / 2,
+              marginTop: -overlaySize / 2,
+            },
+          ]}
+          pointerEvents="none"
+        >
+          {currentBoundaryType === 'Circle' && (
+            <View style={[styles.geofenceCircleOverlay, { width: overlaySize, height: overlaySize, borderRadius: overlaySize / 2 }]}>
+              <View style={[styles.cornerHandle, styles.handleCircleTop]} />
+              <View style={[styles.cornerHandle, styles.handleCircleBottom]} />
+              <View style={[styles.cornerHandle, styles.handleCircleLeft]} />
+              <View style={[styles.cornerHandle, styles.handleCircleRight]} />
 
-          {/* Center Red Map Pin Marker */}
-          <View style={styles.pinContainer}>
-            <View style={styles.pinHead}>
-              <View style={styles.pinDot} />
+              {/* Center Red Map Pin Marker */}
+              <View style={styles.pinContainer}>
+                <View style={styles.pinHead}>
+                  <View style={styles.pinDot} />
+                </View>
+                <View style={styles.pinNeedle} />
+                <View style={styles.pinShadow} />
+              </View>
             </View>
-            <View style={styles.pinNeedle} />
-            <View style={styles.pinShadow} />
-          </View>
+          )}
+
+          {(currentBoundaryType === 'Rectangle' || currentBoundaryType === 'Square' || currentBoundaryType === 'Box') && (
+            <View style={[styles.geofenceOverlayBox, { width: overlaySize, height: overlaySize }]}>
+              {/* Corner Resize Handles */}
+              <View style={[styles.cornerHandle, styles.handleTL]} />
+              <View style={[styles.cornerHandle, styles.handleTR]} />
+              <View style={[styles.cornerHandle, styles.handleBL]} />
+              <View style={[styles.cornerHandle, styles.handleBR]} />
+              <View style={[styles.edgeHandle, styles.handleTop]} />
+              <View style={[styles.edgeHandle, styles.handleBottom]} />
+              <View style={[styles.edgeHandle, styles.handleLeft]} />
+              <View style={[styles.edgeHandle, styles.handleRight]} />
+
+              {/* Center Red Map Pin Marker */}
+              <View style={styles.pinContainer}>
+                <View style={styles.pinHead}>
+                  <View style={styles.pinDot} />
+                </View>
+                <View style={styles.pinNeedle} />
+                <View style={styles.pinShadow} />
+              </View>
+            </View>
+          )}
+
+          {currentBoundaryType === 'Polygon' && (
+            <View style={[styles.geofencePolygonOverlay, { width: overlaySize, height: overlaySize }]}>
+              {/* Polygon Vertex Handle Nodes */}
+              <View style={[styles.cornerHandle, { top: -4, left: '50%', marginLeft: -4 }]} />
+              <View style={[styles.cornerHandle, { top: '25%', right: -4 }]} />
+              <View style={[styles.cornerHandle, { bottom: -4, right: '20%' }]} />
+              <View style={[styles.cornerHandle, { bottom: -4, left: '20%' }]} />
+              <View style={[styles.cornerHandle, { top: '25%', left: -4 }]} />
+
+              {/* Center Red Map Pin Marker */}
+              <View style={styles.pinContainer}>
+                <View style={styles.pinHead}>
+                  <View style={styles.pinDot} />
+                </View>
+                <View style={styles.pinNeedle} />
+                <View style={styles.pinShadow} />
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* FLOATING BADGE: ACTIVE BOUNDARY TYPE & RADIUS INFO */}
+        <View style={styles.boundaryTypeFloatingBadge} pointerEvents="none">
+          <AppText size="xs" weight="bold" style={{ color: '#DC2626' }}>
+            {currentBoundaryType === 'Circle' ? `🔴 Circle Radius: ${radiusStr}m` : currentBoundaryType === 'Polygon' ? `⬡ Polygon (5 Vertices)` : `⬛ Bounding Box (${radiusStr}m)`}
+          </AppText>
         </View>
 
         {/* TOP LEFT CONTROLS: Map / Satellite Buttons */}
@@ -230,10 +316,6 @@ export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
           </AppText>
         </View>
       </View>
-
-      {/* BOTTOM INPUT FIELDS ROW: Latitude, Longitude, Radius */}
-      
-     
     </View>
   );
 };
@@ -316,20 +398,76 @@ const styles = StyleSheet.create({
     left: 40,
     color: '#64748B',
   },
-  geofenceOverlayBox: {
+  fixedGeofenceContainer: {
     position: 'absolute',
-    top: '18%',
-    left: '18%',
-    right: '18%',
-    bottom: '18%',
-    backgroundColor: 'rgba(239, 68, 68, 0.22)',
-    borderWidth: 2,
-    borderColor: '#EF4444',
-    borderRadius: 4,
+    top: '50%',
+    left: '50%',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
   },
+  geofenceOverlayBox: {
+    backgroundColor: 'rgba(239, 68, 68, 0.22)',
+    borderWidth: 2,
+    borderColor: '#EF4444',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  geofenceCircleOverlay: {
+    backgroundColor: 'rgba(239, 68, 68, 0.22)',
+    borderWidth: 2,
+    borderColor: '#EF4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  geofencePolygonOverlay: {
+    backgroundColor: 'rgba(239, 68, 68, 0.22)',
+    borderWidth: 2,
+    borderColor: '#EF4444',
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  boundaryTypeFloatingBadge: {
+    position: 'absolute',
+    bottom: 12,
+    left: '50%',
+    transform: [{ translateX: -70 }],
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    zIndex: 15,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  boundaryToggleGroup: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 6,
+    padding: 2,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  boundaryTypeBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 4,
+  },
+  boundaryTypeBtnActive: {
+    backgroundColor: '#F1F5F9',
+  },
+  handleCircleTop: { top: -4, left: '50%', marginLeft: -4 },
+  handleCircleBottom: { bottom: -4, left: '50%', marginLeft: -4 },
+  handleCircleLeft: { left: -4, top: '50%', marginTop: -4 },
+  handleCircleRight: { right: -4, top: '50%', marginTop: -4 },
   cornerHandle: {
     position: 'absolute',
     width: 8,

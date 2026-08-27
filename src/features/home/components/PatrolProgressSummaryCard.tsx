@@ -170,7 +170,7 @@ export const PatrolProgressSummaryCard: React.FC = () => {
         <Heading level="h3" color="primary">
           {isAvailableOrInProgress ? 'PATROL PROGRESS' : 'NEXT PATROL'}
         </Heading>
-        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5' }}>
+        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5', marginTop: 4 }}>
           {isAvailableOrInProgress ? `${completed}/${total} Checkpoints` : `Starts at ${targetPatrol.scheduledStartTime || targetPatrol.startTime}`}
         </AppText>
       </View>
@@ -233,9 +233,8 @@ const styles = StyleSheet.create({
     borderColor: '#cbd5e1',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   divider: {
     height: 1,

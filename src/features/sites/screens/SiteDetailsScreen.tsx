@@ -38,6 +38,20 @@ export const SiteDetailsScreen: React.FC = () => {
   const tabScrollViewRef = useRef<ScrollView>(null);
   const [scrollXOffset, setScrollXOffset] = useState(0);
 
+  const [geofenceState, setGeofenceState] = useState<{
+    boundaryType: string;
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+    status: string;
+  }>({
+    boundaryType: 'Circle',
+    latitude: 23.1437,
+    longitude: 72.5902,
+    radiusMeters: 150,
+    status: 'Active Boundary',
+  });
+
   useEffect(() => {
     loadSiteDetails();
   }, [siteId]);
@@ -46,6 +60,15 @@ export const SiteDetailsScreen: React.FC = () => {
     const allSites = await getTable<DBSite>('sites');
     const selected = allSites.find((s) => s.id === siteId || s.code === siteId) || allSites[0] || null;
     setSite(selected);
+    if (selected?.geofence) {
+      setGeofenceState({
+        boundaryType: selected.geofence.boundaryType || 'Circle',
+        latitude: selected.geofence.latitude || selected.coordinates?.latitude || 23.1437,
+        longitude: selected.geofence.longitude || selected.coordinates?.longitude || 72.5902,
+        radiusMeters: selected.geofence.radiusMeters || selected.coordinates?.radiusMeters || 150,
+        status: selected.geofence.status || 'Active Boundary',
+      });
+    }
   };
 
   const DEFAULT_PDF_URL = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
@@ -399,34 +422,76 @@ export const SiteDetailsScreen: React.FC = () => {
               Operational site boundary coordinates and active attendance rules.
             </AppText>
 
-            {/* Interactive Google Map + Geofence Polygon Overlay & Controls */}
+            {/* Interactive Google Map + Geofence Shape Overlay & Controls */}
             <SiteGeofenceMap
-              initialLatitude={geofence.latitude}
-              initialLongitude={geofence.longitude}
-              initialRadius={geofence.radiusMeters}
+              initialLatitude={geofenceState.latitude}
+              initialLongitude={geofenceState.longitude}
+              initialRadius={geofenceState.radiusMeters}
+              boundaryType={geofenceState.boundaryType}
+              onBoundaryTypeChange={(newType) =>
+                setGeofenceState((prev) => ({ ...prev, boundaryType: newType }))
+              }
+              onCoordinatesChange={(lat, lng, rad) =>
+                setGeofenceState((prev) => ({
+                  ...prev,
+                  latitude: lat,
+                  longitude: lng,
+                  radiusMeters: rad,
+                }))
+              }
             />
 
             <View style={styles.dividerLine} />
 
             <View style={styles.infoGrid}>
-              <View style={styles.infoBox}>
-                <AppText size="sm" color="secondary">Boundary Type</AppText>
-                <AppText size="base" weight="bold" color="primary">{geofence.boundaryType || 'Circle'}</AppText>
+              <View style={styles.infoBoxFull}>
+                <AppText size="sm" color="secondary" style={{ marginBottom: 6 }}>Boundary Type</AppText>
+                <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+                  {(['Circle', 'Rectangle', 'Polygon'] as const).map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      onPress={() => setGeofenceState((prev) => ({ ...prev, boundaryType: type }))}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 6,
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                        borderRadius: 8,
+                        backgroundColor: geofenceState.boundaryType === type ? '#EFF6FF' : '#F8FAFC',
+                        borderWidth: 1.5,
+                        borderColor: geofenceState.boundaryType === type ? '#2563EB' : '#E2E8F0',
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <AppText
+                        size="sm"
+                        weight={geofenceState.boundaryType === type ? 'bold' : 'medium'}
+                        style={{ color: geofenceState.boundaryType === type ? '#1D4ED8' : '#475569' }}
+                      >
+                        {type === 'Circle' ? '⚪ Circle' : type === 'Rectangle' ? '⬛ Rectangle / Box' : '⬡ Polygon'}
+                      </AppText>
+                      {geofenceState.boundaryType === type && (
+                        <AppText size="xs" weight="bold" style={{ color: '#2563EB' }}>✓</AppText>
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
               <View style={styles.infoBox}>
                 <AppText size="sm" color="secondary">Latitude</AppText>
-                <AppText size="base" weight="bold" color="primary">{geofence.latitude}</AppText>
+                <AppText size="base" weight="bold" color="primary">{geofenceState.latitude}</AppText>
               </View>
 
               <View style={styles.infoBox}>
                 <AppText size="sm" color="secondary">Longitude</AppText>
-                <AppText size="base" weight="bold" color="primary">{geofence.longitude}</AppText>
+                <AppText size="base" weight="bold" color="primary">{geofenceState.longitude}</AppText>
               </View>
 
               <View style={styles.infoBox}>
                 <AppText size="sm" color="secondary">Geofence Radius</AppText>
-                <AppText size="base" weight="bold" color="primary">{geofence.radiusMeters} meters</AppText>
+                <AppText size="base" weight="bold" color="primary">{geofenceState.radiusMeters} meters</AppText>
               </View>
 
               <View style={styles.infoBoxFull}>
