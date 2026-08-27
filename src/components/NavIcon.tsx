@@ -157,8 +157,8 @@ export const NavIcon: React.FC<NavIconProps> = ({
     case 'plus':
       return (
         <View style={[styles.container, { width: size, height: size, justifyContent: 'center', alignItems: 'center' }]}>
-          <View style={{ width: size * 0.65, height: strokeWidth, backgroundColor: iconColor, position: 'absolute' }} />
-          <View style={{ width: strokeWidth, height: size * 0.65, backgroundColor: iconColor, position: 'absolute' }} />
+          <View style={{ width: size * 0.65, height: customStrokeWidth, backgroundColor: iconColor, position: 'absolute' }} />
+          <View style={{ width: customStrokeWidth, height: size * 0.65, backgroundColor: iconColor, position: 'absolute' }} />
         </View>
       );
 

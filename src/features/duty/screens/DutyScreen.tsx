@@ -20,7 +20,7 @@ export const DutyScreen: React.FC = () => {
 
   return (
     <ScreenLayout>
-      <PageHeader title="Today's Duty" />
+      <PageHeader title="Today's Duty" showBack />
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
