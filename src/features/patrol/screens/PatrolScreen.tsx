@@ -253,12 +253,6 @@ export const PatrolScreen: React.FC = () => {
     <ScreenLayout activeRoute="Patrol">
       <PageHeader title="Patrol Logs" />
 
-      <View style={styles.headerSubtitleContainer}>
-        <AppText size="sm" color="secondary" style={styles.headerSubtitleText}>
-          View assigned and completed patrol activities by date for {assignedSite || 'Ahmedabad Plant'}.
-        </AppText>
-      </View>
-
       {/* Search & Dropdown Filter Row */}
       <View style={styles.searchFilterRow}>
         <View style={styles.searchInputWrapper}>
@@ -321,9 +315,9 @@ export const PatrolScreen: React.FC = () => {
                 <Card key={summary.dateStr} variant="outlined" style={styles.card}>
                   <View style={styles.headerRow}>
                     <View style={{ flex: 1, marginRight: 10 }}>
-                      <AppText size="lg" weight="bold" color="primary" style={styles.cardHeaderTitle}>
+                      <Heading level="h3" color="primary">
                         {summary.displayHeader}
-                      </AppText>
+                      </Heading>
                     </View>
                     <StatusBadge status={summary.overallStatus} size="md" />
                   </View>
@@ -483,7 +477,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   metaLabelText: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '600',
     letterSpacing: 0.6,
     color: '#64748B',

@@ -144,7 +144,7 @@ export const PatrolProgressSummaryCard: React.FC = () => {
     return (
       <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
         <View style={styles.header}>
-          <Heading level="h4" color="primary">NEXT PATROL</Heading>
+          <Heading level="h3" color="primary">NEXT PATROL</Heading>
           <AppText size="sm" weight="bold" color="secondary">No Upcoming Patrol</AppText>
         </View>
         <View style={styles.divider} />
@@ -167,7 +167,7 @@ export const PatrolProgressSummaryCard: React.FC = () => {
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.header}>
-        <Heading level="h4" color="primary">
+        <Heading level="h3" color="primary">
           {isAvailableOrInProgress ? 'PATROL PROGRESS' : 'NEXT PATROL'}
         </Heading>
         <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5' }}>

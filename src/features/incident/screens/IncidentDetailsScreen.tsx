@@ -88,14 +88,6 @@ export const IncidentDetailsScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Title & Header Block */}
-        <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">Incident Detail</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            View complete incident report, GPS verification, attachments, and supervisor notes.
-          </AppText>
-        </View>
-
         {/* Main Incident Header Card */}
         <Card style={styles.mainCard}>
           <View style={styles.badgeRow}>

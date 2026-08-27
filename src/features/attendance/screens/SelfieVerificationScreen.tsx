@@ -121,10 +121,12 @@ export const SelfieVerificationScreen: React.FC = () => {
     const hasCam = await requestCameraFlow();
     if (!hasCam) return;
 
-    const options: CameraOptions = {
+    const options: any = {
       mediaType: 'photo',
       saveToPhotos: false,
       cameraType: 'front',
+      preferredCameraDevice: 'front',
+      useFrontCamera: true,
       quality: 0.8,
     };
 

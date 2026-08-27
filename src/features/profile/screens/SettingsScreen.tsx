@@ -54,7 +54,7 @@ export const SettingsScreen: React.FC = () => {
     { id: 'policy', icon: 'security', title: 'Privacy Policy', section: 'Support', onPress: () => navigation.navigate('PrivacyPolicy') },
     { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Support', onPress: () => navigation.navigate('TermsConditions') },
 
-    { id: 'about', icon: 'dashboard', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
+    { id: 'about', icon: 'info', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
   ];
 
   const filteredSettings = useMemo(() => {

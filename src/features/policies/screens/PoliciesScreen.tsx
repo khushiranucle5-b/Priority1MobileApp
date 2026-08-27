@@ -253,10 +253,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#CBD5E1',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 48,
+    paddingHorizontal: 14,
+    height: 56,
     marginBottom: 16,
   },
   searchIcon: {
@@ -266,8 +266,10 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 17,
+    fontSize: 16,
     color: '#0F172A',
+    paddingVertical: 0,
+    includeFontPadding: false,
   },
   sectionTitle: {
     marginBottom: 12,

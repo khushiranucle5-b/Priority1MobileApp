@@ -31,8 +31,24 @@ export const typography = {
       fontWeight: '600' as const,
     },
     cardTitle: {
-      fontSize: 20,
+      fontSize: 22,
       fontWeight: '600' as const,
+    },
+    cardSectionHeading: {
+      fontSize: 16,
+      fontWeight: '700' as const,
+    },
+    cardLabel: {
+      fontSize: 15,
+      fontWeight: '600' as const,
+    },
+    cardValue: {
+      fontSize: 16,
+      fontWeight: '600' as const,
+    },
+    cardValueImportant: {
+      fontSize: 18,
+      fontWeight: '700' as const,
     },
     body: {
       fontSize: 18,

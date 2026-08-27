@@ -275,14 +275,6 @@ export const FileIncidentScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
-        {/* Header Block */}
-        <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">{isEditing ? "Edit Incident" : "File New Incident"}</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            {isEditing ? "Update the information for this incident report." : "Complete the form below to submit an official security incident report."}
-          </AppText>
-        </View>
-
         {/* SECTION 1: INCIDENT DETAILS & CATEGORY */}
         <Card style={styles.formCard}>
           <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>

@@ -1039,9 +1039,19 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           const rawActivities = await AsyncStorage.getItem(`@guard_activities_${guardId}`);
           if (rawActivities) {
             const parsed = JSON.parse(rawActivities);
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            if (Array.isArray(parsed)) {
               loadedActivities = parsed;
             }
+          }
+        } catch { }
+      }
+
+      let deletedNotifIds: string[] = [];
+      if (guardId) {
+        try {
+          const rawDeleted = await AsyncStorage.getItem(`@deleted_notifications_${guardId}`);
+          if (rawDeleted) {
+            deletedNotifIds = JSON.parse(rawDeleted);
           }
         } catch { }
       }
@@ -1053,6 +1063,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           combinedNotifs.push(supNotif);
         }
       });
+
+      const finalNotifs = combinedNotifs.filter(n => !deletedNotifIds.includes(String(n.id)));
 
       set({
         guardId,
@@ -1093,7 +1105,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           ...(get().patrolCheckpointsMap || {}),
           [activePat.id]: activeCPs,
         } : (get().patrolCheckpointsMap || {}),
-        notifications: combinedNotifs,
+        notifications: finalNotifs,
         activities: loadedActivities,
         messages: guardMessages,
         loneWorker: currentLoneWorker,
@@ -1140,7 +1152,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     set({ activities: [] });
     if (guardId) {
       try {
-        await AsyncStorage.removeItem(`@guard_activities_${guardId}`);
+        await AsyncStorage.setItem(`@guard_activities_${guardId}`, JSON.stringify([]));
       } catch (e) { }
     }
   },
@@ -1348,6 +1360,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     };
     await insertRow('notifications', newNotif);
 
+    await get().addActivity({
+      type: 'Leave',
+      title: 'Leave Request Submitted',
+      description: `Your ${leave.type} request for ${leave.days} day(s) is pending approval.`,
+    });
+
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
@@ -1424,6 +1442,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     };
     await insertRow('notifications', newNotif);
 
+    await get().addActivity({
+      type: 'Leave',
+      title: 'Leave Application Cancelled',
+      description: `Your ${existingLeave.type} request for ${existingLeave.fromDate} was cancelled.`,
+    });
+
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
@@ -1447,6 +1471,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     };
 
     await insertRow('incidents', newIncident);
+
+    await get().addActivity({
+      type: 'Incident',
+      title: 'Incident Reported',
+      description: `Filed ${incident.severity} severity report: "${incident.title}".`,
+    });
+
     await get().loadGuardData(guardId, guardEmail || '');
   },
 
@@ -1473,6 +1504,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     set((state) => ({
       documents: [newDoc, ...state.documents],
     }));
+
+    await get().addActivity({
+      type: 'Document',
+      title: 'Document Uploaded',
+      description: `Uploaded ${docInfo.name || 'Document'} (${docInfo.type || 'General Verification'}).`,
+    });
   },
 
   startPatrol: async (patrolId?: string) => {
@@ -1549,6 +1586,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       createdAt: new Date().toISOString()
     };
     await insertRow('notifications', newNotif);
+
+    await get().addActivity({
+      type: 'Patrol',
+      title: 'Patrol Started',
+      description: `Started patrol activity at ${nowTimeStr}.`,
+    });
 
     await get().loadGuardData(guardId, guardEmail || '');
   },
@@ -1911,11 +1954,19 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       await insertRow('notifications', completionNotif);
     }
 
+    await get().addActivity({
+      type: 'Patrol',
+      title: isFinished ? 'Patrol Completed' : 'Checkpoint Scanned',
+      description: isFinished
+        ? `Completed all ${totalCount} checkpoints for patrol.`
+        : `Scanned ${cp.name} (${cp.number}) at ${nowTime}.`,
+    });
+
     await get().loadGuardData(guardId, guardEmail || '');
     return { success: true, message: 'Checkpoint Verified' };
   },
 
-  checkInLoneWorker: (customParams?: {
+  checkInLoneWorker: async (customParams?: {
     latitude?: number;
     longitude?: number;
     distanceMeters?: number;
@@ -1983,6 +2034,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     set({
       loneWorker: lwState,
       loneWorkerHistory: updatedHistory,
+    });
+
+    await get().addActivity({
+      type: 'Safety',
+      title: 'Safety Check-in Completed',
+      description: `Confirmed safety check-in status (${checkStatus || 'Safe'}).`,
     });
   },
 
@@ -2058,20 +2115,41 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   },
 
   deleteNotification: async (id) => {
-    const { guardId, guardEmail } = get();
+    const { guardId, notifications } = get();
     if (!guardId) return;
+
+    try {
+      const rawDeleted = await AsyncStorage.getItem(`@deleted_notifications_${guardId}`);
+      const deletedIds: string[] = rawDeleted ? JSON.parse(rawDeleted) : [];
+      if (!deletedIds.includes(String(id))) {
+        deletedIds.push(String(id));
+        await AsyncStorage.setItem(`@deleted_notifications_${guardId}`, JSON.stringify(deletedIds));
+      }
+    } catch (e) { }
+
     const allNotifs = await getTable<any>('notifications');
-    const filtered = allNotifs.filter((n: any) => n.id !== id);
+    const filtered = allNotifs.filter((n: any) => String(n.id) !== String(id));
     await saveTable('notifications', filtered);
-    await get().loadGuardData(guardId, guardEmail || '');
+
+    set({ notifications: notifications.filter(n => String(n.id) !== String(id)) });
   },
 
   deleteAllNotifications: async () => {
-    const { guardId, guardEmail } = get();
+    const { guardId, notifications } = get();
     if (!guardId) return;
+
+    try {
+      const rawDeleted = await AsyncStorage.getItem(`@deleted_notifications_${guardId}`);
+      const deletedIds: string[] = rawDeleted ? JSON.parse(rawDeleted) : [];
+      const currentIds = notifications.map(n => String(n.id));
+      const combinedDeleted = Array.from(new Set([...deletedIds, ...currentIds]));
+      await AsyncStorage.setItem(`@deleted_notifications_${guardId}`, JSON.stringify(combinedDeleted));
+    } catch (e) { }
+
     const allNotifs = await getTable<any>('notifications');
     const filtered = allNotifs.filter((n: any) => n.userId !== guardId);
     await saveTable('notifications', filtered);
-    await get().loadGuardData(guardId, guardEmail || '');
+
+    set({ notifications: [] });
   },
 }));

@@ -140,13 +140,13 @@ export const DocumentsScreen: React.FC = () => {
                 </div>
               </div>
               <div class="viewer-body">
-                ${isImage 
-                  ? `<img class="img-preview" src="${targetUrl}" alt="${cleanDocName}" />`
-                  : `<object data="${targetUrl}" type="application/pdf">
+                ${isImage
+              ? `<img class="img-preview" src="${targetUrl}" alt="${cleanDocName}" />`
+              : `<object data="${targetUrl}" type="application/pdf">
                       <embed src="${targetUrl}" type="application/pdf" />
                       <iframe src="${targetUrl}"></iframe>
                      </object>`
-                }
+            }
               </div>
             </body>
             </html>
@@ -171,18 +171,10 @@ export const DocumentsScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="Documents">
-      <PageHeader title="Guard Documents" showBack />
+      <PageHeader title="My Documents" showBack />
 
       <View style={styles.mainWrapper}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-
-          {/* Header Block */}
-          <View style={styles.headerBlock}>
-            <Heading level="h2" color="primary" style={styles.headerTitle}>Guard Documents</Heading>
-            <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-              Official compliance licenses, IDs, and HR approval records for {guardName || 'Khushi Rani'}.
-            </AppText>
-          </View>
 
           {/* Search & Dropdown Filter Row */}
           <View style={styles.searchFilterRow}>
@@ -210,10 +202,10 @@ export const DocumentsScreen: React.FC = () => {
               onPress={() => setDropdownOpen(!dropdownOpen)}
               activeOpacity={0.8}
             >
-              <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
-                {statusFilter === 'All' ? 'All Statuses' : statusFilter}
+              <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+                {statusFilter === 'All' ? 'Filter: All' : `Filter: ${statusFilter}`}
               </AppText>
-              <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
+              <AppText size="sm" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
             </TouchableOpacity>
           </View>
 
@@ -233,7 +225,7 @@ export const DocumentsScreen: React.FC = () => {
           {/* Document Cards List */}
           {filteredDocuments.length === 0 ? (
             <Card style={{ padding: 28, alignItems: 'center' }}>
-              <NavIcon name="policies" size={40} color="#94A3B8" />
+              <NavIcon name="document" size={40} color="#94A3B8" />
               <Heading level="h3" color="primary" style={{ marginTop: 12, fontSize: 18 }}>
                 No Documents Found
               </Heading>
@@ -249,7 +241,7 @@ export const DocumentsScreen: React.FC = () => {
                 <Card key={item.id} style={styles.docCard}>
                   <View style={styles.cardHeaderRow}>
                     <View style={styles.iconBox}>
-                      <NavIcon name="policies" size={24} color="#4F46E5" />
+                      <NavIcon name="document" size={24} color="#4F46E5" />
                     </View>
 
                     <View style={{ flex: 1, marginLeft: 12 }}>
@@ -274,22 +266,24 @@ export const DocumentsScreen: React.FC = () => {
                       Uploaded: {item.uploadedAt || '2026-08-21'}
                     </AppText>
 
-                    {/* Enlarged View (eye) & Edit (pencil) action icons (No delete button for guard upload section) */}
+                    {/* Styled View (eye) & Edit (pencil) action button boxes */}
                     <View style={styles.iconActionsRow}>
                       <TouchableOpacity
                         onPress={() => handleViewDoc(item)}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        style={styles.actionIconBtn}
+                        style={styles.iconActionBtnView}
+                        activeOpacity={0.7}
+                        accessibilityLabel="View document"
                       >
-                        <NavIcon name="eye" size={26} color="#334155" />
+                        <NavIcon name="eye" size={24} color="#4F46E5" />
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => handleEditDoc(item)}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        style={styles.actionIconBtn}
+                        style={styles.iconActionBtnEdit}
+                        activeOpacity={0.7}
+                        accessibilityLabel="Edit document"
                       >
-                        <NavIcon name="edit" size={26} color="#334155" />
+                        <NavIcon name="edit" size={24} color="#4F46E5" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -308,7 +302,7 @@ export const DocumentsScreen: React.FC = () => {
           accessibilityLabel="Upload document"
           accessibilityRole="button"
         >
-          <NavIcon name="policies" size={22} color="#FFFFFF" />
+          <NavIcon name="document" size={22} color="#FFFFFF" />
           <AppText size="base" weight="bold" style={styles.floatingButtonText}>
             UPLOAD DOCUMENT
           </AppText>
@@ -348,12 +342,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 48,
+    paddingHorizontal: 14,
+    height: 56,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
@@ -365,8 +359,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    height: 48,
-    paddingHorizontal: 12,
+    height: 56,
+    paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
     backgroundColor: '#FFFFFF',
@@ -407,7 +401,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   docTitle: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: '600',
     color: '#0F172A',
   },
@@ -429,10 +423,27 @@ const styles = StyleSheet.create({
   iconActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 10,
   },
-  actionIconBtn: {
-    padding: 4,
+  iconActionBtnView: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconActionBtnEdit: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   floatingButton: {
     position: 'absolute',

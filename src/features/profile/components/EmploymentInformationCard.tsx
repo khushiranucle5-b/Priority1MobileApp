@@ -15,7 +15,7 @@ export const EmploymentInformationCard: React.FC = () => {
 
   return (
     <Card variant="elevated" style={styles.card}>
-      <Heading level="h4" style={styles.title}>Employment Information</Heading>
+      <Heading level="h3" color="primary" style={styles.title}>EMPLOYMENT INFORMATION</Heading>
       
       <View style={[styles.grid, { marginTop: spacing.md }]}>
         <View style={styles.row}>

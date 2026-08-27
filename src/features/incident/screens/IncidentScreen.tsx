@@ -189,7 +189,7 @@ export const IncidentScreen: React.FC = () => {
               <Card key={item.id} variant="outlined" style={styles.card}>
                 <View style={styles.headerRow}>
                   <View style={{ flex: 1, paddingRight: 8 }}>
-                    <AppText size="base" weight="bold" color="primary" numberOfLines={1}>{(item.title || 'Untitled').toUpperCase()}</AppText>
+                    <Heading level="h3" color="primary" numberOfLines={1}>{item.title || 'Untitled'}</Heading>
                   </View>
                   <StatusBadge status={item.status || 'Open'} type={getMappedStatusType(item.status)} size="md" />
                 </View>

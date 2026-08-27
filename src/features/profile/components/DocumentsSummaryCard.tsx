@@ -19,8 +19,8 @@ export const DocumentsSummaryCard: React.FC = () => {
         activeOpacity={0.7}
       >
         <View style={styles.leftRow}>
-          <NavIcon name="policies" size={22} color="#0F172A" />
-          <Heading level="h4" color="primary" style={styles.title}>
+          <NavIcon name="document" size={22} color="#0F172A" />
+          <Heading level="h3" color="primary" style={styles.title}>
             MY DOCUMENTS
           </Heading>
         </View>

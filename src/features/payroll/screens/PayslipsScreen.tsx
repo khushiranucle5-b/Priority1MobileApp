@@ -69,11 +69,11 @@ export const PayslipsScreen: React.FC = () => {
     <ScreenLayout activeRoute="Payslips">
       <PageHeader title="My Payslips" showBack />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
+
         {/* Search Bar */}
         <View style={styles.searchBox}>
-          <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-            <NavIcon name="search" size={16} color="#64748B" />
+          <View style={{ marginRight: 8 }}>
+            <NavIcon name="search" size={18} color="#64748B" />
           </View>
           <TextInput
             placeholder="Search payslips..."
@@ -170,33 +170,27 @@ export const PayslipsScreen: React.FC = () => {
               >
                 <View style={styles.cardHeader}>
                   <View style={{ flex: 1 }}>
-                    <Heading level="h2" color="primary">{slip.monthYear}</Heading>
-                    <AppText size="sm" color="secondary" style={{ marginTop: 3 }}>
-                      ID: {slip.payslipId} • {slip.cyclePeriod}
-                    </AppText>
-                  </View>
-
-                  <View style={styles.paidTag}>
-                    <AppText size="sm" weight="bold" style={{ color: '#059669' }}>
-                      ● {slip.status}
+                    <Heading level="h3" color="primary">{slip.monthYear}</Heading>
+                    <AppText size="xs" color="secondary" weight="semibold" style={{ marginTop: 3 }}>
+                      {slip.cyclePeriod}
                     </AppText>
                   </View>
                 </View>
 
                 <View style={styles.payGrid}>
-                  <View style={styles.payBox}>
-                    <AppText size="sm" color="secondary">Basic Wages</AppText>
-                    <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>{slip.basicRosterWages}</AppText>
+                  <View style={styles.payRow}>
+                    <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>BASIC WAGES</AppText>
+                    <AppText size="sm" weight="bold" color="primary">{slip.basicRosterWages}</AppText>
                   </View>
 
-                  <View style={styles.payBox}>
-                    <AppText size="sm" color="secondary">Overtime (1.5x)</AppText>
-                    <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>{slip.overtimeWages}</AppText>
+                  <View style={styles.payRow}>
+                    <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>OVERTIME (1.5X)</AppText>
+                    <AppText size="sm" weight="bold" color="primary">{slip.overtimeWages}</AppText>
                   </View>
 
-                  <View style={styles.payBox}>
-                    <AppText size="sm" color="secondary">Net Disbursed</AppText>
-                    <AppText size="md" weight="bold" style={{ color: '#4F46E5', marginTop: 2 }}>{slip.netDisbursedWages}</AppText>
+                  <View style={styles.payRow}>
+                    <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>NET DISBURSED</AppText>
+                    <AppText size="base" weight="bold" style={{ color: '#4F46E5' }}>{slip.netDisbursedWages}</AppText>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -237,22 +231,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 48,
-    marginBottom: 10,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    height: 56,
+    marginBottom: 12,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
     color: '#0F172A',
     paddingVertical: 0,
+    includeFontPadding: false,
   },
   filterRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     marginBottom: 12,
   },
   pickerButton: {
@@ -260,12 +255,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    minHeight: 48,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    height: 56,
   },
   pickerButtonActive: {
     borderColor: '#4F46E5',
@@ -318,16 +312,17 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   payGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: '#E2E8F0',
     marginBottom: 12,
+    gap: 8,
   },
-  payBox: {
-    alignItems: 'flex-start',
+  payRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   viewRow: {
     flexDirection: 'row',

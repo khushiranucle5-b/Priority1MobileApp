@@ -116,7 +116,7 @@ export const SiteDetailsScreen: React.FC = () => {
     { label: 'Safety Rules', icon: 'loneworker' },
     { label: 'Tour Checkpoints', icon: 'patrol' },
     { label: 'Site Users', icon: 'employees' },
-    { label: 'Site Documents', icon: 'policies' },
+    { label: 'Site Documents', icon: 'document' },
   ];
 
   const handleScrollLeft = () => {

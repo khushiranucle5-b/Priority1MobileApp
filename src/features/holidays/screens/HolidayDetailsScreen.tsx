@@ -50,14 +50,6 @@ export const HolidayDetailsScreen: React.FC = () => {
         {/* Breadcrumb Row */}
         
 
-        {/* Title Header */}
-        <View style={styles.headerBlock}>
-          <Heading level="h1" color="primary">View Holiday</Heading>
-          <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-            View the details and configuration of the selected holiday.
-          </AppText>
-        </View>
-
         {/* HOLIDAY INFORMATION CARD */}
         <Card style={styles.infoCard}>
           <AppText size="sm" weight="bold" style={styles.cardSectionHeading}>

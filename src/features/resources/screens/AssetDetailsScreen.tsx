@@ -116,14 +116,6 @@ export const AssetDetailsScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* Title & Header Block */}
-        <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">Asset Detail</Heading>
-          <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-            View the details and configuration of the selected asset.
-          </AppText>
-        </View>
-
         {/* Main Asset Header Card */}
         <Card style={styles.mainCard}>
           <View style={styles.badgeRow}>

@@ -27,7 +27,7 @@ export const LoneWorkerCard: React.FC = () => {
   return (
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
-        <Heading level="h4">Lone Worker Safety</Heading>
+        <Heading level="h3" color="primary">LONE WORKER SAFETY</Heading>
         <View style={[styles.badge, { backgroundColor: '#D1FAE5', borderRadius: borderRadius.full }]}>
           <AppText size="xs" style={{ color: '#059669' }} weight="bold">● {loneWorker.status || 'SAFE'}</AppText>
         </View>
@@ -35,15 +35,15 @@ export const LoneWorkerCard: React.FC = () => {
 
       <View style={[styles.body, { marginTop: spacing.md }]}>
         <View style={styles.row}>
-          <AppText size="sm" color="secondary">Status:</AppText>
+          <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>STATUS</AppText>
           <AppText size="sm" weight="bold" style={{ color: '#059669' }}>{loneWorker.status || 'SAFE'}</AppText>
         </View>
         <View style={styles.row}>
-          <AppText size="sm" color="secondary">Last Check-In:</AppText>
+          <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>LAST CHECK-IN</AppText>
           <AppText size="sm" weight="bold" color="primary">{loneWorker.lastCheckIn || '03:58 PM'}</AppText>
         </View>
         <View style={styles.row}>
-          <AppText size="sm" color="secondary">Next Check Due:</AppText>
+          <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>NEXT CHECK DUE</AppText>
           <AppText size="sm" weight="bold" color="warning">{loneWorker.nextCheckRequired || '04:28 PM'}</AppText>
         </View>
       </View>

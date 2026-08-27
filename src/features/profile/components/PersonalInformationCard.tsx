@@ -18,7 +18,7 @@ export const PersonalInformationCard: React.FC = () => {
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
       <View style={styles.header}>
-        <Heading level="h4" color="primary" style={styles.title}>PERSONAL INFORMATION</Heading>
+        <Heading level="h3" color="primary" style={styles.title}>PERSONAL INFORMATION</Heading>
       </View>
       
       <View style={styles.divider} />

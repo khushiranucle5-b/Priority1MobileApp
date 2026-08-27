@@ -12,7 +12,7 @@ const actions: { id: string; title: string; icon: NavIconName; route: string; is
   { id: '2', title: 'FILE INCIDENT', icon: 'incidents', route: 'FileIncident' },
   { id: '3', title: 'LEAVE', icon: 'leaves', route: 'Leave' },
   { id: '4', title: 'EMERGENCY', icon: 'loneworker', route: 'Emergency', isEmergency: true },
-  { id: '5', title: 'DOCUMENTS', icon: 'policies', route: 'Documents' },
+  { id: '5', title: 'DOCUMENTS', icon: 'document', route: 'Documents' },
   { id: '6', title: 'LONE WORK', icon: 'loneworker', route: 'LoneWorker' },
 ];
 

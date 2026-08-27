@@ -33,7 +33,7 @@ export const NotificationCard: React.FC = () => {
   return (
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
-        <Heading level="h4">Recent Activity</Heading>
+        <Heading level="h3" color="primary">RECENT ACTIVITY</Heading>
         <TouchableOpacity onPress={handleOpenRecentActivity} activeOpacity={0.7}>
           <AppText size="base" color="primary" weight="bold">View All</AppText>
         </TouchableOpacity>

@@ -300,7 +300,7 @@ export const UploadDocumentScreen: React.FC = () => {
               onPress={handleChooseFile}
               activeOpacity={0.85}
             >
-              <NavIcon name="policies" size={22} color="#FFFFFF" />
+              <NavIcon name="document" size={22} color="#FFFFFF" />
               <AppText style={styles.chooseFileBtnText}>
                 CHOOSE FILE (PDF OR IMAGE)
               </AppText>

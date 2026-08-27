@@ -40,6 +40,7 @@ import {
   Shield,
   Check,
   Send,
+  Info,
 } from 'lucide-react-native';
 
 export type NavIconName =
@@ -82,7 +83,9 @@ export type NavIconName =
   | 'phone'
   | 'security'
   | 'check'
-  | 'send';
+  | 'send'
+  | 'info'
+  | 'about';
 
 interface NavIconProps {
   name: NavIconName;
@@ -180,6 +183,9 @@ export const NavIcon: React.FC<NavIconProps> = ({
       return <Check size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
     case 'send':
       return <Send size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'info':
+    case 'about':
+      return <Info size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
     default:
       return <FileText size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
   }

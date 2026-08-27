@@ -142,8 +142,8 @@ export const AssetsScreen: React.FC = () => {
         {/* Top Search & Filter Row */}
         <View style={styles.searchFilterRow}>
           <View style={styles.searchBox}>
-            <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-              <NavIcon name="search" size={16} color="#64748B" />
+            <View style={{ marginRight: 8 }}>
+              <NavIcon name="search" size={18} color="#64748B" />
             </View>
             <TextInput
               placeholder="Search assets by name, code, serial..."
@@ -219,10 +219,10 @@ export const AssetsScreen: React.FC = () => {
                 >
                   <View style={styles.cardHeader}>
                     <View style={{ flex: 1 }}>
-                      <Heading level="h4" color="primary">{asset.name}</Heading>
+                      <Heading level="h3" color="primary">{asset.name}</Heading>
                       {asset.assetCode ? (
-                        <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
-                          Asset ID: {asset.assetCode}
+                        <AppText size="xs" color="secondary" weight="semibold" style={{ marginTop: 2 }}>
+                          ASSET ID: {asset.assetCode}
                         </AppText>
                       ) : null}
                     </View>
@@ -294,26 +294,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    height: 48,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    height: 56,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
     color: '#0F172A',
     paddingVertical: 0,
+    includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 10,
-    height: 48,
+    borderRadius: 8,
+    height: 56,
     paddingHorizontal: 14,
   },
   dropdownMenuContainer: {

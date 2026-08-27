@@ -20,7 +20,7 @@ export const EmergencyContactCard: React.FC = () => {
   return (
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
-        <Heading level="h3" style={styles.cardTitle}>Emergency Contacts</Heading>
+        <Heading level="h3" color="primary">EMERGENCY CONTACTS</Heading>
       </View>
       
       <View style={[styles.contactContainer, { marginTop: spacing.md }]}>

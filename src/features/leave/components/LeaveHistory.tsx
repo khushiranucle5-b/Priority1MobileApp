@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Card } from '../../../components/Card';
 import { AppText } from '../../../components/typography/Text';
+import { Heading } from '../../../components/typography/Heading';
 import { StatusBadge } from '../../../components/StatusBadge';
 import { NavIcon } from '../../../components/NavIcon';
 import { useTheme } from '../../../providers/ThemeProvider';
@@ -108,20 +109,20 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
         return (
           <Card key={leave.id} variant="outlined" style={styles.card}>
             <View style={styles.headerRow}>
-              <AppText size="lg" weight="bold" color="primary">{leave.type.toUpperCase()}</AppText>
+              <Heading level="h3" color="primary">{leave.type}</Heading>
               <StatusBadge status={leave.status} size="md" />
             </View>
             
             <View style={[styles.detailRow, { marginTop: spacing.sm }]}>
               <View>
                 <AppText size="xs" color="secondary" weight="semibold">DATE RANGE</AppText>
-                <AppText size="base" weight="bold" color="primary" style={{ marginTop: 2 }}>
+                <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
                   {leave.fromDate} – {leave.toDate}
                 </AppText>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <AppText size="xs" color="secondary" weight="semibold">DURATION</AppText>
-                <AppText size="base" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
+                <AppText size="sm" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
                   {leave.days} Day(s)
                 </AppText>
               </View>
@@ -129,7 +130,7 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
 
             <View style={{ marginTop: 10 }}>
               <AppText size="xs" color="secondary" weight="semibold">REASON</AppText>
-              <AppText size="base" color="text" weight="medium" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="text" weight="medium" style={{ marginTop: 2 }}>
                 {leave.reason}
               </AppText>
             </View>

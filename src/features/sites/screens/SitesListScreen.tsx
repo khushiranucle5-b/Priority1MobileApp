@@ -5,7 +5,6 @@ import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
 import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
-import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { getTable, saveTable, DBSite } from '../../../services/db';
@@ -132,7 +131,6 @@ const DEFAULT_SITES: DBSite[] = [
 ];
 
 export const SitesListScreen: React.FC = () => {
-  const { colors } = useTheme();
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
 
@@ -211,15 +209,7 @@ export const SitesListScreen: React.FC = () => {
       <PageHeader title="Sites" showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Header Block */}
-        <View style={styles.headerBlock}>
-          <Heading level="h2" color="primary">Sites</Heading>
-          <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-            Protected Sites • Client sites, coverage, risk tier and geofencing.
-          </AppText>
-        </View>
-
-        {/* Search & Filter Bar Component (Matching Incident Reports style) */}
+        {/* Search & Filter Bar Component */}
         <View style={styles.searchFilterContainer}>
           {/* Full-width rounded search input */}
           <View style={styles.searchBar}>
@@ -275,39 +265,34 @@ export const SitesListScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-        {/* Risk Tier Filter Bottom Sheet */}
-        <FilterBottomSheet
-          visible={riskDropdownOpen}
-          onClose={() => setRiskDropdownOpen(false)}
-          title="Select Risk Level"
-          options={[
-            { label: 'All Risk Levels', value: 'All' },
-            { label: 'Low', value: 'Low' },
-            { label: 'Medium', value: 'Medium' },
-            { label: 'High', value: 'High' },
-          ]}
-          selectedValue={riskFilter}
-          onSelect={(val) => setRiskFilter(val)}
-        />
+          {/* Risk Tier Filter Bottom Sheet */}
+          <FilterBottomSheet
+            visible={riskDropdownOpen}
+            onClose={() => setRiskDropdownOpen(false)}
+            title="Select Risk Level"
+            options={[
+              { label: 'All Risk Levels', value: 'All' },
+              { label: 'Low', value: 'Low' },
+              { label: 'Medium', value: 'Medium' },
+              { label: 'High', value: 'High' },
+            ]}
+            selectedValue={riskFilter}
+            onSelect={(val) => setRiskFilter(val)}
+          />
 
-        {/* Status Filter Bottom Sheet */}
-        <FilterBottomSheet
-          visible={statusDropdownOpen}
-          onClose={() => setStatusDropdownOpen(false)}
-          title="Select Status"
-          options={[
-            { label: 'All Statuses', value: 'All' },
-            { label: 'Active', value: 'Active' },
-            { label: 'Inactive', value: 'Inactive' },
-          ]}
-          selectedValue={statusFilter}
-          onSelect={(val) => setStatusFilter(val)}
-        />
-        </View>
-
-        {/* List Title */}
-        <View style={styles.listHeaderRow}>
-          <Heading level="h3" color="primary">Protected Sites List ({filteredSites.length})</Heading>
+          {/* Status Filter Bottom Sheet */}
+          <FilterBottomSheet
+            visible={statusDropdownOpen}
+            onClose={() => setStatusDropdownOpen(false)}
+            title="Select Status"
+            options={[
+              { label: 'All Statuses', value: 'All' },
+              { label: 'Active', value: 'Active' },
+              { label: 'Inactive', value: 'Inactive' },
+            ]}
+            selectedValue={statusFilter}
+            onSelect={(val) => setStatusFilter(val)}
+          />
         </View>
 
         {/* Site Cards List */}
@@ -402,9 +387,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  headerBlock: {
-    marginBottom: 12,
-  },
   searchFilterContainer: {
     marginBottom: 16,
   },
@@ -415,15 +397,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 46,
+    paddingHorizontal: 14,
+    height: 56,
     marginBottom: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     color: '#0F172A',
     paddingVertical: 0,
+    includeFontPadding: false,
   },
   filterTriggersRow: {
     flexDirection: 'row',
@@ -438,28 +421,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#CBD5E1',
     borderRadius: 8,
-    height: 40,
-    paddingHorizontal: 10,
-  },
-  dropdownMenu: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    padding: 4,
-    marginTop: 6,
-    elevation: 3,
-  },
-  dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-  },
-  dropdownItemActive: {
-    backgroundColor: '#EEF2FF',
-  },
-  listHeaderRow: {
-    marginBottom: 12,
+    height: 56,
+    paddingHorizontal: 14,
   },
   siteCard: {
     padding: 16,
