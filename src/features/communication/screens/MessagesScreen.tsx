@@ -306,14 +306,14 @@ export const MessagesScreen: React.FC = () => {
     const list = safePastContacts.map(guard => ({
       id: guard.id,
       name: guard.name,
-      role: 'Former Guard',
-      roleColor: '#64748B',
+      role: 'Guard',
+      roleColor: '#475569',
       roleBg: '#F1F5F9',
-      subtitle: `${guard.site || 'Former Site'} • Messaging Disabled`,
+      subtitle: `Guard Officer • ${guard.site || 'Other Site'}`,
       type: 'direct' as const,
       conversationId: getDirectConversationId(guard.id),
-      isReadOnly: true,
-      readOnlyReason: `Guard ${guard.name} is no longer on your active site. Messaging is disabled.`,
+      isReadOnly: false,
+      readOnlyReason: undefined,
       avatarEmoji: '🚶',
     }));
 
@@ -623,7 +623,7 @@ export const MessagesScreen: React.FC = () => {
             {/* PREVIOUS CONTACTS (READ-ONLY) */}
             {pastDirectContacts.length > 0 && (
               <>
-                <Heading level="h3" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>PREVIOUS / OTHER CONTACTS (READ ONLY)</Heading>
+                <Heading level="h3" style={[styles.sectionHeader, { marginTop: spacing.lg }]}>OTHER CONTACTS</Heading>
                 <View style={styles.directList}>
                   {pastDirectContacts.map((contact: any) => {
                     const lastMsg = getLastMessage(contact.conversationId);
