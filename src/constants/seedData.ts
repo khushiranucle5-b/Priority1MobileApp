@@ -541,16 +541,16 @@ export const SEED_DATA = {
       "riskLevel": "Medium",
       "contractEnd": "2027-12-31",
       "status": "active",
-      "addressLine1": "Zundal Circle, Gandhinagar, Gujarat 382424, India",
+      "addressLine1": "Sharan Circle, Zundal, Gandhinagar, Gujarat 382424, India",
       "addressLine2": "Plot 42, Zundal Industrial Estate",
       "city": "Gandhinagar",
       "state": "Gujarat",
       "postalCode": "382424",
       "country": "India",
       "coordinates": {
-        "latitude": 23.1437,
-        "longitude": 72.5902,
-        "radiusMeters": 150
+        "latitude": 23.1297621,
+        "longitude": 72.5836992,
+        "radiusMeters": 500
       },
       "contact": {
         "primaryContactName": "Alex Mendes (Facilities Director)",
@@ -567,9 +567,9 @@ export const SEED_DATA = {
       "internalNotes": "High priority commercial port & container terminal site. Mandatory badge inspection and truck license logging for all heavy vehicles after 20:00.",
       "geofence": {
         "boundaryType": "Circle",
-        "latitude": 23.1437,
-        "longitude": 72.5902,
-        "radiusMeters": 150,
+        "latitude": 23.1297621,
+        "longitude": 72.5836992,
+        "radiusMeters": 500,
         "status": "Active Boundary",
         "enableGeofenceValidation": true,
         "requireGeofenceClockIn": true,
@@ -796,94 +796,6 @@ export const SEED_DATA = {
           "uploadDate": "2026-02-01",
           "status": "Active"
         }
-      ]
-    },
-    {
-      "id": "s-01",
-      "companyId": "c-1",
-      "name": "Harbor Terminal 3",
-      "code": "SIT-HT-001",
-      "clientName": "Port Authority",
-      "branch": "Maritime District",
-      "facilityType": "Port & Container Terminal",
-      "supervisorName": "Elena Ruiz",
-      "guardsCount": 8,
-      "riskLevel": "Medium",
-      "contractEnd": "2027-06-30",
-      "status": "active",
-      "addressLine1": "Pier 44, Maritime Terminal Way",
-      "addressLine2": "Gate 3 Cargo Docks",
-      "city": "San Francisco",
-      "state": "California",
-      "postalCode": "94105",
-      "country": "United States",
-      "coordinates": {
-        "latitude": 37.7751,
-        "longitude": -122.4192,
-        "radiusMeters": 150
-      },
-      "postOrders": [
-        { "id": "po-101", "title": "Port Maritime Customs Escort Protocol", "version": "v3.1", "lastUpdated": "2026-07-20", "status": "Active" }
-      ],
-      "checklists": [
-        { "id": "cl-101", "title": "Cargo Pier Night Patrol Checklist", "category": "Patrol & Safety", "itemsCount": 10, "frequency": "Nightly", "status": "Active" }
-      ],
-      "safetyRules": [
-        { "id": "sr-101", "ruleName": "TWIC Card Verification Required", "description": "All personnel entering Pier 44 must display valid TWIC credentials.", "status": "Enforced", "effectiveDate": "2026-02-15" }
-      ],
-      "tourCheckpoints": [
-        { "id": "cp-101", "name": "Pier 44 Gate House", "code": "CP-HT-01", "location": "Main Entrance", "status": "Active", "sequence": 1 },
-        { "id": "cp-102", "name": "Container Bay B", "code": "CP-HT-02", "location": "Pier Storage", "status": "Active", "sequence": 2 }
-      ],
-      "assignedUsers": [
-        { "id": "u-sup-2", "name": "Elena Ruiz", "role": "Supervisor", "email": "elena.r@priority-one.io" },
-        { "id": "u-grd-3", "name": "Marcus Bell", "role": "Guard", "email": "marcus.b@priority-one.io" }
-      ],
-      "documents": [
-        { "id": "doc-101", "title": "Port Terminal Maritime Security Manual", "category": "Regulatory", "fileName": "Port_Maritime_Security_Manual.pdf", "fileSize": "3.8 MB", "uploadedBy": "Elena Ruiz", "uploadDate": "2026-06-01" }
-      ]
-    },
-    {
-      "id": "s-02",
-      "companyId": "c-1",
-      "name": "HQ Corporate Tower",
-      "code": "SIT-HQ-002",
-      "clientName": "Priority One Corp",
-      "branch": "Central HQ Branch",
-      "facilityType": "Commercial High-rise",
-      "supervisorName": "Jane Smith",
-      "guardsCount": 5,
-      "riskLevel": "Low",
-      "contractEnd": "2028-01-15",
-      "status": "active",
-      "addressLine1": "100 Financial Plaza",
-      "addressLine2": "Floors 1 - 15",
-      "city": "San Francisco",
-      "state": "California",
-      "postalCode": "94111",
-      "country": "United States",
-      "coordinates": {
-        "latitude": 37.7749,
-        "longitude": -122.4194,
-        "radiusMeters": 50
-      },
-      "postOrders": [
-        { "id": "po-201", "title": "Lobby Visitor Badge Screening", "version": "v1.2", "lastUpdated": "2026-05-10", "status": "Active" }
-      ],
-      "checklists": [
-        { "id": "cl-201", "title": "Executive Floor Evening Lockdown", "category": "Building Access", "itemsCount": 6, "frequency": "Daily", "status": "Active" }
-      ],
-      "safetyRules": [
-        { "id": "sr-201", "ruleName": "Badge Tap Access Control", "description": "Tailgating strictly prohibited at all elevator turnstiles.", "status": "Enforced", "effectiveDate": "2026-01-10" }
-      ],
-      "tourCheckpoints": [
-        { "id": "cp-201", "name": "Main Lobby Turnstiles", "code": "CP-HQ-01", "location": "Floor 1 Lobby", "status": "Active", "sequence": 1 }
-      ],
-      "assignedUsers": [
-        { "id": "u-sup-3", "name": "Jane Smith", "role": "Supervisor", "email": "jane.s@priority-one.io" }
-      ],
-      "documents": [
-        { "id": "doc-201", "title": "Corporate Tower Evacuation Plan", "category": "Safety", "fileName": "Tower_Evac_Plan_2026.pdf", "fileSize": "1.8 MB", "uploadedBy": "Jane Smith", "uploadDate": "2026-05-02" }
       ]
     }
   ],

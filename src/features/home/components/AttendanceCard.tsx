@@ -15,7 +15,7 @@ export const AttendanceCard: React.FC = () => {
   const { colors, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
   const { workingHours, clockInTimeStr, clockOutTimeStr, attendanceStatus } = useLiveAttendance();
-  const { isClockedIn, isClockedOut } = useGuardStore();
+  const { isClockedIn, isClockedOut, geofenceState } = useGuardStore();
 
   React.useEffect(() => {
     LoggerService.log(`[AttendanceCard] Current Attendance Info - Status: ${attendanceStatus}, ClockIn: ${clockInTimeStr}, ClockOut: ${clockOutTimeStr}`);
@@ -44,6 +44,15 @@ export const AttendanceCard: React.FC = () => {
       </View>
 
       <View style={styles.divider} />
+
+      {geofenceState?.isOutside && (
+        <View style={{ backgroundColor: '#fef2f2', borderColor: '#fca5a5', borderWidth: 1, borderRadius: borderRadius.md, padding: 10, marginBottom: 12 }}>
+          <AppText size="xs" color="error" weight="bold">● Location Status: Outside site</AppText>
+          <AppText size="xs" color="error" style={{ marginTop: 2 }}>
+            {geofenceState.distanceMeters ? `You are ${geofenceState.distanceMeters}m away from the permitted site area.` : 'You are outside the permitted site area.'} Move inside the site geofence to continue.
+          </AppText>
+        </View>
+      )}
 
       {/* 1. Working Hours at Upper Center */}
       <View style={[styles.workingHoursBox, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border }]}>

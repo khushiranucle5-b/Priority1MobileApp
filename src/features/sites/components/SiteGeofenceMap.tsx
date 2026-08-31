@@ -22,8 +22,8 @@ interface SiteGeofenceMapProps {
 }
 
 export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
-  initialLatitude = 23.143705,
-  initialLongitude = 72.590203,
+  initialLatitude = 23.1297621,
+  initialLongitude = 72.5836992,
   initialRadius = 150,
   boundaryType = 'Circle',
   onCoordinatesChange,
@@ -45,8 +45,8 @@ export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
   const currentBoundaryType = boundaryType || 'Circle';
 
   const numRadius = parseFloat(radiusStr) || 150;
-  const currentLat = parseFloat(latStr) || 23.143705;
-  const currentLng = parseFloat(lngStr) || 72.590203;
+  const currentLat = parseFloat(latStr) || 23.1297621;
+  const currentLng = parseFloat(lngStr) || 72.5836992;
 
   // Ground resolution calculation (meters/pixel) for map zoom scaling
   const latRad = (currentLat * Math.PI) / 180;
@@ -150,17 +150,15 @@ export const SiteGeofenceMap: React.FC<SiteGeofenceMapProps> = ({
             height="100%"
             frameBorder="0"
             style={{ border: 0, width: '100%', height: '100%', borderRadius: 8, pointerEvents: 'auto' }}
-            src={`https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}&center=${currentLat},${currentLng}&zoom=${zoomLevel}&maptype=${
-              mapType === 'satellite' ? 'satellite' : 'roadmap'
-            }`}
+            src={`https://www.google.com/maps/embed/v1/view?key=${GOOGLE_MAPS_API_KEY}&center=${currentLat},${currentLng}&zoom=${zoomLevel}&maptype=${mapType === 'satellite' ? 'satellite' : 'roadmap'
+              }`}
             title="Google Map Geofence"
           />
         ) : (
           <Image
             source={{
-              uri: `https://maps.googleapis.com/maps/api/staticmap?center=${currentLat},${currentLng}&zoom=${zoomLevel}&size=600x400&maptype=${
-                mapType === 'satellite' ? 'satellite' : 'roadmap'
-              }&markers=color:red%7C${currentLat},${currentLng}&key=${GOOGLE_MAPS_API_KEY}`,
+              uri: `https://maps.googleapis.com/maps/api/staticmap?center=${currentLat},${currentLng}&zoom=${zoomLevel}&size=600x400&maptype=${mapType === 'satellite' ? 'satellite' : 'roadmap'
+                }&markers=color:red%7C${currentLat},${currentLng}&key=${GOOGLE_MAPS_API_KEY}`,
             }}
             style={StyleSheet.absoluteFill}
             resizeMode="cover"

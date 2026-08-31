@@ -1,74 +1,76 @@
 import { Vibration, Platform } from 'react-native';
+import SoundPlayer from 'react-native-sound-player';
 import { LoggerService } from './logger.service';
 
 class SoundAlertService {
   private isAlerting: boolean = false;
-  private audioContext: any = null;
   private alertInterval: any = null;
 
+  public playSafetyAlert(): void {
+    this.startSafetyAlert();
+  }
+
   /**
-   * Start 2-3 repeated alert tones + vibration pattern when Lone Worker Safety check is due.
+   * Start 2-3 repeated alert tones + vibration pattern when Geofence / Safety check is triggered.
    */
   public startSafetyAlert(): void {
     if (this.isAlerting) return;
     this.isAlerting = true;
-    LoggerService.log('[SoundAlertService] Starting Lone Worker Safety Alert sound & vibration');
+    LoggerService.log('[SoundAlertService] Starting Geofence / Safety Alert sound & vibration');
 
     // 1. Device Vibration: Pattern [pause, vibrate, pause, vibrate, pause, vibrate]
     try {
       if (Platform.OS === 'android' || Platform.OS === 'ios') {
-        // Repeated vibration pattern for noticeability
-        Vibration.vibrate([0, 400, 200, 400, 200, 400], false);
+        Vibration.vibrate([0, 500, 200, 500, 200, 500], false);
       }
     } catch (e) {
       LoggerService.log('[SoundAlertService] Vibration failed, continuing with audio/visual', 'warn');
     }
 
-    // 2. Audio playback tone fallback / web audio synthesizer
+    // 2. Play Audio alert sound using react-native-sound-player
     try {
-      const AudioCtx = (globalThis as any).AudioContext || (globalThis as any).webkitAudioContext;
-      if (AudioCtx) {
-        if (!this.audioContext) {
-          this.audioContext = new AudioCtx();
+      // Play alarm beep sound
+      SoundPlayer.playUrl('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+      
+      let count = 1;
+      this.alertInterval = setInterval(() => {
+        if (!this.isAlerting || count >= 3) {
+          if (this.alertInterval) {
+            clearInterval(this.alertInterval);
+            this.alertInterval = null;
+          }
+          return;
         }
-        if (this.audioContext.state === 'suspended') {
-          this.audioContext.resume();
+        try {
+          SoundPlayer.playUrl('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        } catch (err) {
+          // Ignore secondary playback errors
         }
-        this.playBeepSequence();
-      }
-    } catch (e) {
-      LoggerService.log('[SoundAlertService] AudioContext tone synthesis unavailable, falling back to vibration + visual alert', 'warn');
-    }
-  }
-
-  private playBeepSequence(): void {
-    if (!this.audioContext || !this.isAlerting) return;
-
-    let count = 0;
-    const playBeep = () => {
-      if (!this.isAlerting || count >= 3) {
-        if (this.alertInterval) clearInterval(this.alertInterval);
-        return;
-      }
-      try {
-        const osc = this.audioContext.createOscillator();
-        const gain = this.audioContext.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, this.audioContext.currentTime); // A5 note
-        gain.gain.setValueAtTime(0.15, this.audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.3);
-        osc.connect(gain);
-        gain.connect(this.audioContext.destination);
-        osc.start();
-        osc.stop(this.audioContext.currentTime + 0.3);
         count++;
-      } catch (err) {
-        // Ignore audio errors gracefully
-      }
-    };
+      }, 600);
+    } catch (e: any) {
+      LoggerService.log(`[SoundAlertService] SoundPlayer playback error: ${e?.message || e}`, 'warn');
 
-    playBeep();
-    this.alertInterval = setInterval(playBeep, 400);
+      // Fallback: Web Audio synthesis if running in web/browser environment
+      try {
+        const AudioCtx = (globalThis as any).AudioContext || (globalThis as any).webkitAudioContext;
+        if (AudioCtx) {
+          const audioCtx = new AudioCtx();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.5);
+        }
+      } catch (fallbackErr) {
+        // Safe fallback ignored
+      }
+    }
   }
 
   /**
@@ -77,10 +79,16 @@ class SoundAlertService {
   public stopSafetyAlert(): void {
     if (!this.isAlerting) return;
     this.isAlerting = false;
-    LoggerService.log('[SoundAlertService] Stopping Lone Worker Safety Alert sound & vibration');
+    LoggerService.log('[SoundAlertService] Stopping Geofence / Safety Alert sound & vibration');
 
     try {
       Vibration.cancel();
+    } catch (e) {
+      // Ignore
+    }
+
+    try {
+      SoundPlayer.stop();
     } catch (e) {
       // Ignore
     }

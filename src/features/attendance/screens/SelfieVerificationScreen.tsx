@@ -157,6 +157,8 @@ export const SelfieVerificationScreen: React.FC = () => {
     }
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleRetake = () => {
     setHasCaptured(false);
     setImageUri(undefined);
@@ -164,21 +166,35 @@ export const SelfieVerificationScreen: React.FC = () => {
   };
 
   const handleConfirm = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     LoggerService.log(`[SelfieVerificationScreen] Confirming ${actionType}`);
+
     try {
       if (actionType === 'Clock In') {
         await clockIn();
       } else {
         await clockOut();
       }
-      
+
       setShowSuccess(true);
     } catch (err: any) {
       LoggerService.log(`[SelfieVerificationScreen] ${actionType} failed: ${err?.message || err}`, 'error');
+      const isGeofenceErr = err?.message?.includes('outside the permitted site area') || err?.message?.includes('outside the site geofence');
+      const isAccuracyErr = err?.message?.includes('accuracy is too low');
+      const isConfigErr = err?.message?.includes('not configured');
+
+      let title = `${actionType} Blocked`;
+      if (isGeofenceErr) title = `Geofence Blocked (${actionType})`;
+      else if (isAccuracyErr) title = 'Location Accuracy Low';
+      else if (isConfigErr) title = 'Site Location Error';
+
       Alert.alert(
-        'Attendance Failed',
+        title,
         err?.message || 'An unexpected error occurred during attendance verification.'
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -230,14 +246,17 @@ export const SelfieVerificationScreen: React.FC = () => {
                 variant="outline" 
                 size="large" 
                 fullWidth 
+                disabled={isSubmitting}
                 onPress={handleRetake}
                 style={styles.btn}
               />
               <Button 
-                title="Confirm & Submit" 
+                title={isSubmitting ? "Verifying Location..." : "Confirm & Submit"} 
                 variant="primary" 
                 size="large" 
                 fullWidth 
+                isLoading={isSubmitting}
+                disabled={isSubmitting}
                 onPress={handleConfirm}
                 style={styles.btn}
               />

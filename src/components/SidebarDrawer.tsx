@@ -9,6 +9,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
 import { useDrawerStore } from '../store/useDrawerStore';
 import { NavIcon, NavIconName } from './NavIcon';
+import { DevLocationSimulator } from './DevLocationSimulator';
 
 interface SidebarDrawerProps {
   isOpen?: boolean;
@@ -75,6 +76,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   onClose: propOnClose,
   activeRouteName,
 }) => {
+  const [showDevSimulator, setShowDevSimulator] = React.useState(false);
   const storeIsOpen = useDrawerStore((state) => state.isOpen);
   const storeCloseDrawer = useDrawerStore((state) => state.closeDrawer);
 
@@ -225,6 +227,20 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           {/* Fixed Bottom Footer (User Profile & Sign Out Button Row) */}
           <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8 }]}>
             <TouchableOpacity
+              style={[styles.userSignoutRow, { marginBottom: 8, backgroundColor: 'rgba(234, 179, 8, 0.12)', borderColor: 'rgba(234, 179, 8, 0.3)' }]}
+              onPress={() => setShowDevSimulator(true)}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.avatarCircle, { backgroundColor: 'transparent' }]}>
+                <AppText style={{ fontSize: 20 }}>🛠</AppText>
+              </View>
+              <View style={styles.userInfoContainer}>
+                <AppText style={{ color: '#FACC15', fontSize: 14, fontWeight: '600' }}>GPS Location Simulator</AppText>
+                <AppText style={{ color: '#94A3B8', fontSize: 11 }}>Test Geofence Edge Cases</AppText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={styles.userSignoutRow}
               onPress={async () => {
                 onClose();
@@ -261,6 +277,8 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
         {/* Backdrop (Tapping closes drawer) */}
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
       </View>
+
+      <DevLocationSimulator visible={showDevSimulator} onClose={() => setShowDevSimulator(false)} />
     </Modal>
   );
 };

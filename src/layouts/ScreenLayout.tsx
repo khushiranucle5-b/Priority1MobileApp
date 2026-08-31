@@ -5,6 +5,8 @@ import { useRoute } from '@react-navigation/native';
 import { useTheme } from '../providers/ThemeProvider';
 import { PersistentSidebar } from '../components/PersistentSidebar';
 import { SidebarDrawer } from '../components/SidebarDrawer';
+import { GeofenceAlertBanner } from '../components/GeofenceAlertBanner';
+import { useGeofenceMonitor } from '../hooks/useGeofenceMonitor';
 
 interface ScreenLayoutProps extends ViewProps {
   children: React.ReactNode;
@@ -23,6 +25,9 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 768;
 
+  // Continuous geofence monitoring while on duty
+  useGeofenceMonitor();
+
   let routeName: string | undefined;
   try {
     const route = useRoute();
@@ -38,6 +43,7 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
       style={[styles.safe, { backgroundColor: colors.background }]}
       edges={edges}
     >
+      <GeofenceAlertBanner />
       <View style={styles.layoutRow}>
         {isLargeScreen && <PersistentSidebar activeRoute={currentActiveRoute} />}
         <View style={[styles.container, style]} {...props}>

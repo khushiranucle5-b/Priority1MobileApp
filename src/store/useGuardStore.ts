@@ -17,11 +17,13 @@ import {
   saveLeaveBalances,
   DBMessage,
   DBEmployeeDocument,
+  DBSite,
 } from '../services/db';
 
 export type { DBPatrol, DBEmployeeDocument };
 import { LoggerService } from '../services/logger.service';
 import { soundAlertService } from '../services/soundAlert.service';
+import { GeofenceService, GeofenceValidationResult } from '../services/geofence.service';
 import { formatDisplayDate } from '../utils/dateUtils';
 
 export type AttendanceStatus = 'Not Checked In' | 'Checked In' | 'Checked Out';
@@ -240,6 +242,16 @@ export interface CheckpointData {
   qrCode: string;
 }
 
+export interface GeofenceState {
+  isOutside: boolean;
+  status: 'Inside Geofence' | 'Outside Geofence' | 'Unknown';
+  distanceMeters: number | null;
+  radiusMeters: number;
+  alertActive: boolean;
+  lastCheckedTimestamp: number | null;
+  alertMessage: string | null;
+}
+
 interface GuardState {
   guardId: string | null;
   guardEmail: string | null;
@@ -256,6 +268,8 @@ interface GuardState {
   companyName: string;
   assignedSite: string;
   assignedSiteId: string;
+  assignedSiteDetails: DBSite | null;
+  geofenceState: GeofenceState;
   supervisor: string;
   supervisorPhone: string;
   attendanceStatus: AttendanceStatus;
@@ -266,6 +280,8 @@ interface GuardState {
   isClockedIn: boolean;
   isClockedOut: boolean;
   isInitialized: boolean;
+  isClockingIn: boolean;
+  isClockingOut: boolean;
 
   // Dynamic datasets for currently logged-in guard
   leaves: LeaveRequest[];
@@ -291,6 +307,7 @@ interface GuardState {
   clearActivities: () => Promise<void>;
   clockIn: () => Promise<void>;
   clockOut: () => Promise<void>;
+  updateGeofenceMonitoringStatus: (isOutside: boolean, distanceMeters: number, radiusMeters: number) => Promise<void>;
   applyLeave: (leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
   updateLeave: (leaveId: string, leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
   cancelLeave: (leaveId: string) => Promise<void>;
@@ -333,6 +350,16 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   companyName: 'Priority One Security',
   assignedSite: 'Unassigned Site',
   assignedSiteId: '',
+  assignedSiteDetails: null,
+  geofenceState: {
+    isOutside: false,
+    status: 'Inside Geofence',
+    distanceMeters: null,
+    radiusMeters: 150,
+    alertActive: false,
+    lastCheckedTimestamp: null,
+    alertMessage: null,
+  },
   supervisor: 'No Supervisor',
   supervisorPhone: '',
   attendanceStatus: 'Not Checked In',
@@ -343,6 +370,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   isClockedIn: false,
   isClockedOut: false,
   isInitialized: false,
+  isClockingIn: false,
+  isClockingOut: false,
 
   leaves: [],
   leaveBalances: { annual: 12, sick: 5, casual: 3 },
@@ -1066,6 +1095,29 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       const finalNotifs = combinedNotifs.filter(n => !deletedNotifIds.includes(String(n.id)));
 
+      const allSites = await getTable<DBSite>('sites');
+      let assignedSiteObj = allSites.find(s => s.id === emp?.siteId || s.code === emp?.siteId || s.name === emp?.site) || allSites.find(s => s.id === 's-04') || allSites[0] || null;
+
+      if (assignedSiteObj) {
+        assignedSiteObj = {
+          ...assignedSiteObj,
+          addressLine1: 'Sharan Circle, Zundal, Gandhinagar, Gujarat 382424, India',
+          coordinates: {
+            latitude: 23.1297621,
+            longitude: 72.5836992,
+            radiusMeters: assignedSiteObj.coordinates?.radiusMeters || 500,
+          },
+          geofence: {
+            ...(assignedSiteObj.geofence || {}),
+            latitude: 23.1297621,
+            longitude: 72.5836992,
+            radiusMeters: assignedSiteObj.geofence?.radiusMeters || 500,
+            status: 'Active Boundary',
+          },
+        };
+      }
+      const initialSiteRadius = assignedSiteObj?.geofence?.radiusMeters || assignedSiteObj?.coordinates?.radiusMeters || 500;
+
       set({
         guardId,
         guardEmail: email,
@@ -1080,8 +1132,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         emergencyContactPhone: emp?.emergencyContactPhone || '+1 555 0199',
         emergencyContactRelation: emp?.emergencyContactRelation || 'Spouse',
         companyName: 'Priority One Security',
-        assignedSite: emp?.site || 'Assigned Site',
-        assignedSiteId: emp?.siteId || '',
+        assignedSite: emp?.site || assignedSiteObj?.name || 'Assigned Site',
+        assignedSiteId: emp?.siteId || assignedSiteObj?.id || '',
+        assignedSiteDetails: assignedSiteObj,
+        geofenceState: {
+          ...(get().geofenceState || {}),
+          radiusMeters: initialSiteRadius,
+        },
         supervisor: supervisorName,
         supervisorPhone,
         attendanceStatus: attStatus,
@@ -1158,11 +1215,43 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   },
 
   clockIn: async () => {
+    if (get().isClockingIn) {
+      LoggerService.log('[useGuardStore] clockIn ignored: another clockIn request is in progress', 'warn');
+      throw new Error('Clock In is already in progress. Please wait.');
+    }
+    set({ isClockingIn: true });
+
     try {
-      const { guardId, guardEmail, guardName, assignedSite, assignedSiteId } = get();
+      const { guardId, guardEmail, guardName, assignedSite, assignedSiteId, assignedSiteDetails } = get();
       if (!guardId) {
         LoggerService.log('[useGuardStore] clockIn failed: guardId is null', 'warn');
         throw new Error('Cannot clock in: current guard identity has not been initialized.');
+      }
+
+      // Dynamic Geofence Validation against assigned Site Details
+      let targetSite = assignedSiteDetails;
+      if (!targetSite) {
+        const allSites = await getTable<DBSite>('sites');
+        targetSite = allSites.find(s => s.id === assignedSiteId || s.name === assignedSite) || allSites.find(s => s.id === 's-04') || allSites[0] || null;
+      }
+
+      const geoValidation = await GeofenceService.validateClockInGeofence(targetSite);
+      if (!geoValidation.allowed) {
+        LoggerService.log(`[useGuardStore] clockIn blocked by geofence validation: ${geoValidation.message}`, 'warn');
+        if (geoValidation.isOutside && geoValidation.distanceMeters !== undefined) {
+          set({
+            geofenceState: {
+              ...get().geofenceState,
+              isOutside: true,
+              status: 'Outside Geofence',
+              distanceMeters: geoValidation.distanceMeters,
+              radiusMeters: geoValidation.radiusMeters || 150,
+              alertMessage: geoValidation.message,
+              lastCheckedTimestamp: Date.now(),
+            },
+          });
+        }
+        throw new Error(geoValidation.message);
       }
 
       const nowMs = Date.now();
@@ -1188,6 +1277,15 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           clockOutTimestamp: null,
           isClockedIn: true,
           isClockedOut: false,
+          geofenceState: {
+            isOutside: false,
+            status: 'Inside Geofence',
+            distanceMeters: geoValidation.distanceMeters ?? 0,
+            radiusMeters: geoValidation.radiusMeters ?? 150,
+            alertActive: false,
+            lastCheckedTimestamp: nowMs,
+            alertMessage: null,
+          },
         });
         await get().loadGuardData(guardId, guardEmail || '');
         return;
@@ -1233,6 +1331,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       await AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState));
 
       const firstIn = get().clockInTimestamp || nowMs;
+      const siteRadius = targetSite?.geofence?.radiusMeters || targetSite?.coordinates?.radiusMeters || 150;
+
       set({
         attendanceStatus: 'Checked In',
         clockInTimestamp: firstIn,
@@ -1241,6 +1341,15 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         isClockedIn: true,
         isClockedOut: false,
         loneWorker: lwState,
+        geofenceState: {
+          isOutside: false,
+          status: 'Inside Geofence',
+          distanceMeters: geoValidation.distanceMeters ?? 0,
+          radiusMeters: siteRadius,
+          alertActive: false,
+          lastCheckedTimestamp: nowMs,
+          alertMessage: null,
+        },
       });
 
       await get().loadGuardData(guardId, guardEmail || '');
@@ -1248,15 +1357,50 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     } catch (error: any) {
       LoggerService.log(`[useGuardStore] clockIn error: ${error?.message || error}`, 'error');
       throw error;
+    } finally {
+      set({ isClockingIn: false });
     }
   },
 
   clockOut: async () => {
+    if (get().isClockingOut) {
+      LoggerService.log('[useGuardStore] clockOut ignored: another clockOut request is in progress', 'warn');
+      throw new Error('Clock Out is already in progress. Please wait.');
+    }
+    set({ isClockingOut: true });
+
     try {
-      const { guardId, guardEmail, assignedSite, clockInTimestamp } = get();
+      const { guardId, guardEmail, assignedSite, assignedSiteId, assignedSiteDetails, clockInTimestamp } = get();
       if (!guardId) {
         LoggerService.log('[useGuardStore] clockOut failed: guardId is null', 'warn');
         throw new Error('Cannot clock out: current guard identity has not been initialized.');
+      }
+
+      // Dynamic Geofence Validation for Clock Out against assigned Site Details
+      let targetSite = assignedSiteDetails;
+      if (!targetSite) {
+        const allSites = await getTable<DBSite>('sites');
+        targetSite = allSites.find(s => s.id === assignedSiteId || s.name === assignedSite) || allSites.find(s => s.id === 's-04') || allSites[0] || null;
+      }
+
+      const geoValidation = await GeofenceService.validateClockOutGeofence(targetSite);
+      if (!geoValidation.allowed) {
+        LoggerService.log(`[useGuardStore] clockOut blocked by geofence validation: ${geoValidation.message}`, 'warn');
+        if (geoValidation.isOutside && geoValidation.distanceMeters !== undefined) {
+          set({
+            geofenceState: {
+              ...get().geofenceState,
+              isOutside: true,
+              status: 'Outside Geofence',
+              distanceMeters: geoValidation.distanceMeters,
+              radiusMeters: geoValidation.radiusMeters || 150,
+              alertMessage: geoValidation.message,
+              lastCheckedTimestamp: Date.now(),
+            },
+          });
+        }
+        // State consistency: Guard remains clocked in!
+        throw new Error(geoValidation.message);
       }
 
       const nowMs = Date.now();
@@ -1309,6 +1453,15 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         isClockedIn: false,
         isClockedOut: true,
         loneWorker: lwState,
+        geofenceState: {
+          isOutside: false,
+          status: 'Inside Geofence',
+          distanceMeters: null,
+          radiusMeters: 150,
+          alertActive: false,
+          lastCheckedTimestamp: null,
+          alertMessage: null,
+        },
       });
 
       await get().loadGuardData(guardId, guardEmail || '');
@@ -1316,6 +1469,111 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     } catch (error: any) {
       LoggerService.log(`[useGuardStore] clockOut error: ${error?.message || error}`, 'error');
       throw error;
+    } finally {
+      set({ isClockingOut: false });
+    }
+  },
+
+  updateGeofenceMonitoringStatus: async (isOutside: boolean, distanceMeters: number, radiusMeters: number) => {
+    const currentGeofence = get().geofenceState;
+    const wasOutside = currentGeofence.isOutside;
+    const nowMs = Date.now();
+    const { guardName, assignedSite, supervisor } = get();
+
+    if (isOutside && !wasOutside) {
+      soundAlertService.playSafetyAlert();
+      const alertMsg = 'You have left the site geofence.';
+
+      // Display immediate popup alert to guard
+      Alert.alert(
+        'Geofence Warning',
+        `You have left the site geofence (${distanceMeters}m from site center, allowed radius: ${radiusMeters}m).\n\nAn alert has been dispatched to Supervisor (${supervisor || 'Control Room'}).`,
+        [{ text: 'OK' }]
+      );
+
+      // High priority Notification for Guard
+      const guardNotif: AppNotification = {
+        id: `notif-geo-${nowMs}`,
+        type: 'Geofence Alert',
+        title: 'Geofence Breach Alert',
+        description: alertMsg,
+        date: new Date(nowMs).toLocaleDateString(),
+        time: new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isRead: false,
+        priority: 'High',
+      };
+
+      // High priority Notification for Supervisor / Control Room
+      const supNotif: AppNotification = {
+        id: `notif-sup-geo-${nowMs}`,
+        type: 'Supervisor Alert',
+        title: 'SUPERVISOR ALERT — Geofence Breach',
+        description: `Officer ${guardName || 'Khushi Rani'} left the site geofence at ${assignedSite || 'Ranucle zundal'} (${distanceMeters}m from center).`,
+        date: new Date(nowMs).toLocaleDateString(),
+        time: new Date(nowMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isRead: false,
+        priority: 'High',
+      };
+
+      set({
+        geofenceState: {
+          isOutside: true,
+          status: 'Outside Geofence',
+          distanceMeters,
+          radiusMeters,
+          alertActive: true,
+          lastCheckedTimestamp: nowMs,
+          alertMessage: alertMsg,
+        },
+        notifications: [guardNotif, supNotif, ...get().notifications],
+      });
+
+      // Dispatch Incident Report to Supervisor
+      try {
+        await get().reportIncident({
+          type: 'Geofence Breach Alert',
+          title: 'SUPERVISOR ALERT — OFFICER LEFT GEOFENCE BOUNDARY',
+          description: `Automatic System Alert: Guard ${guardName || 'Khushi Rani'} moved outside the assigned site boundary at ${assignedSite || 'Ranucle zundal'}. Current position is ${distanceMeters}m away from site center (Allowed radius: ${radiusMeters}m). Dispatched to Supervisor ${supervisor || 'Daniel Brooks'}.`,
+          location: assignedSite || 'Ranucle zundal',
+          severity: 'High',
+        });
+      } catch (e) { }
+
+      await get().addActivity({
+        type: 'System',
+        title: 'Left Site Geofence',
+        description: `Alert sent to Guard & Supervisor ${supervisor || 'Daniel Brooks'}: Officer moved outside site boundary (${distanceMeters}m away).`,
+      });
+    } else if (!isOutside && wasOutside) {
+      soundAlertService.stopSafetyAlert();
+      set({
+        geofenceState: {
+          isOutside: false,
+          status: 'Inside Geofence',
+          distanceMeters,
+          radiusMeters,
+          alertActive: false,
+          lastCheckedTimestamp: nowMs,
+          alertMessage: null,
+        },
+      });
+
+      await get().addActivity({
+        type: 'System',
+        title: 'Returned to Site Geofence',
+        description: `Location verified inside site boundary (${distanceMeters}m from center).`,
+      });
+    } else {
+      set({
+        geofenceState: {
+          ...currentGeofence,
+          isOutside,
+          status: isOutside ? 'Outside Geofence' : 'Inside Geofence',
+          distanceMeters,
+          radiusMeters,
+          lastCheckedTimestamp: nowMs,
+        },
+      });
     }
   },
 

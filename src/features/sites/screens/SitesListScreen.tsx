@@ -25,16 +25,16 @@ const DEFAULT_SITES: DBSite[] = [
     riskLevel: 'Medium',
     contractEnd: '2027-12-31',
     status: 'active',
-    addressLine1: 'Zundal Circle, Gandhinagar, Gujarat 382424, India',
+    addressLine1: 'Sharan Circle, Zundal, Gandhinagar, Gujarat 382424, India',
     addressLine2: 'Plot 42, Zundal Industrial Estate',
     city: 'Gandhinagar',
     state: 'Gujarat',
     postalCode: '382424',
     country: 'India',
     coordinates: {
-      latitude: 23.1437,
-      longitude: 72.5902,
-      radiusMeters: 150,
+      latitude: 23.1297621,
+      longitude: 72.5836992,
+      radiusMeters: 500,
     },
     contact: {
       primaryContactName: 'Alex Mendes (Facilities Director)',
@@ -51,9 +51,9 @@ const DEFAULT_SITES: DBSite[] = [
     internalNotes: 'High priority commercial port & container terminal site.',
     geofence: {
       boundaryType: 'Circle',
-      latitude: 23.1437,
-      longitude: 72.5902,
-      radiusMeters: 150,
+      latitude: 23.1297621,
+      longitude: 72.5836992,
+      radiusMeters: 500,
       status: 'Active Boundary',
       enableGeofenceValidation: true,
       requireGeofenceClockIn: true,
@@ -88,46 +88,6 @@ const DEFAULT_SITES: DBSite[] = [
       { id: 'doc-1', title: 'Ranucle Zundal Site Security Directive', category: 'Operations', fileName: 'Ranucle_Zundal_Security_Plan.pdf', fileSize: '2.4 MB', uploadedBy: 'Daniel Brooks', uploadDate: '2026-07-10' },
     ],
   },
-  {
-    id: 's-02',
-    companyId: 'c-1',
-    name: 'HQ Corporate Tower',
-    code: 'SIT-HQ-002',
-    clientName: 'Priority One Corp',
-    branch: 'Central HQ Branch',
-    facilityType: 'Commercial High-rise',
-    supervisorName: 'Jane Smith',
-    guardsCount: 5,
-    riskLevel: 'Low',
-    contractEnd: '2028-01-15',
-    status: 'active',
-    addressLine1: '100 Financial Plaza',
-    city: 'San Francisco',
-    state: 'California',
-    postalCode: '94111',
-    country: 'United States',
-    coordinates: { latitude: 37.7749, longitude: -122.4194, radiusMeters: 50 },
-  },
-  {
-    id: 's-01',
-    companyId: 'c-1',
-    name: 'Harbor Terminal 3',
-    code: 'SIT-HT-001',
-    clientName: 'Port Authority',
-    branch: 'Maritime District',
-    facilityType: 'Port & Container Terminal',
-    supervisorName: 'Elena Ruiz',
-    guardsCount: 8,
-    riskLevel: 'Medium',
-    contractEnd: '2027-06-30',
-    status: 'active',
-    addressLine1: 'Pier 44, Maritime Terminal Way',
-    city: 'San Francisco',
-    state: 'California',
-    postalCode: '94105',
-    country: 'United States',
-    coordinates: { latitude: 37.7751, longitude: -122.4192, radiusMeters: 150 },
-  },
 ];
 
 export const SitesListScreen: React.FC = () => {
@@ -148,13 +108,19 @@ export const SitesListScreen: React.FC = () => {
   }, [isFocused]);
 
   const loadSites = async () => {
-    const data = await getTable<DBSite>('sites');
-    if (!data || data.length === 0) {
-      setSites(DEFAULT_SITES);
-      await saveTable('sites', DEFAULT_SITES);
-    } else {
-      setSites(data);
-    }
+    let data = await getTable<DBSite>('sites');
+    let s04 = (data || []).find(s => s.id === 's-04' || s.code === 's-04') || DEFAULT_SITES[0];
+
+    const activeSite: DBSite = {
+      ...s04,
+      addressLine1: 'Sharan Circle, Zundal, Gandhinagar, Gujarat 382424, India',
+      coordinates: { latitude: 23.1297621, longitude: 72.5836992, radiusMeters: 500 },
+      geofence: { ...(s04.geofence || {}), latitude: 23.1297621, longitude: 72.5836992, radiusMeters: 500, status: 'Active Boundary' },
+    };
+
+    const onlyActiveSites = [activeSite];
+    await saveTable('sites', onlyActiveSites);
+    setSites(onlyActiveSites);
   };
 
   const filteredSites = sites.filter((site) => {
