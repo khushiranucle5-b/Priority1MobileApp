@@ -123,8 +123,7 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     const options: any = {
       mediaType: 'photo',
-      saveToPhotos: false,
-      cameraType: 'front',
+      saveToPhotos: true,
       preferredCameraDevice: 'front',
       useFrontCamera: true,
       quality: 0.8,
@@ -172,7 +171,7 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     try {
       if (actionType === 'Clock In') {
-        await clockIn();
+        await clockIn(imageUri);
       } else {
         await clockOut();
       }

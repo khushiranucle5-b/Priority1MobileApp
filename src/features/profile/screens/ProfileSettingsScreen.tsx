@@ -57,9 +57,11 @@ export const ProfileSettingsScreen = () => {
           text: 'Take Photo',
           onPress: async () => {
             try {
-              const res = await launchCamera({ mediaType: 'photo', quality: 0.8 });
+              const res = await launchCamera({ mediaType: 'photo', quality: 0.8, saveToPhotos: true });
               if (res.assets && res.assets[0]?.uri) {
-                setProfilePic(res.assets[0].uri);
+                const newUri = res.assets[0].uri;
+                setProfilePic(newUri);
+                await autoSaveProfilePic(newUri);
               }
             } catch (e) {
               Alert.alert('Error', 'Failed to access camera.');
@@ -72,7 +74,9 @@ export const ProfileSettingsScreen = () => {
             try {
               const res = await launchImageLibrary({ mediaType: 'photo', quality: 0.8 });
               if (res.assets && res.assets[0]?.uri) {
-                setProfilePic(res.assets[0].uri);
+                const newUri = res.assets[0].uri;
+                setProfilePic(newUri);
+                await autoSaveProfilePic(newUri);
               }
             } catch (e) {
               Alert.alert('Error', 'Failed to access photo gallery.');
@@ -82,6 +86,22 @@ export const ProfileSettingsScreen = () => {
         { text: 'Cancel', style: 'cancel' },
       ]
     );
+  };
+
+  const autoSaveProfilePic = async (newPicUri: string) => {
+    const empId = user?.id || guardStore.guardId;
+    if (!empId) return;
+    try {
+      const result = await updateRow<DBEmployee>('employees', empId, { profilePic: newPicUri });
+      if (result) {
+        useGuardStore.setState({ profilePic: newPicUri });
+        if (guardStore.loadGuardData && user?.email) {
+          await guardStore.loadGuardData(empId, user.email);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to auto-save profile pic', e);
+    }
   };
 
   const handleSave = async () => {

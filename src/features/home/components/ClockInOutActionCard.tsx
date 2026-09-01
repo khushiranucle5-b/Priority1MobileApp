@@ -95,6 +95,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 4,
   },
   divider: {
     height: 1.5,
@@ -104,10 +106,13 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 16,
   },
   statBox: {
     flex: 1,
+    minWidth: 120,
   },
   actionBox: {
     marginTop: 4,

@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { ShieldCheck } from 'lucide-react-native';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
 import { AuthNavigator } from './AuthNavigator';
 import { TabNavigator } from './TabNavigator';
-import { LoadingState } from '../components/feedback/LoadingState';
+import { AppText } from '../components/typography/Text';
 import { TermsPopup } from '../components/TermsPopup';
 
 export const RootNavigator = () => {
@@ -36,7 +38,14 @@ export const RootNavigator = () => {
   }, [isAuthenticated, isInitialized]);
 
   if (isLoading || (isAuthenticated && !isInitialized)) {
-    return <LoadingState message="Loading Guard Workspace..." />;
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0F172A', justifyContent: 'center', alignItems: 'center' }}>
+        <ShieldCheck size={120} color="#5B46E5" />
+        <AppText size="lg" weight="bold" style={{ color: '#FFFFFF', marginTop: 24 }}>
+          Loading Guard Workspace...
+        </AppText>
+      </View>
+    );
   }
 
   return (

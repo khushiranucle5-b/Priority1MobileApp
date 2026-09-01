@@ -359,9 +359,18 @@ export const initializeDB = async (forceReset = false) => {
     const rawEmployees = await AsyncStorage.getItem(`${DB_PREFIX}employees`);
     const hasG1001 = rawEmployees && rawEmployees.includes('G-1001');
     const hasEmp103 = rawEmployees && rawEmployees.includes('emp-103');
+    
+    // Force a one-time reset to clear any Bloated Base64 data from previous tests
+    const bloatCleared = await AsyncStorage.getItem(`${DB_PREFIX}bloat_cleared_v1`);
 
-    if (!initialized || !hasG1001 || !hasEmp103 || forceReset) {
+    if (!initialized || !hasG1001 || !hasEmp103 || forceReset || !bloatCleared) {
       console.log('Initializing local AsyncStorage DB from seed data...');
+      
+      if (!bloatCleared) {
+        await AsyncStorage.removeItem(`${DB_PREFIX}attendance`);
+        await AsyncStorage.removeItem(`${DB_PREFIX}employees`);
+        await AsyncStorage.setItem(`${DB_PREFIX}bloat_cleared_v1`, 'true');
+      }
       
       // Load all seed keys
       const keys = Object.keys(SEED_DATA) as (keyof typeof SEED_DATA)[];

@@ -117,6 +117,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   title: {
     letterSpacing: 0.5,
@@ -150,10 +152,12 @@ const styles = StyleSheet.create({
   timeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
     gap: 12,
   },
   timeBox: {
     flex: 1,
+    minWidth: 130,
     paddingVertical: 12,
     paddingHorizontal: 10,
     alignItems: 'center',

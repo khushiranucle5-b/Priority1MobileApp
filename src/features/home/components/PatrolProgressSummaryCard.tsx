@@ -167,10 +167,10 @@ export const PatrolProgressSummaryCard: React.FC = () => {
   return (
     <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
       <View style={styles.header}>
-        <Heading level="h3" color="primary">
+        <Heading level="h3" color="primary" style={{ flexShrink: 1 }}>
           {isAvailableOrInProgress ? 'PATROL PROGRESS' : 'NEXT PATROL'}
         </Heading>
-        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5', marginTop: 4 }}>
+        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5', flexShrink: 1, textAlign: 'right', marginTop: 4 }}>
           {isAvailableOrInProgress ? `${completed}/${total} Checkpoints` : `Starts at ${targetPatrol.scheduledStartTime || targetPatrol.startTime}`}
         </AppText>
       </View>
@@ -184,10 +184,10 @@ export const PatrolProgressSummaryCard: React.FC = () => {
           </View>
 
           <View style={styles.progressTextRow}>
-            <AppText size="sm" color="secondary" weight="semibold">
+            <AppText size="sm" color="secondary" weight="semibold" style={{ flexShrink: 1 }}>
               {percent}% Completed ({completed}/{total})
             </AppText>
-            <AppText size="sm" color="secondary" weight="semibold">
+            <AppText size="sm" color="secondary" weight="semibold" style={{ flexShrink: 1, textAlign: 'right' }}>
               {remaining} Remaining
             </AppText>
           </View>
@@ -235,6 +235,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'column',
     alignItems: 'flex-start',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   divider: {
     height: 1,
@@ -253,6 +255,8 @@ const styles = StyleSheet.create({
   progressTextRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 4,
     marginBottom: 16,
   },
   nextPatrolInfoBox: {

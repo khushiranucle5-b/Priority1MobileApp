@@ -279,6 +279,8 @@ interface GuardState {
   todayCompletedMs: number;
   isClockedIn: boolean;
   isClockedOut: boolean;
+  clockIn: (photoUri?: string) => Promise<void>;
+  clockOut: () => Promise<void>;
   isInitialized: boolean;
   isClockingIn: boolean;
   isClockingOut: boolean;
@@ -305,8 +307,7 @@ interface GuardState {
   loadGuardData: (guardId: string, email: string) => Promise<void>;
   addActivity: (activity: { type?: string; title: string; description: string; date?: string; time?: string }) => Promise<void>;
   clearActivities: () => Promise<void>;
-  clockIn: () => Promise<void>;
-  clockOut: () => Promise<void>;
+
   updateGeofenceMonitoringStatus: (isOutside: boolean, distanceMeters: number, radiusMeters: number) => Promise<void>;
   applyLeave: (leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
   updateLeave: (leaveId: string, leave: Omit<LeaveRequest, 'id' | 'status' | 'appliedDate'>) => Promise<void>;
@@ -765,7 +766,13 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       const isSameDate = (d1Str: string | null | undefined, d2Str: string): boolean => {
         if (!d1Str) return false;
         if (d1Str === d2Str) return true;
+        
+        // Fix for timezone shifts: If it's a date string (YYYY-MM-DD) or an ISO string, extract the first 10 characters.
+        // e.g. "2026-09-01T05:50:00.000Z" -> "2026-09-01"
         try {
+          const parts = d1Str.split('T');
+          if (parts.length > 0 && parts[0] === d2Str) return true;
+          
           const d1 = new Date(d1Str);
           if (isNaN(d1.getTime())) return false;
           const y = d1.getFullYear();
@@ -1214,7 +1221,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     }
   },
 
-  clockIn: async () => {
+  clockIn: async (photoUri?: string) => {
     if (get().isClockingIn) {
       LoggerService.log('[useGuardStore] clockIn ignored: another clockIn request is in progress', 'warn');
       throw new Error('Clock In is already in progress. Please wait.');
@@ -1306,6 +1313,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         siteId: assignedSiteId,
         siteName: assignedSite,
         companyId: 'c-1',
+        verification: photoUri || undefined,
       };
 
       await insertRow('attendance', newRecord);
