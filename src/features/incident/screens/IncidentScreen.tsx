@@ -129,12 +129,12 @@ export const IncidentScreen: React.FC = () => {
       <View style={styles.mainContainer}>
         {/* Search & Dropdown Filter Row */}
         <View style={styles.searchFilterRow}>
-          <View style={styles.searchInputWrapper}>
-            <NavIcon name="search" size={22} color="#64748B" />
+          <View style={[styles.searchInputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
+            <NavIcon name="search" size={22} color={colors.textSecondary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search incidents..."
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoCapitalize="none"
@@ -142,11 +142,11 @@ export const IncidentScreen: React.FC = () => {
           </View>
 
           <TouchableOpacity
-            style={styles.dropdownTrigger}
+            style={[styles.dropdownTrigger, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}
             onPress={() => setDropdownOpen(!dropdownOpen)}
             activeOpacity={0.7}
           >
-            <AppText size="base" weight="semibold" style={{ color: '#0F172A', marginRight: 6 }}>
+            <AppText size="base" weight="semibold" style={{ color: colors.text, marginRight: 6, flexShrink: 1 }} numberOfLines={1}>
               Filter: {statusFilter === 'All' ? 'All' : statusFilter}
             </AppText>
             <AppText size="xs" color="secondary">
@@ -172,12 +172,12 @@ export const IncidentScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
           {loading ? (
             <View style={styles.centerBox}>
-              <ActivityIndicator size="large" color="#4F46E5" />
+              <ActivityIndicator size="large" color={colors.primary[600]} />
               <AppText size="sm" color="secondary" style={{ marginTop: 10 }}>Loading incident logs...</AppText>
             </View>
           ) : filteredIncidents.length === 0 ? (
             <Card style={{ padding: 24, alignItems: 'center', marginHorizontal: 16 }}>
-              <NavIcon name="incidents" size={36} color="#94A3B8" />
+              <NavIcon name="incidents" size={36} color={colors.textSecondary} />
               <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
                 {searchQuery || statusFilter !== 'All'
                   ? 'No incident reports match your search or filter.'
@@ -194,14 +194,14 @@ export const IncidentScreen: React.FC = () => {
                   <StatusBadge status={item.status || 'Open'} type={getMappedStatusType(item.status)} size="md" />
                 </View>
                 
-                <View style={[styles.detailRow, { marginTop: spacing.sm }]}>
-                  <View>
+                <View style={[styles.detailRow, { marginTop: spacing.sm, gap: 12 }]}>
+                  <View style={{ flex: 1 }}>
                     <AppText size="xs" color="secondary" weight="semibold">DATE</AppText>
                     <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
                       {item.date}
                     </AppText>
                   </View>
-                  <View style={{ alignItems: 'flex-end' }}>
+                  <View style={{ flex: 1, alignItems: 'flex-end' }}>
                     <AppText size="xs" color="secondary" weight="semibold">INCIDENT TYPE</AppText>
                     <AppText size="sm" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
                       {item.category || 'General'}
@@ -211,41 +211,41 @@ export const IncidentScreen: React.FC = () => {
 
                 <View style={{ marginTop: 10 }}>
                   <AppText size="xs" color="secondary" weight="semibold">LOCATION</AppText>
-                  <AppText size="sm" color="text" weight="medium" style={{ marginTop: 2 }}>
+                  <AppText size="sm" color="primary" weight="medium" style={{ marginTop: 2 }}>
                     {item.site || assignedSite || 'Ahmedabad Plant'}
                   </AppText>
                 </View>
 
                 <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                   <TouchableOpacity
-                    style={styles.iconActionBtnView}
+                    style={[styles.iconActionBtnView, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                     onPress={() => navigation.navigate('IncidentDetails', { incidentId: item.id })}
                     activeOpacity={0.7}
                     accessibilityLabel="View incident"
                     accessibilityRole="button"
                   >
-                    <NavIcon name="document" size={24} color="#059669" />
+                    <NavIcon name="document" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.iconActionBtnEdit}
+                    style={[styles.iconActionBtnEdit, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                     onPress={() => navigation.navigate('FileIncident', { incidentId: item.id })}
                     activeOpacity={0.7}
                     accessibilityLabel="Edit incident"
                     accessibilityRole="button"
                   >
-                    <NavIcon name="edit" size={24} color="#4F46E5" />
+                    <NavIcon name="edit" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
 
                   {item.status?.toLowerCase() !== 'resolved' && (
                     <TouchableOpacity
-                      style={styles.iconActionBtnDelete}
+                      style={[styles.iconActionBtnDelete, { backgroundColor: colors.errorLight, borderColor: colors.errorLight }]}
                       onPress={() => handleDeleteIncident(item.id)}
                       activeOpacity={0.7}
                       accessibilityLabel="Delete incident"
                       accessibilityRole="button"
                     >
-                      <NavIcon name="delete" size={24} color="#DC2626" />
+                      <NavIcon name="delete" size={24} color={colors.errorDark} />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -256,7 +256,7 @@ export const IncidentScreen: React.FC = () => {
 
         {/* Floating Action Button (FAB) for REPORT INCIDENT */}
         <TouchableOpacity
-          style={styles.floatingButton}
+          style={[styles.floatingButton, { backgroundColor: colors.primary[600] }]}
           onPress={() => navigation.navigate('FileIncident')}
           activeOpacity={0.85}
           accessibilityLabel="Report incident"
@@ -289,9 +289,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -299,7 +297,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     marginLeft: 8,
     includeFontPadding: false,
@@ -307,17 +304,13 @@ const styles = StyleSheet.create({
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 56,
     paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     padding: 4,
     marginHorizontal: 16,
@@ -336,7 +329,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dropdownMenuItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   listContainer: {
     paddingBottom: 100,
@@ -369,32 +361,26 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   iconActionBtnEdit: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconActionBtnView: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#A7F3D0',
-    backgroundColor: '#ECFDF5',
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconActionBtnDelete: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#FECACA',
-    backgroundColor: '#FEF2F2',
     justifyContent: 'center',
     alignItems: 'center',
   },

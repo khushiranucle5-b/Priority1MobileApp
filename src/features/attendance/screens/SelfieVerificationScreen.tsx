@@ -273,7 +273,7 @@ export const SelfieVerificationScreen: React.FC = () => {
               {actionType} Successful
             </AppText>
             
-            <View style={styles.detailBox}>
+            <View style={[styles.detailBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
               <AppText size="base" color="secondary" style={styles.successText}>
                 Time: <AppText size="base" weight="bold" color="primary">{actionType === 'Clock In' ? clockInTimeStr : clockOutTimeStr}</AppText>
               </AppText>

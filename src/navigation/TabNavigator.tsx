@@ -28,7 +28,7 @@ export const TabNavigator = () => {
           headerTintColor: colors.text,
           tabBarStyle: {
             backgroundColor: colors.surface,
-            borderTopColor: '#CBD5E1',
+            borderTopColor: colors.border,
             borderTopWidth: 1.5,
             height: 78 + bottomInset,
             paddingBottom: bottomInset + 4,
@@ -44,8 +44,8 @@ export const TabNavigator = () => {
             paddingHorizontal: 0,
             paddingVertical: 2,
           },
-          tabBarActiveTintColor: '#2563EB',
-          tabBarInactiveTintColor: '#94A3B8',
+          tabBarActiveTintColor: colors.primary[600],
+          tabBarInactiveTintColor: colors.textTertiary,
           tabBarLabelStyle: {
             fontSize: 14,
             fontWeight: '600',
@@ -72,8 +72,8 @@ export const TabNavigator = () => {
           options={{
             tabBarLabel: 'HOME',
             tabBarIcon: ({ focused }) => (
-              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
-                <NavIcon name="dashboard" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              <View style={focused ? [styles.activeIconPill, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }] : styles.inactiveIconBox}>
+                <NavIcon name="dashboard" color={focused ? colors.primary[600] : colors.textTertiary} size={30} />
               </View>
             ),
           }}
@@ -94,8 +94,8 @@ export const TabNavigator = () => {
           options={{
             tabBarLabel: 'ATTENDANCE',
             tabBarIcon: ({ focused }) => (
-              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
-                <NavIcon name="attendance" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              <View style={focused ? [styles.activeIconPill, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }] : styles.inactiveIconBox}>
+                <NavIcon name="attendance" color={focused ? colors.primary[600] : colors.textTertiary} size={30} />
               </View>
             ),
           }}
@@ -106,8 +106,8 @@ export const TabNavigator = () => {
           options={{
             tabBarLabel: 'DUTY',
             tabBarIcon: ({ focused }) => (
-              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
-                <NavIcon name="shifts" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              <View style={focused ? [styles.activeIconPill, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }] : styles.inactiveIconBox}>
+                <NavIcon name="shifts" color={focused ? colors.primary[600] : colors.textTertiary} size={30} />
               </View>
             ),
           }}
@@ -128,8 +128,8 @@ export const TabNavigator = () => {
           options={{
             tabBarLabel: 'PATROL',
             tabBarIcon: ({ focused }) => (
-              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
-                <NavIcon name="patrol" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              <View style={focused ? [styles.activeIconPill, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }] : styles.inactiveIconBox}>
+                <NavIcon name="patrol" color={focused ? colors.primary[600] : colors.textTertiary} size={30} />
               </View>
             ),
           }}
@@ -150,8 +150,8 @@ export const TabNavigator = () => {
           options={{
             tabBarLabel: 'PROFILE',
             tabBarIcon: ({ focused }) => (
-              <View style={focused ? styles.activeIconPill : styles.inactiveIconBox}>
-                <NavIcon name="employees" color={focused ? '#2563EB' : '#94A3B8'} size={30} />
+              <View style={focused ? [styles.activeIconPill, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }] : styles.inactiveIconBox}>
+                <NavIcon name="employees" color={focused ? colors.primary[600] : colors.textTertiary} size={30} />
               </View>
             ),
           }}
@@ -164,14 +164,12 @@ export const TabNavigator = () => {
 
 const styles = StyleSheet.create({
   activeIconPill: {
-    backgroundColor: '#EFF6FF',
     paddingHorizontal: 16,
     paddingVertical: 4,
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#BFDBFE',
   },
   inactiveIconBox: {
     paddingHorizontal: 16,

@@ -76,15 +76,15 @@ export const TermsPopup = () => {
         // Prevent dismissal via Android hardware back button
       }}
     >
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
         <View style={[styles.modalContainer, { backgroundColor: colors.card, borderRadius: borderRadius.lg }]}>
           
           <View style={[styles.header, { borderBottomColor: colors.border }]}>
-            <AppText size="xl" weight="bold" color="text">Terms & Conditions</AppText>
+            <AppText size="xl" weight="bold" color="primary">Terms & Conditions</AppText>
           </View>
           
           <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-            <AppText size="sm" color="text" style={{ marginBottom: spacing.md }}>
+            <AppText size="sm" color="primary" style={{ marginBottom: spacing.md }}>
               Please read and accept the latest Terms & Conditions for Priority One Security.
             </AppText>
             
@@ -137,7 +137,6 @@ export const TermsPopup = () => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,

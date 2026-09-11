@@ -20,6 +20,7 @@ export const AttendanceCalendar = ({
   onDateSelect,
 }: AttendanceCalendarProps) => {
   const { colors, borderRadius } = useTheme();
+  const styles = React.useMemo(() => getStyles(colors, borderRadius), [colors, borderRadius]);
 
   const getDaysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
   const getFirstDayOfMonth = (y: number, m: number) => new Date(y, m, 1).getDay();
@@ -78,24 +79,24 @@ export const AttendanceCalendar = ({
           if (record) {
             const st = record.normalizedStatus;
             if (st === 'PRESENT') {
-              borderColor = '#059669';
-              dotColor = '#059669';
+              borderColor = colors.success;
+              dotColor = colors.success;
               borderWidth = 1.5;
             } else if (st === 'ABSENT') {
-              borderColor = '#DC2626';
-              dotColor = '#DC2626';
+              borderColor = colors.error;
+              dotColor = colors.error;
               borderWidth = 1.5;
             } else if (st === 'HALF_DAY') {
-              borderColor = '#7C3AED';
-              dotColor = '#7C3AED';
+              borderColor = colors.primary[600];
+              dotColor = colors.primary[600];
               borderWidth = 1.5;
             } else if (st === 'LEAVE') {
-              borderColor = '#D97706';
-              dotColor = '#D97706';
+              borderColor = colors.warning;
+              dotColor = colors.warning;
               borderWidth = 1.5;
             } else if (st === 'HOLIDAY') {
-              borderColor = '#64748B';
-              dotColor = '#64748B';
+              borderColor = colors.textSecondary;
+              dotColor = colors.textSecondary;
               borderWidth = 1.5;
             }
           }
@@ -116,7 +117,7 @@ export const AttendanceCalendar = ({
                     borderWidth: borderColor ? 2 : 0,
                   },
                   !isSelected && borderColor ? { borderColor, borderWidth } : null,
-                  !isSelected && !borderColor && isToday ? { borderColor: colors.primary[500] || '#2563eb', borderWidth: 1.5 } : null,
+                  !isSelected && !borderColor && isToday ? { borderColor: colors.primary[500], borderWidth: 1.5 } : null,
                 ]}
               >
                 <AppText
@@ -128,7 +129,7 @@ export const AttendanceCalendar = ({
                 </AppText>
               </View>
               {isToday && (
-                <View style={[styles.todayIndicator, { backgroundColor: isSelected ? '#FFFFFF' : (colors.primary[600] || '#2563eb') }]} />
+                <View style={[styles.todayIndicator, { backgroundColor: isSelected ? '#FFFFFF' : colors.primary[600] }]} />
               )}
             </TouchableOpacity>
           );
@@ -151,7 +152,7 @@ export const AttendanceCalendar = ({
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: '#cbd5e1' }]}>
+    <View style={[styles.container, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.borderStrong }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <AppText size="lg" weight="bold" color="primary" style={styles.navArrow}>‹</AppText>
@@ -178,21 +179,21 @@ export const AttendanceCalendar = ({
         {renderCalendarWeeks()}
       </View>
       
-      <View style={[styles.legendContainer, { borderTopColor: '#E2E8F0' }]}>
+      <View style={[styles.legendContainer, { borderTopColor: colors.border }]}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: '#059669', backgroundColor: '#ECFDF5' }]} />
+          <View style={[styles.legendCircle, { borderColor: colors.success, backgroundColor: colors.successLight }]} />
           <AppText size="xs" color="secondary" style={styles.legendText}>Present</AppText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: '#DC2626', backgroundColor: '#FEF2F2' }]} />
+          <View style={[styles.legendCircle, { borderColor: colors.error, backgroundColor: colors.errorLight }]} />
           <AppText size="xs" color="secondary" style={styles.legendText}>Absent</AppText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: '#7C3AED', backgroundColor: '#F5F3FF' }]} />
+          <View style={[styles.legendCircle, { borderColor: colors.primary[600], backgroundColor: colors.primary[50] }]} />
           <AppText size="xs" color="secondary" style={styles.legendText}>Half Day</AppText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendCircle, { borderColor: '#D97706', backgroundColor: '#FFFBEB' }]} />
+          <View style={[styles.legendCircle, { borderColor: colors.warning, backgroundColor: colors.warningLight }]} />
           <AppText size="xs" color="secondary" style={styles.legendText}>Leave</AppText>
         </View>
         <View style={styles.legendItem}>
@@ -204,7 +205,7 @@ export const AttendanceCalendar = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, borderRadius: any) => StyleSheet.create({
   container: {
     padding: 16,
     marginHorizontal: 16,
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 24,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.surfaceSecondary,
   },
   navArrow: {
     fontSize: 24,
@@ -241,7 +242,7 @@ const styles = StyleSheet.create({
   weekLabel: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#475569',
+    color: colors.textSecondary,
   },
   calendarGrid: {
     flexDirection: 'column',
@@ -289,7 +290,7 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 13,
     fontWeight: '400',
-    color: '#334155',
+    color: colors.text,
   },
   legendCircle: {
     width: 14,
@@ -300,6 +301,6 @@ const styles = StyleSheet.create({
   legendDot: {
     fontSize: 16,
     marginRight: 2,
-    color: '#94A3B8',
+    color: colors.textSecondary,
   }
 });

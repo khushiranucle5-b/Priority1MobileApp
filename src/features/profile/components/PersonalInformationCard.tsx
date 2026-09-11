@@ -16,41 +16,41 @@ export const PersonalInformationCard: React.FC = () => {
   const { guardName, guardEmail, phone, dateOfBirth, gender, bloodGroup, address } = useGuardStore();
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.borderStrong }]}>
       <View style={styles.header}>
         <Heading level="h3" color="primary" style={styles.title}>PERSONAL INFORMATION</Heading>
       </View>
       
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
       <View style={styles.grid}>
         <View style={styles.row}>
-          <AppText style={styles.label}>Full Name</AppText>
-          <AppText style={styles.value}>{guardName || 'Security Officer'}</AppText>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Full Name</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{guardName || 'Security Officer'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
-          <AppText style={styles.label}>Mobile Number</AppText>
-          <AppText style={styles.value}>{phone || 'N/A'}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Mobile Number</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{phone || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
-          <AppText style={styles.label}>Email Address</AppText>
-          <AppText style={styles.value}>{guardEmail || 'N/A'}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Email Address</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{guardEmail || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
-          <AppText style={styles.label}>Date of Birth</AppText>
-          <AppText style={styles.value}>{dateOfBirth || 'N/A'}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Date of Birth</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{dateOfBirth || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
-          <AppText style={styles.label}>Gender</AppText>
-          <AppText style={styles.value}>{gender || 'N/A'}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Gender</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{gender || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
-          <AppText style={styles.label}>Blood Group</AppText>
-          <AppText style={styles.value}>{bloodGroup || 'N/A'}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Blood Group</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{bloodGroup || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border || '#E2E8F0', paddingTop: 10 }]}>
-          <AppText style={styles.label}>Address</AppText>
-          <AppText style={styles.value}>{address || 'N/A'}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Address</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{address || 'N/A'}</AppText>
         </View>
       </View>
     </Card>
@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
   },
   header: {
     flexDirection: 'row',
@@ -76,7 +75,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   grid: {
@@ -90,13 +88,11 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     ...typography.presets.label,
-    color: '#475569',
   },
   value: {
     flex: 1.5,
     textAlign: 'right',
     ...typography.presets.body,
     fontWeight: '600',
-    color: '#0F172A',
   },
 });

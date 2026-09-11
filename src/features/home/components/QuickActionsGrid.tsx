@@ -58,28 +58,28 @@ export const QuickActionsGrid: React.FC = () => {
       <View style={styles.grid}>
         {actions.map((action) => {
           const isEm = action.isEmergency;
-          const iconColor = isEm ? '#DC2626' : (colors.primary[600] || '#2563eb');
+          const iconColor = isEm ? colors.error : colors.primary[600];
           return (
             <TouchableOpacity
               key={action.id}
               style={[
                 styles.card,
                 {
-                  backgroundColor: isEm ? '#FEF2F2' : colors.surface,
-                  borderColor: isEm ? '#FCA5A5' : colors.borderStrong || '#cbd5e1',
+                  backgroundColor: isEm ? colors.errorLight : colors.surface,
+                  borderColor: isEm ? colors.error : colors.border,
                   borderRadius: borderRadius.lg,
                 },
               ]}
               onPress={() => handlePress(action)}
               activeOpacity={0.75}
             >
-              <View style={[styles.iconContainer, { backgroundColor: isEm ? '#FEE2E2' : colors.surfaceSecondary || '#f1f5f9' }]}>
+              <View style={[styles.iconContainer, { backgroundColor: isEm ? colors.errorLight : colors.surfaceSecondary }]}>
                 <NavIcon name={action.icon} size={30} color={iconColor} />
               </View>
               <AppText
                 size="base"
                 weight="bold"
-                style={[styles.cardTitle, { color: isEm ? '#DC2626' : colors.text, fontSize: 18 }]}
+                style={[styles.cardTitle, { color: isEm ? colors.errorDark : colors.text, fontSize: 18 }]}
               >
                 {action.title}
               </AppText>

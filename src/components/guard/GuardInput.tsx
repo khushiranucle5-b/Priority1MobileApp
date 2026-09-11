@@ -35,7 +35,7 @@ export const GuardInput: React.FC<GuardInputProps> = ({
     if (error)     return colors.error;
     if (disabled)  return colors.disabledBorder;
     if (isFocused) return colors.borderFocus;
-    return colors.borderStrong || '#cbd5e1';
+    return colors.border;
   };
 
   const getBg = () => {
@@ -83,7 +83,7 @@ export const GuardInput: React.FC<GuardInputProps> = ({
               fontSize: 16,
             },
           ]}
-          placeholderTextColor={colors.textTertiary || '#94a3b8'}
+          placeholderTextColor={colors.textTertiary}
           editable={!disabled}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}

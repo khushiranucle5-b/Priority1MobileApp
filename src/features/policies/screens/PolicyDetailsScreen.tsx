@@ -196,7 +196,7 @@ export const PolicyDetailsScreen: React.FC = () => {
                     <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>#{idx + 1}</AppText>
                   </View>
                 </View>
-                <AppText size="base" color="text" style={styles.directiveText}>
+                <AppText size="base" color="primary" style={styles.directiveText}>
                   {clause}
                 </AppText>
               </View>

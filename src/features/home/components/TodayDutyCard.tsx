@@ -16,33 +16,33 @@ export const TodayDutyCard: React.FC = () => {
 
   return (
     <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Duty')}>
-      <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+      <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
         <View style={styles.header}>
           <Heading level="h3" color="primary" style={styles.headerTitle}>TODAY'S DUTY</Heading>
           <StatusBadge status={todayShift ? todayShift.status : 'Off Duty'} size="md" />
         </View>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
         
         {todayShift ? (
           <View style={styles.details}>
             <View style={styles.itemRow}>
-              <NavIcon name="shifts" size={24} color={colors.primary[600] || '#2563eb'} />
+              <NavIcon name="shifts" size={24} color={colors.primary[600]} />
               <AppText size="lg" weight="bold" color="primary" style={styles.valueText}>
                 {todayShift.title || 'Morning Shift'}
               </AppText>
             </View>
 
             <View style={styles.itemRow}>
-              <NavIcon name="sites" size={24} color={colors.textSecondary || '#64748b'} />
+              <NavIcon name="sites" size={24} color={colors.textSecondary} />
               <AppText size="lg" weight="bold" color="primary" style={styles.valueText}>
                 {todayShift.site || assignedSite || 'Ahmedabad Plant'}
               </AppText>
             </View>
 
             <View style={styles.itemRow}>
-              <NavIcon name="attendance" size={24} color={colors.primary[600] || '#2563eb'} />
-              <AppText size="lg" weight="bold" style={[styles.valueText, { color: colors.primary[600] || '#2563eb' }]}>
+              <NavIcon name="attendance" size={24} color={colors.primary[600]} />
+              <AppText size="lg" weight="bold" style={[styles.valueText, { color: colors.primary[600] }]}>
                 {todayShift.startTime || '08:00 AM'} – {todayShift.endTime || '04:00 PM'}
               </AppText>
             </View>
@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
   },
   header: {
     flexDirection: 'row',
@@ -79,7 +78,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E2E8F0',
     marginVertical: 12,
   },
   details: {

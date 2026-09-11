@@ -142,12 +142,12 @@ export const PatrolProgressSummaryCard: React.FC = () => {
 
   if (!targetPatrol) {
     return (
-      <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
+      <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.borderStrong }]}>
         <View style={styles.header}>
           <Heading level="h3" color="primary">NEXT PATROL</Heading>
           <AppText size="sm" weight="bold" color="secondary">No Upcoming Patrol</AppText>
         </View>
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <View style={styles.nextPatrolInfoBox}>
           <AppText size="sm" weight="bold" color="primary">No Scheduled Patrols</AppText>
           <AppText size="xs" color="secondary" style={{ marginTop: 2 }}>
@@ -165,22 +165,22 @@ export const PatrolProgressSummaryCard: React.FC = () => {
     : false;
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.borderStrong }]}>
       <View style={styles.header}>
         <Heading level="h3" color="primary" style={{ flexShrink: 1 }}>
           {isAvailableOrInProgress ? 'PATROL PROGRESS' : 'NEXT PATROL'}
         </Heading>
-        <AppText size="base" weight="bold" style={{ color: isFinished ? '#059669' : '#5B46E5', flexShrink: 1, textAlign: 'right', marginTop: 4 }}>
+        <AppText size="base" weight="bold" style={{ color: isFinished ? colors.successDark : colors.primary[600], flexShrink: 1, textAlign: 'right', marginTop: 4 }}>
           {isAvailableOrInProgress ? `${completed}/${total} Checkpoints` : `Starts at ${targetPatrol.scheduledStartTime || targetPatrol.startTime}`}
         </AppText>
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       {isAvailableOrInProgress ? (
         <>
-          <View style={[styles.progressBarContainer, { backgroundColor: colors.surfaceSecondary || '#e2e8f0', borderRadius: borderRadius.full }]}>
-            <View style={[styles.progressBarFill, { backgroundColor: isFinished ? '#059669' : '#5B46E5', borderRadius: borderRadius.full, width: `${percent}%` }]} />
+          <View style={[styles.progressBarContainer, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
+            <View style={[styles.progressBarFill, { backgroundColor: isFinished ? colors.successDark : colors.primary[600], borderRadius: borderRadius.full, width: `${percent}%` }]} />
           </View>
 
           <View style={styles.progressTextRow}>
@@ -211,11 +211,11 @@ export const PatrolProgressSummaryCard: React.FC = () => {
           fullWidth
           disabled={isButtonDisabled}
           onPress={handleActionPress}
-          style={[styles.actionBtn, { backgroundColor: isButtonDisabled ? '#94A3B8' : '#5B46E5' }]}
+          style={[styles.actionBtn, { backgroundColor: isButtonDisabled ? colors.disabledBackground : colors.primary[600] }]}
         />
       ) : (
-        <View style={[styles.completedBanner, { backgroundColor: '#D1FAE5', borderRadius: borderRadius.md }]}>
-          <AppText size="sm" weight="bold" style={{ color: '#065F46' }}>
+        <View style={[styles.completedBanner, { backgroundColor: colors.successLight, borderRadius: borderRadius.md }]}>
+          <AppText size="sm" weight="bold" style={{ color: colors.successDark }}>
             ✓ Patrol Completed Successfully
           </AppText>
         </View>
@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
   },
   header: {
     flexDirection: 'column',
@@ -240,7 +239,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
     marginVertical: 14,
   },
   progressBarContainer: {

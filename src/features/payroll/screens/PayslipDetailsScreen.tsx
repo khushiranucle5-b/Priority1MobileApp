@@ -40,7 +40,7 @@ export const PayslipDetailsScreen: React.FC = () => {
             </View>
 
             <View style={styles.statusBadge}>
-              <AppText size="sm" weight="bold" style={{ color: '#059669' }}>
+              <AppText size="sm" weight="bold" style={{ color: colors.successDark }}>
                 ● {slip.status}
               </AppText>
             </View>
@@ -72,7 +72,7 @@ export const PayslipDetailsScreen: React.FC = () => {
 
             <View style={styles.infoCol}>
               <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>Status</AppText>
-              <AppText size="sm" weight="bold" style={{ color: '#059669', marginTop: 3 }}>
+              <AppText size="sm" weight="bold" style={{ color: colors.successDark, marginTop: 3 }}>
                 {slip.status}
               </AppText>
             </View>
@@ -120,12 +120,12 @@ export const PayslipDetailsScreen: React.FC = () => {
 
           <View style={styles.tableRow}>
             <AppText size="sm" color="secondary" weight="semibold">Tax & Insurance Deductions</AppText>
-            <AppText size="sm" weight="bold" style={{ color: '#DC2626' }}>{slip.taxInsuranceDeductions}</AppText>
+            <AppText size="sm" weight="bold" style={{ color: colors.errorDark }}>{slip.taxInsuranceDeductions}</AppText>
           </View>
         </Card>
 
         {/* FINAL NET DISBURSED WAGES CARD */}
-        <Card style={[styles.sectionCard, { backgroundColor: '#F8FAFC', borderColor: '#C7D2FE', borderWidth: 1.5, borderRadius: 12 }]}>
+        <Card style={[styles.sectionCard, { backgroundColor: colors.surface, borderColor: colors.primary[200], borderWidth: 1.5, borderRadius: 12 }]}>
           <AppText size="xs" weight="bold" color="secondary" style={{ letterSpacing: 0.5, textTransform: 'uppercase' }}>
             FINAL DISBURSEMENT
           </AppText>
@@ -133,7 +133,7 @@ export const PayslipDetailsScreen: React.FC = () => {
             <AppText size="sm" weight="bold" color="primary" style={{ flex: 1, marginTop: 4 }}>
               NET DISBURSED WAGES
             </AppText>
-            <Heading level="h3" style={{ color: '#4F46E5' }}>
+            <Heading level="h3" style={{ color: colors.primary[600] }}>
               {slip.netDisbursedWages}
             </Heading>
           </View>
@@ -145,8 +145,8 @@ export const PayslipDetailsScreen: React.FC = () => {
           variant="primary"
           size="medium"
           fullWidth
-          leftIcon={<NavIcon name="download" size={20} color="#FFFFFF" />}
-          style={{ backgroundColor: '#4F46E5', marginTop: 4 }}
+          leftIcon={<NavIcon name="download" size={20} color={colors.surface} />}
+          style={{ backgroundColor: colors.primary[600], marginTop: 4 }}
           onPress={handleDownloadPdf}
         />
 
@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
   headerCard: {
     padding: 18,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
   },
   companyHeaderRow: {
@@ -174,7 +173,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   statusBadge: {
-    backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -184,16 +182,13 @@ const styles = StyleSheet.create({
   sectionCard: {
     padding: 18,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
   },
   cardSectionHeading: {
-    color: '#64748B',
     letterSpacing: 0.5,
   },
   dividerLine: {
     height: 1,
-    backgroundColor: '#E2E8F0',
     marginVertical: 12,
   },
   infoGrid: {
@@ -210,7 +205,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   netDisbursedRow: {
     flexDirection: 'row',

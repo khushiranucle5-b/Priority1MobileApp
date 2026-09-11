@@ -67,12 +67,12 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
 
   const getBadgeColor = (type: string) => {
     const t = (type || '').toLowerCase();
-    if (t.includes('attendance')) return { bg: '#EFF6FF', text: '#2563EB', border: '#BFDBFE' };
-    if (t.includes('patrol')) return { bg: '#F0FDF4', text: '#166534', border: '#BBF7D0' };
-    if (t.includes('leave')) return { bg: '#FEF3C7', text: '#D97706', border: '#FDE68A' };
-    if (t.includes('incident')) return { bg: '#FEF2F2', text: '#DC2626', border: '#FECACA' };
-    if (t.includes('safety')) return { bg: '#F3E8FF', text: '#7E22CE', border: '#E9D5FF' };
-    return { bg: '#F1F5F9', text: '#475569', border: '#CBD5E1' };
+    if (t.includes('attendance')) return { bg: colors.infoLight, text: colors.info, border: colors.infoBorder };
+    if (t.includes('patrol')) return { bg: colors.successLight, text: colors.successDark, border: colors.successBorder };
+    if (t.includes('leave')) return { bg: colors.warningLight, text: colors.warningDark, border: colors.warningBorder };
+    if (t.includes('incident')) return { bg: colors.errorLight, text: colors.errorDark, border: colors.errorBorder };
+    if (t.includes('safety')) return { bg: colors.primary[50], text: colors.primary[700], border: colors.primary[200] };
+    return { bg: colors.surfaceSecondary, text: colors.textSecondary, border: colors.border };
   };
 
   const renderActivityItem = ({ item }: { item: ActivityItem }) => {
@@ -87,7 +87,7 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
           </View>
           <View style={styles.cardMainInfo}>
             <View style={styles.titleRow}>
-              <AppText style={styles.itemTitle} numberOfLines={1}>
+              <AppText style={[styles.itemTitle, { color: colors.text }]} numberOfLines={1}>
                 {item.title}
               </AppText>
               <View style={[styles.categoryBadge, { backgroundColor: badgeStyle.bg, borderColor: badgeStyle.border }]}>
@@ -97,11 +97,11 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             </View>
 
-            <AppText style={styles.itemDesc}>{item.description}</AppText>
+            <AppText style={[styles.itemDesc, { color: colors.textSecondary }]}>{item.description}</AppText>
 
             <View style={styles.timeRow}>
-              <NavIcon name="shifts" size={12} color="#64748B" />
-              <AppText style={styles.timeText}>
+              <NavIcon name="shifts" size={12} color={colors.textTertiary} />
+              <AppText style={[styles.timeText, { color: colors.textTertiary }]}>
                 {item.time} {item.date ? `• ${item.date}` : ''}
               </AppText>
             </View>
@@ -123,7 +123,7 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
       <View style={[styles.searchRow, { paddingHorizontal: spacing.base }]}>
         <View style={[styles.searchInputWrapper, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
           <View style={{ marginRight: 8 }}>
-            <NavIcon name="search" size={18} color="#64748B" />
+            <NavIcon name="search" size={18} color={colors.textTertiary} />
           </View>
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
@@ -134,7 +134,7 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
           />
           {searchQuery ? (
             <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearSearchBtn}>
-              <AppText style={styles.clearSearchText}>✕</AppText>
+              <AppText style={[styles.clearSearchText, { color: colors.textTertiary }]}>✕</AppText>
             </TouchableOpacity>
           ) : null}
         </View>
@@ -156,13 +156,13 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
                 activeOpacity={0.7}
                 style={[
                   styles.categoryPill,
-                  isSelected ? styles.categoryPillActive : styles.categoryPillInactive,
+                  isSelected ? [styles.categoryPillActive, { backgroundColor: colors.primary[600], borderColor: colors.primary[600] }] : [styles.categoryPillInactive, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }],
                 ]}
               >
                 <AppText
                   style={[
                     styles.categoryPillText,
-                    { color: isSelected ? '#FFFFFF' : '#475569', fontWeight: isSelected ? '700' : '600' },
+                    { color: isSelected ? colors.textInverse : colors.textSecondary, fontWeight: isSelected ? '700' : '600' },
                   ]}
                 >
                   {cat}
@@ -175,13 +175,13 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Action Bar */}
       <View style={[styles.actionBar, { paddingHorizontal: spacing.base }]}>
-        <AppText style={styles.countText}>
+        <AppText style={[styles.countText, { color: colors.textTertiary }]}>
           {filteredActivities.length} {filteredActivities.length === 1 ? 'Activity Record' : 'Activity Records'}
         </AppText>
 
         {activities.length > 0 && (
           <TouchableOpacity onPress={handleClearAll} activeOpacity={0.7}>
-            <AppText style={styles.clearAllText}>Clear History</AppText>
+            <AppText style={[styles.clearAllText, { color: colors.error }]}>Clear History</AppText>
           </TouchableOpacity>
         )}
       </View>
@@ -198,13 +198,13 @@ export const RecentActivityScreen: React.FC<Props> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconBg}>
-              <NavIcon name="shifts" size={32} color="#94A3B8" />
+            <View style={[styles.emptyIconBg, { backgroundColor: colors.surfaceSecondary }]}>
+              <NavIcon name="shifts" size={32} color={colors.textTertiary} />
             </View>
-            <Heading level="h4" style={styles.emptyTitle}>
+            <Heading level="h4" style={[styles.emptyTitle, { color: colors.text }]}>
               No Recent Activity
             </Heading>
-            <AppText style={styles.emptySubtitle}>
+            <AppText style={[styles.emptySubtitle, { color: colors.textTertiary }]}>
               {searchQuery || selectedCategory !== 'All'
                 ? 'No activities match your search or filter.'
                 : 'Your clock ins, clock outs, patrols, and logs will appear here.'}
@@ -238,7 +238,6 @@ const styles = StyleSheet.create({
   clearSearchText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#64748B',
   },
   categoriesWrapper: {
     marginBottom: 12,
@@ -250,14 +249,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     borderWidth: 1,
   },
-  categoryPillActive: {
-    backgroundColor: '#2563EB',
-    borderColor: '#2563EB',
-  },
-  categoryPillInactive: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
-  },
+  categoryPillActive: {},
+  categoryPillInactive: {},
   categoryPillText: {
     fontSize: 13.5,
   },
@@ -270,12 +263,10 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#64748B',
   },
   clearAllText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#DC2626',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -311,7 +302,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15.5,
     fontWeight: '700',
-    color: '#0F172A',
     marginRight: 8,
   },
   categoryBadge: {
@@ -326,7 +316,6 @@ const styles = StyleSheet.create({
   },
   itemDesc: {
     fontSize: 14,
-    color: '#475569',
     lineHeight: 19,
     marginBottom: 6,
   },
@@ -337,7 +326,6 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748B',
     marginLeft: 4,
   },
   emptyContentContainer: {
@@ -353,17 +341,14 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   emptyTitle: {
-    color: '#334155',
     marginBottom: 6,
   },
   emptySubtitle: {
-    color: '#64748B',
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,

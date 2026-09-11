@@ -171,14 +171,14 @@ export const ProfileSettingsScreen = () => {
         <View style={styles.photoContainer}>
           <Image
             source={{ uri: profilePic || 'https://i.pravatar.cc/150?img=11' }}
-            style={styles.avatarPreview}
+            style={[styles.avatarPreview, { borderColor: colors.primary[600] }]}
           />
-          <TouchableOpacity style={styles.changePhotoBtn} onPress={handleSelectPhoto} activeOpacity={0.8}>
-            <AppText size="base" weight="bold" style={styles.changePhotoText}>Change Photo</AppText>
+          <TouchableOpacity style={[styles.changePhotoBtn, { backgroundColor: colors.primary[600] }]} onPress={handleSelectPhoto} activeOpacity={0.8}>
+            <AppText size="base" weight="bold" style={[styles.changePhotoText, { color: colors.surface }]}>Change Photo</AppText>
           </TouchableOpacity>
         </View>
 
-        <AppText style={styles.sectionHeader}>PERSONAL INFORMATION</AppText>
+        <AppText style={[styles.sectionHeader, { color: colors.textSecondary }]}>PERSONAL INFORMATION</AppText>
 
         <View style={styles.inputGroup}>
           <AppText style={styles.label}>Full Name</AppText>
@@ -280,24 +280,20 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: '#2563EB',
     marginBottom: 12,
   },
   changePhotoBtn: {
-    backgroundColor: '#2563EB',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
   },
   changePhotoText: {
-    color: '#FFFFFF',
     ...typography.presets.label,
     fontWeight: '600',
   },
   sectionHeader: {
     marginBottom: 14,
     ...typography.presets.sectionHeading,
-    color: '#475569',
   },
   inputGroup: {
     marginBottom: 16,
@@ -305,11 +301,9 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 6,
     ...typography.presets.label,
-    color: '#334155',
   },
   input: {
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     paddingHorizontal: 16,
     paddingVertical: 14,
     minHeight: 56,

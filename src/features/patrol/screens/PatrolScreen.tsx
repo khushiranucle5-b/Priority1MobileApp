@@ -255,31 +255,31 @@ export const PatrolScreen: React.FC = () => {
 
       {/* Search & Dropdown Filter Row */}
       <View style={styles.searchFilterRow}>
-        <View style={styles.searchInputWrapper}>
+        <View style={[styles.searchInputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
           <View style={{ marginRight: 8 }}>
-            <NavIcon name="search" size={18} color="#64748B" />
+            <NavIcon name="search" size={18} color={colors.textSecondary} />
           </View>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search by patrol, site, date..."
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery ? (
             <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-              <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+              <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
             </TouchableOpacity>
           ) : null}
         </View>
 
         {/* Dropdown Filter Trigger */}
         <TouchableOpacity
-          style={styles.dropdownTrigger}
+          style={[styles.dropdownTrigger, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}
           onPress={() => setDropdownOpen(!dropdownOpen)}
           activeOpacity={0.8}
         >
-          <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+          <AppText size="sm" weight="bold" style={{ color: colors.text, marginRight: 4 }}>
             {statusFilter === 'All' ? 'Filter: All' : `Filter: ${statusFilter}`}
           </AppText>
           <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
@@ -301,7 +301,7 @@ export const PatrolScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
           {dateSummaries.length === 0 ? (
             <Card style={styles.emptyCard}>
-              <NavIcon name="patrol" size={40} color="#94A3B8" />
+              <NavIcon name="patrol" size={40} color={colors.textSecondary} />
               <Heading level="h3" color="primary" style={{ marginTop: 12, fontSize: 18 }}>
                 No patrols found
               </Heading>
@@ -340,21 +340,21 @@ export const PatrolScreen: React.FC = () => {
                   {summary.inProgressCount > 0 && (
                     <View style={{ marginTop: 10 }}>
                       <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>STATUS</AppText>
-                      <AppText size="base" color="text" weight="bold" style={styles.metaValueText}>
+                      <AppText size="base" color="primary" weight="bold" style={styles.metaValueText}>
                         {summary.inProgressCount} Patrol(s) In Progress
                       </AppText>
                     </View>
                   )}
 
-                  <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
+                  <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                     <TouchableOpacity
-                      style={styles.iconActionBtnView}
+                      style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                       onPress={() => navigation.navigate('PatrolDateLogs', { dateStr: summary.dateStr })}
                       activeOpacity={0.7}
                       accessibilityLabel="View patrol date logs"
                       accessibilityRole="button"
                     >
-                      <NavIcon name="eye" size={24} color="#4F46E5" />
+                      <NavIcon name="eye" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
                   </View>
                 </Card>
@@ -367,9 +367,10 @@ export const PatrolScreen: React.FC = () => {
         <TouchableOpacity
           style={[
             styles.floatingButton,
-            activeAvailability?.isInProgress && { backgroundColor: '#0284C7' },
-            activeAvailability?.isCompleted && { backgroundColor: '#059669' },
-            (activeAvailability?.isExpired || (!activeAvailability?.canStart && !activeAvailability?.isInProgress && !activeAvailability?.isCompleted)) && { backgroundColor: '#94A3B8' },
+            { backgroundColor: colors.primary[600] },
+            activeAvailability?.isInProgress && { backgroundColor: colors.primary[600] },
+            activeAvailability?.isCompleted && { backgroundColor: colors.successDark },
+            (activeAvailability?.isExpired || (!activeAvailability?.canStart && !activeAvailability?.isInProgress && !activeAvailability?.isCompleted)) && { backgroundColor: colors.disabledBackground },
           ]}
           activeOpacity={0.85}
           disabled={activeAvailability ? (activeAvailability.isExpired || (!activeAvailability.canStart && !activeAvailability.isInProgress && !activeAvailability.isCompleted)) : false}
@@ -393,7 +394,6 @@ const styles = StyleSheet.create({
   },
   headerSubtitleText: {
     fontSize: 15,
-    color: '#64748B',
   },
   searchFilterRow: {
     flexDirection: 'row',
@@ -406,9 +406,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -416,24 +414,19 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 18,
-    color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 56,
     paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     padding: 4,
     marginHorizontal: 16,
@@ -448,7 +441,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dropdownMenuItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   listContainer: {
     paddingHorizontal: 16,
@@ -468,7 +460,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     lineHeight: 24,
-    color: '#0F172A',
   },
   detailRow: {
     flexDirection: 'row',
@@ -480,7 +471,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     letterSpacing: 0.6,
-    color: '#64748B',
     textTransform: 'uppercase',
   },
   metaValueText: {
@@ -488,7 +478,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 3,
     lineHeight: 22,
-    color: '#0F172A',
   },
   actionsRow: {
     flexDirection: 'row',
@@ -503,8 +492,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -519,12 +506,10 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#5B46E5',
     paddingHorizontal: 20,
     height: 56,
     borderRadius: 28,
     elevation: 8,
-    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -532,7 +517,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   floatingButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     letterSpacing: 0.5,
   },

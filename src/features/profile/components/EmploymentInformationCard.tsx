@@ -19,32 +19,32 @@ export const EmploymentInformationCard: React.FC = () => {
       
       <View style={[styles.grid, { marginTop: spacing.md }]}>
         <View style={styles.row}>
-          <AppText style={styles.label}>Employee ID</AppText>
-          <AppText style={styles.value}>{guardId || 'N/A'}</AppText>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Employee ID</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{guardId || 'N/A'}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }]}>
-          <AppText style={styles.label}>Company Name</AppText>
-          <AppText style={styles.value}>{companyName}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Company Name</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{companyName}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }]}>
-          <AppText style={styles.label}>Department</AppText>
-          <AppText style={styles.value}>Field Operations</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Department</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>Field Operations</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }]}>
-          <AppText style={styles.label}>Designation</AppText>
-          <AppText style={styles.value}>Security Guard</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Designation</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>Security Guard</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }]}>
-          <AppText style={styles.label}>Reporting Supervisor</AppText>
-          <AppText style={styles.value}>{supervisor}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Reporting Supervisor</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{supervisor}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }]}>
-          <AppText style={styles.label}>Work Location</AppText>
-          <AppText style={styles.value}>{assignedSite}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Work Location</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{assignedSite}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 }]}>
-          <AppText style={styles.label}>Employment Type</AppText>
-          <AppText style={styles.value}>Full-Time</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.borderStrong, paddingTop: 10 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Employment Type</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>Full-Time</AppText>
         </View>
       </View>
     </Card>
@@ -73,13 +73,11 @@ const styles = StyleSheet.create({
   label: {
     flex: 1,
     ...typography.presets.label,
-    color: '#475569',
   },
   value: {
     flex: 1.5,
     textAlign: 'right',
     ...typography.presets.body,
     fontWeight: '600',
-    color: '#0F172A',
   }
 });

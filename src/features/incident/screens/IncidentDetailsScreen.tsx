@@ -44,26 +44,26 @@ export const IncidentDetailsScreen: React.FC = () => {
   const getSeverityBadgeStyle = (sev?: string) => {
     switch (sev) {
       case 'Critical':
-        return { bg: '#FEE2E2', text: '#DC2626' };
+        return { bg: colors.errorLight, text: colors.errorDark };
       case 'High':
-        return { bg: '#FFEDD5', text: '#D97706' };
+        return { bg: colors.warningLight, text: colors.warningDark };
       case 'Medium':
-        return { bg: '#FEF3C7', text: '#CA8A04' };
+        return { bg: colors.warningLight, text: colors.warningDark };
       case 'Low':
       default:
-        return { bg: '#ECFDF5', text: '#047857' };
+        return { bg: colors.successLight, text: colors.successDark };
     }
   };
 
   const getStatusBadgeStyle = (status?: string) => {
     switch (status) {
       case 'Resolved':
-        return { bg: '#D1FAE5', text: '#059669' };
+        return { bg: colors.successLight, text: colors.successDark };
       case 'Under Review':
-        return { bg: '#EEF2FF', text: '#4F46E5' };
+        return { bg: colors.surfaceSecondary, text: colors.primary[600] };
       case 'Open':
       default:
-        return { bg: '#FEF3C7', text: '#D97706' };
+        return { bg: colors.warningLight, text: colors.warningDark };
     }
   };
 
@@ -72,7 +72,7 @@ export const IncidentDetailsScreen: React.FC = () => {
       <ScreenLayout activeRoute="Incident">
         <PageHeader title="Incident Detail" showBack />
         <View style={styles.centerBox}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color={colors.primary[600]} />
           <AppText size="sm" color="secondary" style={{ marginTop: 10 }}>Loading incident detail...</AppText>
         </View>
       </ScreenLayout>
@@ -104,8 +104,8 @@ export const IncidentDetailsScreen: React.FC = () => {
             </View>
 
             {incident.category ? (
-              <View style={[styles.badge, { backgroundColor: '#F1F5F9' }]}>
-                <AppText size="xs" weight="bold" style={{ color: '#475569' }}>
+              <View style={[styles.badge, { backgroundColor: colors.surfaceSecondary }]}>
+                <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>
                   {incident.category}
                 </AppText>
               </View>
@@ -169,8 +169,8 @@ export const IncidentDetailsScreen: React.FC = () => {
                   {incident.gps || '23.1145° N, 72.5821° E'}
                 </AppText>
 
-                <View style={[styles.badge, { backgroundColor: '#D1FAE5', marginTop: 6 }]}>
-                  <AppText size="xs" weight="bold" style={{ color: '#059669' }}>
+                <View style={[styles.badge, { backgroundColor: colors.successLight, marginTop: 6 }]}>
+                  <AppText size="xs" weight="bold" style={{ color: colors.successDark }}>
                     ● {incident.gpsStatus || 'GPS Verified — Inside Site Boundary'}
                   </AppText>
                 </View>
@@ -181,11 +181,11 @@ export const IncidentDetailsScreen: React.FC = () => {
 
         {/* DESCRIPTION & OBSERVATIONS CARD */}
         <Card style={styles.infoCard}>
-          <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+          <AppText size="xs" weight="bold" style={[styles.cardSectionHeading, { color: colors.textSecondary }]}>
             DESCRIPTION & OBSERVATIONS
           </AppText>
 
-          <View style={styles.dividerLine} />
+          <View style={[styles.dividerLine, { backgroundColor: colors.borderStrong }]} />
 
           <AppText size="xs" color="secondary">Brief Summary</AppText>
           <AppText size="sm" color="primary" style={{ marginTop: 4, lineHeight: 20 }}>
@@ -207,22 +207,22 @@ export const IncidentDetailsScreen: React.FC = () => {
         {/* ATTACHMENTS & MEDIA */}
         {incident.attachments && incident.attachments.length > 0 ? (
           <Card style={styles.infoCard}>
-            <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+            <AppText size="xs" weight="bold" style={[styles.cardSectionHeading, { color: colors.textSecondary }]}>
               ATTACHMENTS & MEDIA ({incident.attachments.length})
             </AppText>
 
-            <View style={styles.dividerLine} />
+            <View style={[styles.dividerLine, { backgroundColor: colors.borderStrong }]} />
 
             <View style={{ gap: 10 }}>
               {incident.attachments.map((att) => (
                 <TouchableOpacity
                   key={att.id}
-                  style={styles.attachmentRow}
+                  style={[styles.attachmentRow, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}
                   onPress={() => setSelectedAttachmentForPreview(att)}
                   activeOpacity={0.7}
                 >
                   <View style={{ marginRight: 10 }}>
-                    <NavIcon name="incidents" size={20} color="#4F46E5" />
+                    <NavIcon name="incidents" size={20} color={colors.primary[600]} />
                   </View>
 
                   <View style={{ flex: 1 }}>
@@ -233,11 +233,11 @@ export const IncidentDetailsScreen: React.FC = () => {
                   </View>
 
                   <TouchableOpacity
-                    style={styles.openBtn}
+                    style={[styles.openBtn, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                     onPress={() => setSelectedAttachmentForPreview(att)}
                     activeOpacity={0.7}
                   >
-                    <AppText size="xs" weight="bold" style={{ color: '#4F46E5' }}>👁️ View / Open</AppText>
+                    <AppText size="xs" weight="bold" style={{ color: colors.primary[600] }}>👁️ View / Open</AppText>
                   </TouchableOpacity>
                 </TouchableOpacity>
               ))}
@@ -248,14 +248,14 @@ export const IncidentDetailsScreen: React.FC = () => {
         {/* SUPERVISOR INVESTIGATION COMMENTS */}
         {incident.comments && incident.comments.length > 0 ? (
           <Card style={styles.infoCard}>
-            <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
+            <AppText size="xs" weight="bold" style={[styles.cardSectionHeading, { color: colors.textSecondary }]}>
               SUPERVISOR INVESTIGATION & COMMENTS
             </AppText>
 
-            <View style={styles.dividerLine} />
+            <View style={[styles.dividerLine, { backgroundColor: colors.borderStrong }]} />
 
             {incident.comments.map((c) => (
-              <View key={c.id} style={styles.commentBox}>
+              <View key={c.id} style={[styles.commentBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
                 <View style={styles.commentHeader}>
                   <AppText size="sm" weight="bold" color="primary">{c.author}</AppText>
                   <AppText size="xs" color="secondary">{c.date}</AppText>
@@ -314,12 +314,10 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   cardSectionHeading: {
-    color: '#64748B',
     letterSpacing: 0.5,
   },
   dividerLine: {
     height: 1,
-    backgroundColor: '#E2E8F0',
     marginVertical: 12,
   },
   gridContainer: {
@@ -338,24 +336,18 @@ const styles = StyleSheet.create({
   attachmentRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 8,
     padding: 12,
   },
   openBtn: {
-    backgroundColor: '#EEF2FF',
     borderWidth: 1,
-    borderColor: '#C7D2FE',
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   commentBox: {
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,

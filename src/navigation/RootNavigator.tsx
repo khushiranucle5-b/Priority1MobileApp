@@ -8,8 +8,10 @@ import { AuthNavigator } from './AuthNavigator';
 import { TabNavigator } from './TabNavigator';
 import { AppText } from '../components/typography/Text';
 import { TermsPopup } from '../components/TermsPopup';
+import { useTheme } from '../providers/ThemeProvider';
 
 export const RootNavigator = () => {
+  const { colors } = useTheme();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
   const checkSession = useAuthStore((state) => state.checkSession);
@@ -39,9 +41,9 @@ export const RootNavigator = () => {
 
   if (isLoading || (isAuthenticated && !isInitialized)) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0F172A', justifyContent: 'center', alignItems: 'center' }}>
-        <ShieldCheck size={120} color="#5B46E5" />
-        <AppText size="lg" weight="bold" style={{ color: '#FFFFFF', marginTop: 24 }}>
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+        <ShieldCheck size={120} color={colors.primary[600]} />
+        <AppText size="lg" weight="bold" style={{ color: colors.text, marginTop: 24 }}>
           Loading Guard Workspace...
         </AppText>
       </View>

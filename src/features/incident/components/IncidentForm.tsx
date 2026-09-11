@@ -61,7 +61,7 @@ export const IncidentForm: React.FC = () => {
           ]}
           onPress={() => setShowTypeDropdown(!showTypeDropdown)}
         >
-          <AppText color="text" size="base">{type}</AppText>
+          <AppText color="primary" size="base">{type}</AppText>
           <AppText color="secondary" size="xs">▼</AppText>
         </TouchableOpacity>
         {showTypeDropdown && (
@@ -72,7 +72,7 @@ export const IncidentForm: React.FC = () => {
                 style={[styles.dropdownItem, { borderBottomColor: colors.border }]} 
                 onPress={() => { setType(t); setShowTypeDropdown(false); }}
               >
-                <AppText color="text" size="base">{t}</AppText>
+                <AppText color="primary" size="base">{t}</AppText>
               </TouchableOpacity>
             ))}
           </View>

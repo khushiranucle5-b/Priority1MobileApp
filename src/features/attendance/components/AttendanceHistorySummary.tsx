@@ -58,7 +58,7 @@ export const AttendanceHistorySummary: React.FC = () => {
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Half Days</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={[styles.statValue, { color: '#9b59b6' }]}>{stats.holidays}</Text>
+          <Text style={[styles.statValue, { color: colors.primary[600] }]}>{stats.holidays}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Holidays</Text>
         </View>
       </View>

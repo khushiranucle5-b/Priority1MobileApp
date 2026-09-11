@@ -15,35 +15,35 @@ export const ShiftDetailsCard: React.FC = () => {
   const endTime = todayShift?.endTime || '04:00 PM';
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
       <Heading level="h3" color="primary" style={styles.title}>SHIFT DETAILS</Heading>
       
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.grid}>
         <View style={styles.row}>
-          <AppText style={styles.label}>Shift Name</AppText>
-          <AppText style={styles.value}>{title}</AppText>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Shift Name</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{title}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Reporting Time</AppText>
-          <AppText style={styles.value}>{startTime}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Reporting Time</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{startTime}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Shift Start</AppText>
-          <AppText style={styles.value}>{startTime}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Shift Start</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{startTime}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Shift End</AppText>
-          <AppText style={styles.value}>{endTime}</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Shift End</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{endTime}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Working Hours</AppText>
-          <AppText style={[styles.value, { color: colors.primary[600] || '#2563EB' }]}>8 Hrs</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Working Hours</AppText>
+          <AppText style={[styles.value, { color: colors.primary[600] }]}>8 Hrs</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.label}>Break Duration</AppText>
-          <AppText style={styles.value}>1 Hr</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+          <AppText style={[styles.label, { color: colors.textSecondary }]}>Break Duration</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>1 Hr</AppText>
         </View>
       </View>
     </Card>
@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -70,7 +69,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   grid: {
@@ -85,11 +83,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15.5,
     fontWeight: '600',
-    color: '#475569',
   },
   value: {
     fontSize: 17.5,
     fontWeight: '700',
-    color: '#0F172A',
   },
 });

@@ -137,6 +137,24 @@ export const PoliciesScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
 
+  const getCategoryBadgeStyle = (category: string) => {
+    switch (category) {
+      case 'Operations':
+        return { bg: colors.primary[50], text: colors.primary[600] };
+      case 'Compliance':
+      case 'HR & Compliance':
+        return { bg: colors.successLight, text: colors.successDark };
+      case 'Safety':
+      case 'Safety & Emergency':
+        return { bg: colors.errorLight, text: colors.errorDark };
+      case 'General':
+      case 'Guard Attendance and Punctuality':
+        return { bg: colors.warningLight, text: colors.warningDark };
+      default:
+        return { bg: colors.surfaceSecondary, text: colors.textSecondary };
+    }
+  };
+
   const handleDownloadDocument = async (policy: PolicyItem) => {
     const doc = policy.attachedDocument;
     const url = doc?.url || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
@@ -176,17 +194,24 @@ export const PoliciesScreen: React.FC = () => {
     <ScreenLayout activeRoute="Policies">
       <PageHeader title="Policy Manual" showBack />
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.searchBox}>
-          <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-            <NavIcon name="search" size={18} color="#64748B" />
+        <View style={styles.searchFilterRow}>
+          <View style={[styles.searchInputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+            <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
+              <NavIcon name="search" size={18} color={colors.textSecondary} />
+            </View>
+            <TextInput
+              placeholder="Search policies by name, category..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={[styles.searchInput, { color: colors.text }]}
+              placeholderTextColor={colors.textSecondary}
+            />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
+                <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
+              </TouchableOpacity>
+            ) : null}
           </View>
-          <TextInput
-            placeholder="Search policies by name, category..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={styles.searchInput}
-            placeholderTextColor="#94A3B8"
-          />
         </View>
 
         <Heading level="h3" style={styles.sectionTitle}>Guard Security Policies</Heading>
@@ -204,9 +229,11 @@ export const PoliciesScreen: React.FC = () => {
               >
                 <View style={styles.cardHeader}>
                   <Heading level="h3" color="primary" style={{ flex: 1 }}>{policy.title}</Heading>
-                  <AppText size="sm" weight="bold" style={styles.categoryBadge}>
-                    {policy.category}
-                  </AppText>
+                  <View style={[{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, alignSelf: 'flex-start' }, { backgroundColor: getCategoryBadgeStyle(policy.category).bg }]}>
+                    <AppText size="sm" weight="bold" style={{ color: getCategoryBadgeStyle(policy.category).text }}>
+                      {policy.category}
+                    </AppText>
+                  </View>
                 </View>
                 <AppText size="sm" color="secondary" style={styles.updatedText}>
                   Updated: {policy.updatedDate}
@@ -218,21 +245,21 @@ export const PoliciesScreen: React.FC = () => {
 
               <View style={styles.viewRow}>
                 <TouchableOpacity
-                  style={styles.iconActionBtnView}
+                  style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                   onPress={() => navigation.navigate('PolicyDetails', { policyId: policy.id })}
                   activeOpacity={0.7}
                   accessibilityLabel="View policy details"
                 >
-                  <NavIcon name="eye" size={24} color="#4F46E5" />
+                  <NavIcon name="eye" size={24} color={colors.primary[600]} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.quickDownloadBtn}
+                  style={[styles.quickDownloadBtn, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                   onPress={() => handleDownloadDocument(policy)}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   accessibilityLabel="Download policy document"
                 >
-                  <NavIcon name="download" size={22} color="#4F46E5" />
+                  <NavIcon name="download" size={24} color={colors.primary[600]} />
                 </TouchableOpacity>
               </View>
             </Card>
@@ -248,16 +275,20 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  searchBox: {
+  searchFilterRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    height: 56,
+    gap: 8,
     marginBottom: 16,
+  },
+  searchInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 44,
   },
   searchIcon: {
     marginRight: 8,
@@ -266,8 +297,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    color: '#0F172A',
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
     paddingVertical: 0,
     includeFontPadding: false,
   },
@@ -315,8 +346,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -325,8 +354,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },

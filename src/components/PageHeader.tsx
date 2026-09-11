@@ -31,7 +31,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     if (onBack) {
       onBack();
     } else {
-      navigation.goBack();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        (navigation as any).navigate('Home');
+      }
     }
   };
 
@@ -54,7 +58,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           accessibilityLabel="Go back"
         >
           <View pointerEvents="none">
-            <NavIcon name="arrow-left" size={24} color={colors.text || '#334155'} />
+            <NavIcon name="arrow-left" size={24} color={colors.text} />
           </View>
         </TouchableOpacity>
       ) : showMenu !== false ? (
@@ -66,11 +70,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           accessibilityLabel="Open menu"
         >
           <View pointerEvents="none">
-            <NavIcon name="menu" size={24} color={colors.text || '#334155'} />
+            <NavIcon name="menu" size={24} color={colors.text} />
           </View>
         </TouchableOpacity>
       ) : null}
-      <Heading level="h2" style={styles.title}>{title}</Heading>
+      <Heading level="h2" style={styles.title} numberOfLines={1}>{title}</Heading>
       {rightComponent && (
         <View style={styles.rightComponentContainer}>
           {rightComponent}
@@ -105,6 +109,8 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
+    paddingHorizontal: 60, // Space for absolute buttons
+    flex: 1,
   },
   rightComponentContainer: {
     position: 'absolute',

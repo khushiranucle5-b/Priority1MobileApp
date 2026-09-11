@@ -12,6 +12,7 @@ import { NavIcon } from '../../../components/NavIcon';
 
 export const ChecklistExecutionScreen: React.FC = () => {
   const { colors, borderRadius } = useTheme();
+  const styles = React.useMemo(() => getStyles(colors, borderRadius), [colors, borderRadius]);
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
 
@@ -122,7 +123,7 @@ export const ChecklistExecutionScreen: React.FC = () => {
   if (loading) {
     return (
       <ScreenLayout style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color={colors.primary[600]} />
         <AppText size="sm" color="secondary" style={{ marginTop: 12 }}>
           Loading checklist details...
         </AppText>
@@ -138,8 +139,8 @@ export const ChecklistExecutionScreen: React.FC = () => {
         {/* Success Banner */}
         {successMessage ? (
           <View style={styles.successBanner}>
-            <NavIcon name="attendance" size={20} color="#065F46" />
-            <AppText size="sm" weight="bold" style={{ color: '#065F46', flex: 1, marginLeft: 8 }}>
+            <NavIcon name="attendance" size={20} color={colors.successDark} />
+            <AppText size="sm" weight="bold" style={{ color: colors.successDark, flex: 1, marginLeft: 8 }}>
               {successMessage}
             </AppText>
           </View>
@@ -148,13 +149,13 @@ export const ChecklistExecutionScreen: React.FC = () => {
         {/* Checklist Header Card */}
         <Card style={styles.headerCard}>
           <View style={styles.headerRow}>
-            <View style={[styles.priorityBadge, { backgroundColor: (checklist?.priority || 'High').toLowerCase() === 'high' ? '#FEE2E2' : '#FEF3C7' }]}>
-              <AppText size="sm" weight="bold" style={{ color: (checklist?.priority || 'High').toLowerCase() === 'high' ? '#DC2626' : '#D97706', fontSize: 14 }}>
+            <View style={[styles.priorityBadge, { backgroundColor: (checklist?.priority || 'High').toLowerCase() === 'high' ? colors.errorLight : colors.warningLight }]}>
+              <AppText size="sm" weight="bold" style={{ color: (checklist?.priority || 'High').toLowerCase() === 'high' ? colors.errorDark : colors.warningDark, fontSize: 14 }}>
                 {checklist?.priority || 'High'} Priority
               </AppText>
             </View>
             <View style={styles.categoryPill}>
-              <AppText size="xs" weight="semibold" style={{ color: '#475569' }}>
+              <AppText size="xs" weight="semibold" style={{ color: colors.textSecondary }}>
                 {checklist?.category || 'Operational'}
               </AppText>
             </View>
@@ -171,10 +172,10 @@ export const ChecklistExecutionScreen: React.FC = () => {
           {/* Progress Section */}
           <View style={styles.progressCardSection}>
             <View style={styles.progressHeaderRow}>
-              <AppText size="xs" weight="bold" style={{ color: '#475569', letterSpacing: 0.5 }}>
+              <AppText size="xs" weight="bold" style={{ color: colors.textSecondary, letterSpacing: 0.5 }}>
                 CHECKLIST PROGRESS
               </AppText>
-              <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>
+              <AppText size="sm" weight="bold" style={{ color: colors.primary[600] }}>
                 {completedSteps.length} / {steps.length} COMPLETED ({progressPercent}%)
               </AppText>
             </View>
@@ -232,7 +233,7 @@ export const ChecklistExecutionScreen: React.FC = () => {
           <TextInput
             style={styles.remarksInput}
             placeholder="Add operational notes, supervisor confirmation, or incident observations..."
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textSecondary}
             multiline
             numberOfLines={3}
             value={remarks}
@@ -265,10 +266,10 @@ export const ChecklistExecutionScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, borderRadius: any) => StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surfaceSecondary,
   },
   scrollContainer: {
     padding: 16,
@@ -277,9 +278,9 @@ const styles = StyleSheet.create({
   successBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D1FAE5',
+    backgroundColor: colors.successLight,
     borderWidth: 1,
-    borderColor: '#6EE7B7',
+    borderColor: colors.success,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 8,
@@ -288,10 +289,10 @@ const styles = StyleSheet.create({
   headerCard: {
     padding: 18,
     marginBottom: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
   },
   headerRow: {
     flexDirection: 'row',
@@ -308,21 +309,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 16,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.surfaceSecondary,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.borderStrong,
   },
   checklistTitle: {
     fontSize: 17,
     lineHeight: 22,
     fontWeight: '700',
-    color: '#0F172A',
+    color: colors.text,
   },
   progressCardSection: {
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: colors.border,
   },
   progressHeaderRow: {
     flexDirection: 'row',
@@ -334,19 +335,19 @@ const styles = StyleSheet.create({
   },
   progressBarTrack: {
     height: 8,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.borderStrong,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#2563EB',
+    backgroundColor: colors.primary[600],
     borderRadius: 4,
   },
   sectionHeading: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0F172A',
+    color: colors.text,
     marginBottom: 2,
   },
   stepCardItem: {
@@ -354,40 +355,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 48,
     padding: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     marginBottom: 8,
   },
   stepCardItemDone: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#86EFAC',
+    backgroundColor: colors.successLight,
+    borderColor: colors.success,
   },
   checkboxSquare: {
     width: 24,
     height: 24,
     borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: '#94A3B8',
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
   },
   checkboxSquareDone: {
-    borderColor: '#16A34A',
-    backgroundColor: '#16A34A',
+    borderColor: colors.success,
+    backgroundColor: colors.successDark,
   },
   stepItemText: {
     flex: 1,
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '500',
-    color: '#1E293B',
+    color: colors.text,
   },
   stepItemTextDone: {
-    color: '#15803D',
+    color: colors.successDark,
     textDecorationLine: 'line-through',
   },
   remarksSection: {
@@ -395,26 +396,26 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   remarksInput: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     borderRadius: 8,
     padding: 10,
     fontSize: 14,
-    color: '#0F172A',
+    color: colors.text,
     textAlignVertical: 'top',
     minHeight: 72,
   },
   submitExecutionBtn: {
     height: 48,
     minHeight: 48,
-    backgroundColor: '#2563EB',
+    backgroundColor: colors.primary[600],
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
   },
   submitExecutionBtnDisabled: {
-    backgroundColor: '#94A3B8',
+    backgroundColor: colors.textSecondary,
   },
 });

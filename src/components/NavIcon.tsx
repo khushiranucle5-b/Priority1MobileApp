@@ -42,6 +42,7 @@ import {
   Send,
   Info,
 } from 'lucide-react-native';
+import { useTheme } from '../providers/ThemeProvider';
 
 export type NavIconName =
   | 'dashboard'
@@ -100,7 +101,8 @@ export const NavIcon: React.FC<NavIconProps> = ({
   size = 28,
   active = false,
 }) => {
-  const iconColor = color || (active ? '#0F172A' : '#94A3B8');
+  const { colors } = useTheme();
+  const iconColor = color || (active ? colors.text : colors.textTertiary);
   const lucideStrokeWidth = 2;
 
   switch (name) {

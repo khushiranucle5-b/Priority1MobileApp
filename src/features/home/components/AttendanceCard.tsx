@@ -34,7 +34,7 @@ export const AttendanceCard: React.FC = () => {
   const badgeStatus = isClockedIn ? 'Checked In' : isClockedOut ? 'Checked Out' : 'Not Checked In';
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.borderStrong }]}>
       <View style={styles.header}>
         <View>
           <Heading level="h4" color="primary" style={styles.title}>ATTENDANCE</Heading>
@@ -43,10 +43,10 @@ export const AttendanceCard: React.FC = () => {
         <StatusBadge status={badgeStatus} size="md" />
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
       {geofenceState?.isOutside && (
-        <View style={{ backgroundColor: '#fef2f2', borderColor: '#fca5a5', borderWidth: 1, borderRadius: borderRadius.md, padding: 10, marginBottom: 12 }}>
+        <View style={{ backgroundColor: colors.errorLight, borderColor: colors.error, borderWidth: 1, borderRadius: borderRadius.md, padding: 10, marginBottom: 12 }}>
           <AppText size="xs" color="error" weight="bold">● Location Status: Outside site</AppText>
           <AppText size="xs" color="error" style={{ marginTop: 2 }}>
             {geofenceState.distanceMeters ? `You are ${geofenceState.distanceMeters}m away from the permitted site area.` : 'You are outside the permitted site area.'} Move inside the site geofence to continue.
@@ -57,7 +57,7 @@ export const AttendanceCard: React.FC = () => {
       {/* 1. Working Hours at Upper Center */}
       <View style={[styles.workingHoursBox, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderWidth: 1, borderColor: colors.border }]}>
         <AppText size="xs" color="secondary" weight="bold" style={{ letterSpacing: 0.8 }}>WORKING HOURS</AppText>
-        <AppText size="xl" weight="bold" style={[styles.workingHoursText, { color: isClockedIn ? '#059669' : colors.text }]}>
+        <AppText size="xl" weight="bold" style={[styles.workingHoursText, { color: isClockedIn ? colors.successDark : colors.text }]}>
           {workingHours}
         </AppText>
       </View>
@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
   },
   header: {
     flexDirection: 'row',
@@ -127,7 +126,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#cbd5e1',
     marginVertical: 14,
   },
   workingHoursBox: {

@@ -68,26 +68,26 @@ export const LocationGPSScreen = () => {
     switch (status) {
       case 'granted':
         return (
-          <View style={[styles.badge, { backgroundColor: '#DCFCE7', borderColor: '#BBF7D0' }]}>
-            <AppText style={[styles.badgeText, { color: '#15803D' }]}>GRANTED</AppText>
+          <View style={[styles.badge, { backgroundColor: colors.successLight, borderColor: colors.success }]}>
+            <AppText style={[styles.badgeText, { color: colors.successDark }]}>GRANTED</AppText>
           </View>
         );
       case 'denied':
         return (
-          <View style={[styles.badge, { backgroundColor: '#FEE2E2', borderColor: '#FECACA' }]}>
-            <AppText style={[styles.badgeText, { color: '#B91C1C' }]}>DENIED</AppText>
+          <View style={[styles.badge, { backgroundColor: colors.errorLight, borderColor: colors.error }]}>
+            <AppText style={[styles.badgeText, { color: colors.errorDark }]}>DENIED</AppText>
           </View>
         );
       case 'blocked':
         return (
-          <View style={[styles.badge, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
-            <AppText style={[styles.badgeText, { color: '#B45309' }]}>BLOCKED</AppText>
+          <View style={[styles.badge, { backgroundColor: colors.warningLight, borderColor: colors.warning }]}>
+            <AppText style={[styles.badgeText, { color: colors.warningDark }]}>BLOCKED</AppText>
           </View>
         );
       default:
         return (
-          <View style={[styles.badge, { backgroundColor: '#F1F5F9', borderColor: '#E2E8F0' }]}>
-            <AppText style={[styles.badgeText, { color: '#64748B' }]}>UNAVAILABLE</AppText>
+          <View style={[styles.badge, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
+            <AppText style={[styles.badgeText, { color: colors.textSecondary }]}>UNAVAILABLE</AppText>
           </View>
         );
     }
@@ -103,27 +103,27 @@ export const LocationGPSScreen = () => {
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary[500]} style={{ marginTop: 40 }} />
         ) : (
-          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-            <AppText style={styles.title}>GPS Status & Permissions</AppText>
+          <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.borderStrong, borderRadius: borderRadius.md }]}>
+            <AppText style={[styles.title, { color: colors.text }]}>GPS Status & Permissions</AppText>
             
-            <View style={styles.detailRow}>
-              <AppText style={styles.label}>Device Permission:</AppText>
+            <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+              <AppText style={[styles.label, { color: colors.textSecondary }]}>Device Permission:</AppText>
               {renderBadge(permissionStatus)}
             </View>
 
-            <View style={styles.detailRow}>
-              <AppText style={styles.label}>App Requirement:</AppText>
-              <AppText style={styles.value}>Required on Duty</AppText>
+            <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+              <AppText style={[styles.label, { color: colors.textSecondary }]}>App Requirement:</AppText>
+              <AppText style={[styles.value, { color: colors.text }]}>Required on Duty</AppText>
             </View>
             
-            <View style={styles.detailRow}>
-              <AppText style={styles.label}>Local Setting:</AppText>
-              <AppText style={[styles.value, { color: isLocalActive ? '#15803D' : '#DC2626' }]}>
+            <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+              <AppText style={[styles.label, { color: colors.textSecondary }]}>Local Setting:</AppText>
+              <AppText style={[styles.value, { color: isLocalActive ? colors.successDark : colors.errorDark }]}>
                 {isLocalActive ? 'Active' : 'Inactive'}
               </AppText>
             </View>
 
-            <AppText style={styles.description}>
+            <AppText style={[styles.description, { color: colors.textSecondary }]}>
               {permissionStatus === 'granted' 
                 ? 'GPS location tracking is active during your clocked-in hours for lone worker safety checks, checkpoint geofencing, and SOS emergency dispatch.'
                 : permissionStatus === 'blocked'
@@ -167,13 +167,11 @@ const styles = StyleSheet.create({
   card: {
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     marginBottom: 16,
     alignItems: 'center',
   },
   title: {
     ...typography.presets.cardTitle,
-    color: '#0F172A',
     marginBottom: 16,
   },
   detailRow: {
@@ -184,16 +182,13 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     minHeight: 60,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   label: {
     ...typography.presets.label,
-    color: '#475569',
   },
   value: {
     ...typography.presets.body,
     fontWeight: '600',
-    color: '#0F172A',
   },
   badge: {
     paddingHorizontal: 10,
@@ -211,6 +206,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     ...typography.presets.helper,
     lineHeight: 22,
-    color: '#475569',
   }
 });

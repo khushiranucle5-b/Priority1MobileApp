@@ -19,31 +19,31 @@ export const PrivacySecurityScreen = () => {
       <PageHeader title="Privacy & Security" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
         
-        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <AppText style={styles.title}>Active Session Details</AppText>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.borderStrong, borderRadius: borderRadius.md }]}>
+          <AppText style={[styles.title, { color: colors.text }]}>Active Session Details</AppText>
           
-          <View style={styles.detailRow}>
-            <AppText style={styles.label}>Logged in as:</AppText>
-            <AppText style={styles.value}>{user?.email}</AppText>
+          <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Logged in as:</AppText>
+            <AppText style={[styles.value, { color: colors.text }]}>{user?.email}</AppText>
           </View>
           
-          <View style={styles.detailRow}>
-            <AppText style={styles.label}>Role:</AppText>
-            <AppText style={[styles.value, { textTransform: 'capitalize' }]}>{user?.role || 'User'}</AppText>
+          <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Role:</AppText>
+            <AppText style={[styles.value, { color: colors.text, textTransform: 'capitalize' }]}>{user?.role || 'User'}</AppText>
           </View>
           
-          <View style={styles.detailRow}>
-            <AppText style={styles.label}>Assigned Site:</AppText>
-            <AppText style={styles.value}>{(user as any)?.site || 'Global'}</AppText>
+          <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Assigned Site:</AppText>
+            <AppText style={[styles.value, { color: colors.text }]}>{(user as any)?.site || 'Global'}</AppText>
           </View>
 
-          <View style={styles.detailRow}>
-            <AppText style={styles.label}>Data Access:</AppText>
-            <AppText style={styles.value}>Restricted to Assigned Site</AppText>
+          <View style={[styles.detailRow, { borderBottomColor: colors.borderStrong }]}>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Data Access:</AppText>
+            <AppText style={[styles.value, { color: colors.text }]}>Restricted to Assigned Site</AppText>
           </View>
         </View>
 
-        <AppText style={styles.footer}>
+        <AppText style={[styles.footer, { color: colors.textSecondary }]}>
           Your session and permissions are governed by your organization's security policies. 
           To manage advanced security options, please contact your administrator.
         </AppText>
@@ -61,11 +61,9 @@ const styles = StyleSheet.create({
     padding: 18,
     borderWidth: 1.5,
     marginBottom: 20,
-    borderColor: '#CBD5E1',
   },
   title: {
     ...typography.presets.cardTitle,
-    color: '#0F172A',
     marginBottom: 16,
   },
   detailRow: {
@@ -75,22 +73,18 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     minHeight: 60,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   label: {
     ...typography.presets.label,
-    color: '#475569',
   },
   value: {
     ...typography.presets.body,
     fontWeight: '600',
-    color: '#0F172A',
   },
   footer: {
     textAlign: 'center',
     ...typography.presets.helper,
     lineHeight: 22,
-    color: '#64748B',
     paddingHorizontal: 16,
   }
 });

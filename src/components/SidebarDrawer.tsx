@@ -84,7 +84,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   const onClose = propOnClose ?? storeCloseDrawer;
 
   console.log('[SidebarDrawer] Rendering, isOpen:', isOpen);
-  const { borderRadius } = useTheme();
+  const { borderRadius, colors } = useTheme();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   let navigation: any;
@@ -174,15 +174,15 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
     >
       <View style={styles.overlay}>
         {/* Mobile Drawer Panel */}
-        <View style={[styles.panel, { width: drawerWidth }]}>
+        <View style={[styles.panel, { width: drawerWidth, backgroundColor: colors.surface }]}>
           {/* Top Header UI */}
-          <View style={[styles.header, { paddingTop: topPadding }]}>
+          <View style={[styles.header, { paddingTop: topPadding, borderBottomColor: colors.border }]}>
             <View>
-              <Heading level="h3" style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>Priority One</Heading>
-              <AppText size="xs" style={{ color: '#94A3B8', marginTop: 3, fontWeight: '600' }}>Security ERP • Portal</AppText>
+              <Heading level="h3" style={{ color: colors.text, fontSize: 20, fontWeight: '800' }}>Priority One</Heading>
+              <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 3, fontWeight: '600' }}>Security ERP • Portal</AppText>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-              <NavIcon name="close" size={24} color="#94A3B8" />
+              <NavIcon name="close" size={24} color={colors.textTertiary} />
             </TouchableOpacity>
           </View>
 
@@ -190,7 +190,7 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
             {sections.map((sec, idx) => (
               <View key={idx} style={styles.section}>
-                <AppText size="xs" weight="bold" style={styles.sectionTitle}>
+                <AppText size="xs" weight="bold" style={[styles.sectionTitle, { color: colors.textTertiary }]}>
                   {sec.title}
                 </AppText>
                 {sec.items.map((item, itemIdx) => {
@@ -201,18 +201,19 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                       style={[
                         styles.item,
                         { borderRadius: borderRadius.md },
-                        isActive && styles.activeItem,
+                        isActive && [styles.activeItem, { backgroundColor: colors.surfaceSecondary, borderLeftColor: colors.primary[500] }],
                       ]}
                       onPress={() => navigateTo(item.route)}
                       activeOpacity={0.7}
                     >
                       <View style={styles.iconContainer}>
-                        <NavIcon name={item.icon} size={28} color={isActive ? '#3B82F6' : '#94A3B8'} />
+                        <NavIcon name={item.icon} size={28} color={isActive ? colors.primary[500] : colors.textTertiary} />
                       </View>
                       <AppText
                         style={[
                           styles.itemLabel,
-                          isActive && { color: '#FFFFFF', fontWeight: '500' },
+                          { color: colors.textSecondary },
+                          isActive && { color: colors.text, fontWeight: '500' },
                         ]}
                       >
                         {item.label}
@@ -225,9 +226,9 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           </ScrollView>
 
           {/* Fixed Bottom Footer (User Profile & Sign Out Button Row) */}
-          <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8 }]}>
+          <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8, borderTopColor: colors.border, backgroundColor: colors.surface }]}>
             <TouchableOpacity
-              style={[styles.userSignoutRow, { marginBottom: 8, backgroundColor: 'rgba(234, 179, 8, 0.12)', borderColor: 'rgba(234, 179, 8, 0.3)' }]}
+              style={[styles.userSignoutRow, { marginBottom: 8, backgroundColor: colors.warningLight, borderColor: colors.warningBorder }]}
               onPress={() => setShowDevSimulator(true)}
               activeOpacity={0.7}
             >
@@ -235,40 +236,40 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
                 <AppText style={{ fontSize: 20 }}>🛠</AppText>
               </View>
               <View style={styles.userInfoContainer}>
-                <AppText style={{ color: '#FACC15', fontSize: 14, fontWeight: '600' }}>GPS Location Simulator</AppText>
-                <AppText style={{ color: '#94A3B8', fontSize: 11 }}>Test Geofence Edge Cases</AppText>
+                <AppText style={{ color: colors.warning, fontSize: 14, fontWeight: '600' }}>GPS Location Simulator</AppText>
+                <AppText style={{ color: colors.textTertiary, fontSize: 11 }}>Test Geofence Edge Cases</AppText>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.userSignoutRow}
+              style={[styles.userSignoutRow, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
               onPress={async () => {
                 onClose();
                 await logout();
               }}
               activeOpacity={0.7}
             >
-              <View style={styles.avatarCircle}>
+              <View style={[styles.avatarCircle, { backgroundColor: colors.surfacePressed }]}>
                 {profilePic ? (
                   <Image source={{ uri: profilePic }} style={{ width: 40, height: 40, borderRadius: 20 }} />
                 ) : (
-                  <AppText style={styles.avatarText}>
+                  <AppText style={[styles.avatarText, { color: colors.text }]}>
                     {getInitials(guardName || user?.name)}
                   </AppText>
                 )}
               </View>
 
               <View style={styles.userInfoContainer}>
-                <AppText style={styles.userNameText} numberOfLines={1}>
+                <AppText style={[styles.userNameText, { color: colors.text }]} numberOfLines={1}>
                   {guardName || user?.name || 'David Johnson'}
                 </AppText>
-                <AppText style={styles.userRoleText} numberOfLines={1}>
+                <AppText style={[styles.userRoleText, { color: colors.textTertiary }]} numberOfLines={1}>
                   {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Guard'}
                 </AppText>
               </View>
 
               <View style={styles.signoutIconBox}>
-                <NavIcon name="logout" size={20} color="#94A3B8" />
+                <NavIcon name="logout" size={20} color={colors.textTertiary} />
               </View>
             </TouchableOpacity>
           </View>
@@ -290,7 +291,6 @@ const styles = StyleSheet.create({
   },
   panel: {
     height: '100%',
-    backgroundColor: '#0F172A',
     elevation: 20,
     shadowColor: '#000',
     shadowOffset: { width: 4, height: 0 },
@@ -307,7 +307,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1.5,
-    borderBottomColor: '#1E293B',
     paddingHorizontal: 20,
     paddingBottom: 18,
   },
@@ -322,30 +321,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#1E293B',
-    backgroundColor: '#0F172A',
   },
   userSignoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   avatarCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 15,
   },
@@ -354,12 +347,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   userNameText: {
-    color: '#FFFFFF',
     fontSize: 15.5,
     fontWeight: '600',
   },
   userRoleText: {
-    color: '#94A3B8',
     fontSize: 13,
     marginTop: 2,
     fontWeight: '400',
@@ -376,7 +367,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: 8,
-    color: '#94A3B8',
     letterSpacing: 1.4,
     fontSize: 12.5,
     fontWeight: '600',
@@ -390,9 +380,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   activeItem: {
-    backgroundColor: '#1E293B',
     borderLeftWidth: 4,
-    borderLeftColor: '#3B82F6',
     paddingLeft: 10,
   },
   iconContainer: {
@@ -402,7 +390,6 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   itemLabel: {
-    color: '#E2E8F0',
     fontSize: 17,
     fontWeight: '400',
     letterSpacing: 0.2,

@@ -277,12 +277,12 @@ export const UploadDocumentScreen: React.FC = () => {
               <TextInput
                 style={styles.textInput}
                 placeholder="Enter document name or leave blank to fetch from file"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textSecondary}
                 value={customDocName}
                 onChangeText={setCustomDocName}
               />
               {!customDocName.trim() && selectedFile && (
-                <AppText size="xs" style={{ color: '#059669', marginTop: 2 }}>
+                <AppText size="xs" style={{ color: colors.successDark, marginTop: 2 }}>
                   * Will automatically use fetched file name: "{getCleanDocName(selectedFile.name)}"
                 </AppText>
               )}
@@ -300,7 +300,7 @@ export const UploadDocumentScreen: React.FC = () => {
               onPress={handleChooseFile}
               activeOpacity={0.85}
             >
-              <NavIcon name="document" size={22} color="#FFFFFF" />
+              <NavIcon name="document" size={22} color={colors.surface} />
               <AppText style={styles.chooseFileBtnText}>
                 CHOOSE FILE (PDF OR IMAGE)
               </AppText>
@@ -319,7 +319,7 @@ export const UploadDocumentScreen: React.FC = () => {
                 </View>
 
                 <TouchableOpacity onPress={() => setSelectedFile(null)} style={{ padding: 6 }}>
-                  <AppText size="base" weight="bold" style={{ color: '#EF4444' }}>✕</AppText>
+                  <AppText size="base" weight="bold" style={{ color: colors.error }}>✕</AppText>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -333,7 +333,7 @@ export const UploadDocumentScreen: React.FC = () => {
 
           {/* Notice Box */}
           <View style={styles.infoBox}>
-            <AppText size="xs" style={{ color: '#D97706', lineHeight: 16 }}>
+            <AppText size="xs" style={{ color: colors.warningDark, lineHeight: 16 }}>
               Note: Once submitted, the status will show as "Pending Verification" until approved by supervisor/HR.
             </AppText>
           </View>
@@ -346,7 +346,7 @@ export const UploadDocumentScreen: React.FC = () => {
             fullWidth
             onPress={handleSaveAndSubmit}
             disabled={isSubmitting}
-            style={{ height: 54, backgroundColor: '#4F46E5', marginTop: 10, borderRadius: 10 }}
+            style={{ height: 54, backgroundColor: colors.primary[600], marginTop: 10, borderRadius: 10 }}
           />
         </Card>
       </ScrollView>
@@ -363,18 +363,15 @@ const styles = StyleSheet.create({
   card: {
     padding: 18,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
   },
   titleText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0F172A',
   },
   formTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#475569',
     letterSpacing: 0.5,
     marginBottom: 14,
   },
@@ -384,24 +381,19 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 13.5,
-    color: '#475569',
     letterSpacing: 0.5,
   },
   dropdownTrigger: {
     height: 52,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     paddingHorizontal: 14,
-    backgroundColor: '#F8FAFC',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   dropdownMenu: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     marginTop: 4,
     elevation: 4,
@@ -410,24 +402,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   dropdownItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   textInput: {
     height: 52,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: '#0F172A',
-    backgroundColor: '#F8FAFC',
   },
   chooseFileBtn: {
     height: 52,
-    backgroundColor: '#4F46E5',
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -436,17 +422,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   chooseFileBtnText: {
-    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
   },
   filePreviewBox: {
     marginTop: 8,
     padding: 14,
-    backgroundColor: '#F1F5F9',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -454,19 +437,15 @@ const styles = StyleSheet.create({
   emptyFileBox: {
     marginTop: 8,
     padding: 12,
-    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
     borderStyle: 'dashed',
     alignItems: 'center',
   },
   infoBox: {
-    backgroundColor: '#FFFBEB',
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FDE68A',
     marginBottom: 6,
   },
 });

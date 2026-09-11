@@ -19,22 +19,22 @@ export const EmergencyContactsCard: React.FC = () => {
       <View style={[styles.list, { marginTop: spacing.md }]}>
         <TouchableOpacity style={styles.row} onPress={handleCall} activeOpacity={0.7}>
           <View style={styles.info}>
-            <AppText style={styles.label}>Client Emergency Number</AppText>
-            <AppText style={styles.value}>100</AppText>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Client Emergency Number</AppText>
+            <AppText style={[styles.value, { color: colors.text }]}>100</AppText>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 14 }]} onPress={handleCall} activeOpacity={0.7}>
           <View style={styles.info}>
-            <AppText style={styles.label}>Supervisor Number</AppText>
-            <AppText style={styles.value}>+1 987-654-3210</AppText>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Supervisor Number</AppText>
+            <AppText style={[styles.value, { color: colors.text }]}>+1 987-654-3210</AppText>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 14 }]} onPress={handleCall} activeOpacity={0.7}>
           <View style={styles.info}>
-            <AppText style={styles.label}>Company Helpdesk Number</AppText>
-            <AppText style={styles.value}>+1 800-123-4567</AppText>
+            <AppText style={[styles.label, { color: colors.textSecondary }]}>Company Helpdesk Number</AppText>
+            <AppText style={[styles.value, { color: colors.text }]}>+1 800-123-4567</AppText>
           </View>
         </TouchableOpacity>
       </View>
@@ -67,12 +67,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#64748B',
   },
   value: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0F172A',
     marginTop: 2,
   },
 });

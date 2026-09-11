@@ -85,6 +85,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12.5,
     lineHeight: 18,
-    color: '#64748B',
   },
 });

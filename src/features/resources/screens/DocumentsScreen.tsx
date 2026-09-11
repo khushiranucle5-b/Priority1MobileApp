@@ -88,12 +88,12 @@ export const DocumentsScreen: React.FC = () => {
   const getStatusBadgeStyle = (status?: string) => {
     const s = (status || '').toLowerCase();
     if (s.includes('approved') || s.includes('verified') || s.includes('active')) {
-      return { bg: '#ECFDF5', text: '#059669', label: 'Active' };
+      return { bg: colors.successLight, text: colors.successDark, label: 'Active' };
     }
     if (s.includes('pending') || s.includes('review')) {
-      return { bg: '#FEF3C7', text: '#D97706', label: 'Pending' };
+      return { bg: colors.warningLight, text: colors.warningDark, label: 'Pending' };
     }
-    return { bg: '#EEF2FF', text: '#4F46E5', label: 'Action Required' };
+    return { bg: colors.primary[50], text: colors.primary[600], label: 'Action Required' };
   };
 
   const handleViewDoc = async (doc: DBEmployeeDocument) => {
@@ -178,31 +178,31 @@ export const DocumentsScreen: React.FC = () => {
 
           {/* Search & Dropdown Filter Row */}
           <View style={styles.searchFilterRow}>
-            <View style={styles.searchInputWrapper}>
+            <View style={[styles.searchInputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <View style={{ marginRight: 8 }}>
-                <NavIcon name="search" size={18} color="#64748B" />
+                <NavIcon name="search" size={18} color={colors.textSecondary} />
               </View>
               <TextInput
-                style={styles.searchInput}
+                style={[styles.searchInput, { color: colors.text }]}
                 placeholder="Search by document name, type..."
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textSecondary}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
               {searchQuery ? (
                 <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-                  <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+                  <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
                 </TouchableOpacity>
               ) : null}
             </View>
 
             {/* Dropdown Filter Trigger */}
             <TouchableOpacity
-              style={styles.dropdownTrigger}
+              style={[styles.dropdownTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => setDropdownOpen(!dropdownOpen)}
               activeOpacity={0.8}
             >
-              <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+              <AppText size="sm" weight="bold" style={{ color: colors.textSecondary, marginRight: 4 }}>
                 {statusFilter === 'All' ? 'Filter: All' : `Filter: ${statusFilter}`}
               </AppText>
               <AppText size="sm" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
@@ -225,7 +225,7 @@ export const DocumentsScreen: React.FC = () => {
           {/* Document Cards List */}
           {filteredDocuments.length === 0 ? (
             <Card style={{ padding: 28, alignItems: 'center' }}>
-              <NavIcon name="document" size={40} color="#94A3B8" />
+              <NavIcon name="document" size={40} color={colors.textSecondary} />
               <Heading level="h3" color="primary" style={{ marginTop: 12, fontSize: 18 }}>
                 No Documents Found
               </Heading>
@@ -238,10 +238,10 @@ export const DocumentsScreen: React.FC = () => {
               const badgeStyle = getStatusBadgeStyle(item.status);
 
               return (
-                <Card key={item.id} style={styles.docCard}>
+                <Card key={item.id} style={[styles.docCard, { borderColor: colors.border }]}>
                   <View style={styles.cardHeaderRow}>
-                    <View style={styles.iconBox}>
-                      <NavIcon name="document" size={24} color="#4F46E5" />
+                    <View style={[styles.iconBox, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }]}>
+                      <NavIcon name="document" size={24} color={colors.primary[600]} />
                     </View>
 
                     <View style={{ flex: 1, marginLeft: 12 }}>
@@ -261,7 +261,7 @@ export const DocumentsScreen: React.FC = () => {
                     </View>
                   </View>
 
-                  <View style={styles.cardFooterRow}>
+                  <View style={[styles.cardFooterRow, { borderTopColor: colors.border }]}>
                     <AppText size="xs" color="secondary">
                       Uploaded: {item.uploadedAt || '2026-08-21'}
                     </AppText>
@@ -270,20 +270,20 @@ export const DocumentsScreen: React.FC = () => {
                     <View style={styles.iconActionsRow}>
                       <TouchableOpacity
                         onPress={() => handleViewDoc(item)}
-                        style={styles.iconActionBtnView}
+                        style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                         activeOpacity={0.7}
                         accessibilityLabel="View document"
                       >
-                        <NavIcon name="eye" size={24} color="#4F46E5" />
+                        <NavIcon name="eye" size={24} color={colors.primary[600]} />
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => handleEditDoc(item)}
-                        style={styles.iconActionBtnEdit}
+                        style={[styles.iconActionBtnEdit, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                         activeOpacity={0.7}
                         accessibilityLabel="Edit document"
                       >
-                        <NavIcon name="edit" size={24} color="#4F46E5" />
+                        <NavIcon name="edit" size={24} color={colors.primary[600]} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -296,14 +296,14 @@ export const DocumentsScreen: React.FC = () => {
 
         {/* Floating Action Button (FAB) for UPLOAD DOCUMENT */}
         <TouchableOpacity
-          style={styles.floatingButton}
+          style={[styles.floatingButton, { backgroundColor: colors.primary[600] }]}
           onPress={() => navigation.navigate('UploadDocument')}
           activeOpacity={0.85}
           accessibilityLabel="Upload document"
           accessibilityRole="button"
         >
-          <NavIcon name="document" size={22} color="#FFFFFF" />
-          <AppText size="base" weight="bold" style={styles.floatingButtonText}>
+          <NavIcon name="document" size={22} color={colors.surface} />
+          <AppText size="base" weight="bold" style={[styles.floatingButtonText, { color: colors.surface }]}>
             UPLOAD DOCUMENT
           </AppText>
         </TouchableOpacity>
@@ -326,7 +326,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#0F172A',
   },
   searchFilterRow: {
     flexDirection: 'row',
@@ -338,9 +337,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -348,24 +345,19 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 56,
     paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     padding: 4,
     marginBottom: 12,
@@ -377,14 +369,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   dropdownMenuItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   docCard: {
     padding: 16,
     marginBottom: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -394,16 +384,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#EEF2FF',
     borderWidth: 1,
-    borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
   },
   docTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#0F172A',
   },
   badge: {
     paddingHorizontal: 8,
@@ -418,7 +405,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
   iconActionsRow: {
     flexDirection: 'row',
@@ -426,22 +412,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconActionBtnView: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconActionBtnEdit: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -451,12 +433,10 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4F46E5',
     paddingHorizontal: 20,
     height: 56,
     borderRadius: 28,
     elevation: 8,
-    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -464,7 +444,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   floatingButtonText: {
-    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 });

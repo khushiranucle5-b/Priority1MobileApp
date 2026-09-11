@@ -824,8 +824,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         return aTime - bTime;
       });
 
-      // 2. Find open clock-in record STRICTLY FOR TODAY ONLY
-      const openRecord = todayGuardRecords.slice().reverse().find(a =>
+      // 2. Find open clock-in record (can be from yesterday for overnight shifts)
+      const openRecord = guardAtt.slice().reverse().find(a =>
         a.clockIn && !isCompletedClockOut(a.clockOut)
       );
 
@@ -1272,7 +1272,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       const openRecord = currentAtt.slice().reverse().find(a =>
         a.employeeId === guardId &&
         a.clockIn &&
-        (!a.clockOut || a.clockOut === '' || a.clockOut === '—')
+        (!a.clockOut || a.clockOut === '' || a.clockOut === '—') &&
+        (a.date === todayStr || (a.clockIn && a.clockIn.startsWith(todayStr)))
       );
 
       if (openRecord) {
@@ -1281,6 +1282,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         set({
           attendanceStatus: 'Checked In',
           clockInTimestamp: parsedIn,
+          activeClockInTimestamp: parsedIn,
           clockOutTimestamp: null,
           isClockedIn: true,
           isClockedOut: false,
@@ -1313,7 +1315,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         siteId: assignedSiteId,
         siteName: assignedSite,
         companyId: 'c-1',
-        verification: photoUri || undefined,
+        verification: photoUri ? (photoUri.length > 500 ? 'local_base64_image_saved' : photoUri) : undefined,
       };
 
       await insertRow('attendance', newRecord);

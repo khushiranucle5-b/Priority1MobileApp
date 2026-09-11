@@ -5,6 +5,7 @@ import { AppText } from '../../../components/typography/Text';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { NavIcon } from '../../../components/NavIcon';
+import { useTheme } from '../../../providers/ThemeProvider';
 import {
   ProfileHeaderCard,
   PersonalInformationCard,
@@ -18,6 +19,7 @@ import {
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { colors } = useTheme();
   // Mock state to toggle empty state vs populated state
   const [hasProfile] = useState(true);
 
@@ -27,7 +29,7 @@ export const ProfileScreen: React.FC = () => {
         title="My Profile"
         rightComponent={
           <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.gearButton}>
-            <NavIcon name="settings" size={24} color="#0F172A" />
+            <NavIcon name="settings" size={24} color={colors.text} />
           </TouchableOpacity>
         }
       />

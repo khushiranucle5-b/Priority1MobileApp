@@ -71,20 +71,20 @@ export const PayslipsScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
         {/* Search Bar */}
-        <View style={styles.searchBox}>
+        <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <View style={{ marginRight: 8 }}>
-            <NavIcon name="search" size={18} color="#64748B" />
+            <NavIcon name="search" size={18} color={colors.textSecondary} />
           </View>
           <TextInput
             placeholder="Search payslips..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            style={styles.searchInput}
-            placeholderTextColor="#94A3B8"
+            style={[styles.searchInput, { color: colors.text }]}
+            placeholderTextColor={colors.textSecondary}
           />
           {searchQuery ? (
             <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-              <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+              <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
             </TouchableOpacity>
           ) : null}
         </View>
@@ -93,7 +93,7 @@ export const PayslipsScreen: React.FC = () => {
         <View style={styles.filterRow}>
           {/* Month Picker */}
           <TouchableOpacity
-            style={[styles.pickerButton, activeDropdown === 'month' && styles.pickerButtonActive]}
+            style={[styles.pickerButton, { backgroundColor: colors.surface, borderColor: colors.border }, activeDropdown === 'month' && { borderColor: colors.primary[600], backgroundColor: colors.primary[50] }]}
             onPress={() => setActiveDropdown(activeDropdown === 'month' ? null : 'month')}
             activeOpacity={0.8}
           >
@@ -110,7 +110,7 @@ export const PayslipsScreen: React.FC = () => {
 
           {/* Year Picker */}
           <TouchableOpacity
-            style={[styles.pickerButton, activeDropdown === 'year' && styles.pickerButtonActive]}
+            style={[styles.pickerButton, { backgroundColor: colors.surface, borderColor: colors.border }, activeDropdown === 'year' && { borderColor: colors.primary[600], backgroundColor: colors.primary[50] }]}
             onPress={() => setActiveDropdown(activeDropdown === 'year' ? null : 'year')}
             activeOpacity={0.8}
           >
@@ -156,14 +156,14 @@ export const PayslipsScreen: React.FC = () => {
 
         {filteredPayslips.length === 0 ? (
           <Card style={{ padding: 24, alignItems: 'center' }}>
-            <NavIcon name="payslips" size={32} color="#94A3B8" />
+            <NavIcon name="payslips" size={32} color={colors.textSecondary} />
             <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
               No payslips found matching the search or filter criteria.
             </AppText>
           </Card>
         ) : (
           filteredPayslips.map((slip) => (
-            <Card key={slip.id} style={styles.payslipCard}>
+            <Card key={slip.id} style={[styles.payslipCard, { borderColor: colors.border }]}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => navigation.navigate('PayslipDetails', { payslipId: slip.id })}
@@ -177,7 +177,7 @@ export const PayslipsScreen: React.FC = () => {
                   </View>
                 </View>
 
-                <View style={styles.payGrid}>
+                <View style={[styles.payGrid, { borderColor: colors.border }]}>
                   <View style={styles.payRow}>
                     <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>BASIC WAGES</AppText>
                     <AppText size="sm" weight="bold" color="primary">{slip.basicRosterWages}</AppText>
@@ -190,28 +190,28 @@ export const PayslipsScreen: React.FC = () => {
 
                   <View style={styles.payRow}>
                     <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>NET DISBURSED</AppText>
-                    <AppText size="base" weight="bold" style={{ color: '#4F46E5' }}>{slip.netDisbursedWages}</AppText>
+                    <AppText size="base" weight="bold" style={{ color: colors.primary[600] }}>{slip.netDisbursedWages}</AppText>
                   </View>
                 </View>
               </TouchableOpacity>
 
               <View style={styles.viewRow}>
                 <TouchableOpacity
-                  style={styles.iconActionBtnView}
+                  style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                   onPress={() => navigation.navigate('PayslipDetails', { payslipId: slip.id })}
                   activeOpacity={0.7}
                   accessibilityLabel="View payslip details"
                 >
-                  <NavIcon name="eye" size={24} color="#4F46E5" />
+                  <NavIcon name="eye" size={24} color={colors.primary[600]} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.quickDownloadBtn}
+                  style={[styles.quickDownloadBtn, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                   onPress={() => handleDownloadPdf(slip)}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   accessibilityLabel="Download payslip PDF"
                 >
-                  <NavIcon name="download" size={22} color="#4F46E5" />
+                  <NavIcon name="download" size={24} color={colors.primary[600]} />
                 </TouchableOpacity>
               </View>
             </Card>
@@ -230,9 +230,7 @@ const styles = StyleSheet.create({
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -241,7 +239,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
   },
@@ -254,27 +251,20 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
   },
   pickerButtonActive: {
-    borderColor: '#4F46E5',
-    backgroundColor: '#EEF2FF',
   },
   dropdownMenuContainer: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     padding: 6,
     marginBottom: 16,
     maxHeight: 240,
     elevation: 3,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
@@ -287,7 +277,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dropdownMenuItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   sectionTitle: {
     marginBottom: 12,
@@ -296,7 +285,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 14,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
   },
   cardHeader: {
@@ -306,7 +294,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   paidTag: {
-    backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
@@ -315,7 +302,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#E2E8F0',
     marginBottom: 12,
     gap: 8,
   },
@@ -336,8 +322,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -346,8 +330,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },

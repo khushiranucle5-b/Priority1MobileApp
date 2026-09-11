@@ -31,8 +31,9 @@ export const GeofenceAlertBanner: React.FC = () => {
       style={[
         styles.banner,
         {
-          backgroundColor: '#FEF2F2',
-          borderColor: '#EF4444',
+          backgroundColor: colors.errorLight,
+          borderColor: colors.error,
+          shadowColor: colors.error,
           borderRadius: borderRadius.md,
         },
       ]}
@@ -40,10 +41,10 @@ export const GeofenceAlertBanner: React.FC = () => {
       <View style={styles.content}>
         <AppText style={styles.icon}>⚠️</AppText>
         <View style={styles.textContainer}>
-          <AppText size="sm" weight="bold" style={{ color: '#991B1B' }}>
+          <AppText size="sm" weight="bold" style={{ color: colors.errorDark }}>
             You have left the site geofence.
           </AppText>
-          <AppText size="xs" style={{ color: '#B91C1C', marginTop: 2 }}>
+          <AppText size="xs" style={{ color: colors.error, marginTop: 2 }}>
             Current Distance: {distanceText} (Allowed Radius: {geofenceState.radiusMeters}m)
           </AppText>
         </View>
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderWidth: 1.5,
-    shadowColor: '#EF4444',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
