@@ -80,24 +80,24 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
       items: [
         { label: 'Attendance', route: 'Attendance', icon: 'attendance' },
         { label: 'Leaves', route: 'Leave', icon: 'leaves' },
-        { label: 'Patrol Logs', route: 'Patrol', icon: 'patrol' },
+        { label: 'Patrol', route: 'Patrol', icon: 'patrol' },
         { label: 'Incidents', route: 'Incident', icon: 'incidents' },
-        { label: 'Lone Worker Check', route: 'LoneWorker', icon: 'loneworker' },
+        { label: 'Lone Worker', route: 'LoneWorker', icon: 'loneworker' },
         { label: 'Assets', route: 'Assets', icon: 'assets' },
       ],
     },
     {
       title: 'Finance & HR',
       items: [
-        { label: 'My Payslips', route: 'Payslips', icon: 'payslips' },
+        { label: 'Payslips', route: 'Payslips', icon: 'payslips' },
         { label: 'Holidays', route: 'Holidays', icon: 'holidays' },
-        { label: 'Policy Manual', route: 'Policies', icon: 'policies' },
+        { label: 'Policies', route: 'Policies', icon: 'policies' },
       ],
     },
     {
       title: 'Communication',
       items: [
-        { label: 'Direct Messages', route: 'Messages', icon: 'messages' },
+        { label: 'Messages', route: 'Messages', icon: 'messages' },
       ],
     },
   ];
@@ -106,8 +106,8 @@ export const PersistentSidebar: React.FC<PersistentSidebarProps> = ({ activeRout
     <View style={[styles.sidebar, { backgroundColor: colors.surface, borderRightColor: colors.border }]}>
       {/* Sidebar Header */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <Heading level="h4" style={{ color: colors.text }}>Acme Security Services</Heading>
-        <AppText size="xs" style={{ color: colors.textTertiary }}>Security ERP • Portal</AppText>
+        <Heading level="h4" style={{ color: colors.text }}>Priority One</Heading>
+        <AppText size="xs" style={{ color: colors.textTertiary }}>Mobile App</AppText>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 12 }}>

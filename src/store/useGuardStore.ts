@@ -18,9 +18,13 @@ import {
   DBMessage,
   DBEmployeeDocument,
   DBSite,
+  DBTask,
+  DBDispatch,
 } from '../services/db';
+import { DispatchStatus, getNextDispatchStatus } from '../features/dispatches/types/dispatch.types';
+import { TaskStatus } from '../features/tasks/types/task.types';
 
-export type { DBPatrol, DBEmployeeDocument };
+export type { DBPatrol, DBEmployeeDocument, DBTask, DBDispatch };
 import { LoggerService } from '../services/logger.service';
 import { soundAlertService } from '../services/soundAlert.service';
 import { GeofenceService, GeofenceValidationResult } from '../services/geofence.service';
@@ -73,7 +77,7 @@ export interface AttendanceRecord {
 
 export interface AppNotification {
   id: string;
-  type: 'Attendance' | 'Leave' | 'Incident' | 'Company' | 'Holiday' | 'System' | string;
+  type: 'Attendance' | 'Leave' | 'Incident' | 'Company' | 'Holiday' | 'System' | 'Task' | 'Dispatch' | 'Operational' | string;
   title: string;
   description: string;
   date: string;
@@ -82,6 +86,8 @@ export interface AppNotification {
   priority: 'High' | 'Medium' | 'Low' | string;
   actionType?: string;
   referenceId?: string;
+  relatedEntityType?: 'task' | 'dispatch' | 'leave' | 'incident' | 'attendance' | string;
+  relatedEntityId?: string;
 }
 
 export interface ActivityItem {
@@ -153,13 +159,71 @@ const defaultInitialActivities: ActivityItem[] = [
 
 const defaultSupervisorApprovals: AppNotification[] = [
   {
+    id: 'notif-dsp-01',
+    type: 'Dispatch',
+    title: 'Urgent Dispatch Assignment: Alarm Trigger',
+    description: 'You are dispatched to Warehouse Sector 3 for perimeter sensor verification (Ref: DSP-2026-042).',
+    date: 'Today',
+    time: '01:45 PM',
+    isRead: false,
+    priority: 'High',
+    relatedEntityType: 'dispatch',
+    relatedEntityId: 'dsp-101',
+  },
+  {
+    id: 'notif-task-01',
+    type: 'Task',
+    title: 'New Task Assignment: Perimeter Lighting',
+    description: 'Task TSK-2026-101 assigned to you: Inspect perimeter LED lights and CCTV angles. Due 06:00 PM.',
+    date: 'Today',
+    time: '01:00 PM',
+    isRead: false,
+    priority: 'High',
+    relatedEntityType: 'task',
+    relatedEntityId: 'tsk-101',
+  },
+  {
+    id: 'notif-task-02',
+    type: 'Task',
+    title: 'Joint Task: Server Room Fire Audit',
+    description: 'You and Mike Miller were assigned task TSK-2026-102. Joint sign-off required.',
+    date: 'Today',
+    time: '11:30 AM',
+    isRead: false,
+    priority: 'Critical',
+    relatedEntityType: 'task',
+    relatedEntityId: 'tsk-102',
+  },
+  {
+    id: 'notif-task-03',
+    type: 'Task',
+    title: 'Supervisor Feedback on Task TSK-2026-103',
+    description: 'Jane Smith: Boom barrier timing verified. Awaiting evening shift supervisor sign-off.',
+    date: 'Today',
+    time: '10:00 AM',
+    isRead: true,
+    priority: 'Medium',
+    relatedEntityType: 'task',
+    relatedEntityId: 'tsk-103',
+  },
+  {
+    id: 'notif-oper-01',
+    type: 'Operational',
+    title: 'Urgent Site Instruction: Main Gate',
+    description: 'Double check visitor vehicle trunks and verify all badges during evening shifts.',
+    date: 'Today',
+    time: '09:00 AM',
+    isRead: true,
+    priority: 'High',
+  },
+  {
     id: 'notif-appr-1',
     type: 'Leave Approval',
     title: 'Sick Leave Approved',
     description: 'Your Sick Leave request for 0.5 day(s) was approved by Supervisor Jane Smith.',
     date: '25 Aug 2026',
     time: '04:15 PM',
-    isRead: false,
+    isRead: true,
     priority: 'High',
   },
   {
@@ -302,9 +366,22 @@ interface GuardState {
   patrolCheckpoints: CheckpointData[];
   patrolCheckpointsMap: Record<string, CheckpointData[]>;
   messages: DBMessage[];
+  tasks: DBTask[];
+  dispatches: DBDispatch[];
+  activeEmergencyDispatch: DBDispatch | null;
+  dismissedEmergencyDispatchIds: string[];
 
   // Actions
   loadGuardData: (guardId: string, email: string) => Promise<void>;
+  acknowledgeTask: (taskId: string) => Promise<void>;
+  startTask: (taskId: string) => Promise<void>;
+  updateTaskProgress: (taskId: string, progress: number, notes?: string) => Promise<void>;
+  submitTask: (taskId: string, completionNotes: string, photos?: string[]) => Promise<{ success: boolean; message: string }>;
+  updateDispatchStatus: (dispatchId: string, nextStatus: DispatchStatus, completionNotes?: string) => Promise<{ success: boolean; message: string }>;
+  setEmergencyDispatchAlert: (dispatch: DBDispatch | null) => void;
+  dismissEmergencyDispatchAlert: (dispatchId?: string) => Promise<void>;
+  checkIncomingDispatches: () => Promise<void>;
+  simulateEmergencyDispatch: (overrides?: Partial<DBDispatch>) => Promise<DBDispatch>;
   addActivity: (activity: { type?: string; title: string; description: string; date?: string; time?: string }) => Promise<void>;
   clearActivities: () => Promise<void>;
 
@@ -422,6 +499,10 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   patrolCheckpoints: [],
   patrolCheckpointsMap: {},
   messages: [],
+  tasks: [],
+  dispatches: [],
+  activeEmergencyDispatch: null,
+  dismissedEmergencyDispatchIds: [],
 
   loneWorker: {
     status: 'NOT ACTIVE',
@@ -710,6 +791,42 @@ export const useGuardStore = create<GuardState>((set, get) => ({
           return msg.senderId === guardId || msg.receiverId === guardId;
         }
       });
+
+      // Resolve tasks (only tasks assigned to logged-in guard, including multi-guard tasks)
+      const allTasks = await getTable<DBTask>('tasks');
+      const guardTasks = allTasks.filter(t => {
+        const inIds = Array.isArray(t.assignedGuardIds) && (
+          t.assignedGuardIds.includes(guardId) ||
+          t.assignedGuardIds.includes('G-1001') ||
+          (guardId === 'guard-1' && (t.assignedGuardIds.includes('guard-1') || t.assignedGuardIds.includes('G-1001')))
+        );
+        const inGuards = Array.isArray(t.assignedGuards) && t.assignedGuards.some(g =>
+          g.id === guardId || g.id === 'G-1001' || (guardId === 'guard-1' && (g.id === 'guard-1' || g.id === 'G-1001'))
+        );
+        return inIds || inGuards;
+      });
+
+      // Resolve dispatches (only dispatches assigned to logged-in guard)
+      const allDispatches = await getTable<DBDispatch>('dispatches');
+      const guardDispatches = allDispatches.filter(d => {
+        return (
+          d.assignedGuardId === guardId ||
+          d.assignedGuardId === 'G-1001' ||
+          d.assignedGuardEmail === email ||
+          (guardId === 'guard-1' && (d.assignedGuardId === 'guard-1' || d.assignedGuardId === 'G-1001'))
+        );
+      });
+
+      // Resolve dismissed emergency dispatch IDs from storage
+      const rawDismissed = await AsyncStorage.getItem(`@dismissed_emergency_dispatches_${guardId}`);
+      const dismissedEmergencyDispatchIds: string[] = rawDismissed ? JSON.parse(rawDismissed) : [];
+
+      // Check for incoming unacknowledged emergency dispatch (status: 'Assigned', priority: 'High' or 'Critical')
+      const unhandledEmergency = guardDispatches.find(d =>
+        d.status === 'Assigned' &&
+        (d.priority === 'Critical' || d.priority === 'High' || d.reason?.toLowerCase().includes('alarm') || d.reason?.toLowerCase().includes('emergency')) &&
+        !dismissedEmergencyDispatchIds.includes(d.id)
+      );
 
       // Resolve notifications from AsyncStorage/DB
       const allNotifs = await getTable<any>('notifications');
@@ -1172,16 +1289,371 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         notifications: finalNotifs,
         activities: loadedActivities,
         messages: guardMessages,
+        tasks: guardTasks,
+        dispatches: guardDispatches,
+        activeEmergencyDispatch: unhandledEmergency || null,
+        dismissedEmergencyDispatchIds,
         loneWorker: currentLoneWorker,
         loneWorkerHistory: guardLoneWorkerHistory,
         isInitialized: true,
       });
+      if (unhandledEmergency) {
+        soundAlertService.startSafetyAlert();
+      }
       LoggerService.log(`[GuardStore] Hydration completed successfully for ${guardId}`);
     } catch (error: any) {
       LoggerService.log(`[GuardStore] Hydration failed: ${error?.message || error}`, 'error');
       console.error('Error loading guard data in store:', error);
       set({ isInitialized: true });
     }
+  },
+
+  acknowledgeTask: async (taskId: string) => {
+    try {
+      const { tasks, addActivity } = get();
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toISOString().split('T')[0];
+      const timeStamp = `${dateStr} ${timeStr}`;
+
+      const updatedTask: DBTask = {
+        ...task,
+        acknowledgedAt: timeStamp,
+      };
+
+      await updateRow<DBTask>('tasks', taskId, { acknowledgedAt: timeStamp });
+
+      const updatedTasks = tasks.map(t => (t.id === taskId ? updatedTask : t));
+      set({ tasks: updatedTasks });
+
+      await addActivity({
+        type: 'Task',
+        title: 'Task Acknowledged',
+        description: `Acknowledged task: ${task.title} (${task.taskReference})`,
+      });
+    } catch (error) {
+      console.error('Failed to acknowledge task:', error);
+    }
+  },
+
+  startTask: async (taskId: string) => {
+    try {
+      const { tasks, addActivity } = get();
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toISOString().split('T')[0];
+      const timeStamp = `${dateStr} ${timeStr}`;
+
+      const updatedTask: DBTask = {
+        ...task,
+        status: 'In Progress',
+        startedAt: timeStamp,
+        progress: Math.max(task.progress, 25),
+      };
+
+      await updateRow<DBTask>('tasks', taskId, {
+        status: 'In Progress',
+        startedAt: timeStamp,
+        progress: updatedTask.progress,
+      });
+
+      const updatedTasks = tasks.map(t => (t.id === taskId ? updatedTask : t));
+      set({ tasks: updatedTasks });
+
+      await addActivity({
+        type: 'Task',
+        title: 'Task In Progress',
+        description: `Started task: ${task.title} (${task.taskReference})`,
+      });
+    } catch (error) {
+      console.error('Failed to start task:', error);
+    }
+  },
+
+  updateTaskProgress: async (taskId: string, progress: number, notes?: string) => {
+    try {
+      const { tasks } = get();
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const updates: Partial<DBTask> = {
+        progress,
+        ...(notes ? { completionNotes: notes } : {}),
+      };
+
+      await updateRow<DBTask>('tasks', taskId, updates);
+
+      const updatedTasks = tasks.map(t => (t.id === taskId ? { ...t, ...updates } : t));
+      set({ tasks: updatedTasks });
+    } catch (error) {
+      console.error('Failed to update task progress:', error);
+    }
+  },
+
+  submitTask: async (taskId: string, completionNotes: string, photos?: string[]) => {
+    try {
+      const { tasks, addActivity, notifications } = get();
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return { success: false, message: 'Task not found' };
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toISOString().split('T')[0];
+      const timeStamp = `${dateStr} ${timeStr}`;
+
+      const isSignOffRequired = task.requiresSignOff;
+      const newStatus: TaskStatus = isSignOffRequired ? 'Under Review' : 'Completed';
+
+      const updates: Partial<DBTask> = {
+        status: newStatus,
+        progress: 100,
+        completionNotes,
+        completionPhotos: photos || [],
+        ...(isSignOffRequired ? { submittedAt: timeStamp } : { completedAt: timeStamp }),
+      };
+
+      await updateRow<DBTask>('tasks', taskId, updates);
+
+      const updatedTasks = tasks.map(t => (t.id === taskId ? { ...t, ...updates } : t));
+      set({ tasks: updatedTasks });
+
+      // Add activity
+      await addActivity({
+        type: 'Task',
+        title: isSignOffRequired ? 'Task Submitted for Review' : 'Task Completed',
+        description: isSignOffRequired
+          ? `Submitted task ${task.taskReference} for supervisor sign-off.`
+          : `Marked task ${task.taskReference} as completed.`,
+      });
+
+      // Add notification update
+      const newNotif: AppNotification = {
+        id: `notif-tsk-sub-${Date.now()}`,
+        type: 'Task',
+        title: isSignOffRequired ? 'Task Submitted for Review' : 'Task Completed',
+        description: isSignOffRequired
+          ? `Task ${task.taskReference} (${task.title}) has been submitted for supervisor sign-off.`
+          : `Task ${task.taskReference} has been successfully completed.`,
+        date: 'Today',
+        time: timeStr,
+        isRead: false,
+        priority: 'Medium',
+        relatedEntityType: 'task',
+        relatedEntityId: taskId,
+      };
+
+      set({ notifications: [newNotif, ...notifications] });
+
+      return {
+        success: true,
+        message: isSignOffRequired
+          ? 'Task submitted for supervisor review.'
+          : 'Task marked as completed.',
+      };
+    } catch (error: any) {
+      console.error('Failed to submit task:', error);
+      return { success: false, message: error?.message || 'Failed to submit task' };
+    }
+  },
+
+  updateDispatchStatus: async (dispatchId: string, nextStatus: DispatchStatus, completionNotes?: string) => {
+    try {
+      const { dispatches, addActivity, notifications } = get();
+      const dispatch = dispatches.find(d => d.id === dispatchId);
+      if (!dispatch) return { success: false, message: 'Dispatch record not found' };
+
+      // Prevent invalid transitions: strictly follow lifecycle
+      const validNext = getNextDispatchStatus(dispatch.status);
+      if (validNext !== nextStatus) {
+        return {
+          success: false,
+          message: `Cannot transition from ${dispatch.status} directly to ${nextStatus}. Next valid status is ${validNext || 'None'}.`,
+        };
+      }
+
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateStr = now.toISOString().split('T')[0];
+      const timeStamp = `${dateStr} ${timeStr}`;
+
+      const updates: Partial<DBDispatch> = {
+        status: nextStatus,
+        ...(nextStatus === 'Acknowledged' ? { acknowledgedAt: timeStamp } : {}),
+        ...(nextStatus === 'En Route' ? { enRouteAt: timeStamp } : {}),
+        ...(nextStatus === 'Arrived' ? { arrivedAt: timeStamp } : {}),
+        ...(nextStatus === 'Completed' ? { completedAt: timeStamp, completionNotes } : {}),
+      };
+
+      await updateRow<DBDispatch>('dispatches', dispatchId, updates);
+
+      const updatedDispatches = dispatches.map(d => (d.id === dispatchId ? { ...d, ...updates } : d));
+      set({ dispatches: updatedDispatches });
+
+      // Add to activities
+      await addActivity({
+        type: 'Dispatch',
+        title: `Dispatch: ${nextStatus}`,
+        description: `Dispatch ${dispatch.dispatchReference} (${dispatch.reason}) transitioned to ${nextStatus}.`,
+      });
+
+      // Add notification alert
+      const newNotif: AppNotification = {
+        id: `notif-dsp-upd-${Date.now()}`,
+        type: 'Dispatch',
+        title: `Dispatch ${dispatch.dispatchReference}: ${nextStatus}`,
+        description: `Status updated to ${nextStatus} at ${dispatch.site}.`,
+        date: 'Today',
+        time: timeStr,
+        isRead: false,
+        priority: nextStatus === 'Completed' ? 'Low' : 'High',
+        relatedEntityType: 'dispatch',
+        relatedEntityId: dispatchId,
+      };
+
+      if (get().activeEmergencyDispatch?.id === dispatchId) {
+        soundAlertService.stopSafetyAlert();
+        set({ activeEmergencyDispatch: null });
+      }
+
+      set({ notifications: [newNotif, ...notifications] });
+
+      return { success: true, message: `Dispatch status updated to ${nextStatus}` };
+    } catch (error: any) {
+      console.error('Failed to update dispatch status:', error);
+      return { success: false, message: error?.message || 'Failed to update dispatch status' };
+    }
+  },
+
+  setEmergencyDispatchAlert: (dispatch: DBDispatch | null) => {
+    if (dispatch) {
+      soundAlertService.startSafetyAlert();
+    } else {
+      soundAlertService.stopSafetyAlert();
+    }
+    set({ activeEmergencyDispatch: dispatch });
+  },
+
+  dismissEmergencyDispatchAlert: async (dispatchId?: string) => {
+    soundAlertService.stopSafetyAlert();
+    const targetId = dispatchId || get().activeEmergencyDispatch?.id;
+    const currentDismissed = get().dismissedEmergencyDispatchIds || [];
+    const guardId = get().guardId;
+    if (targetId && !currentDismissed.includes(targetId)) {
+      const updated = [...currentDismissed, targetId];
+      if (guardId) {
+        await AsyncStorage.setItem(`@dismissed_emergency_dispatches_${guardId}`, JSON.stringify(updated));
+      }
+      set({ activeEmergencyDispatch: null, dismissedEmergencyDispatchIds: updated });
+    } else {
+      set({ activeEmergencyDispatch: null });
+    }
+  },
+
+  checkIncomingDispatches: async () => {
+    const { guardId, guardEmail, activeEmergencyDispatch, dismissedEmergencyDispatchIds, dispatches } = get();
+    if (!guardId) return;
+
+    try {
+      const allDispatches = await getTable<DBDispatch>('dispatches');
+      const guardDispatches = allDispatches.filter(d => {
+        return (
+          d.assignedGuardId === guardId ||
+          d.assignedGuardId === 'G-1001' ||
+          d.assignedGuardEmail === guardEmail ||
+          (guardId === 'guard-1' && (d.assignedGuardId === 'guard-1' || d.assignedGuardId === 'G-1001'))
+        );
+      });
+
+      // Update store dispatches if count or IDs changed
+      if (guardDispatches.length !== dispatches.length || JSON.stringify(guardDispatches) !== JSON.stringify(dispatches)) {
+        set({ dispatches: guardDispatches });
+      }
+
+      // Check for incoming unacknowledged emergency dispatch (status: 'Assigned', priority: 'High' or 'Critical')
+      const unhandledEmergency = guardDispatches.find(d =>
+        d.status === 'Assigned' &&
+        (d.priority === 'Critical' || d.priority === 'High' || d.reason?.toLowerCase().includes('alarm') || d.reason?.toLowerCase().includes('emergency')) &&
+        !(dismissedEmergencyDispatchIds || []).includes(d.id)
+      );
+
+      if (unhandledEmergency && (!activeEmergencyDispatch || activeEmergencyDispatch.id !== unhandledEmergency.id)) {
+        set({ activeEmergencyDispatch: unhandledEmergency });
+        soundAlertService.startSafetyAlert();
+      }
+    } catch (e) {
+      // Ignore background sync errors
+    }
+  },
+
+  simulateEmergencyDispatch: async (overrides?: Partial<DBDispatch>) => {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const day = String(now.getDate()).padStart(2, '0');
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dateStr = `${day} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    const refNum = Math.floor(100 + Math.random() * 900);
+    const newDispatch: DBDispatch = {
+      id: `dsp-emerg-${Date.now()}`,
+      dispatchReference: `DSP-2026-${refNum}`,
+      site: overrides?.site || get().assignedSite || 'Ahmedabad Plant - Warehouse Sector 3',
+      siteId: overrides?.siteId || get().assignedSiteId || 's-01',
+      reason: overrides?.reason || '🚨 Perimeter Intrusion / Emergency Alarm Trigger',
+      priority: overrides?.priority || 'Critical',
+      reportingTime: overrides?.reportingTime || timeStr,
+      expectedDuration: overrides?.expectedDuration || '30 mins',
+      instructions: overrides?.instructions || 'Immediate dispatch required. Motion sensor tripped at Sector 3 North Boundary. Inspect perimeter integrity, check sensor beacon, and report condition to Control Room immediately.',
+      contact: {
+        name: 'Vikram Patel',
+        phone: '+91 98765 43210',
+        role: 'Facility Security Lead',
+      },
+      assignedGuardId: get().guardId || 'G-1001',
+      assignedGuardName: get().guardName || 'John Smith',
+      assignedGuardEmail: get().guardEmail || 'john@priority-one.io',
+      status: 'Assigned',
+      assignedAt: `${dateStr} ${timeStr}`,
+      createdAt: `${dateStr} ${timeStr}`,
+      companyId: 'c-1',
+      ...overrides,
+    };
+
+    await insertRow<DBDispatch>('dispatches', newDispatch);
+
+    const notif: AppNotification = {
+      id: `notif-dsp-${Date.now()}`,
+      type: 'Dispatch',
+      title: `🚨 EMERGENCY DISPATCH: ${newDispatch.dispatchReference}`,
+      description: `${newDispatch.reason} at ${newDispatch.site}. Immediate response requested.`,
+      date: 'Today',
+      time: timeStr,
+      isRead: false,
+      priority: 'High',
+      relatedEntityType: 'dispatch',
+      relatedEntityId: newDispatch.id,
+    };
+    await insertRow('notifications', notif);
+
+    // Remove from dismissed if previously dismissed
+    const currentDismissed = (get().dismissedEmergencyDispatchIds || []).filter(id => id !== newDispatch.id);
+    if (get().guardId) {
+      await AsyncStorage.setItem(`@dismissed_emergency_dispatches_${get().guardId}`, JSON.stringify(currentDismissed));
+    }
+
+    set({
+      dispatches: [newDispatch, ...get().dispatches],
+      notifications: [notif, ...get().notifications],
+      activeEmergencyDispatch: newDispatch,
+      dismissedEmergencyDispatchIds: currentDismissed,
+    });
+
+    soundAlertService.startSafetyAlert();
+    return newDispatch;
   },
 
   addActivity: async (act) => {

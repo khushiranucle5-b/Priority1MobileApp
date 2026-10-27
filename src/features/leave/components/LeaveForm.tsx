@@ -426,7 +426,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
         {/* Header */}
         <View style={styles.cardHeader}>
           <AppText size="md" weight="bold" color="primary" style={styles.headerTitle}>
-            {editingLeave ? 'EDIT LEAVE APPLICATION DETAILS' : 'LEAVE APPLICATION DETAILS'}
+            {editingLeave ? 'Edit Leave' : 'Apply for Leave'}
           </AppText>
         </View>
 
@@ -518,7 +518,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               {isHalfDay && <AppText size="sm" weight="bold" style={{ color: colors.surface }}>✓</AppText>}
             </View>
             <AppText size="base" weight="semibold" color="primary" style={styles.checkboxLabel}>
-              Apply for half day only
+              Half day
             </AppText>
           </TouchableOpacity>
 
@@ -526,7 +526,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
           {durationDays > 0 && (
             <View style={[styles.durationContainer, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md }]}>
               <AppText size="sm" weight="bold" color="primary">
-                Calculated Duration: {durationDays} Day(s) {isHalfDay ? '(Half-Day)' : ''}
+                Duration: {durationDays} {durationDays === 1 ? 'day' : 'days'}
               </AppText>
             </View>
           )}
@@ -583,10 +583,10 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
             </View>
           </View>
 
-          {/* Reason / Description Textarea */}
+          {/* Reason Textarea */}
           <View style={styles.fieldCol}>
             <AppText size="sm" weight="bold" color="primary" style={styles.fieldLabel}>
-              Reason / Description <AppText size="sm" style={{ color: colors.error }}>*</AppText>
+              Reason <AppText size="sm" style={{ color: colors.error }}>*</AppText>
             </AppText>
             <Input
               value={reason}
@@ -594,7 +594,6 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               multiline
               numberOfLines={3}
               textAlignVertical="top"
-              placeholder="Enter reason or detailed description for leave application..."
               error={errors.reason}
               style={styles.textArea}
             />
@@ -619,7 +618,7 @@ export const LeaveForm: React.FC<LeaveFormProps> = ({ editingLeave, onFinishedEd
               title={
                 isSubmitting
                   ? (editingLeave ? "Updating..." : "Submitting...")
-                  : (editingLeave ? "UPDATE LEAVE" : "SUBMIT LEAVE")
+                  : (editingLeave ? "Update Leave" : "Submit Leave")
               }
               disabled={isSubmitting}
               variant="primary"

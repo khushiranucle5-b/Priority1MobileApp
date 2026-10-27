@@ -115,6 +115,27 @@ export const NotificationDetailsScreen: React.FC<Props> = ({ route, navigation }
           </View>
 
         </View>
+
+        {/* Action Button to Open Related Task or Dispatch */}
+        {((notification.relatedEntityType === 'task' || notification.type?.toLowerCase().includes('task')) && notification.relatedEntityId) && (
+          <Button
+            title="Open Assigned Task"
+            variant="primary"
+            size="large"
+            onPress={() => navigation.navigate('TaskDetails', { taskId: notification.relatedEntityId! })}
+            style={{ marginBottom: 12 }}
+          />
+        )}
+
+        {((notification.relatedEntityType === 'dispatch' || notification.type?.toLowerCase().includes('dispatch')) && notification.relatedEntityId) && (
+          <Button
+            title="Open Assigned Dispatch"
+            variant="primary"
+            size="large"
+            onPress={() => navigation.navigate('DispatchDetails', { dispatchId: notification.relatedEntityId! })}
+            style={{ marginBottom: 12 }}
+          />
+        )}
         
         <Button 
           title="Delete Notification" 

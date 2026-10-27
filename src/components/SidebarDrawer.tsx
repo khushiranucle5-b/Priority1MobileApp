@@ -1,5 +1,16 @@
-import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Modal, ScrollView, useWindowDimensions, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Modal,
+  ScrollView,
+  useWindowDimensions,
+  Image,
+  Animated,
+  Easing,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 import { AppText } from './typography/Text';
@@ -54,6 +65,12 @@ const isRouteActive = (itemRoute: string, currentRoute?: string) => {
     Policies: ['Policies', 'PolicyDetails'],
     Messages: ['Messages', 'ChatScreen'],
     Assets: ['Assets', 'AssetDetails'],
+    Visitors: ['Visitors', 'RegisterVisitor', 'VisitorDetails', 'VisitorPass'],
+    AssignedVehicle: ['AssignedVehicle'],
+    VehicleExpense: ['VehicleExpense', 'VehicleExpenseScreen', 'ExpenseClaimForm', 'ExpenseClaimDetails'],
+    Tasks: ['Tasks', 'TaskDetails'],
+    Dispatches: ['Dispatches', 'DispatchDetails'],
+    Notifications: ['Notifications', 'NotificationDetails'],
   };
 
   const matches = routeMap[itemRoute];
@@ -111,18 +128,76 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   const topPadding = Math.max(insets.top + 16, 52);
   const bottomInset = Math.max(insets.bottom, 16);
 
+  // Smooth Native Drawer Animation
+  const animProgress = useRef(new Animated.Value(0)).current;
+  const [modalVisible, setModalVisible] = useState(isOpen);
+  const isClosingRef = useRef(false);
+  const hasAnimatedOpenRef = useRef(false);
+
+  const startOpenAnimation = () => {
+    if (hasAnimatedOpenRef.current) return;
+    hasAnimatedOpenRef.current = true;
+    animProgress.setValue(0);
+    Animated.timing(animProgress, {
+      toValue: 1,
+      duration: 350,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1), // smooth natural ease-in-out curve
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      isClosingRef.current = false;
+      hasAnimatedOpenRef.current = false;
+      animProgress.setValue(0);
+      setModalVisible(true);
+
+      // Fallback in case onShow doesn't fire immediately
+      const timer = setTimeout(() => {
+        startOpenAnimation();
+      }, 50);
+
+      return () => clearTimeout(timer);
+    } else if (!isClosingRef.current && modalVisible) {
+      handleClose();
+    }
+  }, [isOpen, modalVisible]);
+
+  const handleClose = (callback?: () => void) => {
+    if (isClosingRef.current) return;
+    isClosingRef.current = true;
+    Animated.timing(animProgress, {
+      toValue: 0,
+      duration: 250,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      if (finished) {
+        setModalVisible(false);
+        isClosingRef.current = false;
+        hasAnimatedOpenRef.current = false;
+        onClose();
+        if (callback) {
+          callback();
+        }
+      }
+    });
+  };
+
   const navigateTo = (route: string, params?: any) => {
-    onClose();
-    if (route === 'HomeScreen' || route === 'HomeMain' || route === 'Dashboard') {
-      navigation.navigate('Home', { screen: 'HomeMain', params });
-      return;
-    }
-    const tabRoutes = ['Home', 'Attendance', 'Duty', 'Patrol', 'Profile'];
-    if (tabRoutes.includes(route)) {
-      navigation.navigate(route);
-    } else {
-      navigation.navigate('Home', { screen: route, params });
-    }
+    handleClose(() => {
+      if (route === 'HomeScreen' || route === 'HomeMain' || route === 'Dashboard') {
+        navigation?.navigate('Home', { screen: 'HomeMain', params });
+        return;
+      }
+      const tabRoutes = ['Home', 'Attendance', 'Duty', 'Patrol', 'Profile'];
+      if (tabRoutes.includes(route)) {
+        navigation?.navigate(route);
+      } else {
+        navigation?.navigate('Home', { screen: route, params });
+      }
+    });
   };
 
   const sections: { title: string; items: DrawerMenuItem[] }[] = [
@@ -141,166 +216,228 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
     {
       title: 'OPERATIONS',
       items: [
+        { label: 'Tasks', route: 'Tasks', icon: 'tasks' },
+        { label: 'Dispatches', route: 'Dispatches', icon: 'dispatches' },
+        { label: 'Visitors', route: 'Visitors', icon: 'visitors' },
+        { label: 'Vehicle', route: 'AssignedVehicle', icon: 'vehicles' },
+        { label: 'Expenses', route: 'VehicleExpense', icon: 'payslips' },
         { label: 'Attendance', route: 'Attendance', icon: 'attendance' },
         { label: 'Leaves', route: 'Leave', icon: 'leaves' },
-        { label: 'Patrol Logs', route: 'Patrol', icon: 'patrol' },
+        { label: 'Patrol', route: 'Patrol', icon: 'patrol' },
         { label: 'Incidents', route: 'Incident', icon: 'incidents' },
-        { label: 'Lone Worker Check', route: 'LoneWorker', icon: 'loneworker' },
+        { label: 'Lone Worker', route: 'LoneWorker', icon: 'loneworker' },
         { label: 'Assets', route: 'Assets', icon: 'assets' },
       ],
     },
     {
       title: 'FINANCE & HR',
       items: [
-        { label: 'My Payslips', route: 'Payslips', icon: 'payslips' },
+        { label: 'Payslips', route: 'Payslips', icon: 'payslips' },
         { label: 'Holidays', route: 'Holidays', icon: 'holidays' },
-        { label: 'Policy Manual', route: 'Policies', icon: 'policies' },
+        { label: 'Policies', route: 'Policies', icon: 'policies' },
       ],
     },
     {
       title: 'COMMUNICATION',
       items: [
-        { label: 'Direct Messages', route: 'Messages', icon: 'messages' },
+        { label: 'Notifications', route: 'Notifications', icon: 'bell' },
+        { label: 'Messages', route: 'Messages', icon: 'messages' },
       ],
     },
   ];
 
+  const translateX = animProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-drawerWidth, 0],
+  });
+
+  const backdropOpacity = animProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
   return (
-    <Modal
-      visible={isOpen}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        {/* Mobile Drawer Panel */}
-        <View style={[styles.panel, { width: drawerWidth, backgroundColor: colors.surface }]}>
-          {/* Top Header UI */}
-          <View style={[styles.header, { paddingTop: topPadding, borderBottomColor: colors.border }]}>
-            <View>
-              <Heading level="h3" style={{ color: colors.text, fontSize: 20, fontWeight: '800' }}>Priority One</Heading>
-              <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 3, fontWeight: '600' }}>Security ERP • Portal</AppText>
+    <>
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="none"
+        onShow={startOpenAnimation}
+        onRequestClose={() => handleClose()}
+        statusBarTranslucent
+      >
+        <View style={styles.overlay}>
+          {/* Animated Backdrop (Tapping closes drawer) */}
+          <Animated.View
+            style={[
+              styles.backdrop,
+              { opacity: backdropOpacity },
+            ]}
+          >
+            <TouchableWithoutFeedback onPress={() => handleClose()}>
+              <View style={StyleSheet.absoluteFill} />
+            </TouchableWithoutFeedback>
+          </Animated.View>
+
+          {/* Animated Mobile Drawer Panel */}
+          <Animated.View
+            style={[
+              styles.panel,
+              {
+                width: drawerWidth,
+                backgroundColor: colors.surface,
+                transform: [{ translateX }],
+              },
+            ]}
+          >
+            {/* Top Header UI */}
+            <View style={[styles.header, { paddingTop: topPadding, borderBottomColor: colors.border }]}>
+              <View>
+                <Heading level="h3" style={{ color: colors.text, fontSize: 20, fontWeight: '800' }}>
+                  Priority One
+                </Heading>
+                <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 3, fontWeight: '600' }}>
+                  Mobile App
+                </AppText>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleClose()}
+                style={styles.closeBtn}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <NavIcon name="close" size={24} color={colors.textTertiary} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-              <NavIcon name="close" size={24} color={colors.textTertiary} />
-            </TouchableOpacity>
-          </View>
 
-          {/* Navigation Sections */}
-          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}>
-            {sections.map((sec, idx) => (
-              <View key={idx} style={styles.section}>
-                <AppText size="xs" weight="bold" style={[styles.sectionTitle, { color: colors.textTertiary }]}>
-                  {sec.title}
-                </AppText>
-                {sec.items.map((item, itemIdx) => {
-                  const isActive = isRouteActive(item.route, activeName);
-                  return (
-                    <TouchableOpacity
-                      key={itemIdx}
-                      style={[
-                        styles.item,
-                        { borderRadius: borderRadius.md },
-                        isActive && [styles.activeItem, { backgroundColor: colors.surfaceSecondary, borderLeftColor: colors.primary[500] }],
-                      ]}
-                      onPress={() => navigateTo(item.route)}
-                      activeOpacity={0.7}
-                    >
-                      <View style={styles.iconContainer}>
-                        <NavIcon name={item.icon} size={28} color={isActive ? colors.primary[500] : colors.textTertiary} />
-                      </View>
-                      <AppText
-                        style={[
-                          styles.itemLabel,
-                          { color: colors.textSecondary },
-                          isActive && { color: colors.text, fontWeight: '500' },
-                        ]}
-                      >
-                        {item.label}
-                      </AppText>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            ))}
-          </ScrollView>
-
-          {/* Fixed Bottom Footer (User Profile & Sign Out Button Row) */}
-          <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8, borderTopColor: colors.border, backgroundColor: colors.surface }]}>
-            <TouchableOpacity
-              style={[styles.userSignoutRow, { marginBottom: 8, backgroundColor: colors.warningLight, borderColor: colors.warningBorder }]}
-              onPress={() => setShowDevSimulator(true)}
-              activeOpacity={0.7}
+            {/* Navigation Sections */}
+            <ScrollView
+              style={{ flex: 1 }}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 }}
             >
-              <View style={[styles.avatarCircle, { backgroundColor: 'transparent' }]}>
-                <AppText style={{ fontSize: 20 }}>🛠</AppText>
-              </View>
-              <View style={styles.userInfoContainer}>
-                <AppText style={{ color: colors.warning, fontSize: 14, fontWeight: '600' }}>GPS Location Simulator</AppText>
-                <AppText style={{ color: colors.textTertiary, fontSize: 11 }}>Test Geofence Edge Cases</AppText>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.userSignoutRow, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
-              onPress={async () => {
-                onClose();
-                await logout();
-              }}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.avatarCircle, { backgroundColor: colors.surfacePressed }]}>
-                {profilePic ? (
-                  <Image source={{ uri: profilePic }} style={{ width: 40, height: 40, borderRadius: 20 }} />
-                ) : (
-                  <AppText style={[styles.avatarText, { color: colors.text }]}>
-                    {getInitials(guardName || user?.name)}
+              {sections.map((sec, idx) => (
+                <View key={idx} style={styles.section}>
+                  <AppText size="xs" weight="bold" style={[styles.sectionTitle, { color: colors.textTertiary }]}>
+                    {sec.title}
                   </AppText>
-                )}
-              </View>
+                  {sec.items.map((item, itemIdx) => {
+                    const isActive = isRouteActive(item.route, activeName);
+                    return (
+                      <TouchableOpacity
+                        key={itemIdx}
+                        style={[
+                          styles.item,
+                          { borderRadius: borderRadius.md },
+                          isActive && [styles.activeItem, { backgroundColor: colors.surfaceSecondary, borderLeftColor: colors.primary[500] }],
+                        ]}
+                        onPress={() => navigateTo(item.route)}
+                        activeOpacity={0.7}
+                      >
+                        <View style={styles.iconContainer}>
+                          <NavIcon name={item.icon} size={28} color={isActive ? colors.primary[500] : colors.textTertiary} />
+                        </View>
+                        <AppText
+                          style={[
+                            styles.itemLabel,
+                            { color: colors.textSecondary },
+                            isActive && { color: colors.text, fontWeight: '500' },
+                          ]}
+                        >
+                          {item.label}
+                        </AppText>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ))}
+            </ScrollView>
 
-              <View style={styles.userInfoContainer}>
-                <AppText style={[styles.userNameText, { color: colors.text }]} numberOfLines={1}>
-                  {guardName || user?.name || 'David Johnson'}
-                </AppText>
-                <AppText style={[styles.userRoleText, { color: colors.textTertiary }]} numberOfLines={1}>
-                  {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Guard'}
-                </AppText>
-              </View>
+            {/* Fixed Bottom Footer (User Profile & Sign Out Button Row) */}
+            <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8, borderTopColor: colors.border, backgroundColor: colors.surface }]}>
+              <TouchableOpacity
+                style={[styles.userSignoutRow, { marginBottom: 8, backgroundColor: colors.warningLight, borderColor: colors.warningBorder },]}
+                onPress={() => {
+                  handleClose(() => {
+                    setShowDevSimulator(true);
+                  });
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.avatarCircle, { backgroundColor: 'transparent' }]}>
+                  <AppText style={{ fontSize: 20 }}>🛠</AppText>
+                </View>
+                <View style={styles.userInfoContainer}>
+                  <AppText style={{ color: colors.warning, fontSize: 14, fontWeight: '600' }}>GPS Location Simulator</AppText>
+                  <AppText style={{ color: colors.textTertiary, fontSize: 11 }}>Test Geofence Edge Cases</AppText>
+                </View>
+              </TouchableOpacity>
 
-              <View style={styles.signoutIconBox}>
-                <NavIcon name="logout" size={20} color={colors.textTertiary} />
-              </View>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={[styles.userSignoutRow, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+                onPress={() => {
+                  handleClose(async () => {
+                    await logout();
+                  });
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.avatarCircle, { backgroundColor: colors.surfacePressed }]}>
+                  {profilePic ? (
+                    <Image source={{ uri: profilePic }} style={{ width: 40, height: 40, borderRadius: 20 }} />
+                  ) : (
+                    <AppText style={[styles.avatarText, { color: colors.text }]}>
+                      {getInitials(guardName || user?.name)}
+                    </AppText>
+                  )}
+                </View>
+
+                <View style={styles.userInfoContainer}>
+                  <AppText style={[styles.userNameText, { color: colors.text }]} numberOfLines={1}>
+                    {guardName || user?.name || 'David Johnson'}
+                  </AppText>
+                  <AppText style={[styles.userRoleText, { color: colors.textTertiary }]} numberOfLines={1}>
+                    {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Guard'}
+                  </AppText>
+                </View>
+
+                <View style={styles.signoutIconBox}>
+                  <NavIcon name="logout" size={20} color={colors.textTertiary} />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
         </View>
-
-        {/* Backdrop (Tapping closes drawer) */}
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
-      </View>
+      </Modal>
 
       <DevLocationSimulator visible={showDevSimulator} onClose={() => setShowDevSimulator(false)} />
-    </Modal>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    flexDirection: 'row',
-  },
-  panel: {
-    height: '100%',
-    elevation: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    justifyContent: 'space-between',
   },
   backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+  },
+  panel: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    height: '100%',
+    elevation: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 6, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',

@@ -169,12 +169,12 @@ export const FileIncidentScreen: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert('Required Field Missing', 'Please enter an Incident Title / Summary.');
+      Alert.alert('Required', 'Please enter a title.');
       return;
     }
 
     if (!description.trim()) {
-      Alert.alert('Required Field Missing', 'Please enter Incident Description / Observations.');
+      Alert.alert('Required', 'Please enter a description.');
       return;
     }
 
@@ -271,20 +271,20 @@ export const FileIncidentScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="Incident">
-      <PageHeader title={isEditing ? "Edit Incident Report" : "File Incident Report"} showBack />
+      <PageHeader title={isEditing ? "Edit Incident" : "File Incident"} showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
-        {/* SECTION 1: INCIDENT DETAILS & CATEGORY */}
+        {/* SECTION 1: INCIDENT DETAILS */}
         <Card style={styles.formCard}>
           <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
-            INCIDENT CLASSIFICATION & TIME
+            INCIDENT DETAILS
           </AppText>
           <View style={styles.dividerLine} />
 
           {/* Incident Category */}
           <AppText size="xs" weight="bold" color="primary" style={{ marginBottom: 6 }}>
-            Incident Category / Type *
+            Category *
           </AppText>
           <TouchableOpacity
             style={styles.dropdownInput}
@@ -299,7 +299,7 @@ export const FileIncidentScreen: React.FC = () => {
 
           {/* Threat Severity */}
           <AppText size="xs" weight="bold" color="primary" style={{ marginTop: 14, marginBottom: 6 }}>
-            Threat Severity Level *
+            Severity *
           </AppText>
           <TouchableOpacity
             style={styles.dropdownInput}
@@ -315,48 +315,45 @@ export const FileIncidentScreen: React.FC = () => {
           {/* Date & Time Row */}
           <View style={[styles.gridRow, { marginTop: 14 }]}>
             <View style={styles.gridCol}>
-              <AppText size="xs" color="secondary">Date of Incident</AppText>
+              <AppText size="xs" color="secondary">Date</AppText>
               <TextInput
                 style={styles.input}
                 value={incidentDate}
                 onChangeText={setIncidentDate}
-                placeholder="Aug 18, 2026"
               />
             </View>
 
             <View style={styles.gridCol}>
-              <AppText size="xs" color="secondary">Exact Time</AppText>
+              <AppText size="xs" color="secondary">Time</AppText>
               <TextInput
                 style={styles.input}
                 value={incidentTime}
                 onChangeText={setIncidentTime}
-                placeholder="02:30 PM"
               />
             </View>
           </View>
         </Card>
 
-        {/* SECTION 3: SUMMARY & DETAILED DESCRIPTION */}
+        {/* SECTION 2: DESCRIPTION */}
         <Card style={styles.formCard}>
           <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
-            INCIDENT DESCRIPTION & OBSERVATIONS
+            DESCRIPTION
           </AppText>
           <View style={styles.dividerLine} />
 
           {/* Incident Title */}
           <AppText size="xs" weight="bold" color="primary" style={{ marginBottom: 6 }}>
-            Incident Title / Brief Summary *
+            Title *
           </AppText>
           <TextInput
             style={styles.input}
             value={title}
             onChangeText={setTitle}
-            placeholder="e.g. Unauthorized vehicle near Sector 4 gate"
           />
 
           {/* Detailed Description */}
           <AppText size="xs" weight="bold" color="primary" style={{ marginTop: 14, marginBottom: 6 }}>
-            Detailed Observations & Description *
+            Description *
           </AppText>
           <TextInput
             style={[styles.input, { height: 100, textAlignVertical: 'top', paddingTop: 10 }]}
@@ -364,14 +361,13 @@ export const FileIncidentScreen: React.FC = () => {
             onChangeText={setDescription}
             multiline
             numberOfLines={4}
-            placeholder="Describe what occurred, persons involved, vehicle numbers, immediate actions taken..."
           />
         </Card>
 
-        {/* SECTION 4: MEDIA & EVIDENCE ATTACHMENTS */}
+        {/* SECTION 3: ATTACHMENTS */}
         <Card style={styles.formCard}>
           <AppText size="xs" weight="bold" style={styles.cardSectionHeading}>
-            MEDIA & EVIDENCE ATTACHMENTS ({attachments.length})
+            ATTACHMENTS ({attachments.length})
           </AppText>
           <View style={styles.dividerLine} />
 
@@ -429,13 +425,13 @@ export const FileIncidentScreen: React.FC = () => {
 
         {/* SUBMIT BUTTON */}
         <Button
-          title={submitting ? "Saving..." : (isEditing ? "SAVE INCIDENT UPDATES" : "SUBMIT REPORT")}
+          title={submitting ? "Saving..." : (isEditing ? "Save Changes" : "Submit Report")}
           variant="primary"
           size="large"
           fullWidth
           disabled={submitting}
           onPress={handleSubmit}
-          style={{ height: 60, marginTop: 4 }}
+          style={{ height: 54, marginTop: 4 }}
         />
 
       </ScrollView>

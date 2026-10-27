@@ -168,8 +168,8 @@ export const UploadDocumentScreen: React.FC = () => {
   const handleSaveAndSubmit = async () => {
     if (!selectedFile) {
       Alert.alert(
-        'No File Attached',
-        'Please choose a PDF or image document before submitting.'
+        'File Required',
+        'Please select a PDF or image file.'
       );
       return;
     }
@@ -198,8 +198,8 @@ export const UploadDocumentScreen: React.FC = () => {
       });
 
       Alert.alert(
-        'Document Submitted',
-        `"${finalDocName}" has been uploaded successfully!\n\nStatus: Pending Verification.\n\nIt will update to Approved once verified by supervisor/HR.`,
+        'Success',
+        `"${finalDocName}" uploaded successfully.`,
         [
           {
             text: 'View Documents',
@@ -219,26 +219,16 @@ export const UploadDocumentScreen: React.FC = () => {
       <PageHeader title="Upload Document" showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Banner Card */}
-        <Card variant="outlined" style={[styles.card, { borderRadius: borderRadius.lg }]}>
-          <Heading level="h2" color="primary" style={styles.titleText}>
-            Upload Document for HR Verification
-          </Heading>
-          <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
-            Submit official guard documents, government IDs, licenses, or certificates for {guardName || 'Khushi Rani'}.
-          </AppText>
-        </Card>
-
         {/* Upload Form Card */}
         <Card variant="outlined" style={[styles.card, { borderRadius: borderRadius.lg }]}>
           <Heading level="h3" color="primary" style={styles.formTitle}>
-            DOCUMENT DETAILS
+            Document Details
           </Heading>
 
           {/* Document Type Dropdown */}
           <View style={styles.inputGroup}>
             <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-              DOCUMENT TYPE *
+              Document Type *
             </AppText>
 
             <TouchableOpacity
@@ -272,27 +262,20 @@ export const UploadDocumentScreen: React.FC = () => {
           {selectedType === 'Other Document' && (
             <View style={styles.inputGroup}>
               <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-                CUSTOM DOCUMENT NAME
+                Document Name
               </AppText>
               <TextInput
                 style={styles.textInput}
-                placeholder="Enter document name or leave blank to fetch from file"
-                placeholderTextColor={colors.textSecondary}
                 value={customDocName}
                 onChangeText={setCustomDocName}
               />
-              {!customDocName.trim() && selectedFile && (
-                <AppText size="xs" style={{ color: colors.successDark, marginTop: 2 }}>
-                  * Will automatically use fetched file name: "{getCleanDocName(selectedFile.name)}"
-                </AppText>
-              )}
             </View>
           )}
 
-          {/* Single Unified File Picker Section */}
+          {/* Unified File Picker Section */}
           <View style={styles.inputGroup}>
             <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-              ATTACH DOCUMENT FILE (IMAGE OR PDF) *
+              Document File *
             </AppText>
 
             <TouchableOpacity
@@ -300,9 +283,9 @@ export const UploadDocumentScreen: React.FC = () => {
               onPress={handleChooseFile}
               activeOpacity={0.85}
             >
-              <NavIcon name="document" size={22} color={colors.surface} />
+              <NavIcon name="document" size={20} color={colors.surface} />
               <AppText style={styles.chooseFileBtnText}>
-                CHOOSE FILE (PDF OR IMAGE)
+                Choose File (PDF or Image)
               </AppText>
             </TouchableOpacity>
 
@@ -325,7 +308,7 @@ export const UploadDocumentScreen: React.FC = () => {
             ) : (
               <View style={styles.emptyFileBox}>
                 <AppText size="xs" color="secondary">
-                  No file attached yet. Tap "CHOOSE FILE" above to select a PDF or Image.
+                  No file selected.
                 </AppText>
               </View>
             )}
@@ -334,19 +317,19 @@ export const UploadDocumentScreen: React.FC = () => {
           {/* Notice Box */}
           <View style={styles.infoBox}>
             <AppText size="xs" style={{ color: colors.warningDark, lineHeight: 16 }}>
-              Note: Once submitted, the status will show as "Pending Verification" until approved by supervisor/HR.
+              Uploaded documents are reviewed by supervisor or HR.
             </AppText>
           </View>
 
-          {/* Submit Button - Standardized Purple/Indigo #4F46E5 */}
+          {/* Submit Button */}
           <Button
-            title={isSubmitting ? "SUBMITTING..." : "SUBMIT "}
+            title={isSubmitting ? "Submitting..." : "Submit Document"}
             variant="primary"
             size="large"
             fullWidth
             onPress={handleSaveAndSubmit}
             disabled={isSubmitting}
-            style={{ height: 54, backgroundColor: colors.primary[600], marginTop: 10, borderRadius: 10 }}
+            style={{ height: 50, backgroundColor: colors.primary[600], marginTop: 10, borderRadius: 10 }}
           />
         </Card>
       </ScrollView>

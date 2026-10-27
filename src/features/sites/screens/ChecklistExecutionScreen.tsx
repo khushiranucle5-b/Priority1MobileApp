@@ -187,12 +187,9 @@ export const ChecklistExecutionScreen: React.FC = () => {
         </Card>
 
         {/* Executable Steps Section */}
-        <Heading level="h3" color="primary" style={styles.sectionHeading}>
+        <Heading level="h3" color="primary" style={[styles.sectionHeading, { marginBottom: 12 }]}>
           Checklist Items ({steps.length})
         </Heading>
-        <AppText size="xs" color="secondary" style={{ marginBottom: 12 }}>
-          Tap any step row to mark it as completed on duty.
-        </AppText>
 
         {steps.map((stepItem, index) => {
           const isDone = completedSteps.includes(index);
@@ -228,11 +225,11 @@ export const ChecklistExecutionScreen: React.FC = () => {
         {/* Remarks Section */}
         <View style={styles.remarksSection}>
           <Heading level="h4" color="primary" style={{ marginBottom: 6 }}>
-            Execution Remarks (Optional)
+            Remarks (Optional)
           </Heading>
           <TextInput
             style={styles.remarksInput}
-            placeholder="Add operational notes, supervisor confirmation, or incident observations..."
+            placeholder="Enter remarks..."
             placeholderTextColor={colors.textSecondary}
             multiline
             numberOfLines={3}
@@ -257,7 +254,7 @@ export const ChecklistExecutionScreen: React.FC = () => {
             <ActivityIndicator size="small" color="#FFFFFF" />
           ) : (
             <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>
-              {isAllCompleted ? 'COMPLETE CHECKLIST' : `SUBMIT CHECKLIST (${completedSteps.length}/${steps.length})`}
+              {isAllCompleted ? 'Complete Checklist' : `Submit (${completedSteps.length}/${steps.length})`}
             </AppText>
           )}
         </TouchableOpacity>

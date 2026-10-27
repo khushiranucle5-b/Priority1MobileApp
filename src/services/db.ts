@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SEED_DATA } from '../constants/seedData';
 import { LoggerService } from './logger.service';
+import { TaskRecord } from '../features/tasks/types/task.types';
+import { DispatchRecord } from '../features/dispatches/types/dispatch.types';
+
+export type DBTask = TaskRecord;
+export type DBDispatch = DispatchRecord;
 
 const DB_PREFIX = 'p1_db_';
 
@@ -914,6 +919,160 @@ const DEFAULT_INCIDENTS: DBIncident[] = [
   }
 ];
 
+const todayDateStr = new Date().toISOString().split('T')[0];
+
+export const DEFAULT_TASKS: DBTask[] = [
+  {
+    id: 'tsk-101',
+    taskReference: 'TSK-2026-101',
+    title: 'Perimeter Lighting & CCTV Angle Inspection',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 's-01',
+    priority: 'High',
+    instructions: 'Inspect perimeter fence high-mast LED lights and verify cameras 12 to 18 are clean and functional. Log any outages in completion notes and photograph any defective lamps.',
+    dueDate: todayDateStr,
+    dueTime: '06:00 PM',
+    status: 'In Progress',
+    progress: 50,
+    assignedGuardIds: ['G-1001', 'guard-1'],
+    assignedGuards: [
+      { id: 'G-1001', name: 'John Smith', role: 'Security Officer' }
+    ],
+    requiresSignOff: true,
+    supervisorName: 'Jane Smith',
+    acknowledgedAt: `${todayDateStr} 08:30 AM`,
+    startedAt: `${todayDateStr} 09:00 AM`,
+    createdAt: `${todayDateStr} 08:00 AM`,
+    companyId: 'c-1',
+  },
+  {
+    id: 'tsk-102',
+    taskReference: 'TSK-2026-102',
+    title: 'Server Room & Fire Suppression Joint Audit',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 's-01',
+    priority: 'Critical',
+    instructions: 'Joint verification of FM-200 fire suppression cylinders, emergency exit access bar, and temperature readouts in Server Room A & B.',
+    dueDate: todayDateStr,
+    dueTime: '07:30 PM',
+    status: 'Pending',
+    progress: 0,
+    assignedGuardIds: ['G-1001', 'emp-103', 'guard-1'],
+    assignedGuards: [
+      { id: 'G-1001', name: 'John Smith', role: 'Security Officer' },
+      { id: 'emp-103', name: 'Mike Miller', role: 'Security Officer' },
+    ],
+    requiresSignOff: true,
+    supervisorName: 'Jane Smith',
+    createdAt: `${todayDateStr} 09:30 AM`,
+    companyId: 'c-1',
+  },
+  {
+    id: 'tsk-103',
+    taskReference: 'TSK-2026-103',
+    title: 'Main Gate Barrier & Visitor RFID Reader Check',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 's-01',
+    priority: 'Medium',
+    instructions: 'Test vehicle boom barrier hydraulic response and calibrate RFID badge scanner at Gate 1.',
+    dueDate: todayDateStr,
+    dueTime: '04:00 PM',
+    status: 'Under Review',
+    progress: 100,
+    assignedGuardIds: ['G-1001', 'guard-1'],
+    assignedGuards: [
+      { id: 'G-1001', name: 'John Smith', role: 'Security Officer' }
+    ],
+    requiresSignOff: true,
+    supervisorName: 'Jane Smith',
+    supervisorFeedback: 'Boom barrier timing verified. Awaiting evening shift supervisor sign-off.',
+    completionNotes: 'Completed test with 10 RFID test cards. All passed response time under 1.2s.',
+    acknowledgedAt: `${todayDateStr} 07:00 AM`,
+    startedAt: `${todayDateStr} 07:15 AM`,
+    submittedAt: `${todayDateStr} 09:45 AM`,
+    createdAt: `${todayDateStr} 06:30 AM`,
+    companyId: 'c-1',
+  },
+  {
+    id: 'tsk-104',
+    taskReference: 'TSK-2026-104',
+    title: 'First Aid Kit & Emergency Evacuation Signage Check',
+    site: 'Ahmedabad Plant (Ranucle Zundal)',
+    siteId: 's-01',
+    priority: 'Low',
+    instructions: 'Restock first aid supplies in Security Booth 1 & 2. Verify all exit signs illuminate on test switch.',
+    dueDate: todayDateStr,
+    dueTime: '02:00 PM',
+    status: 'Completed',
+    progress: 100,
+    assignedGuardIds: ['G-1001', 'guard-1'],
+    assignedGuards: [
+      { id: 'G-1001', name: 'John Smith', role: 'Security Officer' }
+    ],
+    requiresSignOff: false,
+    completionNotes: 'Replaced sterile gauze pads and antiseptic swabs in Booth 1 kit.',
+    acknowledgedAt: `${todayDateStr} 06:00 AM`,
+    startedAt: `${todayDateStr} 06:30 AM`,
+    completedAt: `${todayDateStr} 08:15 AM`,
+    createdAt: `${todayDateStr} 05:45 AM`,
+    companyId: 'c-1',
+  },
+];
+
+export const DEFAULT_DISPATCHES: DBDispatch[] = [
+  {
+    id: 'dsp-101',
+    dispatchReference: 'DSP-2026-042',
+    site: 'Ahmedabad Plant - Warehouse Sector 3',
+    siteId: 's-01',
+    reason: 'Alarm Trigger / Perimeter Sensor Trip',
+    priority: 'High',
+    reportingTime: '02:15 PM',
+    expectedDuration: '45 mins',
+    instructions: 'Investigate motion detector trip at Bay 4 North. Check perimeter fence line for any signs of tampering. Contact site security lead Vikram Patel upon arrival.',
+    contact: {
+      name: 'Vikram Patel',
+      phone: '+91 98765 43210',
+      role: 'Facility Security Lead',
+    },
+    assignedGuardId: 'G-1001',
+    assignedGuardName: 'John Smith',
+    assignedGuardEmail: 'john@priority-one.io',
+    status: 'Assigned',
+    assignedAt: `${todayDateStr} 01:45 PM`,
+    createdAt: `${todayDateStr} 01:45 PM`,
+    companyId: 'c-1',
+  },
+  {
+    id: 'dsp-102',
+    dispatchReference: 'DSP-2026-039',
+    site: 'Ahmedabad Plant - Executive Parking Level 2',
+    siteId: 's-01',
+    reason: 'Vehicle Breakdown & Access Lane Obstruction',
+    priority: 'Medium',
+    reportingTime: '11:00 AM',
+    expectedDuration: '30 mins',
+    instructions: 'Stalled client visitor vehicle in lane 2. Assist with traffic redirection and place warning cones until recovery vehicle arrives.',
+    contact: {
+      name: 'Rajesh Kumar',
+      phone: '+91 98123 45678',
+      role: 'Parking Coordinator',
+    },
+    assignedGuardId: 'G-1001',
+    assignedGuardName: 'John Smith',
+    assignedGuardEmail: 'john@priority-one.io',
+    status: 'Completed',
+    assignedAt: `${todayDateStr} 10:45 AM`,
+    acknowledgedAt: `${todayDateStr} 10:50 AM`,
+    enRouteAt: `${todayDateStr} 10:55 AM`,
+    arrivedAt: `${todayDateStr} 11:02 AM`,
+    completedAt: `${todayDateStr} 11:35 AM`,
+    completionNotes: 'Vehicle towed safely to visitor lot bay 12. Lane 2 cleared and traffic flowing normally.',
+    createdAt: `${todayDateStr} 10:45 AM`,
+    companyId: 'c-1',
+  },
+];
+
 // CRUD Generic helpers
 export const getTable = async <T>(table: string): Promise<T[]> => {
   try {
@@ -930,6 +1089,22 @@ export const getTable = async <T>(table: string): Promise<T[]> => {
       if (!data || data.length === 0) {
         data = DEFAULT_INCIDENTS as unknown as T[];
         await AsyncStorage.setItem(`${DB_PREFIX}incidents`, JSON.stringify(DEFAULT_INCIDENTS));
+      }
+      return data;
+    }
+
+    if (table === 'tasks') {
+      if (!data || data.length === 0) {
+        data = DEFAULT_TASKS as unknown as T[];
+        await AsyncStorage.setItem(`${DB_PREFIX}tasks`, JSON.stringify(DEFAULT_TASKS));
+      }
+      return data;
+    }
+
+    if (table === 'dispatches') {
+      if (!data || data.length === 0) {
+        data = DEFAULT_DISPATCHES as unknown as T[];
+        await AsyncStorage.setItem(`${DB_PREFIX}dispatches`, JSON.stringify(DEFAULT_DISPATCHES));
       }
       return data;
     }

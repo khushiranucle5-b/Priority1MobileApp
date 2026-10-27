@@ -8,12 +8,14 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { NavIcon, NavIconName } from '../../../components/NavIcon';
 
 const actions: { id: string; title: string; icon: NavIconName; route: string; isEmergency?: boolean }[] = [
-  { id: '1', title: 'DIRECT MSG', icon: 'messages', route: 'Messages' },
-  { id: '2', title: 'FILE INCIDENT', icon: 'incidents', route: 'FileIncident' },
-  { id: '3', title: 'LEAVE', icon: 'leaves', route: 'Leave' },
-  { id: '4', title: 'EMERGENCY', icon: 'loneworker', route: 'Emergency', isEmergency: true },
-  { id: '5', title: 'DOCUMENTS', icon: 'document', route: 'Documents' },
-  { id: '6', title: 'LONE WORK', icon: 'loneworker', route: 'LoneWorker' },
+  { id: '1', title: 'MY TASKS', icon: 'tasks', route: 'Tasks' },
+  { id: '2', title: 'DISPATCHES', icon: 'dispatches', route: 'Dispatches' },
+  { id: '3', title: 'GATE PASS', icon: 'visitors', route: 'Visitors' },
+  { id: '4', title: 'MY VEHICLE', icon: 'vehicles', route: 'AssignedVehicle' },
+  { id: '5', title: 'FILE INCIDENT', icon: 'incidents', route: 'FileIncident' },
+  { id: '6', title: 'DIRECT MSG', icon: 'messages', route: 'Messages' },
+  { id: '7', title: 'LONE WORK', icon: 'loneworker', route: 'LoneWorker' },
+  { id: '8', title: 'EMERGENCY', icon: 'loneworker', route: 'Emergency', isEmergency: true },
 ];
 
 export const QuickActionsGrid: React.FC = () => {

@@ -10,6 +10,8 @@ import { AppText } from '../components/typography/Text';
 import { TermsPopup } from '../components/TermsPopup';
 import { useTheme } from '../providers/ThemeProvider';
 
+import { navigationRef } from './navigationService';
+
 export const RootNavigator = () => {
   const { colors } = useTheme();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -51,7 +53,7 @@ export const RootNavigator = () => {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       {isAuthenticated ? (
         <>
           <TabNavigator />

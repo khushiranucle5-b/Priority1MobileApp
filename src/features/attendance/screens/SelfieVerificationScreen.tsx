@@ -51,12 +51,12 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     if (res.status === 'blocked' || !res.canAskAgain) {
       Alert.alert(
-        'Location Permission Required',
-        'Location access is required for attendance verification. Please enable Location permission in your phone Settings.',
+        'Location Required',
+        'Location access is required for attendance verification. Please enable it in Settings.',
         [
-          { text: 'CANCEL', style: 'cancel' },
+          { text: 'Cancel', style: 'cancel' },
           {
-            text: 'OPEN SETTINGS',
+            text: 'Open Settings',
             onPress: () => PermissionsService.openAppSettings(),
           },
         ]
@@ -65,12 +65,12 @@ export const SelfieVerificationScreen: React.FC = () => {
     }
 
     Alert.alert(
-      'Location Permission Required',
-      'Location access is required for attendance verification. Please allow location access to proceed.',
+      'Location Required',
+      'Location access is required for attendance verification.',
       [
-        { text: 'CANCEL', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'ALLOW LOCATION',
+          text: 'Allow',
           onPress: () => handleCaptureSelfie(),
         },
       ]
@@ -87,12 +87,12 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     if (res.status === 'blocked' || !res.canAskAgain) {
       Alert.alert(
-        'Camera Permission Required',
-        'Camera access is required for selfie verification. Please enable Camera permission in your phone Settings.',
+        'Camera Required',
+        'Camera access is required for selfie verification. Please enable it in Settings.',
         [
-          { text: 'CANCEL', style: 'cancel' },
+          { text: 'Cancel', style: 'cancel' },
           {
-            text: 'OPEN SETTINGS',
+            text: 'Open Settings',
             onPress: () => PermissionsService.openAppSettings(),
           },
         ]
@@ -101,12 +101,12 @@ export const SelfieVerificationScreen: React.FC = () => {
     }
 
     Alert.alert(
-      'Camera Permission Required',
-      'Camera access is required for selfie verification. Please allow camera access to proceed.',
+      'Camera Required',
+      'Camera access is required for selfie verification.',
       [
-        { text: 'CANCEL', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'ALLOW CAMERA',
+          text: 'Allow',
           onPress: () => handleCaptureSelfie(),
         },
       ]

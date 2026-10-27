@@ -12,6 +12,7 @@ import { ProfileNavigator } from './ProfileNavigator';
 import { useTheme } from '../providers/ThemeProvider';
 import { NavIcon } from '../components/NavIcon';
 import { LoneWorkerGlobalListener } from '../components/LoneWorkerGlobalListener';
+import { EmergencyDispatchGlobalListener } from '../components/EmergencyDispatchGlobalListener';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -158,6 +159,7 @@ export const TabNavigator = () => {
         />
       </Tab.Navigator>
       <LoneWorkerGlobalListener />
+      <EmergencyDispatchGlobalListener />
     </>
   );
 };
