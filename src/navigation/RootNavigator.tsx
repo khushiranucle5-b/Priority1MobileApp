@@ -44,8 +44,27 @@ export const RootNavigator = () => {
   if (isLoading || (isAuthenticated && !isInitialized)) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
-        <ShieldCheck size={120} color={colors.primary[600]} />
-        <AppText size="lg" weight="bold" style={{ color: colors.text, marginTop: 24 }}>
+        <View
+          style={{
+            width: 88,
+            height: 88,
+            borderRadius: 22,
+            backgroundColor: colors.primary[600],
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: colors.primary[600],
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: 0.25,
+            shadowRadius: 12,
+            elevation: 8,
+          }}
+        >
+          <ShieldCheck size={48} color="#FFFFFF" />
+        </View>
+        <AppText size="lg" weight="bold" style={{ color: colors.text, marginTop: 20 }}>
+          PriorityOne Security
+        </AppText>
+        <AppText size="sm" style={{ color: colors.textSecondary, marginTop: 6 }}>
           Loading Guard Workspace...
         </AppText>
       </View>
