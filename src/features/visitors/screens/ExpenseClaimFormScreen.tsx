@@ -7,6 +7,7 @@ import {
   TextInput,
   Alert,
   Modal,
+  Image,
 } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
@@ -31,7 +32,16 @@ import {
   X,
   RotateCcw,
   Calendar,
+  Camera,
+  Image as ImageIcon,
+  FileText,
+  Trash2,
+  Paperclip,
+  Eye,
+  Upload,
 } from 'lucide-react-native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { pick, types, isErrorWithCode, errorCodes } from '@react-native-documents/picker';
 
 export const ExpenseClaimFormScreen: React.FC = () => {
   const { colors, borderRadius } = useTheme();
@@ -59,6 +69,12 @@ export const ExpenseClaimFormScreen: React.FC = () => {
   const [salesTaxAmount, setSalesTaxAmount] = useState('');
   const [detailedDescription, setDetailedDescription] = useState('');
   const [supervisorFeedback, setSupervisorFeedback] = useState<string | null>(null);
+
+  // Receipt / Bill Attachment State
+  const [receiptPhotoUri, setReceiptPhotoUri] = useState<string | null>(null);
+  const [receiptFileName, setReceiptFileName] = useState<string | null>(null);
+  const [receiptFileType, setReceiptFileType] = useState<'image' | 'pdf' | 'document' | null>(null);
+  const [previewModalVisible, setPreviewModalVisible] = useState(false);
 
   // Picker Modals
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
@@ -89,6 +105,15 @@ export const ExpenseClaimFormScreen: React.FC = () => {
             setClaimedAmount(String(claim.claimedAmount ?? claim.amount ?? ''));
             setSalesTaxAmount(claim.salesTaxAmount ? String(claim.salesTaxAmount) : '');
             setDetailedDescription(claim.detailedDescription || claim.remarks || '');
+
+            if (claim.receiptPhotoUri) {
+              setReceiptPhotoUri(claim.receiptPhotoUri);
+              setReceiptFileName(claim.receiptFileName || 'receipt_document');
+              setReceiptFileType(
+                claim.receiptFileType ||
+                  (claim.receiptPhotoUri.toLowerCase().includes('.pdf') ? 'pdf' : 'image')
+              );
+            }
           }
         } else {
           // New Claim creation
@@ -107,6 +132,110 @@ export const ExpenseClaimFormScreen: React.FC = () => {
 
     initializeData();
   }, [claimId, guardId, route.params]);
+
+  // Pick receipt via Camera, Photo Gallery, or Document / PDF
+  const handlePickReceipt = () => {
+    Alert.alert(
+      'Attach Receipt / Bill',
+      'Choose receipt upload source:',
+      [
+        {
+          text: 'Take Photo (Camera)',
+          onPress: async () => {
+            try {
+              const res = await launchCamera({
+                mediaType: 'photo',
+                quality: 0.8,
+                saveToPhotos: false,
+              });
+              if (res.assets && res.assets[0]?.uri) {
+                const asset = res.assets[0];
+                setReceiptPhotoUri(asset.uri);
+                setReceiptFileName(asset.fileName || `receipt_${Date.now()}.jpg`);
+                setReceiptFileType('image');
+              }
+            } catch (e) {
+              Alert.alert('Camera Error', 'Unable to access camera.');
+            }
+          },
+        },
+        {
+          text: 'Choose from Gallery',
+          onPress: async () => {
+            try {
+              const res = await launchImageLibrary({
+                mediaType: 'photo',
+                quality: 0.8,
+                selectionLimit: 1,
+              });
+              if (res.assets && res.assets[0]?.uri) {
+                const asset = res.assets[0];
+                setReceiptPhotoUri(asset.uri);
+                setReceiptFileName(asset.fileName || `receipt_${Date.now()}.jpg`);
+                setReceiptFileType('image');
+              }
+            } catch (e) {
+              Alert.alert('Gallery Error', 'Unable to access photos.');
+            }
+          },
+        },
+        {
+          text: 'Upload PDF / File',
+          onPress: async () => {
+            try {
+              const result = await pick({
+                type: [types.pdf, types.images, types.allFiles],
+                allowMultiSelection: false,
+              });
+              const file = result[0];
+              if (file && file.uri) {
+                const isPdf =
+                  (file.type || '').includes('pdf') ||
+                  (file.name || '').toLowerCase().endsWith('.pdf');
+                const isImg =
+                  (file.type || '').includes('image') ||
+                  /\.(jpg|jpeg|png|webp)$/i.test(file.name || '');
+
+                setReceiptPhotoUri(file.uri);
+                setReceiptFileName(file.name || (isPdf ? 'receipt.pdf' : 'receipt.jpg'));
+                setReceiptFileType(isPdf ? 'pdf' : isImg ? 'image' : 'document');
+              }
+            } catch (err) {
+              if (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) {
+                // User cancelled selection
+              } else {
+                console.warn('Document picker error:', err);
+              }
+            }
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  // Remove receipt
+  const handleRemoveReceipt = () => {
+    Alert.alert(
+      'Remove Receipt',
+      'Are you sure you want to remove this attached receipt?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            setReceiptPhotoUri(null);
+            setReceiptFileName(null);
+            setReceiptFileType(null);
+          },
+        },
+      ]
+    );
+  };
 
   // Submit / Save
   const handleSave = async () => {
@@ -144,12 +273,15 @@ export const ExpenseClaimFormScreen: React.FC = () => {
         salesTaxAmount: numTax,
         detailedDescription: detailedDescription.trim() || undefined,
         currency: '$',
+        receiptPhotoUri: receiptPhotoUri || undefined,
+        receiptFileName: receiptFileName || undefined,
+        receiptFileType: receiptFileType || undefined,
       });
 
       setSaving(false);
 
       if (res.success && res.claim) {
-        Alert.alert('Claim Updated', `Expense claim ${res.claim.id} updated successfully.`, [
+        Alert.alert('Claim Updated', `Expense claim ${res.claim.id} updated successfully with receipt attached.`, [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       } else {
@@ -169,6 +301,9 @@ export const ExpenseClaimFormScreen: React.FC = () => {
           salesTaxAmount: numTax,
           detailedDescription: detailedDescription.trim() || undefined,
           currency: '$',
+          receiptPhotoUri: receiptPhotoUri || undefined,
+          receiptFileName: receiptFileName || undefined,
+          receiptFileType: receiptFileType || undefined,
         },
         { guardId: guardId || 'guard-1', guardName: guardName || 'Khushi Rani' }
       );
@@ -323,6 +458,114 @@ export const ExpenseClaimFormScreen: React.FC = () => {
             </View>
           </View>
 
+          {/* ========================================================
+              RECEIPT / BILL UPLOAD SECTION
+          ======================================================== */}
+          <View style={styles.formField}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <AppText size="xs" weight="bold" style={styles.formLabel}>
+                Receipt / Tax Invoice
+              </AppText>
+              {receiptPhotoUri && (
+                <TouchableOpacity onPress={handlePickReceipt}>
+                  <AppText size="xs" weight="bold" style={{ color: colors.primary[600] }}>
+                    Change
+                  </AppText>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {receiptPhotoUri ? (
+              <View style={[styles.receiptCard, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+                <View style={styles.receiptCardRow}>
+                  {receiptFileType === 'image' ? (
+                    <TouchableOpacity onPress={() => setPreviewModalVisible(true)} activeOpacity={0.8} style={styles.thumbWrapper}>
+                      <Image source={{ uri: receiptPhotoUri }} style={styles.receiptThumb} />
+                      <View style={styles.thumbZoomIcon}>
+                        <Eye size={12} color="#FFF" />
+                      </View>
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={styles.pdfIconBox}>
+                      <FileText size={24} color="#DC2626" />
+                    </View>
+                  )}
+
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <AppText size="sm" weight="semibold" style={{ color: colors.text }} numberOfLines={1}>
+                      {receiptFileName || 'Attached Receipt'}
+                    </AppText>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                      <View
+                        style={[
+                          styles.receiptBadge,
+                          { backgroundColor: receiptFileType === 'image' ? '#EFF6FF' : '#FEF2F2' },
+                        ]}
+                      >
+                        <AppText
+                          size="xs"
+                          weight="bold"
+                          style={{ color: receiptFileType === 'image' ? '#1D4ED8' : '#DC2626' }}
+                        >
+                          {receiptFileType === 'image' ? 'IMAGE / PHOTO' : 'DOCUMENT / PDF'}
+                        </AppText>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {receiptFileType === 'image' && (
+                      <TouchableOpacity
+                        style={[styles.receiptActionBtn, { backgroundColor: '#F1F5F9', marginRight: 8 }]}
+                        onPress={() => setPreviewModalVisible(true)}
+                        accessibilityLabel="Preview Receipt"
+                      >
+                        <Eye size={16} color={colors.textSecondary} />
+                      </TouchableOpacity>
+                    )}
+                    <TouchableOpacity
+                      style={[styles.receiptActionBtn, { backgroundColor: '#FEE2E2' }]}
+                      onPress={handleRemoveReceipt}
+                      accessibilityLabel="Remove Receipt"
+                    >
+                      <Trash2 size={16} color="#DC2626" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.uploadDottedBox,
+                  { borderColor: colors.primary[400] || '#93C5FD', backgroundColor: colors.surface },
+                ]}
+                onPress={handlePickReceipt}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.uploadIconCircle, { backgroundColor: '#EFF6FF' }]}>
+                  <Camera size={22} color={colors.primary[600]} />
+                </View>
+                <AppText size="sm" weight="bold" style={{ color: colors.text, marginTop: 8 }}>
+                  Attach Receipt / Bill
+                </AppText>
+                <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 2, textAlign: 'center' }}>
+                  Camera photo, gallery image, or PDF document
+                </AppText>
+                <View
+                  style={[
+                    styles.uploadPillBtn,
+                    { backgroundColor: colors.primary[50], borderColor: colors.primary[200] },
+                  ]}
+                >
+                  <Paperclip size={13} color={colors.primary[700]} />
+                  <AppText size="xs" weight="bold" style={{ color: colors.primary[700], marginLeft: 6 }}>
+                    Upload Receipt
+                  </AppText>
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
+
           {/* Notes */}
           <View style={styles.formField}>
             <AppText size="xs" weight="bold" style={styles.formLabel}>
@@ -450,6 +693,30 @@ export const ExpenseClaimFormScreen: React.FC = () => {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* ========================================================
+          FULLSCREEN RECEIPT PREVIEW MODAL
+      ======================================================== */}
+      <Modal visible={previewModalVisible} transparent animationType="fade">
+        <View style={styles.imagePreviewOverlay}>
+          <TouchableOpacity
+            style={styles.closePreviewBtn}
+            onPress={() => setPreviewModalVisible(false)}
+          >
+            <X size={24} color="#FFF" />
+          </TouchableOpacity>
+          {receiptPhotoUri && (
+            <Image
+              source={{ uri: receiptPhotoUri }}
+              style={styles.fullscreenReceiptImage}
+              resizeMode="contain"
+            />
+          )}
+          <AppText size="xs" style={{ color: '#E2E8F0', marginTop: 12, textAlign: 'center' }}>
+            {receiptFileName || 'Receipt Attachment'}
+          </AppText>
+        </View>
+      </Modal>
     </ScreenLayout>
   );
 };
@@ -479,6 +746,97 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 4,
+  },
+  receiptCard: {
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  receiptCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  thumbWrapper: {
+    position: 'relative',
+  },
+  receiptThumb: {
+    width: 52,
+    height: 52,
+    borderRadius: 8,
+    backgroundColor: '#E2E8F0',
+  },
+  thumbZoomIcon: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 4,
+    padding: 2,
+  },
+  pdfIconBox: {
+    width: 52,
+    height: 52,
+    borderRadius: 8,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  receiptBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  receiptActionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadDottedBox: {
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadPillBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  imagePreviewOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.92)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  closePreviewBtn: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+  },
+  fullscreenReceiptImage: {
+    width: '100%',
+    height: '75%',
   },
   attachDocButton: {
     flexDirection: 'row',

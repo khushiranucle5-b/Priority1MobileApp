@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
@@ -32,6 +33,9 @@ import {
   DollarSign,
   Tag,
   RotateCcw,
+  Paperclip,
+  Eye,
+  X,
 } from 'lucide-react-native';
 
 export const ExpenseClaimDetailsScreen: React.FC = () => {
@@ -43,6 +47,7 @@ export const ExpenseClaimDetailsScreen: React.FC = () => {
   const claimId = route.params?.claimId;
   const [claim, setClaim] = useState<VehicleExpenseClaim | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedImageModal, setSelectedImageModal] = useState<string | null>(null);
 
   useEffect(() => {
     const loadClaim = async () => {
@@ -242,6 +247,82 @@ export const ExpenseClaimDetailsScreen: React.FC = () => {
           )}
         </Card>
 
+        {/* Receipt Attachment Card */}
+        <Card style={[styles.sectionCard, { borderColor: colors.border }]}>
+          <View style={styles.sectionHeaderRow}>
+            <Receipt size={16} color={colors.primary[600]} />
+            <Heading level="h4" style={{ color: colors.text, marginLeft: 8, flex: 1 }}>
+              Receipt / Tax Invoice
+            </Heading>
+            {claim.receiptPhotoUri && (
+              <View style={[styles.receiptPill, { backgroundColor: '#DCFCE7' }]}>
+                <CheckCircle2 size={12} color="#15803D" />
+                <AppText size="xs" weight="bold" style={{ color: '#15803D', marginLeft: 4 }}>
+                  ATTACHED
+                </AppText>
+              </View>
+            )}
+          </View>
+
+          {claim.receiptPhotoUri ? (
+            <View style={{ marginTop: 6 }}>
+              {claim.receiptFileType === 'pdf' ? (
+                <View style={[styles.docPreviewCard, { backgroundColor: colors.surfaceSecondary || '#F8FAFC', borderColor: colors.border }]}>
+                  <FileText size={32} color="#DC2626" />
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <AppText size="sm" weight="bold" style={{ color: colors.text }} numberOfLines={1}>
+                      {claim.receiptFileName || 'receipt_document.pdf'}
+                    </AppText>
+                    <AppText size="xs" style={{ color: colors.textSecondary, marginTop: 2 }}>
+                      PDF Document Receipt
+                    </AppText>
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={0.9}
+                  onPress={() => setSelectedImageModal(claim.receiptPhotoUri || null)}
+                  style={styles.receiptContainer}
+                >
+                  <Image
+                    source={{ uri: claim.receiptPhotoUri }}
+                    style={styles.receiptImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.zoomOverlayBadge}>
+                    <Eye size={14} color="#FFF" />
+                    <AppText size="xs" weight="bold" style={{ color: '#FFF', marginLeft: 6 }}>
+                      Tap to view full receipt
+                    </AppText>
+                  </View>
+                </TouchableOpacity>
+              )}
+              {claim.receiptFileName && (
+                <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 8, textAlign: 'center' }}>
+                  {claim.receiptFileName}
+                </AppText>
+              )}
+            </View>
+          ) : (
+            <View style={[styles.noReceiptBox, { backgroundColor: '#F8FAFC', borderColor: colors.border }]}>
+              <Paperclip size={20} color={colors.textTertiary} />
+              <AppText size="xs" style={{ color: colors.textSecondary, marginTop: 6 }}>
+                No receipt attached for this expense claim
+              </AppText>
+              {canEdit && (
+                <TouchableOpacity
+                  style={{ marginTop: 8 }}
+                  onPress={() => navigation.navigate('ExpenseClaimForm', { claimId: claim.id, isEditing: true })}
+                >
+                  <AppText size="xs" weight="bold" style={{ color: colors.primary[600] }}>
+                    + Upload Receipt Now
+                  </AppText>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </Card>
+
         {/* Supervisor Approval Sign-Off */}
         {claim.approvedBy && (
           <View style={[styles.approvedNotice, { backgroundColor: '#DCFCE7', borderColor: '#22C55E' }]}>
@@ -274,6 +355,25 @@ export const ExpenseClaimDetailsScreen: React.FC = () => {
           )}
         </View>
       </ScrollView>
+
+      {/* Fullscreen Receipt Modal */}
+      <Modal visible={!!selectedImageModal} transparent animationType="fade">
+        <View style={styles.fullscreenModalWrap}>
+          <TouchableOpacity
+            style={styles.closeModalBtn}
+            onPress={() => setSelectedImageModal(null)}
+          >
+            <X size={24} color="#FFF" />
+          </TouchableOpacity>
+          {selectedImageModal && (
+            <Image
+              source={{ uri: selectedImageModal }}
+              style={styles.fullscreenReceiptImg}
+              resizeMode="contain"
+            />
+          )}
+        </View>
+      </Modal>
     </ScreenLayout>
   );
 };
@@ -355,12 +455,68 @@ const styles = StyleSheet.create({
   receiptContainer: {
     alignItems: 'center',
     marginTop: 6,
+    position: 'relative',
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   receiptImage: {
     width: '100%',
     height: 220,
     borderRadius: 8,
     backgroundColor: '#F1F5F9',
+  },
+  receiptPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  docPreviewCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  zoomOverlayBadge: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  noReceiptBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 24,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+  },
+  fullscreenModalWrap: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.94)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  closeModalBtn: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+  },
+  fullscreenReceiptImg: {
+    width: '100%',
+    height: '80%',
   },
   approvedNotice: {
     flexDirection: 'row',

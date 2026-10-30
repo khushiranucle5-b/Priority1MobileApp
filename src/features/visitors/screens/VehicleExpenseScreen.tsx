@@ -35,6 +35,7 @@ import {
   Edit2,
   Building2,
   RotateCcw,
+  Paperclip,
 } from 'lucide-react-native';
 
 const STATUS_FILTER_OPTIONS = [
@@ -400,6 +401,15 @@ export const VehicleExpenseScreen: React.FC = () => {
                           <Building2 size={12} color={colors.textSecondary} />
                           <AppText size="xs" style={{ color: colors.textSecondary, marginLeft: 4 }} numberOfLines={1}>
                             {claim.merchantName}
+                          </AppText>
+                        </View>
+                      )}
+
+                      {claim.receiptPhotoUri && (
+                        <View style={[styles.pillBadge, { backgroundColor: '#DCFCE7' }]}>
+                          <Paperclip size={11} color="#15803D" />
+                          <AppText size="xs" weight="bold" style={{ color: '#15803D', marginLeft: 4 }}>
+                            Receipt
                           </AppText>
                         </View>
                       )}

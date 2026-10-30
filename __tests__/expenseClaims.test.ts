@@ -81,6 +81,14 @@ describe('Operational & Vehicle Expense Management Suite', () => {
       expect(equipmentClaim).toBeDefined();
       expect(equipmentClaim?.merchantName).toBe('Tactical Supply Co.');
     });
+
+    test('Claims support receipt attachments with URI, filename, and file type', () => {
+      const receiptClaim = seedClaims.find((c) => !!c.receiptPhotoUri);
+      expect(receiptClaim).toBeDefined();
+      expect(receiptClaim?.receiptPhotoUri).toMatch(/^https?:\/\//);
+      expect(receiptClaim?.receiptFileName).toBeDefined();
+      expect(['image', 'pdf', 'document']).toContain(receiptClaim?.receiptFileType);
+    });
   });
 
   describe('Amount formatting > 999 to K', () => {
