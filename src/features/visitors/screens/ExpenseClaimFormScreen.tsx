@@ -150,7 +150,7 @@ export const ExpenseClaimFormScreen: React.FC = () => {
               });
               if (res.assets && res.assets[0]?.uri) {
                 const asset = res.assets[0];
-                setReceiptPhotoUri(asset.uri);
+                setReceiptPhotoUri(asset.uri || null);
                 setReceiptFileName(asset.fileName || `receipt_${Date.now()}.jpg`);
                 setReceiptFileType('image');
               }
@@ -170,7 +170,7 @@ export const ExpenseClaimFormScreen: React.FC = () => {
               });
               if (res.assets && res.assets[0]?.uri) {
                 const asset = res.assets[0];
-                setReceiptPhotoUri(asset.uri);
+                setReceiptPhotoUri(asset.uri || null);
                 setReceiptFileName(asset.fileName || `receipt_${Date.now()}.jpg`);
                 setReceiptFileType('image');
               }

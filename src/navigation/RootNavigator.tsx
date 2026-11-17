@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
+import { View, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { ShieldCheck } from 'lucide-react-native';
 import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
 import { AuthNavigator } from './AuthNavigator';
@@ -44,23 +43,15 @@ export const RootNavigator = () => {
   if (isLoading || (isAuthenticated && !isInitialized)) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
-        <View
+        <Image
+          source={require('../assets/images/app_logo.png')}
           style={{
             width: 88,
             height: 88,
-            borderRadius: 22,
-            backgroundColor: colors.primary[600],
-            justifyContent: 'center',
-            alignItems: 'center',
-            shadowColor: colors.primary[600],
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.25,
-            shadowRadius: 12,
-            elevation: 8,
+            borderRadius: 20,
           }}
-        >
-          <ShieldCheck size={48} color="#FFFFFF" />
-        </View>
+          resizeMode="contain"
+        />
         <AppText size="lg" weight="bold" style={{ color: colors.text, marginTop: 20 }}>
           PriorityOne Security
         </AppText>

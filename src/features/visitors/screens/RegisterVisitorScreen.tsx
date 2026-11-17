@@ -21,6 +21,12 @@ import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
+  CountryCode,
+  DEFAULT_COUNTRY,
+  parsePhoneWithCountry,
+} from '../../../constants/countryCodes';
+import { CountryCodePickerModal } from '../../../components/CountryCodePickerModal';
+import {
   visitorService,
   VISITOR_ID_TYPES,
 } from '../services/visitor.service';
@@ -63,6 +69,7 @@ export const RegisterVisitorScreen: React.FC = () => {
   // Core Visitor Form Fields
   const [visitorName, setVisitorName] = useState('');
   const [visitorPhone, setVisitorPhone] = useState('');
+  const [visitorCountry, setVisitorCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
   const [selectedVisitorInfo, setSelectedVisitorInfo] = useState<string | null>(null);
 
   // Category Dropdown
@@ -83,14 +90,21 @@ export const RegisterVisitorScreen: React.FC = () => {
   const [newUnitInput, setNewUnitInput] = useState('');
   const [newUnitOwnerInput, setNewUnitOwnerInput] = useState('');
   const [newUnitPhoneInput, setNewUnitPhoneInput] = useState('');
+  const [newUnitCountry, setNewUnitCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
 
   const [isAddingMember, setIsAddingMember] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberRelation, setNewMemberRelation] = useState('Owner');
   const [newMemberPhone, setNewMemberPhone] = useState('');
+  const [newMemberCountry, setNewMemberCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
   const [hostName, setHostName] = useState('');
   const [hostPhone, setHostPhone] = useState('');
+  const [hostCountry, setHostCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
   const [purpose, setPurpose] = useState('');
+
+  // Country Code Picker Modal State
+  const [countryPickerVisible, setCountryPickerVisible] = useState(false);
+  const [countryPickerTarget, setCountryPickerTarget] = useState<'visitor' | 'host' | 'unit' | 'member'>('visitor');
 
   // Modals for Destination Dropdowns
   const [blockModalVisible, setBlockModalVisible] = useState(false);
@@ -145,14 +159,26 @@ export const RegisterVisitorScreen: React.FC = () => {
         const v = await visitorService.getVisitorById(editVisitorId);
         if (v) {
           setVisitorName(v.visitorName);
-          setVisitorPhone(v.visitorPhone ? v.visitorPhone.replace(/\D/g, '').slice(-10) : '');
+          if (v.visitorPhone) {
+            const parsed = parsePhoneWithCountry(v.visitorPhone);
+            setVisitorCountry(parsed.country);
+            setVisitorPhone(parsed.digits);
+          } else {
+            setVisitorPhone('');
+          }
           setCategory((v.category as VisitorCategory) || 'Guest / General Visitor');
           setUnitNumber(v.unitNumber || '');
           if (v.unitNumber && v.unitNumber.includes('-')) {
             setSelectedBlock(v.unitNumber.split('-')[0].toUpperCase());
           }
           setHostName(v.hostName || '');
-          setHostPhone(v.hostPhone ? v.hostPhone.replace(/\D/g, '').slice(-10) : '');
+          if (v.hostPhone) {
+            const parsedHost = parsePhoneWithCountry(v.hostPhone);
+            setHostCountry(parsedHost.country);
+            setHostPhone(parsedHost.digits);
+          } else {
+            setHostPhone('');
+          }
           setPurpose(v.purpose || '');
           setIdType(v.idType === 'AADHAAR' ? 'NATIONAL_ID' : v.idType || 'NATIONAL_ID');
           setIdNumber(v.idNumber || '');
@@ -292,7 +318,12 @@ export const RegisterVisitorScreen: React.FC = () => {
     const blk = formattedUnit.includes('-') ? formattedUnit.split('-')[0] : selectedBlock.toUpperCase();
 
     const owner = newUnitOwnerInput.trim() || 'Resident';
-    const phone = newUnitPhoneInput.trim();
+    const rawDigits = newUnitPhoneInput.replace(/\D/g, '').trim();
+    if (rawDigits && rawDigits.length !== 10) {
+      Alert.alert('Invalid Mobile Number', 'Owner mobile number must be exactly 10 digits.');
+      return;
+    }
+    const phone = rawDigits ? `${newUnitCountry.dialCode} ${rawDigits}` : '';
 
     const newUnit: UnitResident = {
       unitNumber: formattedUnit,
@@ -317,6 +348,7 @@ export const RegisterVisitorScreen: React.FC = () => {
     setNewUnitInput('');
     setNewUnitOwnerInput('');
     setNewUnitPhoneInput('');
+    setNewUnitCountry(DEFAULT_COUNTRY);
     setIsAddingUnit(false);
     setUnitModalVisible(false);
   };
@@ -331,12 +363,18 @@ export const RegisterVisitorScreen: React.FC = () => {
 
     const cleanUnit = unitNumber.trim().toUpperCase();
     const existing = allUnits.find(u => u.unitNumber.toUpperCase() === cleanUnit);
+    const rawDigits = newMemberPhone.replace(/\D/g, '').trim();
+    if (rawDigits && rawDigits.length !== 10) {
+      Alert.alert('Invalid Mobile Number', 'Resident mobile number must be exactly 10 digits.');
+      return;
+    }
+    const phone = rawDigits ? `${newMemberCountry.dialCode} ${rawDigits}` : '';
 
     const newMem: ResidentMember = {
       id: `m-${Date.now()}`,
       name: name,
       relation: newMemberRelation || 'Resident',
-      phone: newMemberPhone.trim(),
+      phone: phone,
       isPrimary: !existing || !existing.members || existing.members.length === 0,
     };
 
@@ -348,7 +386,7 @@ export const RegisterVisitorScreen: React.FC = () => {
       unitNumber: cleanUnit,
       block: selectedBlock.toUpperCase(),
       ownerName: name,
-      ownerPhone: newMemberPhone.trim(),
+      ownerPhone: phone,
       members: [newMem],
     };
 
@@ -358,6 +396,7 @@ export const RegisterVisitorScreen: React.FC = () => {
     handleSelectMember(newMem);
     setNewMemberName('');
     setNewMemberPhone('');
+    setNewMemberCountry(DEFAULT_COUNTRY);
     setIsAddingMember(false);
     setMemberModalVisible(false);
   };
@@ -381,8 +420,15 @@ export const RegisterVisitorScreen: React.FC = () => {
   // When user taps a visitor from the suggestions list under mobile number
   // Auto-fills only visitor identity; destination ("Where they want to go") remains completely unchanged!
   const handleSelectVisitorProfile = (prof: VisitorProfile) => {
-    const cleanP = (prof.visitorPhone || '').replace(/\D/g, '').slice(-10);
-    setVisitorPhone(cleanP);
+    if (prof.visitorPhone) {
+      const parsed = parsePhoneWithCountry(prof.visitorPhone);
+      setVisitorCountry(parsed.country);
+      setVisitorPhone(parsed.digits);
+      setSelectedVisitorInfo(`${prof.visitorName} (${parsed.country.dialCode} ${parsed.digits})`);
+    } else {
+      setVisitorPhone('');
+      setSelectedVisitorInfo(prof.visitorName);
+    }
     setVisitorName(prof.visitorName);
     if (prof.category) setCategory(prof.category as VisitorCategory);
     if (prof.idType) setIdType(prof.idType);
@@ -396,7 +442,6 @@ export const RegisterVisitorScreen: React.FC = () => {
     // Destination (block, flat, resident) is untouched!
 
     setMatchedProfiles([]);
-    setSelectedVisitorInfo(`${prof.visitorName} (${cleanP})`);
   };
 
   // Camera / Gallery Photo Capture
@@ -445,7 +490,10 @@ export const RegisterVisitorScreen: React.FC = () => {
       return;
     }
     if (cleanVisitorPhone.length !== 10) {
-      Alert.alert('Invalid Mobile Number', 'Visitor mobile number must be exactly 10 digits.');
+      Alert.alert(
+        'Invalid Mobile Number',
+        `Visitor mobile number must be exactly 10 digits (currently ${cleanVisitorPhone.length} digits).`
+      );
       return;
     }
 
@@ -457,9 +505,15 @@ export const RegisterVisitorScreen: React.FC = () => {
 
     const cleanHostPhone = hostPhone.replace(/\D/g, '').trim();
     if (cleanHostPhone && cleanHostPhone.length !== 10) {
-      Alert.alert('Invalid Mobile Number', 'Host mobile number must be exactly 10 digits.');
+      Alert.alert(
+        'Invalid Mobile Number',
+        `Host mobile number must be exactly 10 digits (currently ${cleanHostPhone.length} digits).`
+      );
       return;
     }
+
+    const fullVisitorPhone = `${visitorCountry.dialCode} ${cleanVisitorPhone}`;
+    const fullHostPhone = cleanHostPhone ? `${hostCountry.dialCode} ${cleanHostPhone}` : '';
 
     if (!purpose.trim()) {
       Alert.alert('Required Field', 'Please enter the visit purpose.');
@@ -489,7 +543,7 @@ export const RegisterVisitorScreen: React.FC = () => {
                 id: `m-${Date.now()}`,
                 name: cleanHost,
                 relation: 'Resident',
-                phone: cleanHostPhone,
+                phone: fullHostPhone,
                 isPrimary: false,
               }
             ]
@@ -501,13 +555,13 @@ export const RegisterVisitorScreen: React.FC = () => {
           unitNumber: cleanUnit,
           block: cleanBlock,
           ownerName: cleanHost || 'Resident',
-          ownerPhone: cleanHostPhone,
+          ownerPhone: fullHostPhone,
           members: cleanHost ? [
             {
               id: `m-${Date.now()}`,
               name: cleanHost,
               relation: 'Resident',
-              phone: cleanHostPhone,
+              phone: fullHostPhone,
               isPrimary: true,
             }
           ] : [],
@@ -523,11 +577,11 @@ export const RegisterVisitorScreen: React.FC = () => {
     if (isEditMode && editVisitorId) {
       const res = await visitorService.updateVisitor(editVisitorId, {
         visitorName: cleanVisitorName,
-        visitorPhone: cleanVisitorPhone,
+        visitorPhone: fullVisitorPhone,
         unitNumber: unitNumber ? unitNumber.trim().toUpperCase() : 'General',
         category,
         hostName: cleanHostName,
-        hostPhone: cleanHostPhone,
+        hostPhone: fullHostPhone,
         purpose: purpose.trim() || 'General Visit',
         hasVehicle,
         vehiclePlateNumber: hasVehicle ? vehiclePlateNumber.trim().toUpperCase() : undefined,
@@ -550,11 +604,11 @@ export const RegisterVisitorScreen: React.FC = () => {
     const res = await visitorService.registerVisitor(
       {
         visitorName: cleanVisitorName,
-        visitorPhone: cleanVisitorPhone,
+        visitorPhone: fullVisitorPhone,
         unitNumber: unitNumber ? unitNumber.trim().toUpperCase() : 'General',
         category,
         hostName: cleanHostName,
-        hostPhone: cleanHostPhone,
+        hostPhone: fullHostPhone,
         purpose: purpose.trim() || 'General Visit',
         hasVehicle,
         vehiclePlateNumber: hasVehicle ? vehiclePlateNumber.trim().toUpperCase() : undefined,
@@ -628,21 +682,46 @@ export const RegisterVisitorScreen: React.FC = () => {
               />
             </View>
 
-            {/* 2. Below Name: Mobile Number * (Compulsory, 10 Digits) */}
+            {/* 2. Below Name: Mobile Number * (Compulsory) */}
             <View style={styles.fieldGroup}>
-              <AppText size="xs" weight="bold" style={[styles.fieldLabel, { color: colors.text }]}>
-                Mobile Number *
-              </AppText>
-              <View style={[styles.phoneInputWrap, { backgroundColor: colors.surface, borderColor: visitorPhone.length === 10 ? '#16A34A' : colors.border }]}>
-                <View style={styles.countryCodeBadge}>
-                  <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>
-                    +91
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <AppText size="xs" weight="bold" style={[styles.fieldLabel, { color: colors.text, marginBottom: 0 }]}>
+                  Mobile Number *
+                </AppText>
+                <TouchableOpacity
+                  onPress={() => {
+                    setCountryPickerTarget('visitor');
+                    setCountryPickerVisible(true);
+                  }}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                >
+                  
+                </TouchableOpacity>
+              </View>
+              <View style={[styles.phoneInputWrap, { backgroundColor: colors.surface, borderColor: visitorPhone.length >= 7 ? '#16A34A' : colors.border }]}>
+                <TouchableOpacity
+                  style={[styles.countryCodePickerBtn, { backgroundColor: colors.surfaceSecondary, borderRightColor: colors.border }]}
+                  onPress={() => {
+                    setCountryPickerTarget('visitor');
+                    setCountryPickerVisible(true);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <AppText size="sm" style={styles.countryFlagText}>
+                    {visitorCountry.flag}
                   </AppText>
-                </View>
+                  <AppText size="xs" weight="bold" style={{ color: colors.text, marginHorizontal: 4 }}>
+                    {visitorCountry.dialCode}
+                  </AppText>
+                  <ChevronDown size={13} color={colors.textSecondary} />
+                </TouchableOpacity>
                 <TextInput
                   style={[styles.phoneInputBox, { color: colors.text }]}
-                  keyboardType="number-pad"
+                  keyboardType="phone-pad"
                   maxLength={10}
+                  placeholder="Enter 10-digit mobile number"
+                  placeholderTextColor={colors.textTertiary}
                   value={visitorPhone}
                   onChangeText={(text) => {
                     const digits = text.replace(/\D/g, '').slice(0, 10);
@@ -742,21 +821,46 @@ export const RegisterVisitorScreen: React.FC = () => {
               />
             </View>
 
-            {/* Person to Meet Mobile Number (Optional, 10 Digits if entered) */}
+            {/* Person to Meet Mobile Number (Optional) */}
             <View style={styles.fieldGroup}>
-              <AppText size="xs" weight="bold" style={[styles.fieldLabel, { color: colors.text }]}>
-                Host Mobile Number
-              </AppText>
-              <View style={[styles.phoneInputWrap, { backgroundColor: colors.surface, borderColor: hostPhone.length === 10 ? '#16A34A' : colors.border }]}>
-                <View style={styles.countryCodeBadge}>
-                  <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>
-                    +91
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <AppText size="xs" weight="bold" style={[styles.fieldLabel, { color: colors.text, marginBottom: 0 }]}>
+                  Host Mobile Number
+                </AppText>
+                <TouchableOpacity
+                  onPress={() => {
+                    setCountryPickerTarget('host');
+                    setCountryPickerVisible(true);
+                  }}
+                  activeOpacity={0.7}
+                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                >
+                  
+                </TouchableOpacity>
+              </View>
+              <View style={[styles.phoneInputWrap, { backgroundColor: colors.surface, borderColor: hostPhone.length >= 7 ? '#16A34A' : colors.border }]}>
+                <TouchableOpacity
+                  style={[styles.countryCodePickerBtn, { backgroundColor: colors.surfaceSecondary, borderRightColor: colors.border }]}
+                  onPress={() => {
+                    setCountryPickerTarget('host');
+                    setCountryPickerVisible(true);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <AppText size="sm" style={styles.countryFlagText}>
+                    {hostCountry.flag}
                   </AppText>
-                </View>
+                  <AppText size="xs" weight="bold" style={{ color: colors.text, marginHorizontal: 4 }}>
+                    {hostCountry.dialCode}
+                  </AppText>
+                  <ChevronDown size={13} color={colors.textSecondary} />
+                </TouchableOpacity>
                 <TextInput
                   style={[styles.phoneInputBox, { color: colors.text }]}
-                  keyboardType="number-pad"
+                  keyboardType="phone-pad"
                   maxLength={10}
+                  placeholder="Enter 10-digit host mobile number"
+                  placeholderTextColor={colors.textTertiary}
                   value={hostPhone}
                   onChangeText={(text) => {
                     const digits = text.replace(/\D/g, '').slice(0, 10);
@@ -1176,13 +1280,29 @@ export const RegisterVisitorScreen: React.FC = () => {
                   value={newUnitOwnerInput}
                   onChangeText={setNewUnitOwnerInput}
                 />
-                <TextInput
-                  style={[styles.inlineInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, marginBottom: 8 }]}
-                  value={newUnitPhoneInput}
-                  keyboardType="number-pad"
-                  maxLength={10}
-                  onChangeText={(val) => setNewUnitPhoneInput(val.replace(/\D/g, '').slice(0, 10))}
-                />
+                <View style={[styles.phoneInputWrap, { backgroundColor: colors.surface, borderColor: colors.border, marginBottom: 8 }]}>
+                  <TouchableOpacity
+                    style={[styles.countryCodePickerBtn, { backgroundColor: colors.surfaceSecondary, borderRightColor: colors.border }]}
+                    onPress={() => {
+                      setCountryPickerTarget('unit');
+                      setCountryPickerVisible(true);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <AppText size="sm" style={styles.countryFlagText}>{newUnitCountry.flag}</AppText>
+                    <AppText size="xs" weight="bold" style={{ color: colors.text, marginHorizontal: 4 }}>{newUnitCountry.dialCode}</AppText>
+                    <ChevronDown size={13} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.phoneInputBox, { color: colors.text }]}
+                    placeholder="Owner 10-digit Phone"
+                    placeholderTextColor={colors.textTertiary}
+                    value={newUnitPhoneInput}
+                    keyboardType="phone-pad"
+                    maxLength={10}
+                    onChangeText={(val) => setNewUnitPhoneInput(val.replace(/\D/g, '').slice(0, 10))}
+                  />
+                </View>
                 <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
                   <TouchableOpacity
                     style={[styles.inlineCancelBtn, { borderColor: colors.border, paddingHorizontal: 12 }]}
@@ -1322,13 +1442,29 @@ export const RegisterVisitorScreen: React.FC = () => {
                     })}
                   </View>
                 </View>
-                <TextInput
-                  style={[styles.inlineInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border, marginBottom: 8 }]}
-                  value={newMemberPhone}
-                  keyboardType="number-pad"
-                  maxLength={10}
-                  onChangeText={(val) => setNewMemberPhone(val.replace(/\D/g, '').slice(0, 10))}
-                />
+                <View style={[styles.phoneInputWrap, { backgroundColor: colors.surface, borderColor: colors.border, marginBottom: 8 }]}>
+                  <TouchableOpacity
+                    style={[styles.countryCodePickerBtn, { backgroundColor: colors.surfaceSecondary, borderRightColor: colors.border }]}
+                    onPress={() => {
+                      setCountryPickerTarget('member');
+                      setCountryPickerVisible(true);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <AppText size="sm" style={styles.countryFlagText}>{newMemberCountry.flag}</AppText>
+                    <AppText size="xs" weight="bold" style={{ color: colors.text, marginHorizontal: 4 }}>{newMemberCountry.dialCode}</AppText>
+                    <ChevronDown size={13} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  <TextInput
+                    style={[styles.phoneInputBox, { color: colors.text }]}
+                    placeholder="Member 10-digit Phone"
+                    placeholderTextColor={colors.textTertiary}
+                    value={newMemberPhone}
+                    keyboardType="phone-pad"
+                    maxLength={10}
+                    onChangeText={(val) => setNewMemberPhone(val.replace(/\D/g, '').slice(0, 10))}
+                  />
+                </View>
                 <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'flex-end' }}>
                   <TouchableOpacity
                     style={[styles.inlineCancelBtn, { borderColor: colors.border, paddingHorizontal: 12 }]}
@@ -1504,6 +1640,40 @@ export const RegisterVisitorScreen: React.FC = () => {
           </View>
         </TouchableOpacity>
       </Modal>
+      {/* 6. Country Code Selection Modal */}
+      <CountryCodePickerModal
+        visible={countryPickerVisible}
+        onClose={() => setCountryPickerVisible(false)}
+        selectedDialCode={
+          countryPickerTarget === 'visitor'
+            ? visitorCountry.dialCode
+            : countryPickerTarget === 'host'
+            ? hostCountry.dialCode
+            : countryPickerTarget === 'unit'
+            ? newUnitCountry.dialCode
+            : newMemberCountry.dialCode
+        }
+        title={
+          countryPickerTarget === 'visitor'
+            ? 'Select Visitor Country Code'
+            : countryPickerTarget === 'host'
+            ? 'Select Host Country Code'
+            : countryPickerTarget === 'unit'
+            ? 'Select Owner Country Code'
+            : 'Select Member Country Code'
+        }
+        onSelect={(country) => {
+          if (countryPickerTarget === 'visitor') {
+            setVisitorCountry(country);
+          } else if (countryPickerTarget === 'host') {
+            setHostCountry(country);
+          } else if (countryPickerTarget === 'unit') {
+            setNewUnitCountry(country);
+          } else if (countryPickerTarget === 'member') {
+            setNewMemberCountry(country);
+          }
+        }}
+      />
     </ScreenLayout>
   );
 };
@@ -1549,6 +1719,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 46,
     overflow: 'hidden',
+  },
+  countryCodePickerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    height: '100%',
+    borderRightWidth: 1,
+    borderRightColor: '#CBD5E1',
+  },
+  countryFlagText: {
+    fontSize: 16,
+    marginRight: 2,
   },
   countryCodeBadge: {
     paddingHorizontal: 12,

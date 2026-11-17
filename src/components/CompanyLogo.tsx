@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native';
 import { useTheme } from '../providers/ThemeProvider';
 import { Heading } from './typography/Heading';
 import { AppText } from './typography/Text';
@@ -17,44 +17,20 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
 }) => {
   const { colors, spacing, borderRadius } = useTheme();
 
-  const logoSize = normalize(56);
-  const iconInnerSize = normalize(28);
+  const logoSize = normalize(64);
 
   return (
     <View style={styles.container} {...a11yImage(`${appName} logo`)}>
-      <View
-        style={[
-          styles.logoBadge,
-          {
-            width: logoSize,
-            height: logoSize,
-            borderRadius: borderRadius.lg,
-            backgroundColor: colors.primary[600],
-            marginBottom: spacing.sm,
-          },
-        ]}
-      >
-        {/* Shield Icon emblem */}
-        <View
-          style={[
-            styles.shieldShape,
-            {
-              width: iconInnerSize,
-              height: iconInnerSize,
-              borderColor: colors.textInverse,
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.shieldCheck,
-              {
-                borderColor: colors.textInverse,
-              },
-            ]}
-          />
-        </View>
-      </View>
+      <Image
+        source={require('../assets/images/app_logo.png')}
+        style={{
+          width: logoSize,
+          height: logoSize,
+          borderRadius: borderRadius.lg,
+          marginBottom: spacing.sm,
+        }}
+        resizeMode="contain"
+      />
 
       <Heading level="h3" style={{ color: colors.text }}>
         {appName}

@@ -292,13 +292,20 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           >
             {/* Top Header UI */}
             <View style={[styles.header, { paddingTop: topPadding, borderBottomColor: colors.border }]}>
-              <View>
-                <Heading level="h3" style={{ color: colors.text, fontSize: 20, fontWeight: '800' }}>
-                  Priority One
-                </Heading>
-                <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 3, fontWeight: '600' }}>
-                  Mobile App
-                </AppText>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Image
+                  source={require('../assets/images/app_logo.png')}
+                  style={{ width: 44, height: 44, borderRadius: 10 }}
+                  resizeMode="contain"
+                />
+                <View>
+                  <Heading level="h3" style={{ color: colors.text, fontSize: 18, fontWeight: '800' }}>
+                    Priority One
+                  </Heading>
+                  <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 2, fontWeight: '600' }}>
+                    Security Mobile
+                  </AppText>
+                </View>
               </View>
               <TouchableOpacity
                 onPress={() => handleClose()}
