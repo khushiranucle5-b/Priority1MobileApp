@@ -23,6 +23,7 @@ export const LoneWorkerScreen: React.FC = () => {
     loneWorker,
     loneWorkerHistory,
     checkInLoneWorker,
+    simulateLoneWorkerAlert,
     reportIncident,
     isClockedIn,
   } = useGuardStore();
@@ -215,6 +216,21 @@ export const LoneWorkerScreen: React.FC = () => {
               fullWidth
               onPress={handleReportSOS}
               style={{ height: 60 }}
+            />
+
+            <Button
+              title="⏱️ TEST LONE WORKER ALARM (10s)"
+              variant="outline"
+              size="large"
+              fullWidth
+              onPress={() => {
+                simulateLoneWorkerAlert(10);
+                Alert.alert(
+                  'Test Alarm Scheduled (10s)',
+                  'Lone Worker alarm will trigger in 10 seconds.\n\nNow close the app and lock your screen to verify screen wake-up, alarm tone, and lockscreen notification!'
+                );
+              }}
+              style={{ height: 50, borderColor: colors.primary[600] }}
             />
           </View>
         </Card>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { AppText } from '../../../components/typography/Text';
@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 export const LoneWorkerCard: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
-  const { loneWorker, checkInLoneWorker } = useGuardStore();
+  const { loneWorker, checkInLoneWorker, simulateLoneWorkerAlert } = useGuardStore();
   const [nowMs, setNowMs] = React.useState(Date.now());
 
   React.useEffect(() => {
@@ -68,6 +68,21 @@ export const LoneWorkerCard: React.FC = () => {
           style={{ flex: 1, borderColor: colors.error }}
         />
       </View>
+
+      <Button
+        title="⏱️ Test Alert (10s) — Test Lockscreen"
+        variant="outline"
+        size="small"
+        fullWidth
+        onPress={() => {
+          simulateLoneWorkerAlert(10);
+          Alert.alert(
+            'Test Alarm Scheduled (10s)',
+            'Lone Worker alarm will fire in 10 seconds.\n\nYou can now lock your phone or close the app to verify screen wake-up, siren, and lockscreen notification!'
+          );
+        }}
+        style={{ marginTop: 8, borderColor: colors.primary[500] }}
+      />
 
       {isCheckInDisabled && (
         <AppText size="xs" color="secondary" style={{ textAlign: 'center', marginTop: 6 }}>

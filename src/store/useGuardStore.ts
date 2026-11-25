@@ -27,6 +27,7 @@ import { TaskStatus } from '../features/tasks/types/task.types';
 export type { DBPatrol, DBEmployeeDocument, DBTask, DBDispatch };
 import { LoggerService } from '../services/logger.service';
 import { soundAlertService } from '../services/soundAlert.service';
+import { nativeAlertService } from '../services/nativeAlert.service';
 import { GeofenceService, GeofenceValidationResult } from '../services/geofence.service';
 import { formatDisplayDate } from '../utils/dateUtils';
 
@@ -405,6 +406,7 @@ interface GuardState {
   openLoneWorkerModal: () => void;
   closeLoneWorkerModal: () => void;
   triggerSafetyCheckDue: () => void;
+  simulateLoneWorkerAlert: (seconds?: number) => void;
   sendMessage: (type: 'site' | 'direct', conversationId: string, receiverId: string | null, messageText: string) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   markAllNotificationsRead: () => Promise<void>;
@@ -1023,6 +1025,16 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         }
       }
 
+      if (attStatus === 'Checked In' && currentLoneWorker.nextCheckTimestamp) {
+        if (currentLoneWorker.nextCheckTimestamp > Date.now()) {
+          nativeAlertService.scheduleLoneWorkerAlarm(
+            currentLoneWorker.nextCheckTimestamp,
+            '⚠️ Lone Worker Check Required',
+            'Your 30-minute safety check-in is due. Please confirm you are safe.'
+          );
+        }
+      }
+
       // Supervisor info
       let supervisorName = emp?.supervisor || 'Jane Smith';
       let supervisorPhone = '+1 415 555 0187';
@@ -1299,6 +1311,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       });
       if (unhandledEmergency) {
         soundAlertService.startSafetyAlert();
+        nativeAlertService.triggerEmergencyDispatchAlert(
+          unhandledEmergency.id,
+          '🚨 Emergency Dispatch Alert',
+          unhandledEmergency.reason || 'Urgent dispatch assigned',
+          unhandledEmergency.site || 'Assigned Site'
+        );
       }
       LoggerService.log(`[GuardStore] Hydration completed successfully for ${guardId}`);
     } catch (error: any) {
@@ -1518,6 +1536,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
       if (get().activeEmergencyDispatch?.id === dispatchId) {
         soundAlertService.stopSafetyAlert();
+        nativeAlertService.stopAlertSounds();
         set({ activeEmergencyDispatch: null });
       }
 
@@ -1533,14 +1552,22 @@ export const useGuardStore = create<GuardState>((set, get) => ({
   setEmergencyDispatchAlert: (dispatch: DBDispatch | null) => {
     if (dispatch) {
       soundAlertService.startSafetyAlert();
+      nativeAlertService.triggerEmergencyDispatchAlert(
+        dispatch.id,
+        '🚨 Emergency Dispatch Alert',
+        dispatch.reason || 'Urgent dispatch assigned',
+        dispatch.site || 'Assigned Site'
+      );
     } else {
       soundAlertService.stopSafetyAlert();
+      nativeAlertService.stopAlertSounds();
     }
     set({ activeEmergencyDispatch: dispatch });
   },
 
   dismissEmergencyDispatchAlert: async (dispatchId?: string) => {
     soundAlertService.stopSafetyAlert();
+    nativeAlertService.stopAlertSounds();
     const targetId = dispatchId || get().activeEmergencyDispatch?.id;
     const currentDismissed = get().dismissedEmergencyDispatchIds || [];
     const guardId = get().guardId;
@@ -1585,6 +1612,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       if (unhandledEmergency && (!activeEmergencyDispatch || activeEmergencyDispatch.id !== unhandledEmergency.id)) {
         set({ activeEmergencyDispatch: unhandledEmergency });
         soundAlertService.startSafetyAlert();
+        nativeAlertService.triggerEmergencyDispatchAlert(
+          unhandledEmergency.id,
+          '🚨 Emergency Dispatch Alert',
+          unhandledEmergency.reason || 'Urgent dispatch assigned',
+          unhandledEmergency.site || 'Assigned Site'
+        );
       }
     } catch (e) {
       // Ignore background sync errors
@@ -1653,6 +1686,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     });
 
     soundAlertService.startSafetyAlert();
+    nativeAlertService.triggerEmergencyDispatchAlert(
+      newDispatch.id,
+      '🚨 Emergency Dispatch Alert',
+      newDispatch.reason,
+      newDispatch.site
+    );
     return newDispatch;
   },
 
@@ -1751,6 +1790,14 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       if (openRecord) {
         LoggerService.log(`[useGuardStore] Active clock-in session already exists (${openRecord.id}). Restoring session without duplicate creation.`);
         const parsedIn = (openRecord.clockIn ? new Date(openRecord.clockIn).getTime() : 0) || nowMs;
+        const nextMs = parsedIn + 30 * 60 * 1000;
+        if (nextMs > nowMs) {
+          nativeAlertService.scheduleLoneWorkerAlarm(
+            nextMs,
+            '⚠️ Lone Worker Check Required',
+            'Your 30-minute safety check-in is due. Please confirm you are safe.'
+          );
+        }
         set({
           attendanceStatus: 'Checked In',
           clockInTimestamp: parsedIn,
@@ -1811,6 +1858,11 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       };
 
       await AsyncStorage.setItem(`@lone_worker_state_${guardId}`, JSON.stringify(lwState));
+      nativeAlertService.scheduleLoneWorkerAlarm(
+        nextMs,
+        '⚠️ Lone Worker Check Required',
+        'Your 30-minute safety check-in is due. Please confirm you are safe.'
+      );
 
       const firstIn = get().clockInTimestamp || nowMs;
       const siteRadius = targetSite?.geofence?.radiusMeters || targetSite?.coordinates?.radiusMeters || 150;
@@ -1917,6 +1969,8 @@ export const useGuardStore = create<GuardState>((set, get) => ({
       }
 
       soundAlertService.stopSafetyAlert();
+      nativeAlertService.cancelLoneWorkerAlarm();
+      nativeAlertService.stopAlertSounds();
 
       const lwState: LoneWorkerState = {
         status: 'NOT ACTIVE',
@@ -2736,6 +2790,12 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const checkStatus = customParams?.status ?? 'Safe';
 
     soundAlertService.stopSafetyAlert();
+    nativeAlertService.stopAlertSounds();
+    nativeAlertService.scheduleLoneWorkerAlarm(
+      nextMs,
+      '⚠️ Lone Worker Check Required',
+      'Your 30-minute safety check-in is due. Please confirm you are safe.'
+    );
 
     const newHistoryItem: LoneWorkerHistoryItem = {
       id: `lw-${nowMs}`,
@@ -2791,6 +2851,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
 
   closeLoneWorkerModal: () => {
     soundAlertService.stopSafetyAlert();
+    nativeAlertService.stopAlertSounds();
     set((state) => ({
       loneWorker: { ...state.loneWorker, isModalOpen: false }
     }));
@@ -2801,6 +2862,10 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     if (!isClockedIn) return;
     if (loneWorker.isModalOpen) return;
     soundAlertService.startSafetyAlert();
+    nativeAlertService.triggerLoneWorkerAlertNow(
+      '⚠️ Lone Worker Check Required',
+      'Your 30-minute safety check-in is due. Please confirm you are safe.'
+    );
     set((state) => ({
       loneWorker: {
         ...state.loneWorker,
@@ -2808,6 +2873,23 @@ export const useGuardStore = create<GuardState>((set, get) => ({
         isModalOpen: true,
       }
     }));
+  },
+
+  simulateLoneWorkerAlert: (seconds: number = 10) => {
+    const nextMs = Date.now() + seconds * 1000;
+    const formatTime12h = (ts: number) => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    set((state) => ({
+      loneWorker: {
+        ...state.loneWorker,
+        nextCheckTimestamp: nextMs,
+        nextCheckRequired: formatTime12h(nextMs),
+      }
+    }));
+    nativeAlertService.scheduleLoneWorkerAlarmInSeconds(
+      seconds,
+      '⚠️ Lone Worker Check Required',
+      'Your safety check-in is due. Please confirm you are safe.'
+    );
   },
 
   sendMessage: async (type, conversationId, receiverId, messageText) => {
