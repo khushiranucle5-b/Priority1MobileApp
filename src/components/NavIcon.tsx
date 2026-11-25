@@ -41,7 +41,12 @@ import {
   Check,
   Send,
   Info,
+  Car,
+  Truck,
+  QrCode,
+  UserCheck,
 } from 'lucide-react-native';
+import { useTheme } from '../providers/ThemeProvider';
 
 export type NavIconName =
   | 'dashboard'
@@ -85,7 +90,14 @@ export type NavIconName =
   | 'check'
   | 'send'
   | 'info'
-  | 'about';
+  | 'about'
+  | 'visitors'
+  | 'vehicles'
+  | 'car'
+  | 'truck'
+  | 'qr'
+  | 'tasks'
+  | 'dispatches';
 
 interface NavIconProps {
   name: NavIconName;
@@ -100,7 +112,8 @@ export const NavIcon: React.FC<NavIconProps> = ({
   size = 28,
   active = false,
 }) => {
-  const iconColor = color || (active ? '#0F172A' : '#94A3B8');
+  const { colors } = useTheme();
+  const iconColor = color || (active ? colors.text : colors.textTertiary);
   const lucideStrokeWidth = 2;
 
   switch (name) {
@@ -186,6 +199,19 @@ export const NavIcon: React.FC<NavIconProps> = ({
     case 'info':
     case 'about':
       return <Info size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'visitors':
+      return <UserCheck size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'vehicles':
+    case 'car':
+      return <Car size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'truck':
+      return <Truck size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'qr':
+      return <QrCode size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'tasks':
+      return <ClipboardCheck size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
+    case 'dispatches':
+      return <Truck size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
     default:
       return <FileText size={size} color={iconColor} strokeWidth={lucideStrokeWidth} />;
   }

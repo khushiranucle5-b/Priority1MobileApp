@@ -50,23 +50,23 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
     const s = status.toLowerCase();
     if (s === 'approved') {
       return {
-        bg: colors.successLight || '#dcfce7',
-        text: colors.success ? colors.success[700] || '#15803d' : '#15803d',
+        bg: colors.successLight,
+        text: colors.successDark,
       };
     } else if (s === 'rejected') {
       return {
-        bg: colors.errorLight || '#fee2e2',
-        text: colors.error ? colors.error[700] || '#b91c1c' : '#b91c1c',
+        bg: colors.errorLight,
+        text: colors.errorDark,
       };
     } else if (s === 'cancelled') {
       return {
-        bg: colors.surfaceSecondary || '#e2e8f0',
-        text: colors.textSecondary || '#64748b',
+        bg: colors.surfaceSecondary,
+        text: colors.textSecondary,
       };
     }
     return {
-      bg: colors.warningLight || '#ffedd5',
-      text: colors.warning ? colors.warning[700] || '#c2410c' : '#c2410c',
+      bg: colors.warningLight,
+      text: colors.warningDark,
     };
   };
 
@@ -109,20 +109,24 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
         return (
           <Card key={leave.id} variant="outlined" style={styles.card}>
             <View style={styles.headerRow}>
-              <Heading level="h3" color="primary">{leave.type}</Heading>
-              <StatusBadge status={leave.status} size="md" />
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <Heading level="h3" color="primary">{leave.type}</Heading>
+              </View>
+              <View style={{ flexShrink: 0 }}>
+                <StatusBadge status={leave.status} size="md" />
+              </View>
             </View>
             
             <View style={[styles.detailRow, { marginTop: spacing.sm }]}>
-              <View>
+              <View style={{ flex: 1, paddingRight: 8 }}>
                 <AppText size="xs" color="secondary" weight="semibold">DATE RANGE</AppText>
                 <AppText size="sm" weight="bold" color="primary" style={{ marginTop: 2 }}>
                   {leave.fromDate} – {leave.toDate}
                 </AppText>
               </View>
-              <View style={{ alignItems: 'flex-end' }}>
+              <View style={{ alignItems: 'flex-end', flexShrink: 0 }}>
                 <AppText size="xs" color="secondary" weight="semibold">DURATION</AppText>
-                <AppText size="sm" weight="bold" style={{ color: colors.primary[600] || '#2563eb', marginTop: 2 }}>
+                <AppText size="sm" weight="bold" style={{ color: colors.primary[600], marginTop: 2 }}>
                   {leave.days} Day(s)
                 </AppText>
               </View>
@@ -130,7 +134,7 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
 
             <View style={{ marginTop: 10 }}>
               <AppText size="xs" color="secondary" weight="semibold">REASON</AppText>
-              <AppText size="sm" color="text" weight="medium" style={{ marginTop: 2 }}>
+              <AppText size="sm" color="primary" weight="medium" style={{ marginTop: 2 }}>
                 {leave.reason}
               </AppText>
             </View>
@@ -146,25 +150,25 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
               <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                 {canEdit && (
                   <TouchableOpacity
-                    style={styles.iconActionBtnEdit}
+                    style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                     onPress={() => onEditLeave(leave)}
                     activeOpacity={0.7}
                     accessibilityLabel="Edit leave"
                     accessibilityRole="button"
                   >
-                    <NavIcon name="edit" size={24} color="#4F46E5" />
+                    <NavIcon name="edit" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
                 )}
 
                 {canCancel && (
                   <TouchableOpacity
-                    style={styles.iconActionBtnCancel}
+                    style={[styles.iconActionBtnCancel, { borderColor: colors.error, backgroundColor: colors.errorLight }]}
                     onPress={() => setLeaveToCancel(leave)}
                     activeOpacity={0.7}
                     accessibilityLabel="Cancel leave"
                     accessibilityRole="button"
                   >
-                    <NavIcon name="close" size={24} color="#DC2626" />
+                    <NavIcon name="close" size={24} color={colors.errorDark} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -201,10 +205,10 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
 
               <TouchableOpacity
                 disabled={isCancelling}
-                style={[styles.modalBtn, { backgroundColor: colors.error || '#dc2626', borderRadius: borderRadius.md }, isCancelling && { opacity: 0.6 }]}
+                style={[styles.modalBtn, { backgroundColor: colors.error, borderRadius: borderRadius.md }, isCancelling && { opacity: 0.6 }]}
                 onPress={handleConfirmCancel}
               >
-                <AppText size="base" weight="bold" style={{ color: '#FFFFFF' }}>
+                <AppText size="base" weight="bold" style={{ color: colors.surface }}>
                   {isCancelling ? 'CANCELLING...' : 'CANCEL LEAVE'}
                 </AppText>
               </TouchableOpacity>
@@ -214,7 +218,7 @@ export const LeaveHistory: React.FC<LeaveHistoryProps> = ({ onEditLeave, searchQ
       </Modal>
 
       {showToast && (
-        <View style={[styles.snackbar, { backgroundColor: colors.success || '#16a34a' }]}>
+        <View style={[styles.snackbar, { backgroundColor: colors.success }]}>
           <AppText color="surface" weight="semibold" size="base">
             Leave application cancelled successfully.
           </AppText>
@@ -265,23 +269,19 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     borderTopWidth: 1,
   },
-  iconActionBtnEdit: {
-    width: 52,
-    height: 52,
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   iconActionBtnCancel: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#FCA5A5',
-    backgroundColor: '#FEE2E2',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -296,15 +296,14 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
     borderWidth: 1.5,
-    padding: 20,
     elevation: 5,
-    shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 10,
   },
   modalActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    flexWrap: 'wrap',
     gap: 12,
   },
   modalBtn: {

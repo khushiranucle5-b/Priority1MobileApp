@@ -141,31 +141,31 @@ export const AssetsScreen: React.FC = () => {
         
         {/* Top Search & Filter Row */}
         <View style={styles.searchFilterRow}>
-          <View style={styles.searchBox}>
+          <View style={[styles.searchBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={{ marginRight: 8 }}>
-              <NavIcon name="search" size={18} color="#64748B" />
+              <NavIcon name="search" size={18} color={colors.textSecondary} />
             </View>
             <TextInput
               placeholder="Search assets by name, code, serial..."
               value={searchQuery}
               onChangeText={setSearchQuery}
-              style={styles.searchInput}
-              placeholderTextColor="#94A3B8"
+              style={[styles.searchInput, { color: colors.text }]}
+              placeholderTextColor={colors.textSecondary}
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-                <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+                <AppText size="xs" weight="bold" color="secondary">✕</AppText>
               </TouchableOpacity>
             ) : null}
           </View>
 
           {/* Inline Dropdown Trigger Button */}
           <TouchableOpacity
-            style={styles.dropdownTrigger}
+            style={[styles.dropdownTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() => setDropdownOpen(!dropdownOpen)}
             activeOpacity={0.8}
           >
-            <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+            <AppText size="sm" weight="bold" color="primary" style={{ marginRight: 4 }}>
               {categoryFilter === 'All' ? 'Filter: All' : `Filter: ${categoryFilter}`}
             </AppText>
             <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
@@ -199,8 +199,8 @@ export const AssetsScreen: React.FC = () => {
             <AppText size="sm" color="secondary" style={{ marginTop: 8 }}>Loading assigned assets...</AppText>
           </View>
         ) : filteredAssets.length === 0 ? (
-          <Card style={{ padding: 24, alignItems: 'center' }}>
-            <NavIcon name="assets" size={32} color="#94A3B8" />
+          <Card style={{ padding: 24, alignItems: 'center', backgroundColor: colors.surface, borderColor: colors.border }}>
+            <NavIcon name="assets" size={32} color={colors.textSecondary} />
             <AppText size="sm" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
               No assets found matching the search or filter criteria.
             </AppText>
@@ -212,7 +212,7 @@ export const AssetsScreen: React.FC = () => {
             const typeColors = getTypeBadgeStyle(asset.type);
 
             return (
-              <Card key={asset.id} style={styles.assetCard}>
+              <Card key={asset.id} style={[styles.assetCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate('AssetDetails', { assetId: asset.id })}
@@ -254,17 +254,19 @@ export const AssetsScreen: React.FC = () => {
                   </View>
 
                   {/* Card Footer Touch Action */}
-                  <View style={styles.cardFooter}>
-                    <AppText size="sm" color="secondary">
-                      Assigned by: <AppText size="sm" weight="semibold" color="primary">{asset.assignedBy || 'Jane Smith (Supervisor)'}</AppText>
-                    </AppText>
+                  <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <AppText size="sm" color="secondary">
+                        Assigned by: <AppText size="sm" weight="semibold" color="primary">{asset.assignedBy || 'Jane Smith (Supervisor)'}</AppText>
+                      </AppText>
+                    </View>
 
                     <TouchableOpacity
-                      style={styles.viewIconButton}
+                      style={[styles.iconActionBtnView, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                       onPress={() => navigation.navigate('AssetDetails', { assetId: asset.id })}
                       activeOpacity={0.7}
                     >
-                      <NavIcon name="eye" size={18} color="#4F46E5" />
+                      <NavIcon name="eye" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
@@ -293,9 +295,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -303,16 +303,13 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 56,
     paddingHorizontal: 14,
@@ -352,7 +349,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
   },
   cardHeader: {
@@ -380,17 +376,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
     paddingTop: 10,
     marginTop: 12,
   },
-  viewIconButton: {
-    width: 44,
-    height: 44,
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
     borderRadius: 10,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
   },

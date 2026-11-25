@@ -26,6 +26,7 @@ type TabType =
 
 export const SiteDetailsScreen: React.FC = () => {
   const { colors, borderRadius } = useTheme();
+  const styles = React.useMemo(() => getStyles(colors, borderRadius), [colors, borderRadius]);
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
 
@@ -305,9 +306,9 @@ export const SiteDetailsScreen: React.FC = () => {
         {/* Action Feedback Banner */}
         {downloadFeedback ? (
           <View style={styles.feedbackBanner}>
-            <AppText size="xs" weight="bold" style={{ color: '#065F46' }}>✓ {downloadFeedback}</AppText>
+            <AppText size="xs" weight="bold" style={{ color: colors.successDark }}>✓ {downloadFeedback}</AppText>
             <TouchableOpacity onPress={() => setDownloadFeedback(null)}>
-              <AppText size="xs" weight="bold" style={{ color: '#065F46', marginLeft: 8 }}>✕</AppText>
+              <AppText size="xs" weight="bold" style={{ color: colors.successDark, marginLeft: 8 }}>✕</AppText>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -318,8 +319,8 @@ export const SiteDetailsScreen: React.FC = () => {
             <View style={{ flex: 1, paddingRight: 8 }}>
               <View style={styles.titleRow}>
                 <Heading level="h1" color="primary">{site.name}</Heading>
-                <View style={[styles.statusBadge, { backgroundColor: '#D1FAE5' }]}>
-                  <AppText size="sm" weight="bold" style={{ color: '#059669' }}>
+                <View style={[styles.statusBadge, { backgroundColor: colors.successLight }]}>
+                  <AppText size="sm" weight="bold" style={{ color: colors.successDark }}>
                     {(site.status || 'ACTIVE').toUpperCase()}
                   </AppText>
                 </View>
@@ -340,7 +341,7 @@ export const SiteDetailsScreen: React.FC = () => {
             activeOpacity={0.7}
             accessibilityLabel="Scroll left"
           >
-            <AppText size="lg" weight="bold" style={{ color: '#4F46E5', fontSize: 24, lineHeight: 26 }}>‹</AppText>
+            <AppText size="lg" weight="bold" style={{ color: colors.primary[600], fontSize: 24, lineHeight: 26 }}>‹</AppText>
           </TouchableOpacity>
 
           <ScrollView
@@ -359,16 +360,16 @@ export const SiteDetailsScreen: React.FC = () => {
                   key={tab.label}
                   style={[
                     styles.tabChip,
-                    isActive && { backgroundColor: '#FFFFFF', borderColor: '#4F46E5', borderWidth: 2 }
+                    isActive && { backgroundColor: colors.surface, borderColor: colors.primary[600], borderWidth: 2 }
                   ]}
                   onPress={() => setActiveTab(tab.label)}
                   activeOpacity={0.75}
                 >
-                  <NavIcon name={tab.icon} size={18} color={isActive ? '#4F46E5' : '#64748B'} />
+                  <NavIcon name={tab.icon} size={18} color={isActive ? colors.primary[600] : colors.textSecondary} />
                   <AppText
                     size="base"
                     weight={isActive ? 'bold' : 'medium'}
-                    style={{ color: isActive ? '#4F46E5' : '#64748B', marginLeft: 8 }}
+                    style={{ color: isActive ? colors.primary[600] : colors.textSecondary, marginLeft: 8 }}
                   >
                     {tab.label}
                   </AppText>
@@ -383,7 +384,7 @@ export const SiteDetailsScreen: React.FC = () => {
             activeOpacity={0.7}
             accessibilityLabel="Scroll right"
           >
-            <AppText size="lg" weight="bold" style={{ color: '#4F46E5', fontSize: 24, lineHeight: 26 }}>›</AppText>
+            <AppText size="lg" weight="bold" style={{ color: colors.primary[600], fontSize: 24, lineHeight: 26 }}>›</AppText>
           </TouchableOpacity>
         </View>
 
@@ -422,7 +423,7 @@ export const SiteDetailsScreen: React.FC = () => {
 
               <View style={styles.infoBox}>
                 <AppText size="sm" color="secondary">Status</AppText>
-                <AppText size="base" weight="bold" style={{ color: '#059669' }}>Active</AppText>
+                <AppText size="base" weight="bold" style={{ color: colors.successDark }}>Active</AppText>
               </View>
             </View>
 
@@ -479,13 +480,13 @@ export const SiteDetailsScreen: React.FC = () => {
                   paddingHorizontal: 14,
                   paddingVertical: 10,
                   borderRadius: 10,
-                  backgroundColor: '#F0FDF4',
+                  backgroundColor: colors.successLight,
                   borderWidth: 1.5,
-                  borderColor: '#16A34A',
+                  borderColor: colors.success,
                 }}>
                   <AppText style={{ fontSize: 18 }}>🔴</AppText>
                   <View style={{ flex: 1 }}>
-                    <AppText size="base" weight="bold" style={{ color: '#15803D' }}>
+                    <AppText size="base" weight="bold" style={{ color: colors.successDark }}>
                       Circle Geofence ({geofenceState.radiusMeters}m Radius)
                     </AppText>
 
@@ -511,7 +512,7 @@ export const SiteDetailsScreen: React.FC = () => {
               <View style={styles.infoBoxFull}>
                 <AppText size="sm" color="secondary">Verification Status</AppText>
                 <View style={[styles.statusChipGreen, { marginTop: 4 }]}>
-                  <AppText size="sm" weight="bold" style={{ color: '#059669' }}>
+                  <AppText size="sm" weight="bold" style={{ color: colors.successDark }}>
                     ✓ {geofence.status || 'Active Boundary'}
                   </AppText>
                 </View>
@@ -523,22 +524,22 @@ export const SiteDetailsScreen: React.FC = () => {
             <Heading level="h3" color="primary" style={{ marginBottom: 12 }}>Geofence Validation Policies (Read-Only)</Heading>
             <View style={{ gap: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
-                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
+                <AppText size="base" weight="bold" style={{ color: colors.successDark, fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Enable Geofence Validation</AppText>
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
-                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
+                <AppText size="base" weight="bold" style={{ color: colors.successDark, fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Require Geofence for Clock-In</AppText>
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
-                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
+                <AppText size="base" weight="bold" style={{ color: colors.successDark, fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Require Geofence for Clock-Out</AppText>
               </View>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 }}>
-                <AppText size="base" weight="bold" style={{ color: '#059669', fontSize: 18 }}>✓</AppText>
+                <AppText size="base" weight="bold" style={{ color: colors.successDark, fontSize: 18 }}>✓</AppText>
                 <AppText size="base" color="primary">Require Location Permission</AppText>
               </View>
             </View>
@@ -566,8 +567,8 @@ export const SiteDetailsScreen: React.FC = () => {
                       </AppText>
                     </View>
 
-                    <View style={[styles.priorityBadge, { backgroundColor: (po.priority || 'High').toLowerCase() === 'high' ? '#FEE2E2' : '#FEF3C7' }]}>
-                      <AppText size="sm" weight="bold" style={{ color: (po.priority || 'High').toLowerCase() === 'high' ? '#DC2626' : '#D97706' }}>
+                    <View style={[styles.priorityBadge, { backgroundColor: (po.priority || 'High').toLowerCase() === 'high' ? colors.errorLight : colors.warningLight }]}>
+                      <AppText size="sm" weight="bold" style={{ color: (po.priority || 'High').toLowerCase() === 'high' ? colors.errorDark : colors.warningDark }}>
                         {po.priority || 'High'} Priority
                       </AppText>
                     </View>
@@ -581,25 +582,25 @@ export const SiteDetailsScreen: React.FC = () => {
 
                   <View style={styles.cardActionRowBottom}>
                     <TouchableOpacity
-                      style={styles.iconOnlyBtnView}
+                      style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                       onPress={() => handleViewDocument(po, 'Post Order SOP')}
                       activeOpacity={0.7}
                       accessibilityLabel="View document"
                       accessibilityRole="button"
                       hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                     >
-                      <NavIcon name="eye" size={24} color="#4F46E5" />
+                      <NavIcon name="eye" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={styles.iconOnlyBtnDownload}
+                      style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                       onPress={() => handleDownloadDocument(po)}
                       activeOpacity={0.7}
                       accessibilityLabel="Download document"
                       accessibilityRole="button"
                       hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                     >
-                      <NavIcon name="download" size={24} color="#FFFFFF" />
+                      <NavIcon name="download" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -634,7 +635,7 @@ export const SiteDetailsScreen: React.FC = () => {
                           size="sm"
                         />
                         <View style={styles.categoryPillWeb}>
-                          <AppText size="xs" weight="medium" style={{ color: '#475569' }}>
+                          <AppText size="xs" weight="medium" style={{ color: colors.textSecondary }}>
                             {cl.category}
                           </AppText>
                         </View>
@@ -723,12 +724,12 @@ export const SiteDetailsScreen: React.FC = () => {
               <View style={styles.infoGrid}>
                 <View style={styles.infoBox}>
                   <AppText size="sm" color="secondary">Officer Shift Checks</AppText>
-                  <AppText size="base" weight="bold" style={{ color: '#059669' }}>✓ Enabled ({safetyConfig.officerShiftChecks?.intervalMins || 60}m interval)</AppText>
+                  <AppText size="base" weight="bold" style={{ color: colors.successDark }}>✓ Enabled ({safetyConfig.officerShiftChecks?.intervalMins || 60}m interval)</AppText>
                 </View>
 
                 <View style={styles.infoBox}>
                   <AppText size="sm" color="secondary">Lone Worker Safety</AppText>
-                  <AppText size="base" weight="bold" style={{ color: '#059669' }}>✓ Enabled ({safetyConfig.loneWorkerChecks?.intervalMins || 30}m interval)</AppText>
+                  <AppText size="base" weight="bold" style={{ color: colors.successDark }}>✓ Enabled ({safetyConfig.loneWorkerChecks?.intervalMins || 30}m interval)</AppText>
                 </View>
               </View>
             </View>
@@ -749,7 +750,7 @@ export const SiteDetailsScreen: React.FC = () => {
               checkpoints.map((cp, idx) => (
                 <View key={cp.id} style={styles.checkpointCard}>
                   <View style={styles.cpNumberBadge}>
-                    <AppText size="sm" weight="bold" style={{ color: '#4F46E5' }}>
+                    <AppText size="sm" weight="bold" style={{ color: colors.primary[600] }}>
                       {cp.sequence || cp.patrolOrder || (idx + 1)}
                     </AppText>
                   </View>
@@ -828,25 +829,25 @@ export const SiteDetailsScreen: React.FC = () => {
 
                   <View style={styles.cardActionRowBottom}>
                     <TouchableOpacity
-                      style={styles.iconOnlyBtnView}
+                      style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                       onPress={() => handleViewDocument(doc, 'Site Document')}
                       activeOpacity={0.7}
                       accessibilityLabel="View document"
                       accessibilityRole="button"
                       hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                     >
-                      <NavIcon name="eye" size={24} color="#4F46E5" />
+                      <NavIcon name="eye" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      style={styles.iconOnlyBtnDownload}
+                      style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                       onPress={() => handleDownloadDocument(doc)}
                       activeOpacity={0.7}
                       accessibilityLabel="Download document"
                       accessibilityRole="button"
                       hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                     >
-                      <NavIcon name="download" size={24} color="#FFFFFF" />
+                      <NavIcon name="download" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -936,18 +937,24 @@ export const SiteDetailsScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, borderRadius: any) => StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 40,
   },
-  iconOnlyBtnView: {
-    width: 52,
-    height: 52,
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconActionBtnDownload: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -955,7 +962,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 10,
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.primary[600],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -966,7 +973,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: colors.borderStrong,
   },
   iconActionBtnPrimary: {
     flexDirection: 'row',
@@ -981,23 +988,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surfaceSecondary,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
   },
   webChecklistStepsBox: {
     marginTop: 8,
     padding: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
   },
   checklistStepText: {
     fontSize: 13,
     lineHeight: 18,
     fontWeight: '400',
-    color: '#334155',
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   checklistActionRow: {
@@ -1010,16 +1017,16 @@ const styles = StyleSheet.create({
     height: 48,
     minHeight: 48,
     borderRadius: 10,
-    backgroundColor: '#2563EB',
+    backgroundColor: colors.primary[600],
     width: '100%',
   },
   feedbackBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#D1FAE5',
+    backgroundColor: colors.successLight,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: colors.successLight,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 8,
@@ -1036,7 +1043,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 440,
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 12,
   },
   modalHeaderRow: {
@@ -1050,10 +1057,10 @@ const styles = StyleSheet.create({
   },
   modalStepRow: {
     padding: 8,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
   },
   modalFooterRow: {
     flexDirection: 'row',
@@ -1070,10 +1077,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 6,
     paddingHorizontal: 10,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.primaryLight,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderColor: colors.primaryLight,
   },
   headerCard: {
     padding: 18,
@@ -1110,9 +1117,9 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
+    borderColor: colors.primaryLight,
     borderRadius: 10,
   },
   tabsScrollView: {
@@ -1130,9 +1137,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.borderStrong,
     minHeight: 48,
   },
   tabContainer: {
@@ -1145,14 +1152,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     minHeight: 44,
   },
   activeTabItem: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#4F46E5',
+    backgroundColor: colors.surface,
+    borderColor: colors.primary[600],
   },
   contentCard: {
     padding: 18,
@@ -1171,27 +1178,27 @@ const styles = StyleSheet.create({
   },
   dividerLine: {
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.borderStrong,
     marginVertical: 14,
   },
   dividerLineLight: {
     height: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: colors.border,
     marginVertical: 10,
   },
   addressBox: {
     padding: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
   },
   notesBox: {
     padding: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -1199,18 +1206,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: colors.border,
   },
   statusChipGreen: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: colors.successLight,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
   cardItemBox: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     borderRadius: 8,
     padding: 14,
     marginBottom: 12,
@@ -1240,15 +1247,15 @@ const styles = StyleSheet.create({
   stepsBox: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.borderStrong,
   },
   sectionCardBox: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     borderRadius: 8,
     padding: 14,
     marginBottom: 12,
@@ -1256,9 +1263,9 @@ const styles = StyleSheet.create({
   checkpointCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
@@ -1268,16 +1275,16 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.primaryLight,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
+    borderColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   userCardBox: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     borderRadius: 8,
     padding: 14,
     marginBottom: 12,
@@ -1296,9 +1303,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.borderStrong,
     borderRadius: 8,
     padding: 14,
     marginBottom: 12,

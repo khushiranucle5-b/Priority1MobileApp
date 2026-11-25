@@ -7,9 +7,11 @@ export const CameraPlaceholder: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
-      <AppText style={styles.icon}>📷</AppText>
-      <AppText size="sm" color="secondary" style={styles.text}>No Photo Captured</AppText>
+    <View style={[styles.container, { backgroundColor: colors.primary[50], borderRadius: borderRadius.full, borderColor: colors.primary[400] }]}>
+      <AppText style={styles.icon}>🤳</AppText>
+      <AppText size="sm" weight="semibold" style={{ color: colors.primary[700], textAlign: 'center' }}>
+        No Selfie Captured Yet
+      </AppText>
     </View>
   );
 };
@@ -24,7 +26,6 @@ const styles = StyleSheet.create({
     marginVertical: 32,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#cbd5e1', // Slate 300
   },
   icon: {
     fontSize: 48,

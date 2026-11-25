@@ -168,8 +168,8 @@ export const UploadDocumentScreen: React.FC = () => {
   const handleSaveAndSubmit = async () => {
     if (!selectedFile) {
       Alert.alert(
-        'No File Attached',
-        'Please choose a PDF or image document before submitting.'
+        'File Required',
+        'Please select a PDF or image file.'
       );
       return;
     }
@@ -198,8 +198,8 @@ export const UploadDocumentScreen: React.FC = () => {
       });
 
       Alert.alert(
-        'Document Submitted',
-        `"${finalDocName}" has been uploaded successfully!\n\nStatus: Pending Verification.\n\nIt will update to Approved once verified by supervisor/HR.`,
+        'Success',
+        `"${finalDocName}" uploaded successfully.`,
         [
           {
             text: 'View Documents',
@@ -219,26 +219,16 @@ export const UploadDocumentScreen: React.FC = () => {
       <PageHeader title="Upload Document" showBack />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Banner Card */}
-        <Card variant="outlined" style={[styles.card, { borderRadius: borderRadius.lg }]}>
-          <Heading level="h2" color="primary" style={styles.titleText}>
-            Upload Document for HR Verification
-          </Heading>
-          <AppText size="sm" color="secondary" style={{ marginTop: 4 }}>
-            Submit official guard documents, government IDs, licenses, or certificates for {guardName || 'Khushi Rani'}.
-          </AppText>
-        </Card>
-
         {/* Upload Form Card */}
         <Card variant="outlined" style={[styles.card, { borderRadius: borderRadius.lg }]}>
           <Heading level="h3" color="primary" style={styles.formTitle}>
-            DOCUMENT DETAILS
+            Document Details
           </Heading>
 
           {/* Document Type Dropdown */}
           <View style={styles.inputGroup}>
             <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-              DOCUMENT TYPE *
+              Document Type *
             </AppText>
 
             <TouchableOpacity
@@ -272,27 +262,20 @@ export const UploadDocumentScreen: React.FC = () => {
           {selectedType === 'Other Document' && (
             <View style={styles.inputGroup}>
               <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-                CUSTOM DOCUMENT NAME
+                Document Name
               </AppText>
               <TextInput
                 style={styles.textInput}
-                placeholder="Enter document name or leave blank to fetch from file"
-                placeholderTextColor="#94A3B8"
                 value={customDocName}
                 onChangeText={setCustomDocName}
               />
-              {!customDocName.trim() && selectedFile && (
-                <AppText size="xs" style={{ color: '#059669', marginTop: 2 }}>
-                  * Will automatically use fetched file name: "{getCleanDocName(selectedFile.name)}"
-                </AppText>
-              )}
             </View>
           )}
 
-          {/* Single Unified File Picker Section */}
+          {/* Unified File Picker Section */}
           <View style={styles.inputGroup}>
             <AppText size="sm" weight="bold" style={styles.fieldLabel}>
-              ATTACH DOCUMENT FILE (IMAGE OR PDF) *
+              Document File *
             </AppText>
 
             <TouchableOpacity
@@ -300,9 +283,9 @@ export const UploadDocumentScreen: React.FC = () => {
               onPress={handleChooseFile}
               activeOpacity={0.85}
             >
-              <NavIcon name="document" size={22} color="#FFFFFF" />
+              <NavIcon name="document" size={20} color={colors.surface} />
               <AppText style={styles.chooseFileBtnText}>
-                CHOOSE FILE (PDF OR IMAGE)
+                Choose File (PDF or Image)
               </AppText>
             </TouchableOpacity>
 
@@ -319,13 +302,13 @@ export const UploadDocumentScreen: React.FC = () => {
                 </View>
 
                 <TouchableOpacity onPress={() => setSelectedFile(null)} style={{ padding: 6 }}>
-                  <AppText size="base" weight="bold" style={{ color: '#EF4444' }}>✕</AppText>
+                  <AppText size="base" weight="bold" style={{ color: colors.error }}>✕</AppText>
                 </TouchableOpacity>
               </View>
             ) : (
               <View style={styles.emptyFileBox}>
                 <AppText size="xs" color="secondary">
-                  No file attached yet. Tap "CHOOSE FILE" above to select a PDF or Image.
+                  No file selected.
                 </AppText>
               </View>
             )}
@@ -333,20 +316,20 @@ export const UploadDocumentScreen: React.FC = () => {
 
           {/* Notice Box */}
           <View style={styles.infoBox}>
-            <AppText size="xs" style={{ color: '#D97706', lineHeight: 16 }}>
-              Note: Once submitted, the status will show as "Pending Verification" until approved by supervisor/HR.
+            <AppText size="xs" style={{ color: colors.warningDark, lineHeight: 16 }}>
+              Uploaded documents are reviewed by supervisor or HR.
             </AppText>
           </View>
 
-          {/* Submit Button - Standardized Purple/Indigo #4F46E5 */}
+          {/* Submit Button */}
           <Button
-            title={isSubmitting ? "SUBMITTING..." : "SUBMIT "}
+            title={isSubmitting ? "Submitting..." : "Submit Document"}
             variant="primary"
             size="large"
             fullWidth
             onPress={handleSaveAndSubmit}
             disabled={isSubmitting}
-            style={{ height: 54, backgroundColor: '#4F46E5', marginTop: 10, borderRadius: 10 }}
+            style={{ height: 50, backgroundColor: colors.primary[600], marginTop: 10, borderRadius: 10 }}
           />
         </Card>
       </ScrollView>
@@ -363,18 +346,15 @@ const styles = StyleSheet.create({
   card: {
     padding: 18,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 12,
   },
   titleText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0F172A',
   },
   formTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#475569',
     letterSpacing: 0.5,
     marginBottom: 14,
   },
@@ -384,24 +364,19 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 13.5,
-    color: '#475569',
     letterSpacing: 0.5,
   },
   dropdownTrigger: {
     height: 52,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     paddingHorizontal: 14,
-    backgroundColor: '#F8FAFC',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   dropdownMenu: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     marginTop: 4,
     elevation: 4,
@@ -410,24 +385,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   dropdownItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   textInput: {
     height: 52,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     borderRadius: 10,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: '#0F172A',
-    backgroundColor: '#F8FAFC',
   },
   chooseFileBtn: {
     height: 52,
-    backgroundColor: '#4F46E5',
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -436,17 +405,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   chooseFileBtnText: {
-    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
   },
   filePreviewBox: {
     marginTop: 8,
     padding: 14,
-    backgroundColor: '#F1F5F9',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -454,19 +420,15 @@ const styles = StyleSheet.create({
   emptyFileBox: {
     marginTop: 8,
     padding: 12,
-    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
     borderStyle: 'dashed',
     alignItems: 'center',
   },
   infoBox: {
-    backgroundColor: '#FFFBEB',
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FDE68A',
     marginBottom: 6,
   },
 });

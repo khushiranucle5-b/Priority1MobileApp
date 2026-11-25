@@ -16,29 +16,29 @@ export const TermsConditionsScreen = () => {
     <ScreenLayout>
       <PageHeader title="Terms & Conditions" showBack onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
-        <AppText style={styles.introText}>
+        <AppText style={[styles.introText, { color: colors.text }]}>
           Please read the latest Terms & Conditions for Priority One Security.
         </AppText>
         
-        <View style={[styles.termsBox, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
-          <AppText style={styles.sectionHeader}>
+        <View style={[styles.termsBox, { backgroundColor: colors.surface, borderColor: colors.borderStrong, borderRadius: borderRadius.md }]}>
+          <AppText style={[styles.sectionHeader, { color: colors.text }]}>
             1. Acceptance of Terms
           </AppText>
-          <AppText style={styles.bodyText}>
+          <AppText style={[styles.bodyText, { color: colors.textSecondary }]}>
             By accessing or using the Guard Application, you agree to be bound by these terms. This application tracks location data while on duty for lone worker safety and geofence verification.
           </AppText>
 
-          <AppText style={styles.sectionHeader}>
+          <AppText style={[styles.sectionHeader, { color: colors.text }]}>
             2. Privacy & Location Tracking
           </AppText>
-          <AppText style={styles.bodyText}>
+          <AppText style={[styles.bodyText, { color: colors.textSecondary }]}>
             Location tracking is active strictly during your clocked-in hours to ensure safety checks and accurate attendance.
           </AppText>
 
-          <AppText style={styles.sectionHeader}>
+          <AppText style={[styles.sectionHeader, { color: colors.text }]}>
             3. Responsibilities
           </AppText>
-          <AppText style={styles.bodyText}>
+          <AppText style={[styles.bodyText, { color: colors.textSecondary }]}>
             You must accurately log incidents, execute assigned patrols, and maintain confidentiality of site data. Misuse of the application may result in disciplinary action.
           </AppText>
         </View>
@@ -53,24 +53,20 @@ const styles = StyleSheet.create({
   },
   introText: {
     ...typography.presets.helper,
-    color: '#334155',
     marginBottom: 14,
     textAlign: 'justify',
   },
   termsBox: {
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
   },
   sectionHeader: {
     ...typography.presets.cardTitle,
-    color: '#1E293B',
     marginBottom: 8,
   },
   bodyText: {
     ...typography.presets.body,
     lineHeight: 26,
-    color: '#475569',
     marginBottom: 16,
     textAlign: 'justify',
   }

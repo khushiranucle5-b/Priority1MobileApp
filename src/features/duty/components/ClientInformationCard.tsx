@@ -10,26 +10,26 @@ export const ClientInformationCard: React.FC = () => {
   const { borderRadius, colors } = useTheme();
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
       <Heading level="h3" color="primary" style={styles.title}>CLIENT INFORMATION</Heading>
       
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.row}>
-        <View style={[styles.avatarBox, { borderRadius: borderRadius.md, backgroundColor: colors.primary[50] || '#EFF6FF' }]}>
-          <AppText size="lg" weight="bold" style={{ color: colors.primary[600] || '#2563EB', fontSize: 22 }}>
+        <View style={[styles.avatarBox, { borderRadius: borderRadius.md, backgroundColor: colors.primary[50], borderColor: colors.primary[200] }]}>
+          <AppText size="lg" weight="bold" style={{ color: colors.primary[600], fontSize: 22 }}>
             ABC
           </AppText>
         </View>
 
         <View style={styles.info}>
-          <AppText style={styles.clientName}>
+          <AppText style={[styles.clientName, { color: colors.text }]}>
             ABC Industries Ltd.
           </AppText>
-          <AppText style={styles.detailText}>
+          <AppText style={[styles.detailText, { color: colors.textSecondary }]}>
             123 Business Park, Sector 45
           </AppText>
-          <AppText style={[styles.phoneText, { color: colors.primary[600] || '#2563EB' }]}>
+          <AppText style={[styles.phoneText, { color: colors.primary[600] }]}>
             +1 234-567-8900
           </AppText>
         </View>
@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -58,7 +57,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   row: {
@@ -72,7 +70,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#93C5FD',
   },
   info: {
     flex: 1,
@@ -80,11 +77,9 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: 19,
     fontWeight: '700',
-    color: '#0F172A',
   },
   detailText: {
     fontSize: 15.5,
-    color: '#64748B',
     fontWeight: '500',
     marginTop: 3,
   },

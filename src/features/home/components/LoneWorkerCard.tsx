@@ -28,15 +28,15 @@ export const LoneWorkerCard: React.FC = () => {
     <Card variant="elevated" style={styles.card}>
       <View style={styles.header}>
         <Heading level="h3" color="primary">LONE WORKER SAFETY</Heading>
-        <View style={[styles.badge, { backgroundColor: '#D1FAE5', borderRadius: borderRadius.full }]}>
-          <AppText size="xs" style={{ color: '#059669' }} weight="bold">● {loneWorker.status || 'SAFE'}</AppText>
+        <View style={[styles.badge, { backgroundColor: colors.successLight, borderRadius: borderRadius.full }]}>
+          <AppText size="xs" style={{ color: colors.successDark }} weight="bold">● {loneWorker.status || 'SAFE'}</AppText>
         </View>
       </View>
 
       <View style={[styles.body, { marginTop: spacing.md }]}>
         <View style={styles.row}>
           <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>STATUS</AppText>
-          <AppText size="sm" weight="bold" style={{ color: '#059669' }}>{loneWorker.status || 'SAFE'}</AppText>
+          <AppText size="sm" weight="bold" style={{ color: colors.successDark }}>{loneWorker.status || 'SAFE'}</AppText>
         </View>
         <View style={styles.row}>
           <AppText size="xs" color="secondary" weight="semibold" style={{ textTransform: 'uppercase' }}>LAST CHECK-IN</AppText>
@@ -57,7 +57,7 @@ export const LoneWorkerCard: React.FC = () => {
           fullWidth
           disabled={isCheckInDisabled}
           onPress={() => checkInLoneWorker()}
-          style={{ flex: 1, backgroundColor: isCheckInDisabled ? undefined : '#059669' }}
+          style={{ flex: 1, backgroundColor: isCheckInDisabled ? undefined : colors.successDark }}
         />
         <Button
           title="⚠️ REPORT ISSUE"
@@ -65,7 +65,7 @@ export const LoneWorkerCard: React.FC = () => {
           size="large"
           fullWidth
           onPress={() => navigation.navigate('Incident')}
-          style={{ flex: 1, borderColor: '#DC2626' }}
+          style={{ flex: 1, borderColor: colors.error }}
         />
       </View>
 

@@ -14,6 +14,7 @@ import { Heading } from '../../../components/typography/Heading';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
+import { useTheme } from '../../../providers/ThemeProvider';
 import { useGuardStore, LoneWorkerHistoryItem } from '../../../store/useGuardStore';
 import { NavIcon } from '../../../components/NavIcon';
 import {
@@ -43,6 +44,7 @@ const filterOptions = [
 ];
 
 export const SafetyHistoryScreen: React.FC = () => {
+  const { colors, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
   const { guardId, guardName, loneWorkerHistory } = useGuardStore();
 
@@ -162,31 +164,31 @@ export const SafetyHistoryScreen: React.FC = () => {
 
       {/* Search & Dropdown Filter Row (Identical to Incident Reports UI Pattern) */}
       <View style={styles.searchFilterRow}>
-        <View style={styles.searchInputWrapper}>
+        <View style={[styles.searchInputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
           <View style={{ marginRight: 8 }}>
-            <NavIcon name="search" size={16} color="#64748B" />
+            <NavIcon name="search" size={16} color={colors.textSecondary} />
           </View>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search by date, site, status..."
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery ? (
             <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-              <AppText size="xs" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+              <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
             </TouchableOpacity>
           ) : null}
         </View>
 
         {/* Dropdown Filter Trigger Button */}
         <TouchableOpacity
-          style={styles.dropdownTrigger}
+          style={[styles.dropdownTrigger, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}
           onPress={() => setDropdownOpen(!dropdownOpen)}
           activeOpacity={0.8}
         >
-          <AppText size="xs" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+          <AppText size="xs" weight="bold" style={{ color: colors.textSecondary, marginRight: 4 }}>
             {statusFilter === 'All' ? 'Filter: All' : `Filter: ${statusFilter}`}
           </AppText>
           <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
@@ -207,7 +209,7 @@ export const SafetyHistoryScreen: React.FC = () => {
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false}>
         {dateSummaries.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <NavIcon name="loneworker" size={36} color="#94A3B8" />
+            <NavIcon name="loneworker" size={36} color={colors.textSecondary} />
             <Heading level="h4" color="primary" style={{ marginTop: 12 }}>
               {rawHistory.length === 0 ? 'No safety check history' : 'No matching safety checks'}
             </Heading>
@@ -229,8 +231,8 @@ export const SafetyHistoryScreen: React.FC = () => {
         ) : (
           dateSummaries.map((summary) => {
             const isSafe = summary.overallStatus === 'Safe';
-            const statusColor = isSafe ? '#059669' : '#DC2626';
-            const statusBg = isSafe ? '#D1FAE5' : '#FEE2E2';
+            const statusColor = isSafe ? colors.successDark : colors.errorDark;
+            const statusBg = isSafe ? colors.successLight : colors.errorLight;
 
             return (
               <Card key={summary.dateStr} style={styles.dateSummaryCard}>
@@ -258,13 +260,13 @@ export const SafetyHistoryScreen: React.FC = () => {
 
                   {/* Right Action: EYE ICON BUTTON ONLY (NO TEXT "View") */}
                   <TouchableOpacity
-                    style={styles.eyeIconButton}
+                    style={[styles.iconActionBtnView, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                     onPress={() => navigation.navigate('SafetyDateChecks', { dateStr: summary.dateStr })}
                     activeOpacity={0.7}
                     accessibilityRole="button"
                     accessibilityLabel={`View history for ${summary.dateStr}`}
                   >
-                    <NavIcon name="eye" size={18} color="#4F46E5" />
+                    <NavIcon name="eye" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
                 </View>
               </Card>
@@ -289,9 +291,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 44,
@@ -299,36 +299,15 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 13,
-    color: '#0F172A',
     paddingVertical: 0,
   },
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 44,
     paddingHorizontal: 12,
-  },
-  dropdownMenuContainer: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    padding: 4,
-    marginHorizontal: 16,
-    marginBottom: 14,
-    elevation: 3,
-  },
-  dropdownMenuItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 6,
-  },
-  dropdownMenuItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   listContainer: {
     padding: 16,
@@ -349,13 +328,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignSelf: 'flex-start',
   },
-  eyeIconButton: {
-    width: 44,
-    height: 44,
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
     borderRadius: 10,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
   },

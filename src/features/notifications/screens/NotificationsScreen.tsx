@@ -16,7 +16,7 @@ type Props = NativeStackScreenProps<HomeStackParamList, 'Notifications'>;
 
 export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
   const { colors, spacing, borderRadius } = useTheme();
-  const { notifications, markAllNotificationsRead, deleteAllNotifications } = useGuardStore();
+  const { notifications, markNotificationRead, markAllNotificationsRead, deleteAllNotifications } = useGuardStore();
   const {
     notificationsEnabled,
     shiftRemindersEnabled,
@@ -33,65 +33,36 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
   const isLoading = false;
 
   const filterOptions = [
-    { label: 'All Approvals', value: 'All' },
-    { label: 'Leave Approvals', value: 'Leave' },
-    { label: 'Attendance Approvals', value: 'Attendance' },
-    { label: 'Shift & Overtime', value: 'Shift' },
-    { label: 'Document Approvals', value: 'Document' },
+    { label: 'All Alerts', value: 'All' },
+    { label: 'Tasks', value: 'Task' },
+    { label: 'Dispatches', value: 'Dispatch' },
+    { label: 'Operational & Site', value: 'Operational' },
+    { label: 'Approvals & Leaves', value: 'Approval' },
   ];
 
   useEffect(() => {
     loadSettings();
   }, []);
 
-  // Filter notifications dynamically to strictly show ONLY Supervisor & Level Approvals
+  // Filter notifications dynamically
   const filteredNotifications = useMemo(() => {
     if (!notificationsEnabled) {
       return [];
     }
 
-    // Strictly filter out raw user activity logs; only keep supervisor / level approval notifications
+    // Exclude raw user self activity logs
     let result = notifications.filter(n => {
       const title = (n.title || '').toLowerCase();
-      const desc = (n.description || '').toLowerCase();
-      const type = (n.type || '').toLowerCase();
-
-      // Explicit exclusions for self activity events
       const rawActivityExclusions = [
         'clocked in successfully',
         'clocked out successfully',
-        'leave request submitted',
-        'leave application cancelled',
-        'patrol started',
-        'safety check-in completed',
         'checkpoint scanned',
-        'incident reported',
       ];
 
       if (rawActivityExclusions.some(ex => title.includes(ex))) {
         return false;
       }
-
-      // Explicit type or keyword match for supervisor / authority approvals
-      if (type.includes('approval') || type.includes('supervisor') || type.includes('level')) {
-        return true;
-      }
-
-      const approvalKeywords = [
-        'approved',
-        'approval',
-        'supervisor',
-        'level 1',
-        'level 2',
-        'koilevel',
-        'rejected',
-        'denied',
-        'verified',
-        'regularization',
-        'overtime',
-      ];
-
-      return approvalKeywords.some(kw => title.includes(kw) || desc.includes(kw));
+      return true;
     });
 
     // Dropdown category filtering
@@ -100,20 +71,22 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
       result = result.filter(n => {
         const typeLower = (n.type || '').toLowerCase();
         const titleLower = (n.title || '').toLowerCase();
+        const descLower = (n.description || '').toLowerCase();
+        const relType = (n.relatedEntityType || '').toLowerCase();
 
-        if (cat === 'attendance') {
-          return typeLower.includes('attendance') || titleLower.includes('attendance') || titleLower.includes('regularization');
+        if (cat === 'task') {
+          return typeLower.includes('task') || titleLower.includes('task') || relType === 'task';
         }
-        if (cat === 'leave') {
-          return typeLower.includes('leave') || titleLower.includes('leave');
+        if (cat === 'dispatch') {
+          return typeLower.includes('dispatch') || titleLower.includes('dispatch') || relType === 'dispatch';
         }
-        if (cat === 'shift') {
-          return typeLower.includes('shift') || titleLower.includes('shift') || titleLower.includes('overtime');
+        if (cat === 'operational') {
+          return typeLower.includes('operational') || typeLower.includes('system') || typeLower.includes('site') || titleLower.includes('instruction') || titleLower.includes('directive');
         }
-        if (cat === 'document') {
-          return typeLower.includes('document') || titleLower.includes('document') || titleLower.includes('verification');
+        if (cat === 'approval') {
+          return typeLower.includes('approval') || typeLower.includes('leave') || typeLower.includes('attendance') || titleLower.includes('approved') || titleLower.includes('rejected');
         }
-        return typeLower.includes(cat) || titleLower.includes(cat);
+        return typeLower.includes(cat) || titleLower.includes(cat) || descLower.includes(cat);
       });
     }
 
@@ -173,6 +146,21 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleOpenSettings = () => {
     navigation.navigate('Profile' as any, { screen: 'NotificationSettings' } as any);
+  };
+
+  const handleNotificationPress = async (item: typeof notifications[0]) => {
+    if (!item.isRead) {
+      await markNotificationRead(item.id);
+    }
+    if ((item.relatedEntityType === 'task' || item.type?.toLowerCase().includes('task')) && item.relatedEntityId) {
+      navigation.navigate('TaskDetails', { taskId: item.relatedEntityId });
+      return;
+    }
+    if ((item.relatedEntityType === 'dispatch' || item.type?.toLowerCase().includes('dispatch')) && item.relatedEntityId) {
+      navigation.navigate('DispatchDetails', { dispatchId: item.relatedEntityId });
+      return;
+    }
+    navigation.navigate('NotificationDetails', { notificationId: item.id });
   };
 
   return (
@@ -280,7 +268,7 @@ export const NotificationsScreen: React.FC<Props> = ({ navigation }) => {
             renderItem={({ item }) => (
               <NotificationCard 
                 notification={item} 
-                onPress={() => navigation.navigate('NotificationDetails', { notificationId: item.id })} 
+                onPress={() => handleNotificationPress(item)} 
               />
             )}
             contentContainerStyle={filteredNotifications.length === 0 ? styles.emptyContainer : styles.flatListContent}

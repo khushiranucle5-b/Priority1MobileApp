@@ -29,6 +29,16 @@ import { PayslipDetailsScreen } from '../features/payroll/screens/PayslipDetails
 import { SitesListScreen } from '../features/sites/screens/SitesListScreen';
 import { SiteDetailsScreen } from '../features/sites/screens/SiteDetailsScreen';
 import { ChecklistExecutionScreen } from '../features/sites/screens/ChecklistExecutionScreen';
+import { VisitorsScreen } from '../features/visitors/screens/VisitorsScreen';
+import { RegisterVisitorScreen } from '../features/visitors/screens/RegisterVisitorScreen';
+import { VisitorDetailsScreen } from '../features/visitors/screens/VisitorDetailsScreen';
+import { VisitorPassScreen } from '../features/visitors/screens/VisitorPassScreen';
+import { AssignedVehicleScreen } from '../features/visitors/screens/AssignedVehicleScreen';
+import { VehicleExpenseScreen } from '../features/visitors/screens/VehicleExpenseScreen';
+import { ExpenseClaimFormScreen } from '../features/visitors/screens/ExpenseClaimFormScreen';
+import { ExpenseClaimDetailsScreen } from '../features/visitors/screens/ExpenseClaimDetailsScreen';
+import { TasksScreen, TaskDetailsScreen } from '../features/tasks';
+import { DispatchesScreen, DispatchDetailsScreen } from '../features/dispatches';
 
 import { PatrolDateLogsScreen } from '../features/patrol/screens/PatrolDateLogsScreen';
 import { PatrolDetailsScreen } from '../features/patrol/screens/PatrolDetailsScreen';
@@ -68,6 +78,18 @@ export const HomeNavigator = () => {
       <Stack.Screen name="SitesList" component={SitesListScreen} />
       <Stack.Screen name="SiteDetails" component={SiteDetailsScreen} />
       <Stack.Screen name="ChecklistExecution" component={ChecklistExecutionScreen} />
+      <Stack.Screen name="Visitors" component={VisitorsScreen} />
+      <Stack.Screen name="RegisterVisitor" component={RegisterVisitorScreen} />
+      <Stack.Screen name="VisitorDetails" component={VisitorDetailsScreen} />
+      <Stack.Screen name="VisitorPass" component={VisitorPassScreen} />
+      <Stack.Screen name="AssignedVehicle" component={AssignedVehicleScreen} />
+      <Stack.Screen name="VehicleExpense" component={VehicleExpenseScreen} />
+      <Stack.Screen name="ExpenseClaimForm" component={ExpenseClaimFormScreen} />
+      <Stack.Screen name="ExpenseClaimDetails" component={ExpenseClaimDetailsScreen} />
+      <Stack.Screen name="Tasks" component={TasksScreen} />
+      <Stack.Screen name="TaskDetails" component={TaskDetailsScreen} />
+      <Stack.Screen name="Dispatches" component={DispatchesScreen} />
+      <Stack.Screen name="DispatchDetails" component={DispatchDetailsScreen} />
     </Stack.Navigator>
   );
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../../providers/ThemeProvider';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
@@ -11,6 +12,7 @@ import { NavIcon } from '../../../components/NavIcon';
 import { formatDisplayDate, formatDisplayTime } from '../../../utils/dateUtils';
 
 export const SafetyDateChecksScreen: React.FC = () => {
+  const { colors, borderRadius } = useTheme();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const { guardId, guardName, loneWorkerHistory } = useGuardStore();
@@ -51,7 +53,7 @@ export const SafetyDateChecksScreen: React.FC = () => {
 
         {recordsForDate.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <NavIcon name="loneworker" size={32} color="#94A3B8" />
+            <NavIcon name="loneworker" size={32} color={colors.textSecondary} />
             <Heading level="h4" color="primary" style={{ marginTop: 10 }}>
               No safety checks for {displayTitleDate}
             </Heading>
@@ -65,9 +67,9 @@ export const SafetyDateChecksScreen: React.FC = () => {
             const isSafe = item.status === 'Safe' || item.status === 'SAFE';
             const isIssue = item.status === 'SOS / Issue Reported' || item.status?.includes('Issue') || item.status?.includes('SOS');
 
-            const gpsColors = isGpsValid ? { bg: '#D1FAE5', text: '#059669' } : { bg: '#FEE2E2', text: '#DC2626' };
-            const timingColors = item.onTimeStatus === 'On Time' ? { bg: '#ECFDF5', text: '#047857' } : { bg: '#FEF3C7', text: '#D97706' };
-            const statusColors = isSafe ? { bg: '#D1FAE5', text: '#059669' } : isIssue ? { bg: '#FEE2E2', text: '#DC2626' } : { bg: '#F1F5F9', text: '#475569' };
+            const gpsColors = isGpsValid ? { bg: colors.successLight, text: colors.successDark } : { bg: colors.errorLight, text: colors.errorDark };
+            const timingColors = item.onTimeStatus === 'On Time' ? { bg: colors.successLight, text: colors.successDark } : { bg: colors.warningLight, text: colors.warningDark };
+            const statusColors = isSafe ? { bg: colors.successLight, text: colors.successDark } : isIssue ? { bg: colors.errorLight, text: colors.errorDark } : { bg: colors.surfaceSecondary, text: colors.textSecondary };
 
             return (
               <Card key={item.id} style={styles.itemCard}>
@@ -105,13 +107,13 @@ export const SafetyDateChecksScreen: React.FC = () => {
 
                   {/* Right Column: EYE ICON BUTTON ONLY (NO TEXT "View") */}
                   <TouchableOpacity
-                    style={styles.eyeIconButton}
+                    style={[styles.iconActionBtnView, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                     onPress={() => navigation.navigate('LoneWorkerDetails', { recordId: item.id })}
                     activeOpacity={0.7}
                     accessibilityRole="button"
                     accessibilityLabel={`View details for ${item.exactTime || 'safety check'}`}
                   >
-                    <NavIcon name="eye" size={18} color="#4F46E5" />
+                    <NavIcon name="eye" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
                 </View>
               </Card>
@@ -151,13 +153,11 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 4,
   },
-  eyeIconButton: {
-    width: 44,
-    height: 44,
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
     borderRadius: 10,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 12,

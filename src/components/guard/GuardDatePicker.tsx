@@ -45,7 +45,7 @@ export const GuardDatePicker: React.FC<GuardDatePickerProps> = ({
           styles.container,
           {
             backgroundColor: disabled ? colors.disabledBackground : colors.surface,
-            borderColor: colors.borderStrong || '#cbd5e1',
+            borderColor: colors.border,
             borderRadius: borderRadius.md,
             paddingHorizontal: spacing.base,
           },
@@ -60,7 +60,7 @@ export const GuardDatePicker: React.FC<GuardDatePickerProps> = ({
           style={[
             styles.valueText,
             {
-              color: value ? colors.text : colors.textTertiary || '#94a3b8',
+              color: value ? colors.text : colors.textTertiary,
             },
           ]}
         >

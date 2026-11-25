@@ -28,18 +28,18 @@ export const NotificationSettingsScreen = () => {
       <ScrollView contentContainerStyle={[styles.container, { padding: spacing.md }]}>
         
         {/* Global Push Notifications Switch */}
-        <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
+        <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.borderStrong, borderRadius: borderRadius.md }]}>
           <View style={styles.textContainer}>
-            <AppText style={styles.titleText}>Global Push Notifications</AppText>
-            <AppText style={styles.description}>
+            <AppText style={[styles.titleText, { color: colors.text }]}>Global Push Notifications</AppText>
+            <AppText style={[styles.description, { color: colors.textSecondary }]}>
               Receive all system notifications and emergency dispatch alerts.
             </AppText>
           </View>
           <Switch
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
-            trackColor={{ false: '#CBD5E1', true: '#2563EB' }}
-            thumbColor="#FFFFFF"
+            trackColor={{ false: colors.borderStrong, true: colors.primary[600] }}
+            thumbColor={colors.surface}
             style={{ transform: [{ scaleX: 1.25 }, { scaleY: 1.25 }] }}
           />
         </View>
@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     marginBottom: 14,
     minHeight: 60,
   },
@@ -70,12 +69,10 @@ const styles = StyleSheet.create({
   titleText: {
     ...typography.presets.body,
     fontWeight: '600',
-    color: '#1E293B',
     marginBottom: 6,
   },
   description: {
     ...typography.presets.helper,
     lineHeight: 22,
-    color: '#64748B',
   },
 });

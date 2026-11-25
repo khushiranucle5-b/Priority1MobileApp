@@ -59,7 +59,7 @@ export const AttachmentPreviewModal: React.FC<AttachmentPreviewModalProps> = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
         <SafeAreaView style={styles.safeContainer} edges={['top', 'bottom']}>
           <View style={[styles.modalCard, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
             {/* Modal Header */}
@@ -78,7 +78,7 @@ export const AttachmentPreviewModal: React.FC<AttachmentPreviewModalProps> = ({
                 </View>
               </View>
 
-              <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+              <TouchableOpacity onPress={onClose} style={[styles.closeBtn, { backgroundColor: colors.surfaceSecondary }]} activeOpacity={0.7} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
                 <AppText size="lg" weight="bold" color="secondary">✕</AppText>
               </TouchableOpacity>
             </View>
@@ -86,17 +86,17 @@ export const AttachmentPreviewModal: React.FC<AttachmentPreviewModalProps> = ({
             {/* Modal Content View */}
             <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
               {isImage ? (
-                <View style={styles.mediaFrame}>
+                <View style={[styles.mediaFrame, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
                   {imageLoading && !imageError && (
                     <View style={styles.loadingBox}>
-                      <ActivityIndicator size="large" color="#4F46E5" />
+                      <ActivityIndicator size="large" color={colors.primary[600]} />
                       <AppText size="xs" color="secondary" style={{ marginTop: 8 }}>Loading image preview...</AppText>
                     </View>
                   )}
                   {imageError ? (
                     <View style={styles.errorBox}>
                       <AppText style={{ fontSize: 36 }}>🖼️</AppText>
-                      <AppText size="sm" weight="bold" style={{ color: '#DC2626', marginTop: 8 }}>Image Cannot Be Rendered Directly</AppText>
+                      <AppText size="sm" weight="bold" style={{ color: colors.error, marginTop: 8 }}>Image Cannot Be Rendered Directly</AppText>
                       <AppText size="xs" color="secondary" style={{ textAlign: 'center', marginTop: 4 }}>
                         Local URI / File link format: {attachment.url}
                       </AppText>
@@ -120,22 +120,22 @@ export const AttachmentPreviewModal: React.FC<AttachmentPreviewModalProps> = ({
                 </View>
               ) : isVideo ? (
                 <View style={styles.videoFrame}>
-                  <View style={styles.videoPlaceholder}>
+                  <View style={[styles.videoPlaceholder, { backgroundColor: colors.surfaceSecondary }]}>
                     <AppText style={{ fontSize: 48 }}>🎥</AppText>
-                    <Heading level="h4" style={{ color: '#FFFFFF', marginTop: 12 }}>Video Evidence Preview</Heading>
-                    <AppText size="xs" style={{ color: '#94A3B8', marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>
+                    <Heading level="h4" style={{ color: colors.text, marginTop: 12 }}>Video Evidence Preview</Heading>
+                    <AppText size="xs" style={{ color: colors.textTertiary, marginTop: 4, textAlign: 'center', paddingHorizontal: 20 }}>
                       File: {attachment.name}
                     </AppText>
 
-                    <TouchableOpacity style={styles.playOverlayBtn} onPress={handleOpenExternal} activeOpacity={0.8}>
-                      <AppText size="xl" style={{ color: '#FFFFFF', marginRight: 6 }}>▶️</AppText>
-                      <AppText size="sm" weight="bold" style={{ color: '#FFFFFF' }}>Play in Media Player</AppText>
+                    <TouchableOpacity style={[styles.playOverlayBtn, { backgroundColor: colors.primary[600] }]} onPress={handleOpenExternal} activeOpacity={0.8}>
+                      <AppText size="xl" style={{ color: colors.textInverse, marginRight: 6 }}>▶️</AppText>
+                      <AppText size="sm" weight="bold" style={{ color: colors.textInverse }}>Play in Media Player</AppText>
                     </TouchableOpacity>
                   </View>
                 </View>
               ) : (
                 <View style={styles.docFrame}>
-                  <View style={styles.docIconBox}>
+                  <View style={[styles.docIconBox, { backgroundColor: colors.primary[50], borderColor: colors.primary[200] }]}>
                     <AppText style={{ fontSize: 40 }}>📄</AppText>
                   </View>
                   <Heading level="h3" color="primary" style={{ marginTop: 12, textAlign: 'center' }}>
@@ -145,7 +145,7 @@ export const AttachmentPreviewModal: React.FC<AttachmentPreviewModalProps> = ({
                     Document / Report Attachment
                   </AppText>
 
-                  <View style={styles.docInfoCard}>
+                  <View style={[styles.docInfoCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
                     <AppText size="xs" weight="bold" color="secondary" style={{ marginBottom: 6 }}>FILE DETAILS</AppText>
                     <AppText size="xs" color="primary">• Format: PDF / Office Document</AppText>
                     <AppText size="xs" color="primary" style={{ marginTop: 2 }}>• Location: Incident Evidence Store</AppText>
@@ -184,7 +184,6 @@ export const AttachmentPreviewModal: React.FC<AttachmentPreviewModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -218,7 +217,6 @@ const styles = StyleSheet.create({
   closeBtn: {
     padding: 6,
     borderRadius: 6,
-    backgroundColor: '#F1F5F9',
   },
   contentContainer: {
     padding: 16,
@@ -228,13 +226,11 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 280,
     maxHeight: 400,
-    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   imagePreview: {
     width: '100%',
@@ -256,7 +252,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   videoPlaceholder: {
-    backgroundColor: '#0F172A',
     paddingVertical: 36,
     paddingHorizontal: 16,
     alignItems: 'center',
@@ -265,7 +260,6 @@ const styles = StyleSheet.create({
   playOverlayBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4F46E5',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 30,
@@ -280,17 +274,13 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#C7D2FE',
   },
   docInfoCard: {
     width: '100%',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 8,
     padding: 12,
     marginTop: 16,

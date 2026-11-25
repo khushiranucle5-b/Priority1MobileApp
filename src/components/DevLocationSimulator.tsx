@@ -131,6 +131,18 @@ export const DevLocationSimulator: React.FC<DevLocationSimulatorProps> = ({ visi
             />
 
             <Button
+              title="🚨 Simulate Emergency Dispatch Alert"
+              variant="danger"
+              size="medium"
+              fullWidth
+              onPress={async () => {
+                onClose();
+                await useGuardStore.getState().simulateEmergencyDispatch();
+              }}
+              style={[styles.optionBtn, { backgroundColor: '#DC2626' }]}
+            />
+
+            <Button
               title="🔄 Reset to Real GPS Hardware"
               variant={activeMode === 'REAL_GPS' ? 'primary' : 'secondary'}
               size="medium"

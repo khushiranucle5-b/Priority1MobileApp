@@ -18,10 +18,10 @@ export const MonthlySummary = ({ monthRecords }: MonthlySummaryProps) => {
   const leaveCount = safeMonthRecords.filter(r => r.normalizedStatus === 'LEAVE').length;
 
   const stats = [
-    { label: 'Present', count: presentCount, color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
-    { label: 'Absent', count: absentCount, color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
-    { label: 'Half Day', count: halfDayCount, color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-    { label: 'Leave', count: leaveCount, color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' },
+    { label: 'Present', count: presentCount, color: colors.successDark, bg: colors.successLight, border: colors.success },
+    { label: 'Absent', count: absentCount, color: colors.errorDark, bg: colors.errorLight, border: colors.error },
+    { label: 'Half Day', count: halfDayCount, color: colors.primary[600], bg: colors.primary[50], border: colors.primary[600] },
+    { label: 'Leave', count: leaveCount, color: colors.warningDark, bg: colors.warningLight, border: colors.warning },
   ];
 
   return (

@@ -7,7 +7,7 @@ import { AttendanceHeader } from '../components/AttendanceHeader';
 import { Button } from '../../../components/Button';
 import { AppText } from '../../../components/typography/Text';
 import { useTheme } from '../../../providers/ThemeProvider';
-import { CameraPlaceholder, CapturedImagePreview, InstructionCard } from '../components/selfie';
+import { CameraPlaceholder, CapturedImagePreview, InstructionCard, SelfieCameraModal } from '../components/selfie';
 import { useGuardStore } from '../../../store/useGuardStore';
 import { useLiveAttendance } from '../../../hooks/useLiveAttendance';
 import { LoggerService, PermissionsService } from '../../../services';
@@ -26,6 +26,7 @@ export const SelfieVerificationScreen: React.FC = () => {
   const [hasCaptured, setHasCaptured] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [imageUri, setImageUri] = useState<string | undefined>();
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const { colors, spacing, borderRadius } = useTheme();
 
   const { clockIn, clockOut } = useGuardStore();
@@ -51,12 +52,12 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     if (res.status === 'blocked' || !res.canAskAgain) {
       Alert.alert(
-        'Location Permission Required',
-        'Location access is required for attendance verification. Please enable Location permission in your phone Settings.',
+        'Location Required',
+        'Location access is required for attendance verification. Please enable it in Settings.',
         [
-          { text: 'CANCEL', style: 'cancel' },
+          { text: 'Cancel', style: 'cancel' },
           {
-            text: 'OPEN SETTINGS',
+            text: 'Open Settings',
             onPress: () => PermissionsService.openAppSettings(),
           },
         ]
@@ -65,12 +66,12 @@ export const SelfieVerificationScreen: React.FC = () => {
     }
 
     Alert.alert(
-      'Location Permission Required',
-      'Location access is required for attendance verification. Please allow location access to proceed.',
+      'Location Required',
+      'Location access is required for attendance verification.',
       [
-        { text: 'CANCEL', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'ALLOW LOCATION',
+          text: 'Allow',
           onPress: () => handleCaptureSelfie(),
         },
       ]
@@ -87,12 +88,12 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     if (res.status === 'blocked' || !res.canAskAgain) {
       Alert.alert(
-        'Camera Permission Required',
-        'Camera access is required for selfie verification. Please enable Camera permission in your phone Settings.',
+        'Camera Required',
+        'Camera access is required for selfie verification. Please enable it in Settings.',
         [
-          { text: 'CANCEL', style: 'cancel' },
+          { text: 'Cancel', style: 'cancel' },
           {
-            text: 'OPEN SETTINGS',
+            text: 'Open Settings',
             onPress: () => PermissionsService.openAppSettings(),
           },
         ]
@@ -101,12 +102,12 @@ export const SelfieVerificationScreen: React.FC = () => {
     }
 
     Alert.alert(
-      'Camera Permission Required',
-      'Camera access is required for selfie verification. Please allow camera access to proceed.',
+      'Camera Required',
+      'Camera access is required for selfie verification.',
       [
-        { text: 'CANCEL', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'ALLOW CAMERA',
+          text: 'Allow',
           onPress: () => handleCaptureSelfie(),
         },
       ]
@@ -121,40 +122,13 @@ export const SelfieVerificationScreen: React.FC = () => {
     const hasCam = await requestCameraFlow();
     if (!hasCam) return;
 
-    const options: any = {
-      mediaType: 'photo',
-      saveToPhotos: false,
-      cameraType: 'front',
-      preferredCameraDevice: 'front',
-      useFrontCamera: true,
-      quality: 0.8,
-    };
+    setIsCameraOpen(true);
+  };
 
-    try {
-      const result = await launchCamera(options);
-      
-      if (result.didCancel) {
-        return; // User cancelled, normal flow
-      }
-      
-      if (result.errorCode) {
-        if (result.errorCode === 'camera_unavailable') {
-          Alert.alert('Camera Not Available', 'A physical device or camera-enabled emulator is required to use this feature.');
-        } else if (result.errorCode === 'permission') {
-          Alert.alert('Permission Denied', 'Camera access was denied. Please grant permission in your device settings.');
-        } else {
-          Alert.alert('Camera Error', result.errorMessage || 'An unexpected error occurred.');
-        }
-        return;
-      }
-
-      if (result.assets && result.assets.length > 0) {
-        setImageUri(result.assets[0].uri);
-        setHasCaptured(true);
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Failed to open camera. An unexpected exception occurred.');
-    }
+  const handlePhotoCaptured = (uri: string) => {
+    setImageUri(uri);
+    setHasCaptured(true);
+    setIsCameraOpen(false);
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,7 +146,7 @@ export const SelfieVerificationScreen: React.FC = () => {
 
     try {
       if (actionType === 'Clock In') {
-        await clockIn();
+        await clockIn(imageUri);
       } else {
         await clockOut();
       }
@@ -274,7 +248,7 @@ export const SelfieVerificationScreen: React.FC = () => {
               {actionType} Successful
             </AppText>
             
-            <View style={styles.detailBox}>
+            <View style={[styles.detailBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
               <AppText size="base" color="secondary" style={styles.successText}>
                 Time: <AppText size="base" weight="bold" color="primary">{actionType === 'Clock In' ? clockInTimeStr : clockOutTimeStr}</AppText>
               </AppText>
@@ -298,6 +272,12 @@ export const SelfieVerificationScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+      {/* Dedicated Front-Camera Selfie Modal (No Camera Switch & No Portrait Mode) */}
+      <SelfieCameraModal
+        visible={isCameraOpen}
+        onClose={() => setIsCameraOpen(false)}
+        onCapture={handlePhotoCaptured}
+      />
     </ScreenLayout>
   );
 };

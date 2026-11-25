@@ -39,26 +39,26 @@ export const ChangePasswordScreen = () => {
     let hasError = false;
 
     if (!currentPassword.trim()) {
-      setCurrentPasswordError('Please enter your current password.');
+      setCurrentPasswordError('Enter current password.');
       hasError = true;
     }
 
     if (!newPassword.trim()) {
-      setNewPasswordError('Please enter a new password.');
+      setNewPasswordError('Enter new password.');
       hasError = true;
     } else if (newPassword.trim().length < 6) {
-      setNewPasswordError('New password must be at least 6 characters long.');
+      setNewPasswordError('Password must be at least 6 characters.');
       hasError = true;
     } else if (newPassword.trim() === currentPassword.trim()) {
-      setNewPasswordError('New password must be different from current password.');
+      setNewPasswordError('Must be different from current password.');
       hasError = true;
     }
 
     if (!confirmPassword.trim()) {
-      setConfirmPasswordError('Please re-enter your new password.');
+      setConfirmPasswordError('Confirm your new password.');
       hasError = true;
     } else if (newPassword.trim() !== confirmPassword.trim()) {
-      setConfirmPasswordError('New password and confirm password do not match.');
+      setConfirmPasswordError('Passwords do not match.');
       hasError = true;
     }
 
@@ -79,7 +79,7 @@ export const ChangePasswordScreen = () => {
 
       if (currentPassword.trim() !== actualCurrentPassword) {
         setIsLoading(false);
-        setCurrentPasswordError('Incorrect current password. Please try again.');
+        setCurrentPasswordError('Incorrect current password.');
         return;
       }
 
@@ -100,7 +100,7 @@ export const ChangePasswordScreen = () => {
 
       Alert.alert(
         'Success',
-        'Your password has been changed successfully. You will need to use your new password for future logins.',
+        'Password changed successfully.',
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (error: any) {
@@ -117,7 +117,7 @@ export const ChangePasswordScreen = () => {
         
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, borderRadius: borderRadius.md }]}>
           <AppText style={styles.infoText}>
-            Ensure your account is using a strong password with a mix of letters, numbers, and symbols.
+            Password must be at least 6 characters long.
           </AppText>
 
           {/* Current Password Field */}
@@ -135,7 +135,7 @@ export const ChangePasswordScreen = () => {
                   setCurrentPassword(text);
                   if (currentPasswordError) setCurrentPasswordError('');
                 }}
-                placeholder="Enter current password"
+                placeholder="Current password"
                 placeholderTextColor={colors.secondary}
               />
               <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowCurrentPassword(!showCurrentPassword)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -162,7 +162,7 @@ export const ChangePasswordScreen = () => {
                   setNewPassword(text);
                   if (newPasswordError) setNewPasswordError('');
                 }}
-                placeholder="Enter new password (min. 6 chars)"
+                placeholder="New password (min 6 chars)"
                 placeholderTextColor={colors.secondary}
               />
               <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowNewPassword(!showNewPassword)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
@@ -189,7 +189,7 @@ export const ChangePasswordScreen = () => {
                   setConfirmPassword(text);
                   if (confirmPasswordError) setConfirmPasswordError('');
                 }}
-                placeholder="Re-enter new password"
+                placeholder="Confirm new password"
                 placeholderTextColor={colors.secondary}
               />
               <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowConfirmPassword(!showConfirmPassword)} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>

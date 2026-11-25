@@ -54,6 +54,35 @@ export type HomeStackParamList = {
   SitesList: undefined;
   SiteDetails: { siteId: string };
   ChecklistExecution: { siteId: string; checklistId: string; checklist?: any };
+  Visitors: undefined;
+  RegisterVisitor: undefined;
+  VisitorDetails: { visitorId: string };
+  VisitorPass: { visitorId: string };
+  AssignedVehicle: undefined;
+  VehicleExpense:
+    | {
+        preselectedVehicleId?: string;
+        preselectedVehicleName?: string;
+        preselectedPlate?: string;
+        preselectedCategory?: string;
+        autoOpenCreate?: boolean;
+      }
+    | undefined;
+  ExpenseClaimForm:
+    | {
+        claimId?: string;
+        isEditing?: boolean;
+        preselectedVehicleId?: string;
+        preselectedVehicleName?: string;
+        preselectedPlate?: string;
+        preselectedCategory?: string;
+      }
+    | undefined;
+  ExpenseClaimDetails: { claimId: string };
+  Tasks: undefined;
+  TaskDetails: { taskId: string };
+  Dispatches: undefined;
+  DispatchDetails: { dispatchId: string };
 };
 
 export type ProfileStackParamList = {

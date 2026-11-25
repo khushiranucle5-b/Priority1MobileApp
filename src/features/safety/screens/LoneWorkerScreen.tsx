@@ -129,19 +129,19 @@ export const LoneWorkerScreen: React.FC = () => {
         <Card style={styles.mainSafetyCard}>
           <View style={styles.headerRow}>
             <View style={{ flex: 1 }}>
-              <AppText size="xs" weight="semibold" style={{ color: '#475569' }}>
+              <AppText size="xs" weight="semibold" style={{ color: colors.textSecondary }}>
                 Active Shift: Morning Shift (08:00 AM - 04:00 PM)
               </AppText>
             </View>
 
-            <View style={[styles.statusBadge, { backgroundColor: isClockedIn ? '#D1FAE5' : '#F1F5F9' }]}>
-              <AppText size="xs" weight="bold" style={{ color: isClockedIn ? '#059669' : '#94A3B8' }}>
+            <View style={[styles.statusBadge, { backgroundColor: isClockedIn ? colors.successLight : colors.surfaceSecondary }]}>
+              <AppText size="xs" weight="bold" style={{ color: isClockedIn ? colors.successDark : colors.textSecondary }}>
                 ● {isClockedIn ? (loneWorker.status || 'SAFE') : 'NOT ACTIVE'}
               </AppText>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
           {/* Timestamps Row */}
           <View style={styles.timestampsGrid}>
@@ -154,18 +154,18 @@ export const LoneWorkerScreen: React.FC = () => {
 
             <View style={styles.timeBox}>
               <AppText size="xs" color="secondary">Next Check Due</AppText>
-              <AppText size="md" weight="bold" style={{ color: isClockedIn ? '#D97706' : '#94A3B8', marginTop: 2 }}>
+              <AppText size="md" weight="bold" style={{ color: isClockedIn ? colors.warningDark : colors.textSecondary, marginTop: 2 }}>
                 {isClockedIn ? (loneWorker.nextCheckRequired || '--:--') : 'Clock In Required'}
               </AppText>
             </View>
           </View>
 
           {/* Geofence Status Indicator */}
-          <View style={styles.gpsBox}>
+          <View style={[styles.gpsBox, { backgroundColor: colors.successLight, borderColor: colors.success }]}>
             <View style={{ marginRight: 6 }}>
-              <NavIcon name="patrol" size={16} color="#059669" />
+              <NavIcon name="patrol" size={16} color={colors.successDark} />
             </View>
-            <AppText size="xs" weight="bold" style={{ color: '#065F46' }}>
+            <AppText size="xs" weight="bold" style={{ color: colors.successDark }}>
               GPS Verified — Inside allowed geofence (200m radius)
             </AppText>
           </View>
@@ -173,9 +173,9 @@ export const LoneWorkerScreen: React.FC = () => {
           {/* Action Buttons (60px Glove-Friendly) */}
           <View style={styles.actionsBox}>
             {verifyingGps ? (
-              <View style={styles.loadingButton}>
-                <ActivityIndicator size="small" color="#FFFFFF" />
-                <AppText size="base" weight="bold" style={{ color: '#FFFFFF', marginLeft: 8 }}>
+              <View style={[styles.loadingButton, { backgroundColor: colors.successDark }]}>
+                <ActivityIndicator size="small" color={colors.surface} />
+                <AppText size="base" weight="bold" style={{ color: colors.surface, marginLeft: 8 }}>
                   Verifying Device GPS...
                 </AppText>
               </View>
@@ -195,7 +195,7 @@ export const LoneWorkerScreen: React.FC = () => {
                   disabled={isCheckInDisabled}
                   onPress={handleSafeCheckIn}
                   style={{
-                    backgroundColor: isCheckInDisabled ? undefined : '#059669',
+                    backgroundColor: isCheckInDisabled ? undefined : colors.successDark,
                     height: 60,
                   }}
                 />
@@ -227,7 +227,7 @@ export const LoneWorkerScreen: React.FC = () => {
 
         {todayHistory.length === 0 ? (
           <Card style={styles.emptyTodayCard}>
-            <NavIcon name="loneworker" size={32} color="#94A3B8" />
+            <NavIcon name="loneworker" size={32} color={colors.textSecondary} />
             <Heading level="h4" color="primary" style={{ marginTop: 10 }}>
               No safety checks today
             </Heading>
@@ -256,13 +256,13 @@ export const LoneWorkerScreen: React.FC = () => {
                   </View>
 
                   <TouchableOpacity
-                    style={styles.eyeIconButton}
+                    style={[styles.iconActionBtnView, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                     onPress={() => navigation.navigate('LoneWorkerDetails', { recordId: item.id })}
                     activeOpacity={0.7}
                     accessibilityRole="button"
                     accessibilityLabel={`View details for ${formatDisplayTime(item.exactTime || item.timestamp)}`}
                   >
-                    <NavIcon name="eye" size={18} color="#4F46E5" />
+                    <NavIcon name="eye" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
                 </View>
               </Card>
@@ -277,7 +277,7 @@ export const LoneWorkerScreen: React.FC = () => {
           size="large"
           fullWidth
           onPress={() => navigation.navigate('SafetyHistory')}
-          style={styles.fullHistoryBtn}
+          style={[styles.fullHistoryBtn, { borderColor: colors.borderStrong }]}
         />
 
       </ScrollView>
@@ -306,7 +306,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   timestampsGrid: {
@@ -321,9 +320,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ECFDF5',
     borderWidth: 1.5,
-    borderColor: '#A7F3D0',
     borderRadius: 8,
     padding: 12,
     marginBottom: 16,
@@ -333,7 +330,6 @@ const styles = StyleSheet.create({
   },
   loadingButton: {
     height: 60,
-    backgroundColor: '#059669',
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -354,13 +350,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  eyeIconButton: {
+  iconActionBtnView: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#EEF2FF',
+    borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 12,
@@ -374,6 +368,5 @@ const styles = StyleSheet.create({
     height: 56,
     marginTop: 12,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
   },
 });

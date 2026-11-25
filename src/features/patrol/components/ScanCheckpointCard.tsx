@@ -11,6 +11,7 @@ import { useGuardStore } from '../../../store/useGuardStore';
 export const ScanCheckpointCard: React.FC = () => {
   const navigation = useNavigation<any>();
   const { spacing, colors, borderRadius } = useTheme();
+  const styles = useMemo(() => getStyles(colors, borderRadius), [colors, borderRadius]);
   const { scanCheckpointCode, activePatrol, patrolCheckpointsMap, isClockedIn } = useGuardStore();
 
   const patrolCheckpoints = useMemo(() => {
@@ -101,7 +102,7 @@ export const ScanCheckpointCard: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, borderRadius: any) => StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginVertical: 8,
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#374151',
+    borderBottomColor: colors.borderStrong,
   },
   closeBtn: {
     padding: 6,
@@ -155,8 +156,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: colors.surface,
   },
   cameraScanBtn: {
     paddingHorizontal: 20,
@@ -173,11 +173,11 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   cameraPlaceholderText: {
-    color: '#6B7280',
+    color: colors.textSecondary,
     fontWeight: 'bold',
   },
   scanInstruction: {
-    color: '#9CA3AF',
+    color: colors.textSecondary,
     marginTop: 12,
   },
   feedbackOverlay: {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   simTitle: {
-    color: '#F3F4F6',
+    color: colors.text,
     marginBottom: 4,
   },
   simGrid: {
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   manualInputSection: {
     marginTop: 24,
     borderTopWidth: 1,
-    borderTopColor: '#374151',
+    borderTopColor: colors.borderStrong,
     paddingTop: 16,
   },
   inputRow: {
@@ -221,9 +221,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderWidth: 1,
-    borderColor: '#4B5563',
-    backgroundColor: '#1F2937',
-    color: '#FFFFFF',
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
+    color: colors.text,
     paddingHorizontal: 16,
     fontSize: 16,
   },

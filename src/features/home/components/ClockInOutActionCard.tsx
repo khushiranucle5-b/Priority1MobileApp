@@ -30,7 +30,7 @@ export const ClockInOutActionCard: React.FC = () => {
   const badgeStatus = isClockedIn ? 'Checked In' : isClockedOut ? 'Checked Out' : 'Not Checked In';
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.borderStrong }]}>
       <View style={styles.headerRow}>
         <View>
           <Heading level="h4" color="primary">ATTENDANCE</Heading>
@@ -39,7 +39,7 @@ export const ClockInOutActionCard: React.FC = () => {
         <StatusBadge status={badgeStatus} size="md" />
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
       <View style={styles.statsRow}>
         <View style={styles.statBox}>
@@ -51,7 +51,7 @@ export const ClockInOutActionCard: React.FC = () => {
 
         <View style={styles.statBox}>
           <AppText size="xs" color="secondary" weight="semibold">WORKING HOURS</AppText>
-          <AppText size="base" weight="bold" style={{ color: isClockedIn ? '#059669' : colors.text, marginTop: 2 }}>
+          <AppText size="base" weight="bold" style={{ color: isClockedIn ? colors.successDark : colors.text, marginTop: 2 }}>
             {workingHours}
           </AppText>
         </View>
@@ -89,25 +89,28 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 18,
     borderWidth: 2,
-    borderColor: '#cbd5e1',
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 4,
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#cbd5e1',
     marginVertical: 14,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: 16,
   },
   statBox: {
     flex: 1,
+    minWidth: 120,
   },
   actionBox: {
     marginTop: 4,

@@ -66,12 +66,12 @@ export const LeaveScreen: React.FC = () => {
 
         {/* Search & Filter Row */}
         <View style={styles.searchFilterRow}>
-          <View style={styles.searchInputWrapper}>
-            <NavIcon name="search" size={22} color="#64748B" />
+          <View style={[styles.searchInputWrapper, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <NavIcon name="search" size={22} color={colors.textSecondary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search leaves..."
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
               autoCapitalize="none"
@@ -79,11 +79,11 @@ export const LeaveScreen: React.FC = () => {
           </View>
 
           <TouchableOpacity
-            style={styles.dropdownTrigger}
+            style={[styles.dropdownTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() => setDropdownOpen(!dropdownOpen)}
             activeOpacity={0.7}
           >
-            <AppText size="base" weight="semibold" style={{ color: '#0F172A', marginRight: 6 }}>
+            <AppText size="base" weight="semibold" style={{ color: colors.text, marginRight: 6 }}>
               Filter: {statusFilter}
             </AppText>
             <AppText size="xs" color="secondary">
@@ -113,14 +113,14 @@ export const LeaveScreen: React.FC = () => {
 
         {/* Floating Action Button (FAB) for APPLY LEAVE */}
         <TouchableOpacity
-          style={styles.floatingButton}
+          style={[styles.floatingButton, { backgroundColor: colors.primary[600] }]}
           onPress={handleOpenApplyModal}
           activeOpacity={0.85}
           accessibilityLabel="Apply for leave"
           accessibilityRole="button"
         >
-          <NavIcon name="plus" size={22} color="#FFFFFF" />
-          <AppText size="base" weight="bold" style={styles.floatingButtonText}>
+          <NavIcon name="plus" size={22} color={colors.surface} />
+          <AppText size="base" weight="bold" style={[styles.floatingButtonText, { color: colors.surface }]}>
             APPLY LEAVE
           </AppText>
         </TouchableOpacity>
@@ -173,9 +173,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -183,7 +181,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     marginLeft: 8,
     includeFontPadding: false,
@@ -191,23 +188,18 @@ const styles = StyleSheet.create({
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 56,
     paddingHorizontal: 14,
   },
   dropdownMenuContainer: {
-    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     padding: 4,
     marginHorizontal: 16,
     marginBottom: 12,
     elevation: 4,
-    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 6,
     zIndex: 100,
@@ -220,7 +212,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dropdownMenuItemActive: {
-    backgroundColor: '#EEF2FF',
   },
   listContainer: {
     paddingBottom: 100,
@@ -231,12 +222,10 @@ const styles = StyleSheet.create({
     right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#5B46E5',
     paddingHorizontal: 20,
     height: 56,
     borderRadius: 28,
     elevation: 8,
-    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -244,7 +233,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   floatingButtonText: {
-    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
 });

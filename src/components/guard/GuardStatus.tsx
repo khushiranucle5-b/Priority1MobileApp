@@ -86,39 +86,39 @@ export const GuardStatus: React.FC<GuardStatusProps> = ({
     switch (detectedType) {
       case 'success':
         return {
-          bg: '#DCFCE7',
-          border: '#86EFAC',
-          text: '#15803D',
+          bg: colors.successLight,
+          border: colors.successBorder,
+          text: colors.successDark,
         };
       case 'warning':
         return {
-          bg: '#FEF3C7',
-          border: '#FDE68A',
-          text: '#B45309',
+          bg: colors.warningLight,
+          border: colors.warningBorder,
+          text: colors.warningDark,
         };
       case 'error':
         return {
-          bg: '#FEE2E2',
-          border: '#FECACA',
-          text: '#B91C1C',
+          bg: colors.errorLight,
+          border: colors.errorBorder,
+          text: colors.errorDark,
         };
       case 'emergency':
         return {
-          bg: colors.emergencyLight || '#FEE2E2',
-          border: colors.emergencyBorder || '#FECACA',
-          text: colors.emergency || '#DC2626',
+          bg: colors.emergencyLight,
+          border: colors.emergencyBorder,
+          text: colors.emergency,
         };
       case 'info':
         return {
-          bg: '#DBEAFE',
-          border: '#BFDBFE',
-          text: '#1E40AF',
+          bg: colors.infoLight,
+          border: colors.infoBorder,
+          text: colors.info,
         };
       default:
         return {
-          bg: '#F1F5F9',
-          border: '#CBD5E1',
-          text: '#475569',
+          bg: colors.surfaceSecondary,
+          border: colors.border,
+          text: colors.textSecondary,
         };
     }
   };

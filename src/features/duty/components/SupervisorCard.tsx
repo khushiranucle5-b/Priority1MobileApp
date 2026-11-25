@@ -17,20 +17,20 @@ export const SupervisorCard: React.FC = () => {
   };
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
       <Heading level="h3" color="primary" style={styles.title}>SUPERVISOR CONTACT</Heading>
       
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.row}>
         <Image 
           source={{ uri: 'https://i.pravatar.cc/150?img=12' }} 
-          style={[styles.photo, { borderRadius: borderRadius.full, backgroundColor: colors.surfaceSecondary }]} 
+          style={[styles.photo, { borderRadius: borderRadius.full, backgroundColor: colors.surfaceSecondary, borderColor: colors.primary[600] }]} 
         />
         <View style={styles.info}>
-          <AppText style={styles.nameText}>Jane Smith</AppText>
-          <AppText style={styles.roleText}>Field Operations Officer</AppText>
-          <AppText style={[styles.phoneText, { color: colors.primary[600] || '#2563EB' }]}>
+          <AppText style={[styles.nameText, { color: colors.text }]}>Jane Smith</AppText>
+          <AppText style={[styles.roleText, { color: colors.textSecondary }]}>Field Operations Officer</AppText>
+          <AppText style={[styles.phoneText, { color: colors.primary[600] }]}>
             +1 987-654-3210
           </AppText>
         </View>
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -68,7 +67,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   row: {
@@ -81,7 +79,6 @@ const styles = StyleSheet.create({
     height: 66,
     marginRight: 18,
     borderWidth: 2,
-    borderColor: '#2563EB',
   },
   info: {
     flex: 1,
@@ -89,11 +86,9 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 19,
     fontWeight: '700',
-    color: '#0F172A',
   },
   roleText: {
     fontSize: 15.5,
-    color: '#64748B',
     fontWeight: '500',
     marginTop: 2,
   },

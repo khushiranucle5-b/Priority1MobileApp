@@ -13,22 +13,22 @@ export const SiteInformationCard: React.FC = () => {
   const siteName = assignedSite || 'Ahmedabad Plant';
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
       <View style={styles.headerRow}>
         <Heading level="h3" color="primary" style={styles.title}>SITE INFORMATION</Heading>
-        <View style={[styles.badge, { backgroundColor: '#F1F5F9', borderRadius: borderRadius.sm }]}>
-          <AppText style={styles.badgeText}>ABC-AHM-01</AppText>
+        <View style={[styles.badge, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.sm }]}>
+          <AppText style={[styles.badgeText, { color: colors.textSecondary }]}>ABC-AHM-01</AppText>
         </View>
       </View>
       
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.grid}>
         <View style={styles.row}>
-          <AppText style={styles.value}>{siteName}</AppText>
+          <AppText style={[styles.value, { color: colors.text }]}>{siteName}</AppText>
         </View>
-        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingTop: 12 }]}>
-          <AppText style={styles.value}>45 Industrial Estate, Changodar</AppText>
+        <View style={[styles.row, { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 }]}>
+          <AppText style={[styles.value, { color: colors.text }]}>45 Industrial Estate, Changodar</AppText>
         </View>
         
       </View>
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -61,7 +60,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   grid: {
@@ -74,7 +72,6 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 17.5,
     fontWeight: '700',
-    color: '#0F172A',
   },
   badge: {
     paddingHorizontal: 12,
@@ -83,7 +80,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#475569',
   },
 });
 

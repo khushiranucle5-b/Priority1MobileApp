@@ -10,6 +10,8 @@ import { Button } from '../../../components/Button';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useNavigation } from '@react-navigation/native';
 import { NavIcon } from '../../../components/NavIcon';
+import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
+import { StatusBadge } from '../../../components/StatusBadge';
 
 import { HolidayData, mockHolidays } from '../data/holidaysData';
 export type { HolidayData };
@@ -18,9 +20,19 @@ export { mockHolidays };
 export const HolidaysScreen: React.FC = () => {
   const { colors, spacing, borderRadius } = useTheme();
   const navigation = useNavigation<any>();
-
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedHoliday, setSelectedHoliday] = useState<HolidayData | null>(null);
+
+  const [typeFilter, setTypeFilter] = useState<string>('All');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const filterOptions = [
+    { label: 'All', value: 'All' },
+    { label: 'Company Holiday', value: 'Company Holiday' },
+    { label: 'Festival Holiday', value: 'Festival Holiday' },
+    { label: 'National Holiday', value: 'National Holiday' },
+    { label: 'Public Holiday', value: 'Public Holiday' },
+  ];
 
   const filteredHolidays = (mockHolidays || []).filter((h) => {
     if (!h) return false;
@@ -29,7 +41,10 @@ export const HolidaysScreen: React.FC = () => {
     const codeStr = (h.holidayCode || '').toLowerCase();
     const typeStr = (h.type || '').toLowerCase();
 
-    return !q || nameStr.includes(q) || codeStr.includes(q) || typeStr.includes(q);
+    const matchesSearch = !q || nameStr.includes(q) || codeStr.includes(q) || typeStr.includes(q);
+    const matchesFilter = typeFilter === 'All' || typeStr.includes((typeFilter || '').toLowerCase());
+    
+    return matchesSearch && matchesFilter;
   });
 
   const getTypeBadgeStyle = (type: string) => {
@@ -47,31 +62,52 @@ export const HolidaysScreen: React.FC = () => {
     }
   };
 
-  const getStatusBadgeStyle = (status: string) => {
-    return status === 'Past'
-      ? { bg: '#F1F5F9', text: '#64748B' }
-      : { bg: '#D1FAE5', text: '#059669' };
-  };
-
   return (
     <ScreenLayout activeRoute="Holidays">
       <PageHeader title="Company Holidays" showBack />
       
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
-        {/* Search Bar matching Reference Screenshot */}
-        <View style={styles.searchBox}>
+      {/* Search Bar & Filter Dropdown matching Patrol Screen */}
+      <View style={[styles.searchFilterRow, { paddingHorizontal: 16, paddingTop: 16 }]}>
+        <View style={[styles.searchInputWrapper, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
           <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-            <NavIcon name="search" size={18} color="#64748B" />
+            <NavIcon name="search" size={18} color={colors.textSecondary} />
           </View>
           <TextInput
             placeholder="Search holidays by name, code, category..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            style={styles.searchInput}
-            placeholderTextColor="#94A3B8"
+            style={[styles.searchInput, { color: colors.text }]}
+            placeholderTextColor={colors.textSecondary}
           />
+          {searchQuery ? (
+            <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
+              <AppText size="xs" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
+            </TouchableOpacity>
+          ) : null}
         </View>
+        
+        <TouchableOpacity
+          style={[styles.dropdownTrigger, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+          onPress={() => setDropdownOpen(!dropdownOpen)}
+          activeOpacity={0.8}
+        >
+          <AppText size="sm" weight="bold" color="primary" style={{ marginRight: 4 }}>
+            {typeFilter === 'All' ? 'Filter: All' : `Filter: ${typeFilter}`}
+          </AppText>
+          <AppText size="xs" color="secondary">{dropdownOpen ? '▲' : '▼'}</AppText>
+        </TouchableOpacity>
+      </View>
+
+      <FilterBottomSheet
+        visible={dropdownOpen}
+        onClose={() => setDropdownOpen(false)}
+        title="Select Holiday Type"
+        options={filterOptions}
+        selectedValue={typeFilter}
+        onSelect={(val) => setTypeFilter(val)}
+      />
+
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
 
         <Heading level="h3" style={styles.sectionTitle}>
@@ -85,44 +121,49 @@ export const HolidaysScreen: React.FC = () => {
         ) : (
           filteredHolidays.map((holiday) => {
             const typeColors = getTypeBadgeStyle(holiday.type);
-            const statusColors = getStatusBadgeStyle(holiday.status);
 
             return (
-              <Card key={holiday.id} style={styles.holidayCard}>
+              <Card key={holiday.id} variant="outlined" style={styles.card}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate('HolidayDetails', { holidayId: holiday.id })}
                 >
-                  <View style={styles.cardHeader}>
-                    <View style={{ flex: 1 }}>
+                  <View style={styles.headerRow}>
+                    <View style={{ flex: 1, marginRight: 10 }}>
                       <Heading level="h3" color="primary">{holiday.name}</Heading>
-                      <AppText size="sm" color="secondary" style={{ marginTop: 2 }}>
-                        Holiday ID: {holiday.holidayCode} • {holiday.dateStr}
-                      </AppText>
                     </View>
-
-                    <View style={styles.badgeColumn}>
-                      <View style={[styles.badge, { backgroundColor: statusColors.bg }]}>
-                        <AppText size="sm" weight="bold" style={{ color: statusColors.text }}>
-                          {holiday.status}
-                        </AppText>
-                      </View>
-                    </View>
+                    <StatusBadge status={holiday.status} size="md" />
                   </View>
 
-                  <View style={styles.cardFooter}>
-                    <View style={[styles.badge, { backgroundColor: typeColors.bg }]}>
-                      <AppText size="sm" weight="bold" style={{ color: typeColors.text }}>
-                        {holiday.type}
+                  <View style={[styles.detailRow, { marginTop: spacing.sm || 10 }]}>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>HOLIDAY ID</AppText>
+                      <AppText size="base" weight="bold" color="primary" style={styles.metaValueText}>
+                        {holiday.holidayCode}
                       </AppText>
                     </View>
+                    <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                      <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>DATE</AppText>
+                      <AppText size="base" weight="bold" color="primary" style={styles.metaValueText}>
+                        {holiday.dateStr}
+                      </AppText>
+                    </View>
+                  </View>
+                  
+                  <View style={{ marginTop: 10 }}>
+                      <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>TYPE</AppText>
+                      <AppText size="base" color="primary" weight="bold" style={styles.metaValueText}>
+                        {holiday.type}
+                      </AppText>
+                  </View>
 
+                  <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                     <TouchableOpacity
-                      style={styles.viewIconButton}
+                      style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                       onPress={() => navigation.navigate('HolidayDetails', { holidayId: holiday.id })}
                       activeOpacity={0.7}
                     >
-                      <NavIcon name="eye" size={20} color="#4F46E5" />
+                      <NavIcon name="eye" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
@@ -188,7 +229,7 @@ export const HolidaysScreen: React.FC = () => {
 
                     <View style={styles.infoCol}>
                       <AppText size="sm" color="secondary">Type</AppText>
-                      <View style={[styles.badgeInline, { backgroundColor: getTypeBadgeStyle(selectedHoliday.type).bg }]}>
+                      <View style={[{ paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, alignSelf: 'flex-start', marginTop: 4 }, { backgroundColor: getTypeBadgeStyle(selectedHoliday.type).bg }]}>
                         <AppText size="sm" weight="bold" style={{ color: getTypeBadgeStyle(selectedHoliday.type).text }}>
                           {selectedHoliday.type}
                         </AppText>
@@ -197,10 +238,8 @@ export const HolidaysScreen: React.FC = () => {
 
                     <View style={styles.infoCol}>
                       <AppText size="sm" color="secondary">Status</AppText>
-                      <View style={[styles.badgeInline, { backgroundColor: getStatusBadgeStyle(selectedHoliday.status).bg }]}>
-                        <AppText size="sm" weight="bold" style={{ color: getStatusBadgeStyle(selectedHoliday.status).text }}>
-                          {selectedHoliday.status}
-                        </AppText>
+                      <View style={{ marginTop: 4 }}>
+                        <StatusBadge status={selectedHoliday.status} size="sm" />
                       </View>
                     </View>
 
@@ -224,24 +263,36 @@ export const HolidaysScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
     paddingBottom: 40,
   },
-  searchBox: {
+  searchFilterRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    gap: 8,
+    marginBottom: 12,
+  },
+  searchInputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
-    marginBottom: 12,
+  },
+  dropdownTrigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    height: 56,
+    paddingHorizontal: 14,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
   },
@@ -263,51 +314,56 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     minHeight: 56,
   },
-  viewIconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   sectionTitle: {
     marginBottom: 12,
   },
-  holidayCard: {
-    padding: 16,
+  card: {
     marginBottom: 12,
+    padding: 16,
   },
-  cardHeader: {
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    gap: 12,
   },
-  badgeColumn: {
-    alignItems: 'flex-end',
+  metaLabelText: {
+    fontSize: 15,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  metaValueText: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 3,
+    lineHeight: 22,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
-  },
-  badgeInline: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    marginTop: 4,
-    alignSelf: 'flex-start',
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-    paddingTop: 10,
-    marginTop: 12,
   },
   // Modal styles
   modalOverlay: {

@@ -42,17 +42,11 @@ export const AttendanceScreen: React.FC = () => {
 
   return (
     <ScreenLayout activeRoute="Attendance">
-      <PageHeader title="My Attendance" />
+      <PageHeader title="Attendance" />
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.topContainer}>
-          <AppText size="sm" color="secondary" style={styles.subtitle}>
-            Unified Attendance, Geofence Verification, Overtime Calculation, and Payroll Connection.
-          </AppText>
-        </View>
-
         <MonthlySummary monthRecords={monthRecords} />
         
         <AttendanceCalendar 
@@ -85,6 +79,5 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 12.5,
     lineHeight: 18,
-    color: '#64748B',
   },
 });

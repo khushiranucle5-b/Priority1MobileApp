@@ -144,7 +144,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
       />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Card variant="outlined" style={[styles.mainCard, { backgroundColor: colors.surface }]}>
+        <Card variant="outlined" style={[styles.mainCard, { backgroundColor: colors.surface, borderColor: colors.borderStrong }]}>
           {/* Header Row */}
           <View style={styles.cardHeaderRow}>
             <View style={{ flex: 1 }}>
@@ -158,7 +158,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
             <AttendanceStatusBadge status={overallStatus as any} />
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
           {/* Shift Section */}
           <View style={styles.sectionBlock}>
@@ -173,7 +173,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
             </AppText>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
           {/* Attendance Sessions Section */}
           <View style={styles.sectionBlock}>
@@ -191,7 +191,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
                   const durObj = getSessionDuration(sess);
 
                   return (
-                    <View key={sess.id || `sess-${idx}`} style={styles.sessionCard}>
+                    <View key={sess.id || `sess-${idx}`} style={[styles.sessionCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
                       <AppText size="xs" weight="bold" color="primary" style={styles.sessionTag}>
                         SESSION {idx + 1}
                       </AppText>
@@ -210,7 +210,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
                         </View>
                         <View style={styles.sessionCol}>
                           <AppText size="xs" color="secondary" weight="semibold" style={styles.colLabel}>Duration</AppText>
-                          <AppText size="sm" weight="bold" style={[styles.colValue, { color: durObj.isLive ? '#059669' : colors.primary[600] || '#2563EB' }]}>
+                          <AppText size="sm" weight="bold" style={[styles.colValue, { color: durObj.isLive ? colors.successDark : colors.primary[600] }]}>
                             {durObj.text}
                           </AppText>
                         </View>
@@ -220,7 +220,7 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
                 })}
               </View>
             ) : (
-              <View style={styles.emptySessionBox}>
+              <View style={[styles.emptySessionBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
                 <AppText size="sm" color="secondary" style={styles.emptyText}>
                   No attendance sessions recorded
                 </AppText>
@@ -228,19 +228,19 @@ export const AttendanceDetailsScreen: React.FC<Props> = ({ navigation, route }) 
             )}
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
           {/* Total Working Hours */}
           <View style={styles.sectionBlock}>
             <AppText size="xs" weight="bold" color="secondary" style={styles.blockHeader}>
               TOTAL WORKING HOURS
             </AppText>
-            <AppText size="xl" weight="bold" style={styles.totalHoursText}>
+            <AppText size="xl" weight="bold" style={[styles.totalHoursText, { color: colors.primary[600] }]}>
               {totalHoursSummaryStr}
             </AppText>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.borderStrong }]} />
 
           {/* Location Section */}
           <View style={styles.sectionBlock}>
@@ -265,7 +265,6 @@ const styles = StyleSheet.create({
   mainCard: {
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     marginBottom: 16,
   },
   cardHeaderRow: {
@@ -276,7 +275,6 @@ const styles = StyleSheet.create({
   sectionTag: {
     fontSize: 14,
     letterSpacing: 0.8,
-    color: '#64748B',
   },
   dateHeading: {
     fontSize: 24,
@@ -285,7 +283,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   sectionBlock: {
@@ -295,7 +292,6 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: '#475569',
     marginBottom: 6,
   },
   shiftTitle: {
@@ -304,7 +300,6 @@ const styles = StyleSheet.create({
   },
   shiftSub: {
     fontSize: 15,
-    color: '#64748B',
     marginTop: 2,
   },
   sessionTitleRow: {
@@ -317,18 +312,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sessionCard: {
-    backgroundColor: '#F8FAFC',
     padding: 16,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
   },
   sessionTag: {
     fontSize: 14,
     fontWeight: '700',
     letterSpacing: 0.5,
     marginBottom: 8,
-    color: '#334155',
   },
   sessionGridRow: {
     flexDirection: 'row',
@@ -341,7 +333,6 @@ const styles = StyleSheet.create({
   colLabel: {
     fontSize: 13.5,
     fontWeight: '600',
-    color: '#64748B',
   },
   colValue: {
     fontSize: 16.5,
@@ -351,7 +342,6 @@ const styles = StyleSheet.create({
   totalHoursText: {
     fontSize: 30,
     fontWeight: '700',
-    color: '#2563EB',
     marginTop: 4,
   },
   locationText: {
@@ -360,10 +350,8 @@ const styles = StyleSheet.create({
   },
   emptySessionBox: {
     padding: 14,
-    backgroundColor: '#F8FAFC',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     alignItems: 'center',
   },
   emptyText: {

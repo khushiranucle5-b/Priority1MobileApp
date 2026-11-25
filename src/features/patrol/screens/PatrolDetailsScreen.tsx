@@ -228,10 +228,10 @@ const NativeCameraScannerView: React.FC<{
 };
 
 export const PatrolDetailsScreen: React.FC = () => {
+  const { colors, spacing, borderRadius } = useTheme();
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
-  const { colors, spacing, borderRadius } = useTheme();
   const { patrols, activePatrol, patrolCheckpointsMap, scanCheckpointCode, loadPatrolCheckpoints, startPatrol, guardName, guardId, assignedSite, isClockedIn, loadGuardData, guardEmail } = useGuardStore();
 
   const now = useLiveNow(5000);
@@ -443,10 +443,10 @@ export const PatrolDetailsScreen: React.FC = () => {
 
   const getStatusBadgeStyle = (st?: string) => {
     const s = (st || '').toLowerCase();
-    if (s === 'completed') return { bg: '#D1FAE5', text: '#059669' };
-    if (s === 'in progress' || s === 'in_progress') return { bg: '#E0F2FE', text: '#0284C7' };
-    if (s === 'assigned' || s === 'pending' || s === 'scheduled') return { bg: '#FEF3C7', text: '#D97706' };
-    return { bg: '#FEE2E2', text: '#DC2626' };
+    if (s === 'completed') return { bg: colors.successLight, text: colors.successDark };
+    if (s === 'in progress' || s === 'in_progress') return { bg: colors.surfaceSecondary, text: colors.primary[600] };
+    if (s === 'assigned' || s === 'pending' || s === 'scheduled') return { bg: colors.warningLight, text: colors.warningDark };
+    return { bg: colors.errorLight, text: colors.errorDark };
   };
 
   const mainBadge = getStatusBadgeStyle(avail.statusLabel);
@@ -465,7 +465,7 @@ export const PatrolDetailsScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Main Patrol Banner Card */}
-        <Card variant="outlined" style={styles.card}>
+        <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
           <View style={styles.headerRow}>
             <View style={{ flex: 1, marginRight: 10 }}>
               <AppText size="lg" weight="bold" color="primary" style={styles.cardHeaderTitle}>
@@ -488,25 +488,25 @@ export const PatrolDetailsScreen: React.FC = () => {
               <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
                 CHECKPOINTS
               </AppText>
-              <AppText size="base" weight="bold" style={[styles.metaValueText, { color: colors.primary[600] || '#2563EB' }]}>
+              <AppText size="base" weight="bold" style={[styles.metaValueText, { color: colors.primary[600] }]}>
                 {completedCount} / {totalCount} Completed
               </AppText>
             </View>
           </View>
 
-          <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
+          <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
             {!isPatrolCompleted && !avail.isPastDate && !isPatrolExpired ? (
               <TouchableOpacity
                 style={[
                   styles.inlineActionBtn,
                   {
                     backgroundColor: !isClockedIn
-                      ? '#DC2626'
+                      ? colors.error
                       : isButtonDisabled
-                      ? '#64748B'
+                      ? colors.disabledBackground
                       : avail.isInProgress
-                      ? '#0284C7'
-                      : '#2563EB',
+                      ? colors.primary[600]
+                      : colors.primary[600],
                   },
                 ]}
                 disabled={isButtonDisabled}
@@ -515,7 +515,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                 accessibilityLabel={buttonTitleText}
                 accessibilityRole="button"
               >
-                <AppText size="sm" weight="bold" style={{ color: '#FFFFFF', textAlign: 'center', textTransform: 'uppercase' }}>
+                <AppText size="sm" weight="bold" style={{ color: colors.white, textAlign: 'center', textTransform: 'uppercase' }}>
                   {buttonTitleText || 'START PATROLLING'}
                 </AppText>
               </TouchableOpacity>
@@ -526,14 +526,14 @@ export const PatrolDetailsScreen: React.FC = () => {
                 </AppText>
               </View>
             ) : isPatrolIncomplete ? (
-              <View style={{ flex: 1, marginTop: 0, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: '#FEF3C7', borderColor: '#FDE68A', borderWidth: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-                <AppText style={{ color: '#D97706', fontWeight: '700', fontSize: 14 }}>
+              <View style={{ flex: 1, marginTop: 0, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: colors.warningLight, borderColor: colors.warning, borderWidth: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                <AppText style={{ color: colors.warningDark, fontWeight: '700', fontSize: 14 }}>
                   ⚠️ Incomplete Patrol ({completedCount}/{totalCount} Completed)
                 </AppText>
               </View>
             ) : (
-              <View style={{ flex: 1, marginTop: 0, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: '#FEE2E2', borderColor: '#FCA5A5', borderWidth: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
-                <AppText style={{ color: '#DC2626', fontWeight: '700', fontSize: 14 }}>
+              <View style={{ flex: 1, marginTop: 0, paddingVertical: 12, paddingHorizontal: 12, backgroundColor: colors.errorLight, borderColor: colors.error, borderWidth: 1, borderRadius: 8, alignItems: 'center', justifyContent: 'center' }}>
+                <AppText style={{ color: colors.errorDark, fontWeight: '700', fontSize: 14 }}>
                   ✕ Patrol Expired ({completedCount}/{totalCount} Completed)
                 </AppText>
               </View>
@@ -542,18 +542,18 @@ export const PatrolDetailsScreen: React.FC = () => {
         </Card>
 
         {/* Clean Guard-Facing Patrol Information Card */}
-        <Card variant="outlined" style={styles.card}>
-          <AppText style={styles.sectionTitle}>
+        <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
+          <AppText style={[styles.sectionTitle, { color: colors.textSecondary }]}>
             PATROL INFORMATION
           </AppText>
-          <View style={styles.dividerLine} />
+          <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
 
           <View style={styles.gridContainer}>
             {/* Patrol Name */}
             <View style={styles.gridRow}>
               <View style={styles.gridColFull}>
-                <AppText style={styles.fieldLabel}>Patrol Route</AppText>
-                <AppText style={styles.fieldValuePrimary}>
+                <AppText style={[styles.fieldLabel, { color: colors.textSecondary }]}>Patrol Route</AppText>
+                <AppText style={[styles.fieldValuePrimary, { color: colors.text }]}>
                   {targetPatrol.title}
                 </AppText>
               </View>
@@ -562,18 +562,18 @@ export const PatrolDetailsScreen: React.FC = () => {
             {/* Time & Checkpoint Breakdown */}
             <View style={styles.gridRow}>
               <View style={styles.gridCol}>
-                <AppText style={styles.fieldLabel}>Scheduled Shift</AppText>
-                <AppText style={styles.fieldValuePrimary}>
+                <AppText style={[styles.fieldLabel, { color: colors.textSecondary }]}>Scheduled Shift</AppText>
+                <AppText style={[styles.fieldValuePrimary, { color: colors.text }]}>
                   {scheduledTimeDisplay}
                 </AppText>
               </View>
 
               <View style={styles.gridCol}>
-                <AppText style={styles.fieldLabel}>Completed / Remaining</AppText>
-                <AppText style={styles.fieldValuePrimary}>
-                  <AppText style={{ color: '#059669', fontWeight: '700' }}>{completedCount}</AppText>
+                <AppText style={[styles.fieldLabel, { color: colors.textSecondary }]}>Completed / Remaining</AppText>
+                <AppText style={[styles.fieldValuePrimary, { color: colors.text }]}>
+                  <AppText style={{ color: colors.successDark, fontWeight: '700' }}>{completedCount}</AppText>
                   {' / '}
-                  <AppText style={{ color: '#D97706', fontWeight: '700' }}>{remainingCount}</AppText>
+                  <AppText style={{ color: colors.warningDark, fontWeight: '700' }}>{remainingCount}</AppText>
                 </AppText>
               </View>
             </View>
@@ -582,8 +582,8 @@ export const PatrolDetailsScreen: React.FC = () => {
             {lastScannedCP ? (
               <View style={styles.gridRow}>
                 <View style={styles.gridColFull}>
-                  <AppText style={styles.fieldLabel}>Last Checkpoint Scanned</AppText>
-                  <AppText style={styles.fieldValuePrimary}>
+                  <AppText style={[styles.fieldLabel, { color: colors.textSecondary }]}>Last Checkpoint Scanned</AppText>
+                  <AppText style={[styles.fieldValuePrimary, { color: colors.text }]}>
                     {lastScannedCP.number} — {lastScannedCP.name} {lastScannedCP.scanTime ? `(Scanned: ${lastScannedCP.scanTime})` : ''}
                   </AppText>
                 </View>
@@ -604,7 +604,7 @@ export const PatrolDetailsScreen: React.FC = () => {
           const isDone = cp.status === 'Completed';
 
           return (
-            <Card key={cp.id} variant="outlined" style={styles.card}>
+            <Card key={cp.id} variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
               <View style={styles.headerRow}>
                 <View style={{ flex: 1, marginRight: 10 }}>
                   <AppText size="lg" weight="bold" color="primary" style={styles.cardHeaderTitle}>
@@ -627,7 +627,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                   <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
                     VERIFICATION
                   </AppText>
-                  <AppText size="base" weight="bold" style={[styles.metaValueText, { color: isDone ? '#059669' : '#D97706' }]}>
+                  <AppText size="base" weight="bold" style={[styles.metaValueText, { color: isDone ? colors.successDark : colors.warningDark }]}>
                     {isDone ? 'GPS & QR Matched' : 'Pending Scan'}
                   </AppText>
                 </View>
@@ -638,7 +638,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                   <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
                     SCANNED AT
                   </AppText>
-                  <AppText size="base" color="text" weight="medium" style={styles.metaValueText}>
+                  <AppText size="base" color="primary" weight="medium" style={styles.metaValueText}>
                     {cp.scanTime}
                   </AppText>
                 </View>
@@ -728,7 +728,7 @@ export const PatrolDetailsScreen: React.FC = () => {
                         disabled={isDone}
                         activeOpacity={0.7}
                       >
-                        <AppText style={{ color: isDone ? '#059669' : '#FBBF24', fontSize: 13, fontWeight: '700' }}>
+                        <AppText style={{ color: isDone ? colors.successDark : colors.warningDark, fontSize: 13, fontWeight: '700' }}>
                           {isDone ? `✓ ${cp.number}` : `Scan ${cp.number}`}
                         </AppText>
                       </TouchableOpacity>
@@ -739,7 +739,7 @@ export const PatrolDetailsScreen: React.FC = () => {
 
               {/* Feedback Banners */}
               {scanSuccessText && (
-                <View style={[styles.feedbackOverlay, { backgroundColor: '#059669' }]}>
+                <View style={[styles.feedbackOverlay, { backgroundColor: colors.successDark }]}>
                   <AppText style={styles.feedbackOverlayText}>
                     ✓ {scanSuccessText}
                   </AppText>
@@ -747,7 +747,7 @@ export const PatrolDetailsScreen: React.FC = () => {
               )}
 
               {scanErrorText && (
-                <View style={[styles.feedbackOverlay, { backgroundColor: '#DC2626' }]}>
+                <View style={[styles.feedbackOverlay, { backgroundColor: colors.errorDark }]}>
                   <AppText style={styles.feedbackOverlayText}>
                     ✕ {scanErrorText}
                   </AppText>
@@ -791,7 +791,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 0.6,
-    color: '#64748B',
   },
   metaValueText: {
     fontSize: 15,
@@ -887,14 +886,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   sectionTitle: {
-    color: '#475569',
     letterSpacing: 0.8,
     fontSize: 13,
     fontWeight: '700',
   },
   dividerLine: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 12,
   },
   gridContainer: {
@@ -914,14 +911,12 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748B',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   fieldValuePrimary: {
     fontSize: 15.5,
     fontWeight: '700',
-    color: '#0F172A',
     marginTop: 3,
     lineHeight: 22,
   },

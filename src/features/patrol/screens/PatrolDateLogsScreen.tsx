@@ -93,10 +93,10 @@ export const PatrolDateLogsScreen: React.FC = () => {
 
   const getStatusBadgeStyle = (statusStr?: string) => {
     const s = (statusStr || '').toLowerCase();
-    if (s === 'completed') return { bg: '#D1FAE5', text: '#059669' };
-    if (s === 'in progress' || s === 'in_progress') return { bg: '#E0F2FE', text: '#0284C7' };
-    if (s === 'assigned' || s === 'pending' || s === 'scheduled') return { bg: '#FEF3C7', text: '#D97706' };
-    return { bg: '#FEE2E2', text: '#DC2626' };
+    if (s === 'completed') return { bg: colors.successLight, text: colors.successDark };
+    if (s === 'in progress' || s === 'in_progress') return { bg: colors.surfaceSecondary, text: colors.primary[600] };
+    if (s === 'assigned' || s === 'pending' || s === 'scheduled') return { bg: colors.warningLight, text: colors.warningDark };
+    return { bg: colors.errorLight, text: colors.errorDark };
   };
 
   return (
@@ -116,7 +116,7 @@ export const PatrolDateLogsScreen: React.FC = () => {
 
         {recordsForDate.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <NavIcon name="patrol" size={40} color="#94A3B8" />
+            <NavIcon name="patrol" size={40} color={colors.textSecondary} />
             <Heading level="h3" color="primary" style={{ marginTop: 12, fontSize: 18 }}>
               No Patrols Scheduled
             </Heading>
@@ -169,7 +169,7 @@ export const PatrolDateLogsScreen: React.FC = () => {
                     <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
                       SCHEDULED TIME
                     </AppText>
-                    <AppText size="base" weight="bold" style={[styles.metaValueText, { color: colors.primary[600] || '#2563EB' }]}>
+                    <AppText size="base" weight="bold" style={[styles.metaValueText, { color: colors.primary[600] }]}>
                       {timeDisplay}
                     </AppText>
                   </View>
@@ -179,19 +179,19 @@ export const PatrolDateLogsScreen: React.FC = () => {
                   <AppText size="xs" color="secondary" weight="semibold" style={styles.metaLabelText}>
                     SITE / ROUTE
                   </AppText>
-                  <AppText size="base" color="text" weight="bold" style={styles.metaValueText}>
+                  <AppText size="base" color="primary" weight="bold" style={styles.metaValueText}>
                     {item.site || item.route || 'Unassigned Site'}
                   </AppText>
                 </View>
 
-                <View style={[styles.actionsRow, { borderTopColor: colors.border || '#E2E8F0' }]}>
+                <View style={[styles.actionsRow, { borderTopColor: colors.border }]}>
                   {isFullyCompleted ? (
                     <TouchableOpacity
                       disabled
                       onPress={() => handlePatrolAction(item)}
-                      style={[styles.inlineActionBtn, { backgroundColor: '#D1FAE5', borderColor: '#A7F3D0', borderWidth: 1, justifyContent: 'center', alignItems: 'center' }]}
+                      style={[styles.inlineActionBtn, { backgroundColor: colors.successLight, borderColor: colors.success, borderWidth: 1, justifyContent: 'center', alignItems: 'center' }]}
                     >
-                      <AppText size="base" weight="bold" style={{ color: '#059669' }}>
+                      <AppText size="base" weight="bold" style={{ color: colors.successDark }}>
                         PATROL COMPLETED
                       </AppText>
                     </TouchableOpacity>
@@ -201,10 +201,10 @@ export const PatrolDateLogsScreen: React.FC = () => {
                       style={[
                         styles.inlineActionBtn,
                         { borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
-                        avail.isInProgress ? { backgroundColor: '#0284C7', borderColor: '#0284C7' } : { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' },
+                        avail.isInProgress ? { backgroundColor: colors.primary[600], borderColor: colors.primary[600] } : { backgroundColor: colors.warningLight, borderColor: colors.warning },
                       ]}
                     >
-                      <AppText size="base" weight="bold" style={{ color: avail.isInProgress ? '#FFFFFF' : '#D97706' }}>
+                      <AppText size="base" weight="bold" style={{ color: avail.isInProgress ? colors.white : colors.warningDark }}>
                         {avail.isInProgress ? "CONTINUE PATROLLING" : "INCOMPLETE PATROL"}
                       </AppText>
                     </TouchableOpacity>
@@ -212,9 +212,9 @@ export const PatrolDateLogsScreen: React.FC = () => {
                     <TouchableOpacity
                       disabled
                       onPress={() => handlePatrolAction(item)}
-                      style={[styles.inlineActionBtn, { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5', borderWidth: 1, justifyContent: 'center', alignItems: 'center' }]}
+                      style={[styles.inlineActionBtn, { backgroundColor: colors.errorLight, borderColor: colors.error, borderWidth: 1, justifyContent: 'center', alignItems: 'center' }]}
                     >
-                      <AppText size="base" weight="bold" style={{ color: '#DC2626' }}>
+                      <AppText size="base" weight="bold" style={{ color: colors.errorDark }}>
                         PATROL EXPIRED
                       </AppText>
                     </TouchableOpacity>
@@ -229,13 +229,13 @@ export const PatrolDateLogsScreen: React.FC = () => {
                   )}
 
                   <TouchableOpacity
-                    style={styles.iconActionBtnView}
+                    style={[styles.iconActionBtnView, { borderColor: colors.border, backgroundColor: colors.surfaceSecondary }]}
                     onPress={() => navigation.navigate('PatrolDetails', { patrolId: item.id, patrol: item })}
                     activeOpacity={0.7}
                     accessibilityLabel="View patrol details"
                     accessibilityRole="button"
                   >
-                    <NavIcon name="eye" size={24} color="#4F46E5" />
+                    <NavIcon name="eye" size={24} color={colors.primary[600]} />
                   </TouchableOpacity>
                 </View>
               </Card>
@@ -258,12 +258,10 @@ const styles = StyleSheet.create({
   headerDateTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#0F172A',
   },
   headerSubtitle: {
     fontSize: 15,
     marginTop: 3,
-    color: '#64748B',
   },
   card: {
     marginBottom: 12,
@@ -278,7 +276,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     lineHeight: 24,
-    color: '#0F172A',
   },
   detailRow: {
     flexDirection: 'row',
@@ -290,7 +287,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.6,
-    color: '#64748B',
     textTransform: 'uppercase',
   },
   metaValueText: {
@@ -298,7 +294,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 3,
     lineHeight: 22,
-    color: '#0F172A',
   },
   actionsRow: {
     flexDirection: 'row',
@@ -319,8 +314,6 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 10,
     borderWidth: 1.5,
-    borderColor: '#C7D2FE',
-    backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
   },

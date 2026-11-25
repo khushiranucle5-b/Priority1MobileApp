@@ -46,7 +46,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled 
       style={[
         styles.container,
         {
-          backgroundColor: colors.background || '#F8FAFC',
+          backgroundColor: colors.background,
           paddingHorizontal: spacing.base,
           paddingTop: spacing.md,
           paddingBottom: spacing.sm,
@@ -69,7 +69,7 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled 
           hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
         >
           <View pointerEvents="none">
-            <NavIcon name="menu" size={24} color="#334155" />
+            <NavIcon name="menu" size={24} color={colors.text} />
           </View>
         </TouchableOpacity>
         <Image
@@ -88,12 +88,12 @@ export const HomeHeader: React.FC<HomeHeaderProps> = ({ onMenuPress, isScrolled 
         <View style={styles.headerActionsRow}>
           {/* Notification Bell */}
           <TouchableOpacity
-            style={[styles.iconBtn, { backgroundColor: '#F1F5F9', borderRadius: 24 }]}
+            style={[styles.iconBtn, { backgroundColor: colors.surfaceSecondary, borderRadius: 24 }]}
             onPress={() => navigation.navigate('Notifications')}
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <NavIcon name="bell" size={24} color="#334155" />
+            <NavIcon name="bell" size={24} color={colors.text} />
             {unreadCount > 0 && (
               <View style={[styles.badge, { backgroundColor: colors.error, borderRadius: borderRadius.full }]}>
                 <AppText size="xs" color="surface" weight="bold" style={styles.badgeText}>
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,

@@ -60,13 +60,13 @@ export const EquipmentCard: React.FC = () => {
   const displayItems = assets.length > 0 ? assets.map(a => a.name) : defaultEquipment;
 
   return (
-    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg }]}>
+    <Card variant="outlined" style={[styles.card, { backgroundColor: colors.surface, borderRadius: borderRadius.lg, borderColor: colors.border }]}>
       <View style={styles.headerRow}>
         <Heading level="h3" color="primary" style={styles.title}>ASSIGNED EQUIPMENT</Heading>
         
       </View>
       
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       {loading ? (
         <View style={styles.loadingBox}>
@@ -79,9 +79,9 @@ export const EquipmentCard: React.FC = () => {
               key={index}
               activeOpacity={0.7}
               onPress={() => navigation.navigate('Home', { screen: 'Assets' })}
-              style={[styles.item, { backgroundColor: '#F1F5F9', borderRadius: borderRadius.md }]}
+              style={[styles.item, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderColor: colors.border }]}
             >
-              <AppText style={styles.itemText}>{item}</AppText>
+              <AppText style={[styles.itemText, { color: colors.text }]}>{item}</AppText>
             </TouchableOpacity>
           ))}
         </View>
@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 20,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -120,7 +119,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1.5,
-    backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
   grid: {
@@ -132,12 +130,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
   },
   itemText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1E293B',
   },
   loadingBox: {
     padding: 12,

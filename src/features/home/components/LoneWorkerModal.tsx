@@ -29,15 +29,15 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
 
   const getStatusInfo = () => {
     if (!isClockedIn) {
-      return { label: 'NOT ACTIVE', color: '#94A3B8', bg: '#F1F5F9' };
+      return { label: 'NOT ACTIVE', color: colors.textSecondary, bg: colors.surfaceSecondary };
     }
     if (elapsedMs >= 45 * 60 * 1000 || loneWorker.status === 'OVERDUE') {
-      return { label: 'OVERDUE', color: '#DC2626', bg: '#FEE2E2' };
+      return { label: 'OVERDUE', color: colors.errorDark, bg: colors.errorLight };
     }
     if (elapsedMs >= 30 * 60 * 1000 || loneWorker.status === 'CHECK REQUIRED' || loneWorker.isModalOpen) {
-      return { label: 'CHECK REQUIRED', color: '#D97706', bg: '#FEF3C7' };
+      return { label: 'CHECK REQUIRED', color: colors.warningDark, bg: colors.warningLight };
     }
-    return { label: 'SAFE', color: '#059669', bg: '#D1FAE5' };
+    return { label: 'SAFE', color: colors.successDark, bg: colors.successLight };
   };
 
   const statusInfo = getStatusInfo();
@@ -68,30 +68,24 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
         // Mandatory non-dismissible popup: do nothing on back press
       }}
     >
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
         {/* Non-interactive backdrop: Tapping outside will NOT dismiss */}
         <View style={styles.backdrop} />
 
         <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
           {/* Header (No X / Close Button) */}
-          <View style={styles.header}>
+          <View style={[styles.header, { borderBottomColor: colors.border }]}>
             <View style={styles.headerTitleRow}>
               <View style={{ marginRight: 8 }}>
                 <NavIcon name="loneworker" size={22} color={statusInfo.color} />
               </View>
               <Heading level="h3" color="primary">Lone Worker Safety</Heading>
             </View>
-
-            <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
-              <AppText size="xs" weight="bold" style={{ color: statusInfo.color }}>
-                ● {statusInfo.label}
-              </AppText>
-            </View>
           </View>
 
           <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
             {/* Status Summary Card */}
-            <View style={[styles.summaryCard, { backgroundColor: '#F8FAFC', borderRadius: borderRadius.md }]}>
+            <View style={[styles.summaryCard, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.md, borderColor: colors.border }]}>
               <View style={styles.summaryRow}>
                 <AppText size="sm" color="secondary">Status</AppText>
                 <AppText size="sm" weight="bold" style={{ color: statusInfo.color }}>
@@ -99,7 +93,7 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
                 </AppText>
               </View>
 
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
               <View style={styles.summaryRow}>
                 <AppText size="sm" color="secondary">Last Check-in</AppText>
@@ -108,11 +102,11 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
                 </AppText>
               </View>
 
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
               <View style={styles.summaryRow}>
                 <AppText size="sm" color="secondary">Next Check Due</AppText>
-                <AppText size="sm" weight="bold" style={{ color: '#D97706' }}>
+                <AppText size="sm" weight="bold" style={{ color: colors.warningDark }}>
                   {!isClockedIn ? 'Clock In Required' : 'NOW'}
                 </AppText>
               </View>
@@ -128,7 +122,7 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
                 onPress={handleSafeCheckIn}
                 style={[
                   styles.actionButton,
-                  { height: 54, backgroundColor: '#059669' },
+                  { height: 54, backgroundColor: colors.successDark },
                 ]}
               />
 
@@ -140,7 +134,7 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
                 onPress={handleReportIssue}
                 style={[
                   styles.actionButton,
-                  { height: 54, borderColor: '#DC2626' },
+                  { height: 54, borderColor: colors.error },
                 ]}
               />
             </View>
@@ -154,7 +148,6 @@ export const LoneWorkerModal: React.FC<LoneWorkerModalProps> = ({ visible, onClo
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
     justifyContent: 'flex-end',
   },
   backdrop: {
@@ -173,7 +166,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
   },
   headerTitleRow: {
     flexDirection: 'row',
@@ -190,7 +182,6 @@ const styles = StyleSheet.create({
   summaryCard: {
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
   summaryRow: {
     flexDirection: 'row',
@@ -199,7 +190,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E2E8F0',
     marginVertical: 10,
   },
   buttonContainer: {

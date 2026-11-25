@@ -80,9 +80,9 @@ export const SettingsScreen: React.FC = () => {
     <ScreenLayout>
       <PageHeader title="Settings" showBack onBack={() => navigation.goBack()} />
 
-      <View style={[styles.searchContainer, { backgroundColor: colors.card, marginHorizontal: spacing.base, borderRadius: borderRadius.md, marginTop: spacing.md }]}>
+      <View style={[styles.searchContainer, { backgroundColor: colors.card, marginHorizontal: spacing.base, borderRadius: borderRadius.md, marginTop: spacing.md, borderColor: colors.borderStrong }]}>
         <View style={styles.searchIcon}>
-          <NavIcon name="search" size={24} color="#64748B" />
+          <NavIcon name="search" size={24} color={colors.textSecondary} />
         </View>
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
@@ -101,8 +101,8 @@ export const SettingsScreen: React.FC = () => {
         ) : (
           Object.keys(groupedSettings).map(sectionTitle => (
             <View key={sectionTitle} style={{ marginTop: spacing.lg }}>
-              <AppText style={styles.sectionTitle}>{sectionTitle}</AppText>
-              <View style={[styles.sectionCard, { backgroundColor: colors.card, borderRadius: borderRadius.lg }]}>
+              <AppText style={[styles.sectionTitle, { color: colors.textSecondary }]}>{sectionTitle}</AppText>
+              <View style={[styles.sectionCard, { backgroundColor: colors.card, borderRadius: borderRadius.lg, borderColor: colors.borderStrong }]}>
                 {groupedSettings[sectionTitle].map((setting, index) => {
                   const isLast = index === groupedSettings[sectionTitle].length - 1;
                   return (
@@ -117,11 +117,11 @@ export const SettingsScreen: React.FC = () => {
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
                       <View style={styles.left}>
-                        <NavIcon name={setting.icon} size={28} color={colors.primary[600] || '#2563eb'} />
-                        <AppText style={styles.settingItemTitle}>{setting.title}</AppText>
+                        <NavIcon name={setting.icon} size={28} color={colors.primary[600]} />
+                        <AppText style={[styles.settingItemTitle, { color: colors.text }]}>{setting.title}</AppText>
                       </View>
 
-                      <NavIcon name="chevron-right" size={20} color="#94A3B8" />
+                      <NavIcon name="chevron-right" size={20} color={colors.textSecondary} />
                     </TouchableOpacity>
                   );
                 })}
@@ -154,7 +154,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     height: 56,
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
   },
   searchIcon: {
     marginRight: 12,
@@ -176,12 +175,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 4,
     ...typography.presets.sectionHeading,
-    color: '#475569',
   },
   sectionCard: {
     overflow: 'hidden',
     borderWidth: 1.5,
-    borderColor: '#CBD5E1',
   },
   row: {
     flexDirection: 'row',
@@ -199,11 +196,9 @@ const styles = StyleSheet.create({
   settingItemTitle: {
     ...typography.presets.body,
     fontWeight: '600',
-    color: '#0F172A',
   },
   arrowText: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#94A3B8',
   }
 });

@@ -128,6 +128,8 @@ export const Button: React.FC<ButtonProps> = ({
                 color: getTextColor(),
                 fontSize: getFontSize(),
                 fontWeight: typography.fontWeight.semibold,
+                flexShrink: 1,
+                textAlign: 'center',
               },
             ]}
           >

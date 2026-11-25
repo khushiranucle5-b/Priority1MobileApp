@@ -75,33 +75,33 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
     const s = status.toLowerCase();
     if (s === 'present') {
       return {
-        bg: colors.successLight || '#dcfce7',
-        text: colors.success ? colors.success[700] || '#15803d' : '#15803d',
-        border: colors.success ? colors.success[600] || '#16a34a' : '#16a34a',
+        bg: colors.successLight,
+        text: colors.successDark,
+        border: colors.success,
       };
     } else if (s === 'absent') {
       return {
-        bg: colors.errorLight || '#fee2e2',
-        text: colors.error ? colors.error[700] || '#b91c1c' : '#b91c1c',
-        border: colors.error ? colors.error[600] || '#dc2626' : '#dc2626',
+        bg: colors.errorLight,
+        text: colors.errorDark,
+        border: colors.error,
       };
     } else if (s === 'leave') {
       return {
-        bg: colors.warningLight || '#ffedd5',
-        text: colors.warning ? colors.warning[700] || '#c2410c' : '#c2410c',
-        border: colors.warning ? colors.warning[600] || '#ea580c' : '#ea580c',
+        bg: colors.warningLight,
+        text: colors.warningDark,
+        border: colors.warning,
       };
     } else if (s === 'half day' || s === 'half-day') {
       return {
-        bg: '#f3e8ff',
-        text: '#6b21a8',
-        border: '#8b5cf6',
+        bg: colors.primary[50],
+        text: colors.primary[600],
+        border: colors.primary[600],
       };
     }
     return {
-      bg: colors.background || '#f3f4f6',
-      text: colors.textSecondary || '#6b7280',
-      border: colors.border || '#e5e7eb',
+      bg: colors.surfaceSecondary,
+      text: colors.textSecondary,
+      border: colors.borderStrong,
     };
   };
 
@@ -201,7 +201,7 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
                     weight="bold"
                     style={[
                       styles.colDuration,
-                      { color: dur.text === 'Active' ? (colors.primary[600] || '#2563eb') : colors.text }
+                      { color: dur.text === 'Active' ? colors.primary[600] : colors.text }
                     ]}
                   >
                     {dur.text}
@@ -234,7 +234,7 @@ export const SelectedDateDetails = ({ record, selectedDate, shift }: SelectedDat
             <AppText size="sm" weight="bold" color="secondary" style={styles.infoLabel}>
               Reason
             </AppText>
-            <AppText size="sm" color="text">
+            <AppText size="sm" color="primary">
               {record.leave.reason || 'Not specified'}
             </AppText>
           </View>

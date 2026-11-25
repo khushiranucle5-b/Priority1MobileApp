@@ -93,6 +93,8 @@ const DEFAULT_SITES: DBSite[] = [
 export const SitesListScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const isFocused = useIsFocused();
+  const { colors, borderRadius } = useTheme();
+  const styles = React.useMemo(() => getStyles(colors, borderRadius), [colors, borderRadius]);
 
   const [sites, setSites] = useState<DBSite[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -151,22 +153,22 @@ export const SitesListScreen: React.FC = () => {
   const getRiskBadgeColor = (risk?: string) => {
     switch ((risk || '').toLowerCase()) {
       case 'high':
-        return { bg: '#FEE2E2', text: '#DC2626' };
+        return { bg: colors.errorLight, text: colors.errorDark };
       case 'medium':
-        return { bg: '#FEF3C7', text: '#D97706' };
+        return { bg: colors.warningLight, text: colors.warningDark };
       case 'low':
       default:
-        return { bg: '#D1FAE5', text: '#059669' };
+        return { bg: colors.successLight, text: colors.successDark };
     }
   };
 
   const getStatusBadgeColor = (status?: string) => {
     switch ((status || '').toLowerCase()) {
       case 'active':
-        return { bg: '#D1FAE5', text: '#059669' };
+        return { bg: colors.successLight, text: colors.successDark };
       case 'inactive':
       default:
-        return { bg: '#F1F5F9', text: '#64748B' };
+        return { bg: colors.surfaceSecondary, text: colors.textSecondary };
     }
   };
 
@@ -178,20 +180,20 @@ export const SitesListScreen: React.FC = () => {
         {/* Search & Filter Bar Component */}
         <View style={styles.searchFilterContainer}>
           {/* Full-width rounded search input */}
-          <View style={styles.searchBar}>
+          <View style={[styles.searchBar, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}>
             <View style={{ marginRight: 8 }}>
-              <NavIcon name="search" size={18} color="#64748B" />
+              <NavIcon name="search" size={18} color={colors.textSecondary} />
             </View>
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: colors.text }]}
               placeholder="Search site, client, code, address..."
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 4 }}>
-                <AppText size="sm" weight="bold" style={{ color: '#64748B' }}>✕</AppText>
+                <AppText size="sm" weight="bold" style={{ color: colors.textSecondary }}>✕</AppText>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -200,7 +202,7 @@ export const SitesListScreen: React.FC = () => {
           <View style={styles.filterTriggersRow}>
             {/* Risk Tier Dropdown Trigger */}
             <TouchableOpacity
-              style={styles.dropdownTrigger}
+              style={[styles.dropdownTrigger, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}
               onPress={() => {
                 setRiskDropdownOpen(!riskDropdownOpen);
                 setStatusDropdownOpen(false);
@@ -208,7 +210,7 @@ export const SitesListScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <AppText size="sm" color="secondary" style={{ marginRight: 4 }}>Risk:</AppText>
-              <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+              <AppText size="sm" weight="bold" style={{ color: colors.text, marginRight: 4, flexShrink: 1 }} numberOfLines={1}>
                 {riskFilter}
               </AppText>
               <AppText size="sm" color="secondary">{riskDropdownOpen ? '▲' : '▼'}</AppText>
@@ -216,7 +218,7 @@ export const SitesListScreen: React.FC = () => {
 
             {/* Status Dropdown Trigger */}
             <TouchableOpacity
-              style={styles.dropdownTrigger}
+              style={[styles.dropdownTrigger, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderStrong }]}
               onPress={() => {
                 setStatusDropdownOpen(!statusDropdownOpen);
                 setRiskDropdownOpen(false);
@@ -224,7 +226,7 @@ export const SitesListScreen: React.FC = () => {
               activeOpacity={0.8}
             >
               <AppText size="sm" color="secondary" style={{ marginRight: 4 }}>Status:</AppText>
-              <AppText size="sm" weight="bold" style={{ color: '#475569', marginRight: 4 }}>
+              <AppText size="sm" weight="bold" style={{ color: colors.text, marginRight: 4, flexShrink: 1 }} numberOfLines={1}>
                 {statusFilter}
               </AppText>
               <AppText size="sm" color="secondary">{statusDropdownOpen ? '▲' : '▼'}</AppText>
@@ -264,7 +266,7 @@ export const SitesListScreen: React.FC = () => {
         {/* Site Cards List */}
         {filteredSites.length === 0 ? (
           <Card style={{ padding: 24, alignItems: 'center' }}>
-            <NavIcon name="sites" size={36} color="#94A3B8" />
+            <NavIcon name="sites" size={36} color={colors.textSecondary} />
             <AppText size="base" color="secondary" style={{ marginTop: 10, textAlign: 'center' }}>
               No sites match your search query or filter criteria.
             </AppText>
@@ -303,7 +305,7 @@ export const SitesListScreen: React.FC = () => {
                     </View>
                   </View>
 
-                  <View style={styles.divider} />
+                  <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                   {/* Card Details Grid */}
                   <View style={styles.grid}>
@@ -329,13 +331,13 @@ export const SitesListScreen: React.FC = () => {
                   </View>
 
                   {/* Action Footer with View Icon Button */}
-                  <View style={styles.cardFooter}>
+                  <View style={[styles.cardFooter, { borderTopColor: colors.border }]}>
                     <TouchableOpacity
-                      style={styles.viewIconButton}
+                      style={[styles.iconActionBtnView, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                       onPress={() => navigation.navigate('SiteDetails', { siteId: site.id })}
                       activeOpacity={0.7}
                     >
-                      <NavIcon name="eye" size={20} color="#4F46E5" />
+                      <NavIcon name="eye" size={24} color={colors.primary[600]} />
                     </TouchableOpacity>
                   </View>
                 </TouchableOpacity>
@@ -348,7 +350,7 @@ export const SitesListScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any, borderRadius: any) => StyleSheet.create({
   container: {
     padding: 16,
     paddingBottom: 40,
@@ -359,9 +361,7 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     paddingHorizontal: 14,
     height: 56,
@@ -370,7 +370,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0F172A',
     paddingVertical: 0,
     includeFontPadding: false,
   },
@@ -383,9 +382,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#CBD5E1',
     borderRadius: 8,
     height: 56,
     paddingHorizontal: 14,
@@ -401,7 +398,10 @@ const styles = StyleSheet.create({
   },
   badgeGroup: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 6,
+    flexShrink: 1,
+    justifyContent: 'flex-end',
   },
   badge: {
     paddingHorizontal: 8,
@@ -410,7 +410,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
     marginVertical: 12,
   },
   grid: {
@@ -428,16 +427,13 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
     paddingTop: 12,
   },
-  viewIconButton: {
-    width: 44,
-    height: 44,
+  iconActionBtnView: {
+    width: 48,
+    height: 48,
     borderRadius: 10,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
   },

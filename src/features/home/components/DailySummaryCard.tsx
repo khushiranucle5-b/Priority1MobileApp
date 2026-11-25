@@ -53,10 +53,12 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
     gap: 8,
   },
   item: {
     flex: 1,
+    minWidth: 90,
     padding: 16,
     alignItems: 'center',
   },

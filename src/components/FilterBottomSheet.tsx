@@ -14,6 +14,7 @@ import { AppText } from './typography/Text';
 import { Heading } from './typography/Heading';
 import { NavIcon } from './NavIcon';
 import { Button } from './Button';
+import { useTheme } from '../providers/ThemeProvider';
 
 export interface FilterOption {
   label: string;
@@ -50,6 +51,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
   enableSearch = false,
   searchPlaceholder = 'Search options...',
 }) => {
+  const { colors, borderRadius } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [tempSelected, setTempSelected] = useState<string[]>([]);
 
@@ -145,11 +147,10 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
       statusBarTranslucent
     >
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
+        <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <View style={styles.sheetContainer}>
-              {/* Drag Handle Indicator */}
-              <View style={styles.dragHandle} />
+            <View style={[styles.sheetContainer, { backgroundColor: colors.surface }]}>
+              <View style={[styles.dragHandle, { backgroundColor: colors.border }]} />
 
               {/* Sheet Header */}
               <View style={styles.headerRow}>
@@ -158,7 +159,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                 </Heading>
                 <TouchableOpacity
                   onPress={onClose}
-                  style={styles.closeButton}
+                  style={[styles.closeButton, { backgroundColor: colors.surfaceSecondary }]}
                   activeOpacity={0.7}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
@@ -170,16 +171,16 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
               {/* Optional Search Bar */}
               {shouldShowSearch && (
-                <View style={styles.searchBox}>
+                <View style={[styles.searchBox, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
                   <View style={{ marginRight: 8, width: 18, alignItems: 'center' }}>
-                    <NavIcon name="search" size={16} color="#64748B" />
+                    <NavIcon name="search" size={16} color={colors.textTertiary} />
                   </View>
                   <TextInput
                     placeholder={searchPlaceholder}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
-                    style={styles.searchInput}
-                    placeholderTextColor="#94A3B8"
+                    style={[styles.searchInput, { color: colors.text }]}
+                    placeholderTextColor={colors.textTertiary}
                     clearButtonMode="while-editing"
                   />
                 </View>
@@ -208,7 +209,8 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                         key={opt.value}
                         style={[
                           styles.optionItem,
-                          active && styles.optionItemActive,
+                          { borderRadius: borderRadius.md },
+                          active && [styles.optionItemActive, { backgroundColor: colors.primary[50] }],
                           disabled && styles.optionItemDisabled,
                         ]}
                         onPress={() => handleOptionPress(opt)}
@@ -218,15 +220,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                         <View style={styles.optionContent}>
                           {opt.icon ? (
                             <View style={styles.iconContainer}>
-                              <NavIcon name={opt.icon as any} size={18} color={active ? '#4F46E5' : '#64748B'} />
+                              <NavIcon name={opt.icon as any} size={18} color={active ? colors.primary[600] : colors.textTertiary} />
                             </View>
                           ) : null}
                           <View style={{ flex: 1 }}>
                             <AppText
                               size="base"
                               weight={active ? 'bold' : 'regular'}
-                              color={active ? 'primary' : disabled ? 'secondary' : 'primary'}
-                              style={{ color: active ? '#4F46E5' : disabled ? '#94A3B8' : '#0F172A' }}
+                              style={{ color: active ? colors.primary[600] : disabled ? colors.textDisabled : colors.text }}
                             >
                               {opt.label}
                             </AppText>
@@ -241,7 +242,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
                         {/* Checkmark aligned right */}
                         {active && (
                           <View style={styles.checkmarkContainer}>
-                            <AppText size="base" weight="bold" style={{ color: '#4F46E5' }}>
+                            <AppText size="base" weight="bold" style={{ color: colors.primary[600] }}>
                               ✓
                             </AppText>
                           </View>
@@ -254,7 +255,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({
 
               {/* Apply / Done Button for Multi-Select or custom Apply requirement */}
               {(multiSelect || showApplyButton) && (
-                <View style={styles.footerContainer}>
+                <View style={[styles.footerContainer, { borderTopColor: colors.border }]}>
                   <Button
                     title={applyButtonText}
                     onPress={handleApplyMultiSelect}
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheetContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF', // Need to make this dynamic
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 12,
@@ -297,7 +298,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#CBD5E1',
     alignSelf: 'center',
     marginBottom: 16,
   },
@@ -315,16 +315,13 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
   },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 44,
@@ -333,7 +330,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: '#0F172A',
     paddingVertical: 0,
   },
   optionsScrollView: {
@@ -352,13 +348,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 10,
     marginBottom: 4,
     minHeight: 52,
   },
-  optionItemActive: {
-    backgroundColor: '#EEF2FF',
-  },
+  optionItemActive: {},
   optionItemDisabled: {
     opacity: 0.5,
   },
@@ -380,6 +373,5 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
 });

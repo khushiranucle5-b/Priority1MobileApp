@@ -51,7 +51,7 @@ export const NotificationCard: React.FC = () => {
             ]}
           >
             <View style={[styles.iconContainer, { backgroundColor: colors.surfaceSecondary, borderRadius: borderRadius.full }]}>
-              <NavIcon name={getIconName(act.type, act.title)} size={18} color="#4F46E5" />
+              <NavIcon name={getIconName(act.type, act.title)} size={18} color={colors.primary[600]} />
             </View>
             <View style={styles.content}>
               <View style={styles.itemHeader}>
