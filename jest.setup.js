@@ -16,7 +16,22 @@ jest.mock('react-native-image-picker', () => ({
 jest.mock('react-native-keychain', () => ({
   setGenericPassword: jest.fn(),
   getGenericPassword: jest.fn(),
+  hasGenericPassword: jest.fn(),
   resetGenericPassword: jest.fn(),
+  getSupportedBiometryType: jest.fn(),
+  ACCESS_CONTROL: {
+    BIOMETRY_ANY: 'BiometryAny',
+  },
+  ACCESSIBLE: {
+    WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'AccessibleWhenUnlockedThisDeviceOnly',
+  },
+  BIOMETRY_TYPE: {
+    FACE_ID: 'FaceID',
+    TOUCH_ID: 'TouchID',
+    FINGERPRINT: 'Fingerprint',
+    FACE: 'Face',
+    IRIS: 'Iris',
+  },
 }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({

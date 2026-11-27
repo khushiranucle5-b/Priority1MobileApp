@@ -163,7 +163,7 @@ const defaultSupervisorApprovals: AppNotification[] = [
     id: 'notif-dsp-01',
     type: 'Dispatch',
     title: 'Urgent Dispatch Assignment: Alarm Trigger',
-    description: 'You are dispatched to Warehouse Sector 3 for perimeter sensor verification (Ref: DSP-2026-042).',
+    description: 'You are dispatched to Warehouse Sector 3 for perimeter sensor verification.',
     date: 'Today',
     time: '01:45 PM',
     isRead: false,
@@ -1661,7 +1661,7 @@ export const useGuardStore = create<GuardState>((set, get) => ({
     const notif: AppNotification = {
       id: `notif-dsp-${Date.now()}`,
       type: 'Dispatch',
-      title: `🚨 EMERGENCY DISPATCH: ${newDispatch.dispatchReference}`,
+      title: '🚨 Emergency Dispatch Alert',
       description: `${newDispatch.reason} at ${newDispatch.site}. Immediate response requested.`,
       date: 'Today',
       time: timeStr,

@@ -10,6 +10,7 @@ export const STORAGE_KEYS = {
   OFFLINE_ATTENDANCE_QUEUE: 'offlineAttendanceQueue',
   OFFLINE_PATROL_QUEUE: 'offlinePatrolQueue',
   OFFLINE_INCIDENT_QUEUE: 'offlineIncidentQueue',
+  BIOMETRIC_REGISTERED_META: 'biometricRegisteredMeta',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

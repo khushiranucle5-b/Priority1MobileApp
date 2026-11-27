@@ -5,4 +5,6 @@ export { LoggerService } from './logger.service';
 export type { LogEntry } from './logger.service';
 export { GeofenceService, calculateDistanceMeters } from './geofence.service';
 export type { LocationResult, GeofenceValidationResult } from './geofence.service';
+export * from './auth.service';
+export * from './biometric.service';
 

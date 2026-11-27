@@ -17,13 +17,12 @@ import { useGuardStore } from '../../../store/useGuardStore';
 import { DispatchCard } from '../components/DispatchCard';
 import { NavIcon } from '../../../components/NavIcon';
 import { FilterBottomSheet } from '../../../components/FilterBottomSheet';
-import { TriangleAlert } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<HomeStackParamList, 'Dispatches'>;
 
 export const DispatchesScreen: React.FC<Props> = ({ navigation }) => {
   const { colors, spacing, borderRadius } = useTheme();
-  const { dispatches, guardId, guardEmail, loadGuardData, simulateEmergencyDispatch } = useGuardStore();
+  const { dispatches, guardId, guardEmail, loadGuardData } = useGuardStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
@@ -75,18 +74,6 @@ export const DispatchesScreen: React.FC<Props> = ({ navigation }) => {
         title="My Dispatches"
         showBack
         onBack={() => navigation.goBack()}
-        rightComponent={
-          <TouchableOpacity
-            onPress={() => simulateEmergencyDispatch()}
-            style={[styles.testAlertBtn, { borderColor: '#DC2626', backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}
-            activeOpacity={0.75}
-          >
-            <TriangleAlert size={14} color="#DC2626" />
-            <AppText size="xs" weight="bold" style={{ color: '#DC2626', marginLeft: 4 }}>
-              Test Alert
-            </AppText>
-          </TouchableOpacity>
-        }
       />
 
       {/* Search Input Row */}
@@ -293,13 +280,5 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     textAlign: 'center',
     lineHeight: 22,
-  },
-  testAlertBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
   },
 });

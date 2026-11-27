@@ -13,6 +13,8 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  shouldAutoPromptBiometric: boolean;
+  consumeAutoBiometricPrompt: () => void;
   login: (userData: User, accessToken: string, refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;

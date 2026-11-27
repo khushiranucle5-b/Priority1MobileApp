@@ -5,7 +5,7 @@ export type RootStackParamList = {
 
 export type AuthStackParamList = {
   Login: undefined;
-  ForgotPassword: undefined;
+  ForgotPassword: { identifier?: string } | undefined;
 };
 
 export type AttendanceStackParamList = {

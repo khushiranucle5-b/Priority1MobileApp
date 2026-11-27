@@ -4,10 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ScreenLayout } from '../../../layouts/ScreenLayout';
 import { PageHeader } from '../../../components/PageHeader';
 import { AppText } from '../../../components/typography/Text';
-import { Heading } from '../../../components/typography/Heading';
 import { useTheme } from '../../../providers/ThemeProvider';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { useSettingsStore } from '../../../store/useSettingsStore';
 import { NavIcon, NavIconName } from '../../../components/NavIcon';
 import { Button } from '../../../components/Button';
 
@@ -27,7 +25,6 @@ export const SettingsScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const logout = useAuthStore(state => state.logout);
-  const setThemeMode = useSettingsStore(state => state.setThemeMode);
 
   const handleLogout = () => {
     Alert.alert(
@@ -44,9 +41,10 @@ export const SettingsScreen: React.FC = () => {
     );
   };
 
-  const allSettings: SettingItem[] = [
+  const allSettings: SettingItem[] = useMemo(() => [
     { id: 'profile', icon: 'profile', title: 'Profile Settings', section: 'Account', onPress: () => navigation.navigate('ProfileSettings') },
     { id: 'password', icon: 'lock', title: 'Change Password', section: 'Account', onPress: () => navigation.navigate('ChangePassword') },
+    { id: 'biometrics', icon: 'security', title: 'Biometric & App Lock', section: 'Account', onPress: () => navigation.navigate('BiometricAppLock') },
     { id: 'notification', icon: 'bell', title: 'Notification Settings', section: 'Account', onPress: () => navigation.navigate('NotificationSettings') },
 
     { id: 'support', icon: 'help', title: 'Help & Support', section: 'Support', onPress: () => navigation.navigate('HelpSupport') },
@@ -55,7 +53,7 @@ export const SettingsScreen: React.FC = () => {
     { id: 'terms', icon: 'policies', title: 'Terms & Conditions', section: 'Support', onPress: () => navigation.navigate('TermsConditions') },
 
     { id: 'about', icon: 'info', title: 'About Application', section: 'Application', onPress: () => navigation.navigate('AboutApplication') },
-  ];
+  ], [navigation]);
 
   const filteredSettings = useMemo(() => {
     if (!searchQuery.trim()) {

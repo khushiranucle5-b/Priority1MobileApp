@@ -1,19 +1,21 @@
 import { create } from 'zustand';
 import * as Keychain from 'react-native-keychain';
 import { AuthState, User } from '../types/auth.types';
-import { initializeDB, getTable, DBEmployee, DBUser } from '../services/db';
+import { initializeDB, getTable, DBEmployee } from '../services/db';
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
+  shouldAutoPromptBiometric: true,
+  consumeAutoBiometricPrompt: () => set({ shouldAutoPromptBiometric: false }),
   login: async (userData: User, accessToken: string, refreshToken: string) => {
     await Keychain.setGenericPassword('tokens', JSON.stringify({ accessToken, refreshToken, userEmail: userData.email }));
-    set({ user: userData, isAuthenticated: true });
+    set({ user: userData, isAuthenticated: true, shouldAutoPromptBiometric: false });
   },
   logout: async () => {
     await Keychain.resetGenericPassword();
-    set({ user: null, isAuthenticated: false });
+    set({ user: null, isAuthenticated: false, shouldAutoPromptBiometric: false });
   },
   checkSession: async () => {
     try {

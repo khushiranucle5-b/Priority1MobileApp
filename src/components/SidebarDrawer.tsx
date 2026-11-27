@@ -20,7 +20,6 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useGuardStore } from '../store/useGuardStore';
 import { useDrawerStore } from '../store/useDrawerStore';
 import { NavIcon, NavIconName } from './NavIcon';
-import { DevLocationSimulator } from './DevLocationSimulator';
 
 interface SidebarDrawerProps {
   isOpen?: boolean;
@@ -93,7 +92,6 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
   onClose: propOnClose,
   activeRouteName,
 }) => {
-  const [showDevSimulator, setShowDevSimulator] = React.useState(false);
   const storeIsOpen = useDrawerStore((state) => state.isOpen);
   const storeCloseDrawer = useDrawerStore((state) => state.closeDrawer);
 
@@ -362,24 +360,6 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
             {/* Fixed Bottom Footer (User Profile & Sign Out Button Row) */}
             <View style={[styles.bottomFooter, { paddingBottom: bottomInset + 8, borderTopColor: colors.border, backgroundColor: colors.surface }]}>
               <TouchableOpacity
-                style={[styles.userSignoutRow, { marginBottom: 8, backgroundColor: colors.warningLight, borderColor: colors.warningBorder },]}
-                onPress={() => {
-                  handleClose(() => {
-                    setShowDevSimulator(true);
-                  });
-                }}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.avatarCircle, { backgroundColor: 'transparent' }]}>
-                  <AppText style={{ fontSize: 20 }}>🛠</AppText>
-                </View>
-                <View style={styles.userInfoContainer}>
-                  <AppText style={{ color: colors.warning, fontSize: 14, fontWeight: '600' }}>GPS Location Simulator</AppText>
-                  <AppText style={{ color: colors.textTertiary, fontSize: 11 }}>Test Geofence Edge Cases</AppText>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
                 style={[styles.userSignoutRow, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
                 onPress={() => {
                   handleClose(async () => {
@@ -415,8 +395,6 @@ export const SidebarDrawer: React.FC<SidebarDrawerProps> = ({
           </Animated.View>
         </View>
       </Modal>
-
-      <DevLocationSimulator visible={showDevSimulator} onClose={() => setShowDevSimulator(false)} />
     </>
   );
 };
